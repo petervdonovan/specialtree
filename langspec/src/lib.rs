@@ -5,23 +5,44 @@ use typed_index_collections::TiVec;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Language {
     pub functions: TiVec<FunctionId, Function>,
-    pub sort_names: TiVec<SortId, String>,
+    pub products: TiVec<ProductId, Product>,
+    pub sums: TiVec<SumId, Sum>,
 }
+
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, From, Into)]
-pub struct SortId(pub usize);
+pub struct ProductId(pub usize);
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, From, Into)]
+pub struct SumId(pub usize);
+#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+pub enum SortId {
+    Algebraic(AlgebraicSortId),
+    Set(AlgebraicSortId),
+    Sequence(AlgebraicSortId),
+    NatLiteral,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+pub enum AlgebraicSortId {
+    Atom(FunctionId),
+    Product(ProductId),
+    Sum(SumId),
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, From, Into)]
 pub struct FunctionId(pub usize);
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Function {
     pub name: String,
-    pub domain: Domain,
-    pub codomain: SortId,
+    pub domain: SortId,
 }
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Domain(pub Box<[(SortId, Arity)]>);
+pub struct Product {
+    pub name: String,
+    pub sorts: Box<[SortId]>,
+}
 #[derive(Debug, Serialize, Deserialize)]
-pub enum Arity {
-    N(u8),
-    FiniteSet,
-    FiniteSequence,
+pub struct Sum {
+    pub name: String,
+    pub sorts: Box<[SortId]>,
 }
