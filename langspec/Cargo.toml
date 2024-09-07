@@ -1,0 +1,11 @@
+[package]
+name = "langspec"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+derive_more = "0.99.18"
+serde = { version = "1.0.203", features = ["derive"] }
+typed-index-collections = { version = "3.1.0", features = ["serde-std"] }
