@@ -4,14 +4,11 @@ mod tests {
     use lexpr::sexp;
 
     #[test]
-    fn fib2() {
+    fn fib() {
         let fib = sexp!(
             (
-             (functions
-              ((name . "fib")
-               (domain Algebraic Product . 0)))
              (products
-              ((name . "Nat2")
+              ((name . "fib")
                (sorts
                 (Algebraic Sum . 0)
                 (Algebraic Sum . 0))))
@@ -19,30 +16,16 @@ mod tests {
               ((name . "Nat")
                (sorts
                 NatLiteral
-                (Algebraic Atom . 0)))))
+                (Algebraic Product . 0)))))
         );
         let fib: Language = serde_lexpr::from_value(&fib).unwrap();
         let expected = expect_test::expect![[r#"
             Language {
-                functions: {
-                    FunctionId(
-                        0,
-                    ): Function {
-                        name: "fib",
-                        domain: Algebraic(
-                            Product(
-                                ProductId(
-                                    0,
-                                ),
-                            ),
-                        ),
-                    },
-                },
                 products: {
                     ProductId(
                         0,
                     ): Product {
-                        name: "Nat2",
+                        name: "fib",
                         sorts: [
                             Algebraic(
                                 Sum(
@@ -69,8 +52,8 @@ mod tests {
                         sorts: [
                             NatLiteral,
                             Algebraic(
-                                Atom(
-                                    FunctionId(
+                                Product(
+                                    ProductId(
                                         0,
                                     ),
                                 ),

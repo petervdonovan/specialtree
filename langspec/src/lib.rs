@@ -4,7 +4,6 @@ use typed_index_collections::TiVec;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Language {
-    pub functions: TiVec<FunctionId, Function>,
     pub products: TiVec<ProductId, Product>,
     pub sums: TiVec<SumId, Sum>,
 }
@@ -23,18 +22,8 @@ pub enum SortId {
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 pub enum AlgebraicSortId {
-    Atom(FunctionId),
     Product(ProductId),
     Sum(SumId),
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, From, Into)]
-pub struct FunctionId(pub usize);
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Function {
-    pub name: String,
-    pub domain: SortId,
 }
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Product {
