@@ -3,7 +3,16 @@ use serde::{Deserialize, Serialize};
 use typed_index_collections::TiVec;
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct Name {
+    /// Must be a valid identifier in the Rust language
+    pub name: String,
+    /// Optional alias which may be more human-readable and can be an arbitrary UTF-8 string
+    pub alias: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Language {
+    pub name: Name,
     pub products: TiVec<ProductId, Product>,
     pub sums: TiVec<SumId, Sum>,
 }
@@ -27,11 +36,11 @@ pub enum AlgebraicSortId {
 }
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Product {
-    pub name: String,
+    pub name: Name,
     pub sorts: Box<[SortId]>,
 }
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Sum {
-    pub name: String,
+    pub name: Name,
     pub sorts: Box<[SortId]>,
 }

@@ -7,13 +7,14 @@ mod tests {
     fn fib() {
         let fib = sexp!(
             (
+             (name . ((name . "fib") (alias . ())))
              (products
-              ((name . "fib")
+              ((name . ((name . "fib") (alias . ("f"))))
                (sorts
                 (Algebraic Sum . 0)
                 (Algebraic Sum . 0))))
              (sums
-              ((name . "Nat")
+              ((name . ((name . "Nat") (alias . ("ℕ"))))
                (sorts
                 NatLiteral
                 (Algebraic Product . 0)))))
@@ -21,11 +22,20 @@ mod tests {
         let fib: Language = serde_lexpr::from_value(&fib).unwrap();
         let expected = expect_test::expect![[r#"
             Language {
+                name: Name {
+                    name: "fib",
+                    alias: None,
+                },
                 products: {
                     ProductId(
                         0,
                     ): Product {
-                        name: "fib",
+                        name: Name {
+                            name: "fib",
+                            alias: Some(
+                                "f",
+                            ),
+                        },
                         sorts: [
                             Algebraic(
                                 Sum(
@@ -48,7 +58,12 @@ mod tests {
                     SumId(
                         0,
                     ): Sum {
-                        name: "Nat",
+                        name: Name {
+                            name: "Nat",
+                            alias: Some(
+                                "ℕ",
+                            ),
+                        },
                         sorts: [
                             NatLiteral,
                             Algebraic(
