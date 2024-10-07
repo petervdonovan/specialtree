@@ -2,35 +2,27 @@ use serde::{Deserialize, Serialize};
 
 use crate::{LangSpec, Name};
 
-#[derive(Debug, Serialize, Deserialize, knuffel::Decode)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct LangSpecHuman {
-    #[knuffel(child)]
     pub name: Name,
-    #[knuffel(children(name = "products"))]
     pub products: Vec<Product>,
-    #[knuffel(children(name = "sums"))]
     pub sums: Vec<Sum>,
 }
-#[derive(Debug, Serialize, Deserialize, knuffel::Decode)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Product {
-    #[knuffel(child)]
     pub name: Name,
-    #[knuffel(children)]
     pub sorts: Vec<SortId>,
 }
-#[derive(Debug, Serialize, Deserialize, knuffel::Decode)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Sum {
-    #[knuffel(child)]
     pub name: Name,
-    #[knuffel(children)]
     pub sorts: Vec<SortId>,
 }
-#[derive(Debug, Clone, Serialize, Deserialize, knuffel::Decode)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SortName {
-    #[knuffel(argument)]
     name: String,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, knuffel::Decode)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum SortId {
     Algebraic(SortName),
     Set(SortName),
@@ -50,9 +42,19 @@ impl From<LangSpecHuman> for LangSpec {
         //     }
         // }
         fn string2sortid(s: String, lsh: &LangSpecHuman) -> crate::AlgebraicSortId {
-            if let Some(pid) = lsh.products.iter().enumerate().find(|(_idx, prod)| prod.name.name == s) {
+            if let Some(pid) = lsh
+                .products
+                .iter()
+                .enumerate()
+                .find(|(_idx, prod)| prod.name.name == s)
+            {
                 crate::AlgebraicSortId::Product(pid.0.into())
-            } else if let Some(sid) = lsh.sums.iter().enumerate().find(|(_idx, sum)| sum.name.name == s) {
+            } else if let Some(sid) = lsh
+                .sums
+                .iter()
+                .enumerate()
+                .find(|(_idx, sum)| sum.name.name == s)
+            {
                 crate::AlgebraicSortId::Sum(sid.0.into())
             } else {
                 panic!("Sort not found: {}", s)
@@ -62,9 +64,13 @@ impl From<LangSpecHuman> for LangSpec {
             sorts
                 .iter()
                 .map(|sid| match sid {
-                    SortId::Algebraic(s) => crate::SortId::Algebraic(string2sortid(s.name.clone(), lsh)),
+                    SortId::Algebraic(s) => {
+                        crate::SortId::Algebraic(string2sortid(s.name.clone(), lsh))
+                    }
                     SortId::Set(s) => crate::SortId::Set(string2sortid(s.name.clone(), lsh)),
-                    SortId::Sequence(s) => crate::SortId::Algebraic(string2sortid(s.name.clone(), lsh)),
+                    SortId::Sequence(s) => {
+                        crate::SortId::Algebraic(string2sortid(s.name.clone(), lsh))
+                    }
                     SortId::NatLiteral => crate::SortId::NatLiteral,
                 })
                 .collect()
@@ -73,22 +79,18 @@ impl From<LangSpecHuman> for LangSpec {
         let products = value
             .products
             .iter()
-            .map(|prod|
-                crate::Product {
-                    name: prod.name.clone(),
-                    sorts: map_sorts(&prod.sorts, &value),
-                }
-            )
+            .map(|prod| crate::Product {
+                name: prod.name.clone(),
+                sorts: map_sorts(&prod.sorts, &value),
+            })
             .collect();
         let sums = value
             .sums
             .iter()
-            .map(|sum|
-                crate::Sum {
-                    name: sum.name.clone(),
-                    sorts: map_sorts(&sum.sorts, &value),
-                }
-            )
+            .map(|sum| crate::Sum {
+                name: sum.name.clone(),
+                sorts: map_sorts(&sum.sorts, &value),
+            })
             .collect();
         LangSpec {
             name,
@@ -110,9 +112,15 @@ impl From<&LangSpec> for LangSpecHuman {
             sorts
                 .iter()
                 .map(|sid| match sid {
-                    crate::SortId::Algebraic(a) => SortId::Algebraic(SortName{name: sortid2string(*a, ls)}),
-                    crate::SortId::Set(a) => SortId::Set(SortName{name: sortid2string(*a, ls)}),
-                    crate::SortId::Sequence(a) => SortId::Algebraic(SortName{name: sortid2string(*a, ls)}),
+                    crate::SortId::Algebraic(a) => SortId::Algebraic(SortName {
+                        name: sortid2string(*a, ls),
+                    }),
+                    crate::SortId::Set(a) => SortId::Set(SortName {
+                        name: sortid2string(*a, ls),
+                    }),
+                    crate::SortId::Sequence(a) => SortId::Algebraic(SortName {
+                        name: sortid2string(*a, ls),
+                    }),
                     crate::SortId::NatLiteral => SortId::NatLiteral,
                 })
                 .collect()
@@ -121,21 +129,17 @@ impl From<&LangSpec> for LangSpecHuman {
         let products = ls
             .products
             .iter_enumerated()
-            .map(|(_prodid, prod)| {
-                Product {
-                    name: prod.name.clone(),
-                    sorts: map_sorts(prod.sorts.as_ref(), ls),
-                }
+            .map(|(_prodid, prod)| Product {
+                name: prod.name.clone(),
+                sorts: map_sorts(prod.sorts.as_ref(), ls),
             })
             .collect::<Vec<_>>();
         let sums = ls
             .sums
             .iter_enumerated()
-            .map(|(_sumid, sum)| {
-                Sum {
-                    name: sum.name.clone(),
-                    sorts: map_sorts(sum.sorts.as_ref(), ls),
-                }
+            .map(|(_sumid, sum)| Sum {
+                name: sum.name.clone(),
+                sorts: map_sorts(sum.sorts.as_ref(), ls),
             })
             .collect::<Vec<_>>();
         LangSpecHuman {
@@ -148,10 +152,6 @@ impl From<&LangSpec> for LangSpecHuman {
 
 impl std::fmt::Display for LangSpecHuman {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            sexprfmt::fmt_value(&serde_lexpr::to_value(self).unwrap())
-        )
+        write!(f, "{}", serde_yml::to_string(self).unwrap())
     }
 }

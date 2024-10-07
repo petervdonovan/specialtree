@@ -4,13 +4,11 @@ use typed_index_collections::TiVec;
 
 pub mod humanreadable;
 
-#[derive(Debug, Clone, Serialize, Deserialize, knuffel::Decode)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Name {
     /// Must be a valid identifier in the Rust language; must be unique within this LangSpec
-    #[knuffel(argument)]
     pub name: String,
     /// Optional alias which may be more human-readable and can be an arbitrary UTF-8 string
-    #[knuffel(argument)]
     pub alias: Option<String>,
 }
 
@@ -51,10 +49,6 @@ pub struct Sum {
 
 impl std::fmt::Display for LangSpec {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            sexprfmt::fmt_value(&serde_lexpr::to_value(self).unwrap())
-        )
+        write!(f, "{}", serde_yml::to_string(self).unwrap())
     }
 }
