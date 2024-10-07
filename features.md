@@ -40,14 +40,14 @@ a langspec defines a group of languages that are trivially in bijection with eac
 
 implementation for language:
 
-- pub fn join_over(self, other, vector of type ids) { // the type ids are literally just data; this is easy. The only point of the type ids is that they will appear in the generated code and they are global and immutable and unique }
+- pub fn join_over(self, other, vector of type names) { }
 - pub fn sum_broadcast(self, other) { add other as a variant of every sum type. requires that other is not already part of every sum type because the outgoing maps of sum types are anonymous. this can be ensured by newtyping other }
 - include impls of Default for specific sum types as part of the langspec
 - pub fn prod_broadcast(self, other) { add other as a field of every product type. }
-- pub fn exclude(self, other, vector of type ids to remove) { }
+- pub fn exclude(self, other, vector of type names to remove) { }
 
 these all return languages that have a special type that has a generic implementation including functions that can return instances of type Map<U, T> where U is the root type of one language and T is the root type of the other. languages must explicitly define their root type.
 
-To improve error messages, it should also be possible to forget how a language was produced by wrapping it in an opaque newtype
+To improve error messages, it should also be possible to forget how a language was produced by converting it to the canonical language of a fresh langspec
 
 the maps can be chained into a well-typed execution plan.

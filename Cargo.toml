@@ -1,4 +1,4 @@
 [workspace]
 
 resolver = "2"
-members = [ "langdatastructure-gen","langspec", "langspec-examples", "pattern"]
+members = ["langdatastructure-gen", "langspec", "langspec-examples", "pattern", "sexprfmt"]
