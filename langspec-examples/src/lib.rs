@@ -14,10 +14,8 @@ mod tests {
                 name: fib
                 alias: f
               sorts:
-              - !Algebraic
-                  name: Nat
-              - !Algebraic
-                  name: Nat
+              - !Algebraic Nat
+              - !Algebraic Nat
             sums:
             - name:
                 name: Nat
@@ -25,7 +23,7 @@ mod tests {
               sorts:
               - !NatLiteral
               - !Algebraic
-                  name: fib
+                fib
         "#,
         )
         .unwrap();
@@ -38,18 +36,15 @@ mod tests {
                 name: fib
                 alias: f
               sorts:
-              - !Algebraic
-                name: Nat
-              - !Algebraic
-                name: Nat
+              - !Algebraic Nat
+              - !Algebraic Nat
             sums:
             - name:
                 name: Nat
                 alias: ℕ
               sorts:
               - NatLiteral
-              - !Algebraic
-                name: fib
+              - !Algebraic fib
         "#]];
         expected.assert_eq(&serde_yml::to_string(&lsh).unwrap());
     }
