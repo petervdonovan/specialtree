@@ -77,6 +77,49 @@ impl langspec::LangSpec for humanreadable::LangSpecHuman {
     fn sum_from_unique_nat(&self, nat: usize) -> Self::SumId {
         self.sums[nat].name.name.clone()
     }
+
+    fn asi_convert(
+        &self,
+        id: Self::AlgebraicSortId,
+    ) -> langspec::AlgebraicSortId<Self::ProductId, Self::SumId> {
+        if let Some(pid) = self
+            .products
+            .iter()
+            .map(|p| p.name.name.clone())
+            .find(|name| name == &id)
+        {
+            langspec::AlgebraicSortId::Product(pid)
+        } else if let Some(sid) = self
+            .sums
+            .iter()
+            .map(|s| s.name.name.clone())
+            .find(|name| name == &id)
+        {
+            langspec::AlgebraicSortId::Sum(sid)
+        } else {
+            panic!("Sort not found: {}", id)
+        }
+    }
+
+    // fn asi_convert(&self, id: Self::AlgebraicSortId) -> langspec::AlgebraicSortId<(), ()> {
+    //     if let Some(pid) = self
+    //         .products
+    //         .iter()
+    //         .enumerate()
+    //         .find(|(_idx, prod)| prod.name.name == id)
+    //     {
+    //         langspec::AlgebraicSortId::Product(())
+    //     } else if let Some(sid) = self
+    //         .sums
+    //         .iter()
+    //         .enumerate()
+    //         .find(|(_idx, sum)| sum.name.name == id)
+    //     {
+    //         langspec::AlgebraicSortId::Sum(())
+    //     } else {
+    //         panic!("Sort not found: {}", id)
+    //     }
+    // }
 }
 impl langspec::LangSpec for flat::LangSpecFlat {
     type ProductId = flat::ProductId;
@@ -133,5 +176,12 @@ impl langspec::LangSpec for flat::LangSpecFlat {
 
     fn sum_from_unique_nat(&self, nat: usize) -> Self::SumId {
         flat::SumId(nat)
+    }
+
+    fn asi_convert(
+        &self,
+        id: Self::AlgebraicSortId,
+    ) -> langspec::AlgebraicSortId<Self::ProductId, Self::SumId> {
+        id
     }
 }

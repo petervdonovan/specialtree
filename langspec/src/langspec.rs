@@ -1,6 +1,5 @@
+use functor_derive::Functor;
 use serde::{Deserialize, Serialize};
-
-use crate::humanreadable::LangSpecHuman;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Name {
@@ -10,7 +9,7 @@ pub struct Name {
     pub alias: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, Functor)]
 pub enum SortId<AlgebraicSortId> {
     NatLiteral,
     Algebraic(AlgebraicSortId),
@@ -18,14 +17,16 @@ pub enum SortId<AlgebraicSortId> {
     Sequence(AlgebraicSortId),
 }
 
-pub trait LangSpec
-where
-    LangSpecHuman: From<Self>,
-    Self: From<LangSpecHuman>,
-{
-    type ProductId;
-    type SumId;
-    type AlgebraicSortId;
+#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+pub enum AlgebraicSortId<ProductId, SumId> {
+    Product(ProductId),
+    Sum(SumId),
+}
+
+pub trait LangSpec {
+    type ProductId: Clone;
+    type SumId: Clone;
+    type AlgebraicSortId: Clone;
 
     fn name(&self) -> &Name;
     fn products(&self) -> impl Iterator<Item = Self::ProductId>;
@@ -41,4 +42,13 @@ where
     fn prod_from_unique_nat(&self, nat: usize) -> Self::ProductId;
     fn sum_to_unique_nat(&self, id: Self::SumId) -> usize;
     fn sum_from_unique_nat(&self, nat: usize) -> Self::SumId;
+    fn asi_convert(
+        &self,
+        id: Self::AlgebraicSortId,
+    ) -> AlgebraicSortId<Self::ProductId, Self::SumId>;
+}
+/// Marks a langspec as an element of the iso class of terminal objects in the category of [LangSpec]s.
+/// Needed because a [From] impl would conflict with the blanket impl for [From] for all types.
+pub trait TerminalLangSpec: LangSpec {
+    fn from<L: LangSpec>(l: &L) -> Self;
 }
