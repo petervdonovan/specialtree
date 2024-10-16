@@ -31,7 +31,9 @@ language combinators:
 patterns:
 
 - [ ] map from one tree to another if enabled
-- [ ] are endofunctions of a language
+- [ ] provide endofunctions of a language (identity if no match)
+- [ ] notify the indices/the delta database of their actions (when there is a match)
+- [ ] allow named ... patterns that can match sequences or sets (like plt redex, except also with sets)
 - [ ] can have variables in them representing subtrees
 - [ ] the variables can be quantified over using bounded quantifiers and can have their triggers be combined with boolean expressions
 - [ ] are compatible with product augmentation if they associate with each node in the output a node (of the same sum type? too restrictive) in the input, or if augmentation is done by sth that implements Default
@@ -51,3 +53,13 @@ these all return languages that have a special type that has a generic implement
 To improve error messages, it should also be possible to forget how a language was produced by converting it to the canonical language of a fresh langspec
 
 the maps can be chained into a well-typed execution plan.
+
+indexes:
+
+- maybe matches <some concrete pattern or set of patterns> -- this will compile to a set or vector and is a generalization of the delta database
+- for <value: match of such and such pattern> maybe matches <some pattern that is a function of the value> -- this will compile to a hashmap
+- function to get all indexes that are pertinent to a given concrete pattern
+- simplest implementation: the deltadb uses blast radius and the maximum size of the matched pattern to find all places to re-check. for each pattern, the deltadb records that either all bets are off, or the places to re-check are all of the things that have been touched since such-and-such iteration number
+- separately, there can be indexes of things that match one part of a pattern, but not another. These should be... always up-to-date? As in, whenever it gets notified of a change, it has to update these indexes?
+
+- heuristic for immediately applying cascading rewrites vs. doing a single pass and later a separate pass over the deltadb?

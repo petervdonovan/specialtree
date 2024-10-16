@@ -1,32 +1,37 @@
+use langspec::humanreadable::LangSpecHuman;
+
+pub fn fib() -> LangSpecHuman {
+    serde_yml::from_str(
+        r#"
+    name:
+        name: fib
+    products:
+    - name:
+        name: fib
+        alias: f
+      sorts:
+      - !Algebraic Nat
+      - !Algebraic Nat
+    sums:
+    - name:
+        name: Nat
+        alias: ℕ
+      sorts:
+      - !NatLiteral
+      - !Algebraic
+        fib
+"#,
+    )
+    .unwrap()
+}
+
 #[cfg(test)]
 mod tests {
-    use humanreadable::LangSpecHuman;
-    use langspec::*;
+    use super::*;
 
     #[test]
-    fn yml() {
-        let lsh: LangSpecHuman = serde_yml::from_str(
-            r#"
-            name:
-                name: fib
-            products:
-            - name:
-                name: fib
-                alias: f
-              sorts:
-              - !Algebraic Nat
-              - !Algebraic Nat
-            sums:
-            - name:
-                name: Nat
-                alias: ℕ
-              sorts:
-              - !NatLiteral
-              - !Algebraic
-                fib
-        "#,
-        )
-        .unwrap();
+    fn test_fib() {
+        let lsh = fib();
         let expected = expect_test::expect![[r#"
             name:
               name: fib

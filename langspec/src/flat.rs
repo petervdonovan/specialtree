@@ -23,8 +23,10 @@ pub struct LangSpecFlat {
 pub struct ProductId(pub usize);
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, From, Into)]
 pub struct SumId(pub usize);
+pub type FlatSortId = SortId<FlatAlgebraicSortId>;
+pub type FlatAlgebraicSortId = AlgebraicSortId<ProductId, SumId>;
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
-pub enum SortId {
+pub enum SortId<AlgebraicSortId> {
     NatLiteral,
     Algebraic(AlgebraicSortId),
     Set(AlgebraicSortId),
@@ -32,19 +34,19 @@ pub enum SortId {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
-pub enum AlgebraicSortId {
+pub enum AlgebraicSortId<ProductId, SumId> {
     Product(ProductId),
     Sum(SumId),
 }
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Product {
     pub name: Name,
-    pub sorts: Box<[SortId]>,
+    pub sorts: Box<[FlatSortId]>,
 }
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Sum {
     pub name: Name,
-    pub sorts: Box<[SortId]>,
+    pub sorts: Box<[FlatSortId]>,
 }
 
 impl std::fmt::Display for LangSpecFlat {
@@ -55,21 +57,21 @@ impl std::fmt::Display for LangSpecFlat {
 
 impl From<LangSpecHuman> for LangSpecFlat {
     fn from(value: LangSpecHuman) -> Self {
-        fn string2sortid(s: String, lsh: &LangSpecHuman) -> crate::flat::AlgebraicSortId {
+        fn string2sortid(s: String, lsh: &LangSpecHuman) -> crate::flat::FlatAlgebraicSortId {
             if let Some(pid) = lsh
                 .products
                 .iter()
                 .enumerate()
                 .find(|(_idx, prod)| prod.name.name == s)
             {
-                crate::flat::AlgebraicSortId::Product(pid.0.into())
+                crate::flat::FlatAlgebraicSortId::Product(pid.0.into())
             } else if let Some(sid) = lsh
                 .sums
                 .iter()
                 .enumerate()
                 .find(|(_idx, sum)| sum.name.name == s)
             {
-                crate::flat::AlgebraicSortId::Sum(sid.0.into())
+                crate::flat::FlatAlgebraicSortId::Sum(sid.0.into())
             } else {
                 panic!("Sort not found: {}", s)
             }
@@ -77,20 +79,20 @@ impl From<LangSpecHuman> for LangSpecFlat {
         fn map_sorts(
             sorts: &[crate::humanreadable::SortId],
             lsh: &LangSpecHuman,
-        ) -> Box<[crate::flat::SortId]> {
+        ) -> Box<[crate::flat::FlatSortId]> {
             sorts
                 .iter()
                 .map(|sid| match sid {
                     crate::humanreadable::SortId::Algebraic(s) => {
-                        crate::flat::SortId::Algebraic(string2sortid(s.clone(), lsh))
+                        crate::flat::FlatSortId::Algebraic(string2sortid(s.clone(), lsh))
                     }
                     crate::humanreadable::SortId::Set(s) => {
-                        crate::flat::SortId::Set(string2sortid(s.clone(), lsh))
+                        crate::flat::FlatSortId::Set(string2sortid(s.clone(), lsh))
                     }
                     crate::humanreadable::SortId::Sequence(s) => {
-                        crate::flat::SortId::Algebraic(string2sortid(s.clone(), lsh))
+                        crate::flat::FlatSortId::Algebraic(string2sortid(s.clone(), lsh))
                     }
-                    crate::humanreadable::SortId::NatLiteral => crate::flat::SortId::NatLiteral,
+                    crate::humanreadable::SortId::NatLiteral => crate::flat::FlatSortId::NatLiteral,
                 })
                 .collect()
         }
@@ -119,31 +121,33 @@ impl From<LangSpecHuman> for LangSpecFlat {
     }
 }
 
-impl From<&LangSpecFlat> for LangSpecHuman {
-    fn from(ls: &LangSpecFlat) -> Self {
-        fn sortid2string(s: crate::flat::AlgebraicSortId, ls: &LangSpecFlat) -> String {
+impl From<LangSpecFlat> for LangSpecHuman {
+    fn from(ls: LangSpecFlat) -> Self {
+        fn sortid2string(s: crate::flat::FlatAlgebraicSortId, ls: &LangSpecFlat) -> String {
             match s {
-                crate::flat::AlgebraicSortId::Product(pid) => ls.products[pid].name.name.clone(),
-                crate::flat::AlgebraicSortId::Sum(sid) => ls.sums[sid].name.name.clone(),
+                crate::flat::FlatAlgebraicSortId::Product(pid) => {
+                    ls.products[pid].name.name.clone()
+                }
+                crate::flat::FlatAlgebraicSortId::Sum(sid) => ls.sums[sid].name.name.clone(),
             }
         }
         fn map_sorts(
-            sorts: &[crate::flat::SortId],
+            sorts: &[crate::flat::FlatSortId],
             ls: &LangSpecFlat,
         ) -> Vec<crate::humanreadable::SortId> {
             sorts
                 .iter()
                 .map(|sid| match sid {
-                    crate::flat::SortId::Algebraic(a) => {
+                    crate::flat::FlatSortId::Algebraic(a) => {
                         crate::humanreadable::SortId::Algebraic(sortid2string(*a, ls))
                     }
-                    crate::flat::SortId::Set(a) => {
+                    crate::flat::FlatSortId::Set(a) => {
                         crate::humanreadable::SortId::Set(sortid2string(*a, ls))
                     }
-                    crate::flat::SortId::Sequence(a) => {
+                    crate::flat::FlatSortId::Sequence(a) => {
                         crate::humanreadable::SortId::Algebraic(sortid2string(*a, ls))
                     }
-                    crate::flat::SortId::NatLiteral => crate::humanreadable::SortId::NatLiteral,
+                    crate::flat::FlatSortId::NatLiteral => crate::humanreadable::SortId::NatLiteral,
                 })
                 .collect()
         }
@@ -153,7 +157,7 @@ impl From<&LangSpecFlat> for LangSpecHuman {
             .iter_enumerated()
             .map(|(_prodid, prod)| crate::humanreadable::Product {
                 name: prod.name.clone(),
-                sorts: map_sorts(prod.sorts.as_ref(), ls),
+                sorts: map_sorts(prod.sorts.as_ref(), &ls),
             })
             .collect::<Vec<_>>();
         let sums = ls
@@ -161,7 +165,7 @@ impl From<&LangSpecFlat> for LangSpecHuman {
             .iter_enumerated()
             .map(|(_sumid, sum)| crate::humanreadable::Sum {
                 name: sum.name.clone(),
-                sorts: map_sorts(sum.sorts.as_ref(), ls),
+                sorts: map_sorts(sum.sorts.as_ref(), &ls),
             })
             .collect::<Vec<_>>();
         LangSpecHuman {
