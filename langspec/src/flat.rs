@@ -2,15 +2,10 @@ use derive_more::{From, Into};
 use serde::{Deserialize, Serialize};
 use typed_index_collections::TiVec;
 
-use crate::humanreadable::LangSpecHuman;
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Name {
-    /// Must be a valid identifier in the Rust language; must be unique within this LangSpec
-    pub name: String,
-    /// Optional alias which may be more human-readable and can be an arbitrary UTF-8 string
-    pub alias: Option<String>,
-}
+use crate::{
+    humanreadable::LangSpecHuman,
+    langspec::{Name, SortId},
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LangSpecFlat {
@@ -25,13 +20,6 @@ pub struct ProductId(pub usize);
 pub struct SumId(pub usize);
 pub type FlatSortId = SortId<FlatAlgebraicSortId>;
 pub type FlatAlgebraicSortId = AlgebraicSortId<ProductId, SumId>;
-#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
-pub enum SortId<AlgebraicSortId> {
-    NatLiteral,
-    Algebraic(AlgebraicSortId),
-    Set(AlgebraicSortId),
-    Sequence(AlgebraicSortId),
-}
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 pub enum AlgebraicSortId<ProductId, SumId> {

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::flat::{self, Name};
+use crate::langspec::Name;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LangSpecHuman {
@@ -18,11 +18,4 @@ pub struct Sum {
     pub name: Name,
     pub sorts: Vec<SortId>,
 }
-// #[derive(Debug, Serialize, Deserialize, Clone)]
-// pub enum SortId {
-//     Algebraic(String),
-//     Set(String),
-//     Sequence(String),
-//     NatLiteral,
-// }
-pub type SortId = flat::SortId<String>;
+pub type SortId = crate::langspec::SortId<String>;
