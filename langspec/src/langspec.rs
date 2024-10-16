@@ -17,16 +17,16 @@ pub enum SortId<AlgebraicSortId> {
     Sequence(AlgebraicSortId),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 pub enum AlgebraicSortId<ProductId, SumId> {
     Product(ProductId),
     Sum(SumId),
 }
 
 pub trait LangSpec {
-    type ProductId: Clone;
-    type SumId: Clone;
-    type AlgebraicSortId: Clone;
+    type ProductId: Clone + Eq;
+    type SumId: Clone + Eq;
+    type AlgebraicSortId: Clone + Eq;
 
     fn name(&self) -> &Name;
     fn products(&self) -> impl Iterator<Item = Self::ProductId>;

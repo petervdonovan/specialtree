@@ -11,9 +11,9 @@ pub struct LangSpecFlat {
     pub sums: TiVec<SumId, Sum>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, From, Into)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, From, Into, PartialEq, Eq)]
 pub struct ProductId(pub usize);
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, From, Into)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, From, Into, PartialEq, Eq)]
 pub struct SumId(pub usize);
 pub type FlatSortId = SortId<FlatAlgebraicSortId>;
 pub type FlatAlgebraicSortId = AlgebraicSortId<ProductId, SumId>;
@@ -38,20 +38,26 @@ impl std::fmt::Display for LangSpecFlat {
 impl TerminalLangSpec for LangSpecFlat {
     fn from<L: LangSpec>(l: &L) -> Self {
         let name = l.name().clone();
-        let products = l
-            .products()
+        let mut products_sorted = l.products().collect::<Vec<_>>();
+        products_sorted.sort_by_key(|pid| l.product_name(pid.clone()).name.clone());
+        let products_sorted = products_sorted;
+        let mut sums_sorted = l.sums().collect::<Vec<_>>();
+        sums_sorted.sort_by_key(|sid| l.sum_name(sid.clone()).name.clone());
+        let sums_sorted = sums_sorted;
+        let products = products_sorted
+            .iter()
             .map(|pid| {
                 let name = l.product_name(pid.clone()).clone();
                 let sorts = l
-                    .product_sorts(pid)
+                    .product_sorts(pid.clone())
                     .map(|sid| {
                         sid.fmap(|asi| match l.asi_convert(asi) {
-                            AlgebraicSortId::Product(p) => {
-                                FlatAlgebraicSortId::Product(ProductId(l.prod_to_unique_nat(p)))
-                            }
-                            AlgebraicSortId::Sum(s) => {
-                                FlatAlgebraicSortId::Sum(SumId(l.sum_to_unique_nat(s)))
-                            }
+                            AlgebraicSortId::Product(p) => FlatAlgebraicSortId::Product(ProductId(
+                                products_sorted.iter().position(|it| it == &p).unwrap(),
+                            )),
+                            AlgebraicSortId::Sum(s) => FlatAlgebraicSortId::Sum(SumId(
+                                sums_sorted.iter().position(|it| it == &s).unwrap(),
+                            )),
                         })
                     })
                     .collect::<Vec<_>>()
@@ -60,20 +66,20 @@ impl TerminalLangSpec for LangSpecFlat {
             })
             .collect::<Vec<_>>()
             .into();
-        let sums = l
-            .sums()
+        let sums = sums_sorted
+            .iter()
             .map(|sid| {
                 let name = l.sum_name(sid.clone()).clone();
                 let sorts = l
-                    .sum_sorts(sid)
+                    .sum_sorts(sid.clone())
                     .map(|sid| {
                         sid.fmap(|asi| match l.asi_convert(asi) {
-                            AlgebraicSortId::Product(p) => {
-                                FlatAlgebraicSortId::Product(ProductId(l.prod_to_unique_nat(p)))
-                            }
-                            AlgebraicSortId::Sum(s) => {
-                                FlatAlgebraicSortId::Sum(SumId(l.sum_to_unique_nat(s)))
-                            }
+                            AlgebraicSortId::Product(p) => FlatAlgebraicSortId::Product(ProductId(
+                                products_sorted.iter().position(|it| it == &p).unwrap(),
+                            )),
+                            AlgebraicSortId::Sum(s) => FlatAlgebraicSortId::Sum(SumId(
+                                sums_sorted.iter().position(|it| it == &s).unwrap(),
+                            )),
                         })
                     })
                     .collect::<Vec<_>>()
