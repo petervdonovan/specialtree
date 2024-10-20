@@ -33,6 +33,12 @@ pub trait LangSpec {
     fn sums(&self) -> impl Iterator<Item = Self::SumId>;
     fn product_name(&self, id: Self::ProductId) -> &Name;
     fn sum_name(&self, id: Self::SumId) -> &Name;
+    fn algebraic_sort_name(&self, id: AlgebraicSortId<Self::ProductId, Self::SumId>) -> &Name {
+        match id {
+            AlgebraicSortId::Product(pid) => self.product_name(pid),
+            AlgebraicSortId::Sum(sid) => self.sum_name(sid),
+        }
+    }
     fn product_sorts(
         &self,
         id: Self::ProductId,
@@ -50,5 +56,5 @@ pub trait LangSpec {
 /// Marks a langspec as an element of the iso class of terminal objects in the category of [LangSpec]s.
 /// Needed because a [From] impl would conflict with the blanket impl for [From] for all types.
 pub trait TerminalLangSpec: LangSpec {
-    fn from<L: LangSpec>(l: &L) -> Self;
+    fn canonical_from<L: LangSpec>(l: &L) -> Self;
 }

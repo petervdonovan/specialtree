@@ -8,8 +8,11 @@ edition = "2021"
 [dependencies]
 expect-test = "1.5.0"
 langspec = { version = "0.1.0", path = "../langspec" }
+prettyplease = "0.2.23"
+proc-macro2 = "1.0.88"
 quote = "1.0.37"
 syn = { version = "2.0.79", features = ["full"] }
 
 [dev-dependencies]
 langspec-examples = { path = "../langspec-examples" }
+trybuild = "1.0.101"
