@@ -20,10 +20,22 @@ pub enum SortId<AlgebraicSortId> {
     Sequence(AlgebraicSortId),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Functor)]
+#[functor(ProductId as p, SumId as s)]
 pub enum AlgebraicSortId<ProductId, SumId> {
     Product(ProductId),
     Sum(SumId),
+}
+
+pub type UnpackedSortId<L> =
+    SortId<AlgebraicSortId<<L as LangSpec>::ProductId, <L as LangSpec>::SumId>>;
+pub type UnpackedAlgebraicSortId<L> =
+    AlgebraicSortId<<L as LangSpec>::ProductId, <L as LangSpec>::SumId>;
+pub type SortShape = SortId<AlgebraicSortId<(), ()>>;
+impl SortShape {
+    pub fn project<L: LangSpec>(l: &L, sid: SortId<L::AlgebraicSortId>) -> Self {
+        sid.fmap(|it| l.asi_convert(it).fmap_p(|_| ()).fmap_s(|_| ()))
+    }
 }
 
 pub trait LangSpec {
@@ -51,14 +63,8 @@ pub trait LangSpec {
     fn prod_from_unique_nat(&self, nat: usize) -> Self::ProductId;
     fn sum_to_unique_nat(&self, id: Self::SumId) -> usize;
     fn sum_from_unique_nat(&self, nat: usize) -> Self::SumId;
-    fn asi_convert(
-        &self,
-        id: Self::AlgebraicSortId,
-    ) -> AlgebraicSortId<Self::ProductId, Self::SumId>;
-    fn sid_convert(
-        &self,
-        sid: SortId<Self::AlgebraicSortId>,
-    ) -> SortId<AlgebraicSortId<Self::ProductId, Self::SumId>> {
+    fn asi_convert(&self, id: Self::AlgebraicSortId) -> UnpackedAlgebraicSortId<Self>;
+    fn sid_convert(&self, sid: SortId<Self::AlgebraicSortId>) -> UnpackedSortId<Self> {
         match sid {
             SortId::NatLiteral => SortId::NatLiteral,
             SortId::Algebraic(asi) => SortId::Algebraic(self.asi_convert(asi)),

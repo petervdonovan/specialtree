@@ -5,8 +5,8 @@ use langspec::{
 };
 use syn::{parse_quote, ItemEnum, ItemStruct};
 
-use langspec_gen_util::LangSpecGen;
-use langspec_gen_util::{name_as_camel_ident, name_as_snake_ident};
+use langspec_gen_util::{name_as_camel_ident, name_as_snake_ident, SumGenData};
+use langspec_gen_util::{LangSpecGen, ProdGenData};
 
 pub struct GenResult {
     pub db: ItemStruct,
@@ -24,7 +24,7 @@ impl GenResult {
 }
 
 pub fn gen<L: LangSpec>(l: &L) -> GenResult {
-    fn sort2rs_idx_type<L: LangSpec>(_l: &L, sort: &SortId<L::AlgebraicSortId>) -> syn::Type {
+    fn sort2rs_idx_type(sort: SortId<syn::Type>) -> syn::Type {
         match sort {
             SortId::NatLiteral | SortId::Algebraic(_) => parse_quote!(usize),
             SortId::Set(_) | SortId::Sequence(_) => {
@@ -32,16 +32,24 @@ pub fn gen<L: LangSpec>(l: &L) -> GenResult {
             }
         }
     }
-    fn gen_db<L: LangSpec>(l: &L) -> ItemStruct {
-        let name = name_as_camel_ident(l.name());
-        let prod_names = l
-            .products()
-            .map(|id| name_as_snake_ident(l.product_name(id)));
-        let sum_names = l.sums().map(|id| name_as_snake_ident(l.sum_name(id)));
+    fn gen_db<L: LangSpec>(l: &LangSpecGen<L>) -> ItemStruct {
+        let name = name_as_camel_ident(l.bak.name());
+        // let prod_names = l
+        //     .products()
+        //     .map(|id| name_as_snake_ident(l.product_name(id)));
+        let prod_names = l.prod_gen_datas().map(|data| data.snake_name);
+        // let sum_names = l.sums().map(|id| name_as_snake_ident(l.sum_name(id)));
+        let sum_names = l.sum_gen_datas().map(|data| data.snake_name);
         let prod_tys = l
+            .bak
             .products()
             .map(|id| l.asi2rs_type(AlgebraicSortId::Product(id)));
-        let sum_tys = l.sums().map(|id| l.asi2rs_type(AlgebraicSortId::Sum(id)));
+        let sum_tys = l
+            .bak
+            .sums()
+            .map(|id| l.asi2rs_type(AlgebraicSortId::Sum(id)));
+        // let prod_tys = l.prod_gen_datas().map(|data| data.rs_type);
+        // let sum_tys = l.sum_gen_datas().map(|data| data.rs_type);
         parse_quote!(
             pub struct #name {
                 #(pub #prod_names: Vec<#prod_tys>,)*
@@ -49,50 +57,105 @@ pub fn gen<L: LangSpec>(l: &L) -> GenResult {
             }
         )
     }
-    fn struct_item<L: LangSpec>(
-        name: &Name,
-        ls: &L,
-        sorts: impl Iterator<Item = SortId<L::AlgebraicSortId>>,
-    ) -> ItemStruct {
-        let name = name_as_camel_ident(name);
-        let fields = sorts.map(|sort| -> syn::Type { sort2rs_idx_type(ls, &sort) });
-        parse_quote!(
-            pub struct #name(#(pub #fields),*);
+    // fn struct_item<L: LangSpec>(
+    //     name: &Name,
+    //     ls: &L,
+    //     sorts: impl Iterator<Item = SortId<L::AlgebraicSortId>>,
+    // ) -> ItemStruct {
+    //     let name = name_as_camel_ident(name);
+    //     let fields = sorts.map(|sort| -> syn::Type { sort2rs_idx_type(ls, &sort) });
+    //     parse_quote!(
+    //         pub struct #name(#(pub #fields),*);
+    //     )
+    // }
+    // fn struct_item<I0: Iterator<Item = syn::Ident>, I1: Iterator<Item = syn::Type>>(
+    //     ProdGenData {
+    //         camel_name,
+    //         snake_name: _,
+    //         sort_rs_idents,
+    //         sort_rs_types,
+    //     }: ProdGenData<I0, I1>,
+    // ) -> ItemStruct {
+    //     parse_quote!(
+    //         pub struct #camel_name {
+    //             #(#sort_rs_idents: Vec<#sort_rs_types>,)*
+    //         }
+    //     )
+    // }
+    // fn enum_item<L: LangSpec>(
+    //     name: &Name,
+    //     ls: &L,
+    //     sorts: impl Iterator<Item = SortId<L::AlgebraicSortId>>,
+    // ) -> ItemEnum {
+    //     let name = name_as_camel_ident(name);
+    //     let sorts = sorts.collect::<Vec<_>>();
+    //     let variant_tys = sorts.iter().map(|sort| -> syn::Type {
+    //         let rs_type = sort2rs_idx_type(ls, sort);
+    //         if let SortId::Algebraic(_) = sort {
+    //             parse_quote!(Box<#rs_type>)
+    //         } else {
+    //             rs_type
+    //         }
+    //     });
+    //     let variant_names = sorts
+    //         .iter()
+    //         .map(|sort| -> syn::Ident { ls.sort2rs_ident(ls.sid_convert(sort.clone())) });
+    //     parse_quote!(
+    //         pub enum #name {
+    //             #(#variant_names(#variant_tys)),*
+    //         }
+    //     )
+    // }
+    let lg = LangSpecGen {
+        bak: l,
+        sort2rs_type: sort2rs_idx_type,
+    };
+    let db = gen_db(&lg);
+    let prods = lg
+        .prod_gen_datas()
+        .map(
+            |ProdGenData {
+                 camel_name,
+                 sort_rs_types,
+                 ..
+             }| {
+                parse_quote!(
+                    pub struct #camel_name (
+                        #(pub #sort_rs_types,)*
+                    );
+                )
+            },
         )
-    }
-    fn enum_item<L: LangSpec>(
-        name: &Name,
-        ls: &L,
-        sorts: impl Iterator<Item = SortId<L::AlgebraicSortId>>,
-    ) -> ItemEnum {
-        let name = name_as_camel_ident(name);
-        let sorts = sorts.collect::<Vec<_>>();
-        let variant_tys = sorts.iter().map(|sort| -> syn::Type {
-            let rs_type = sort2rs_idx_type(ls, sort);
-            if let SortId::Algebraic(_) = sort {
-                parse_quote!(Box<#rs_type>)
-            } else {
-                rs_type
-            }
-        });
-        let variant_names = sorts
-            .iter()
-            .map(|sort| -> syn::Ident { ls.sort2rs_ident(ls.sid_convert(sort.clone())) });
-        parse_quote!(
-            pub enum #name {
-                #(#variant_names(#variant_tys)),*
-            }
+        .collect();
+    let sums = lg
+        .sum_gen_datas()
+        // .map(|(name, sorts)| enum_item(name, l, sorts))
+        .map(
+            |SumGenData {
+                 camel_name,
+                 sort_rs_idents,
+                 sort_rs_types,
+                 sort_shapes,
+                 ..
+             }| {
+                let variant_tys = sort_rs_types
+                    .zip(sort_shapes)
+                    .map(|(ty, shape)| -> syn::Type {
+                        // let rs_type = sort2rs_idx_type(ls, sort);
+                        if let SortId::Algebraic(_) = shape {
+                            parse_quote!(Box<#ty>)
+                        } else {
+                            ty
+                        }
+                    });
+                parse_quote!(
+                    pub enum #camel_name {
+                        #(#sort_rs_idents(#variant_tys)),*
+                    }
+                )
+            },
         )
-    }
-    let db = gen_db(l);
-    let prods = l
-        .product_datas()
-        .map(|(name, sorts)| struct_item(name, l, sorts))
-        .collect::<Vec<_>>();
-    let sums = l
-        .sum_datas()
-        .map(|(name, sorts)| enum_item(name, l, sorts))
-        .collect::<Vec<_>>();
+        .collect();
     GenResult { db, prods, sums }
 }
 
