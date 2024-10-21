@@ -8,31 +8,6 @@ pub fn name_as_camel_ident(name: &Name) -> syn::Ident {
     syn::Ident::new(&name.camel, proc_macro2::Span::call_site())
 }
 
-// pub trait LangSpecGen {
-//     type ProductId: Clone + Eq;
-//     type SumId: Clone + Eq;
-//     fn asi2rs_type(&self, asi: AlgebraicSortId<Self::ProductId, Self::SumId>) -> syn::Type;
-//     fn sort2rs_type(
-//         &self,
-//         sort: SortId<AlgebraicSortId<Self::ProductId, Self::SumId>>,
-//     ) -> syn::Type;
-//     fn asi2rs_ident(&self, asi: AlgebraicSortId<Self::ProductId, Self::SumId>) -> syn::Ident;
-//     fn sort2rs_ident(
-//         &self,
-//         sort: SortId<AlgebraicSortId<Self::ProductId, Self::SumId>>,
-//     ) -> syn::Ident;
-//     fn prod_gen_datas(
-//         &self,
-//     ) -> impl Iterator<
-//         Item = ProdGenData<impl Iterator<Item = syn::Ident>, impl Iterator<Item = syn::Type>>,
-//     >;
-//     fn sum_gen_datas(
-//         &self,
-//     ) -> impl Iterator<
-//         Item = SumGenData<impl Iterator<Item = syn::Ident>, impl Iterator<Item = syn::Type>>,
-//     >;
-// }
-
 pub struct ProdGenData<
     I0: Iterator<Item = syn::Ident>,
     I1: Iterator<Item = syn::Type>,
@@ -69,18 +44,6 @@ impl<'a, L: LangSpec> LangSpecGen<'a, L> {
         parse_quote!(#ty_name)
     }
     pub fn sort2rs_type(&self, sort: SortId<L::AlgebraicSortId>) -> syn::Type {
-        // match sort {
-        //     SortId::NatLiteral => parse_quote!(usize),
-        //     SortId::Algebraic(asi) => self.asi2rs_type(asi),
-        //     SortId::Set(asi) => {
-        //         let inner_ty = self.asi2rs_type(asi);
-        //         parse_quote!(Vec<#inner_ty>)
-        //     }
-        //     SortId::Sequence(asi) => {
-        //         let inner_ty = self.asi2rs_type(asi);
-        //         parse_quote!(Vec<#inner_ty>)
-        //     }
-        // }
         (self.sort2rs_type)(sort.fmap(|it| self.asi2rs_type(self.bak.asi_convert(it))))
     }
     pub fn asi2rs_ident(&self, asi: AlgebraicSortId<L::ProductId, L::SumId>) -> syn::Ident {

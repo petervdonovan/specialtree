@@ -1,11 +1,11 @@
 use langspec::{
     flat::LangSpecFlat,
     humanreadable::LangSpecHuman,
-    langspec::{LangSpec, Name, SortId, TerminalLangSpec},
+    langspec::{SortId, TerminalLangSpec},
 };
 use syn::{parse_quote, ItemEnum, ItemStruct};
 
-use langspec_gen_util::{name_as_camel_ident, LangSpecGen, ProdGenData, SumGenData};
+use langspec_gen_util::{LangSpecGen, ProdGenData, SumGenData};
 
 pub fn gen(l: &LangSpecFlat) -> (Vec<ItemStruct>, Vec<ItemEnum>) {
     pub fn sort2rs_type(sort: SortId<syn::Type>) -> syn::Type {
@@ -22,54 +22,6 @@ pub fn gen(l: &LangSpecFlat) -> (Vec<ItemStruct>, Vec<ItemEnum>) {
             }
         }
     }
-    // fn struct_item(
-    //     name: &Name,
-    //     lsf: &LangSpecFlat,
-    //     sorts: impl Iterator<Item = SortId<<LangSpecFlat as LangSpec>::AlgebraicSortId>>,
-    // ) -> ItemStruct {
-    //     let name = name_as_camel_ident(name);
-    //     let fields = sorts.map(|sort| -> syn::Type { lsf.sort2rs_type(sort) });
-    //     parse_quote!(
-    //         pub struct #name(#(pub #fields),*);
-    //     )
-    // }
-    // fn enum_item(
-    //     name: &Name,
-    //     lsf: &LangSpecFlat,
-    //     sorts: impl Iterator<Item = SortId<<LangSpecFlat as LangSpec>::AlgebraicSortId>>,
-    // ) -> ItemEnum {
-    //     let name = name_as_camel_ident(name);
-    //     let sorts = sorts.collect::<Vec<_>>();
-    //     let variant_tys = sorts
-    //         .iter()
-    //         .map(|sort| -> syn::Type {
-    //             let rs_type = lsf.sort2rs_type(*sort);
-    //             if let SortId::Algebraic(_) = sort {
-    //                 parse_quote!(Box<#rs_type>)
-    //             } else {
-    //                 rs_type
-    //             }
-    //         })
-    //         .collect::<Vec<_>>();
-    //     let variant_names = sorts
-    //         .iter()
-    //         .map(|sort| -> syn::Ident { lsf.sort2rs_ident(*sort) })
-    //         .collect::<Vec<_>>();
-    //     parse_quote!(
-    //         pub enum #name {
-    //             #(#variant_names(#variant_tys)),*
-    //         }
-    //     )
-    // }
-
-    // let prods = l
-    //     .product_datas()
-    //     .map(|(name, sorts)| struct_item(name, l, sorts))
-    //     .collect::<Vec<_>>();
-    // let sums = l
-    //     .sum_datas()
-    //     .map(|(name, sorts)| enum_item(name, l, sorts))
-    //     .collect::<Vec<_>>();
     let lg = LangSpecGen {
         bak: l,
         sort2rs_type,
