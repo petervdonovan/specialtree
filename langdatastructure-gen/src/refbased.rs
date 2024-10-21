@@ -7,16 +7,14 @@ use syn::{parse_quote, ItemEnum, ItemStruct};
 
 use langspec_gen_util::{name_as_camel_ident, LangSpecGen};
 
-pub fn gen(lsf: &LangSpecFlat) -> (Vec<ItemStruct>, Vec<ItemEnum>) {
+pub fn gen(l: &LangSpecFlat) -> (Vec<ItemStruct>, Vec<ItemEnum>) {
     fn struct_item(
         name: &Name,
         lsf: &LangSpecFlat,
-        sorts: &[SortId<<LangSpecFlat as LangSpec>::AlgebraicSortId>],
+        sorts: impl Iterator<Item = SortId<<LangSpecFlat as LangSpec>::AlgebraicSortId>>,
     ) -> ItemStruct {
         let name = name_as_camel_ident(name);
-        let fields = sorts
-            .iter()
-            .map(|sort| -> syn::Type { lsf.sort2rs_type(*sort) });
+        let fields = sorts.map(|sort| -> syn::Type { lsf.sort2rs_type(sort) });
         parse_quote!(
             pub struct #name(#(pub #fields),*);
         )
@@ -24,9 +22,10 @@ pub fn gen(lsf: &LangSpecFlat) -> (Vec<ItemStruct>, Vec<ItemEnum>) {
     fn enum_item(
         name: &Name,
         lsf: &LangSpecFlat,
-        sorts: &[SortId<<LangSpecFlat as LangSpec>::AlgebraicSortId>],
+        sorts: impl Iterator<Item = SortId<<LangSpecFlat as LangSpec>::AlgebraicSortId>>,
     ) -> ItemEnum {
         let name = name_as_camel_ident(name);
+        let sorts = sorts.collect::<Vec<_>>();
         let variant_tys = sorts
             .iter()
             .map(|sort| -> syn::Type {
@@ -48,16 +47,15 @@ pub fn gen(lsf: &LangSpecFlat) -> (Vec<ItemStruct>, Vec<ItemEnum>) {
             }
         )
     }
-    let mut prods = vec![];
-    for prod in lsf.products.iter() {
-        let struct_item = struct_item(&prod.name, lsf, &prod.sorts);
-        prods.push(struct_item);
-    }
-    let mut sums = vec![];
-    for sum in lsf.sums.iter() {
-        let enum_item = enum_item(&sum.name, lsf, &sum.sorts);
-        sums.push(enum_item);
-    }
+
+    let prods = l
+        .product_datas()
+        .map(|(name, sorts)| struct_item(name, l, sorts))
+        .collect::<Vec<_>>();
+    let sums = l
+        .sum_datas()
+        .map(|(name, sorts)| enum_item(name, l, sorts))
+        .collect::<Vec<_>>();
     (prods, sums)
 }
 

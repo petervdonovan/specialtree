@@ -52,12 +52,10 @@ pub fn gen<L: LangSpec>(l: &L) -> GenResult {
     fn struct_item<L: LangSpec>(
         name: &Name,
         ls: &L,
-        sorts: &[SortId<L::AlgebraicSortId>],
+        sorts: impl Iterator<Item = SortId<L::AlgebraicSortId>>,
     ) -> ItemStruct {
         let name = name_as_camel_ident(name);
-        let fields = sorts
-            .iter()
-            .map(|sort| -> syn::Type { sort2rs_idx_type(ls, sort) });
+        let fields = sorts.map(|sort| -> syn::Type { sort2rs_idx_type(ls, &sort) });
         parse_quote!(
             pub struct #name(#(pub #fields),*);
         )
@@ -65,24 +63,21 @@ pub fn gen<L: LangSpec>(l: &L) -> GenResult {
     fn enum_item<L: LangSpec>(
         name: &Name,
         ls: &L,
-        sorts: &[SortId<L::AlgebraicSortId>],
+        sorts: impl Iterator<Item = SortId<L::AlgebraicSortId>>,
     ) -> ItemEnum {
         let name = name_as_camel_ident(name);
-        let variant_tys = sorts
-            .iter()
-            .map(|sort| -> syn::Type {
-                let rs_type = sort2rs_idx_type(ls, sort);
-                if let SortId::Algebraic(_) = sort {
-                    parse_quote!(Box<#rs_type>)
-                } else {
-                    rs_type
-                }
-            })
-            .collect::<Vec<_>>();
+        let sorts = sorts.collect::<Vec<_>>();
+        let variant_tys = sorts.iter().map(|sort| -> syn::Type {
+            let rs_type = sort2rs_idx_type(ls, sort);
+            if let SortId::Algebraic(_) = sort {
+                parse_quote!(Box<#rs_type>)
+            } else {
+                rs_type
+            }
+        });
         let variant_names = sorts
             .iter()
-            .map(|sort| -> syn::Ident { ls.sort2rs_ident(ls.sid_convert(sort.clone())) })
-            .collect::<Vec<_>>();
+            .map(|sort| -> syn::Ident { ls.sort2rs_ident(ls.sid_convert(sort.clone())) });
         parse_quote!(
             pub enum #name {
                 #(#variant_names(#variant_tys)),*
@@ -91,20 +86,12 @@ pub fn gen<L: LangSpec>(l: &L) -> GenResult {
     }
     let db = gen_db(l);
     let prods = l
-        .products()
-        .map(|id| {
-            let name = l.product_name(id.clone());
-            let sorts = l.product_sorts(id).collect::<Vec<_>>();
-            struct_item(name, l, &sorts)
-        })
+        .product_datas()
+        .map(|(name, sorts)| struct_item(name, l, sorts))
         .collect::<Vec<_>>();
     let sums = l
-        .sums()
-        .map(|id| {
-            let name = l.sum_name(id.clone());
-            let sorts = l.sum_sorts(id).collect::<Vec<_>>();
-            enum_item(name, l, &sorts)
-        })
+        .sum_datas()
+        .map(|(name, sorts)| enum_item(name, l, sorts))
         .collect::<Vec<_>>();
     GenResult { db, prods, sums }
 }

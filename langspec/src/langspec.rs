@@ -66,6 +66,29 @@ pub trait LangSpec {
             SortId::Sequence(asi) => SortId::Sequence(self.asi_convert(asi)),
         }
     }
+    fn product_datas(
+        &self,
+    ) -> impl Iterator<Item = (&Name, impl Iterator<Item = SortId<Self::AlgebraicSortId>>)> {
+        self.products().map(move |pid| {
+            let name = self.product_name(pid.clone());
+            let sorts = self.product_sorts(pid);
+            (name, sorts)
+        })
+    }
+    fn sum_datas(
+        &self,
+    ) -> impl Iterator<Item = (&Name, impl Iterator<Item = SortId<Self::AlgebraicSortId>>)> {
+        self.sums().map(move |sid| {
+            let name = self.sum_name(sid.clone());
+            let sorts = self.sum_sorts(sid);
+            (name, sorts)
+        })
+    }
+    fn ty_names(&self) -> impl Iterator<Item = &Name> {
+        self.product_datas()
+            .map(|(n, _)| n)
+            .chain(self.sum_datas().map(|(n, _)| n))
+    }
 }
 /// Marks a langspec as an element of the iso class of terminal objects in the category of [LangSpec]s.
 /// Needed because a [From] impl would conflict with the blanket impl for [From] for all types.
