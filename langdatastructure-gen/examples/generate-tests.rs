@@ -1,4 +1,4 @@
-use langdatastructure_gen::formatted;
+use langdatastructure_gen::refbased::formatted;
 
 // write formatted_fib to a file in the tests directory under cargo manifest dir
 pub fn main() {
