@@ -5,7 +5,7 @@ use langspec::{
 };
 use syn::{parse_quote, ItemEnum, ItemStruct};
 
-use crate::{name_as_rs_ident, sort2rs_ident, sort2rs_type};
+use crate::{name_as_camel_ident, sort2rs_ident, sort2rs_type};
 
 pub fn gen(lsf: &LangSpecFlat) -> (Vec<ItemStruct>, Vec<ItemEnum>) {
     fn struct_item(
@@ -13,7 +13,7 @@ pub fn gen(lsf: &LangSpecFlat) -> (Vec<ItemStruct>, Vec<ItemEnum>) {
         lsf: &LangSpecFlat,
         sorts: &[SortId<<LangSpecFlat as LangSpec>::AlgebraicSortId>],
     ) -> ItemStruct {
-        let name = name_as_rs_ident(name);
+        let name = name_as_camel_ident(name);
         let fields = sorts
             .iter()
             .map(|sort| -> syn::Type { sort2rs_type(lsf, *sort) });
@@ -26,7 +26,7 @@ pub fn gen(lsf: &LangSpecFlat) -> (Vec<ItemStruct>, Vec<ItemEnum>) {
         lsf: &LangSpecFlat,
         sorts: &[SortId<<LangSpecFlat as LangSpec>::AlgebraicSortId>],
     ) -> ItemEnum {
-        let name = name_as_rs_ident(name);
+        let name = name_as_camel_ident(name);
         let variant_tys = sorts
             .iter()
             .map(|sort| -> syn::Type {
@@ -79,10 +79,10 @@ mod tests {
     fn test_data_structure() {
         let formatted = formatted(&langspec_examples::fib());
         let expected = expect_test::expect![[r#"
-            pub struct fib(pub Nat, pub Nat);
+            pub struct F(pub Nat, pub Nat);
             pub enum Nat {
                 NatLit(usize),
-                fib(Box<fib>),
+                F(Box<F>),
             }
         "#]];
         expected.assert_eq(&formatted);

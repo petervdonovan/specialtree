@@ -4,22 +4,26 @@ pub fn fib() -> LangSpecHuman {
     serde_yml::from_str(
         r#"
     name:
-        name: fiblang
+        human: fib
+        camel: Fib
+        snake: fib
     products:
     - name:
-        name: fib
-        alias: f
+        human: f
+        camel: F
+        snake: f
       sorts:
-      - !Algebraic Nat
-      - !Algebraic Nat
+      - !Algebraic ℕ
+      - !Algebraic ℕ
     sums:
     - name:
-        name: Nat
-        alias: ℕ
+        human: ℕ
+        camel: Nat
+        snake: nat
       sorts:
       - !NatLiteral
       - !Algebraic
-        fib
+        f
 "#,
     )
     .unwrap()
@@ -34,22 +38,25 @@ mod tests {
         let lsh = fib();
         let expected = expect_test::expect![[r#"
             name:
-              name: fiblang
-              alias: null
+              human: fib
+              camel: Fib
+              snake: fib
             products:
             - name:
-                name: fib
-                alias: f
+                human: f
+                camel: F
+                snake: f
               sorts:
-              - !Algebraic Nat
-              - !Algebraic Nat
+              - !Algebraic ℕ
+              - !Algebraic ℕ
             sums:
             - name:
-                name: Nat
-                alias: ℕ
+                human: ℕ
+                camel: Nat
+                snake: nat
               sorts:
               - NatLiteral
-              - !Algebraic fib
+              - !Algebraic f
         "#]];
         expected.assert_eq(&serde_yml::to_string(&lsh).unwrap());
     }

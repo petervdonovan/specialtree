@@ -1,5 +1,5 @@
-pub struct fib(pub Nat, pub Nat);
+pub struct F(pub Nat, pub Nat);
 pub enum Nat {
     NatLit(usize),
-    fib(Box<fib>),
+    F(Box<F>),
 }

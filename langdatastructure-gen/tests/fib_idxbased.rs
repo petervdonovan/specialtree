@@ -1,9 +1,9 @@
-pub struct fiblang {
-    pub fib: Vec<fib>,
-    pub Nat: Vec<Nat>,
+pub struct Fib {
+    pub f: Vec<F>,
+    pub nat: Vec<Nat>,
 }
-pub struct fib(pub usize, pub usize);
+pub struct F(pub usize, pub usize);
 pub enum Nat {
     NatLit(usize),
-    fib(Box<usize>),
+    F(Box<usize>),
 }

@@ -5,7 +5,7 @@ use langspec::{
 };
 use syn::{parse_quote, ItemEnum, ItemStruct};
 
-use crate::{asi2rs_type, name_as_rs_ident, sort2rs_ident};
+use crate::{asi2rs_type, name_as_camel_ident, name_as_snake_ident, sort2rs_ident};
 
 pub struct GenResult {
     pub db: ItemStruct,
@@ -32,9 +32,11 @@ pub fn gen<L: LangSpec>(l: &L) -> GenResult {
         }
     }
     fn gen_db<L: LangSpec>(l: &L) -> ItemStruct {
-        let name = name_as_rs_ident(l.name());
-        let prod_names = l.products().map(|id| name_as_rs_ident(l.product_name(id)));
-        let sum_names = l.sums().map(|id| name_as_rs_ident(l.sum_name(id)));
+        let name = name_as_camel_ident(l.name());
+        let prod_names = l
+            .products()
+            .map(|id| name_as_snake_ident(l.product_name(id)));
+        let sum_names = l.sums().map(|id| name_as_snake_ident(l.sum_name(id)));
         let prod_tys = l
             .products()
             .map(|id| asi2rs_type(l, AlgebraicSortId::Product(id)));
@@ -51,7 +53,7 @@ pub fn gen<L: LangSpec>(l: &L) -> GenResult {
         ls: &L,
         sorts: &[SortId<L::AlgebraicSortId>],
     ) -> ItemStruct {
-        let name = name_as_rs_ident(name);
+        let name = name_as_camel_ident(name);
         let fields = sorts
             .iter()
             .map(|sort| -> syn::Type { sort2rs_idx_type(ls, sort) });
@@ -64,7 +66,7 @@ pub fn gen<L: LangSpec>(l: &L) -> GenResult {
         ls: &L,
         sorts: &[SortId<L::AlgebraicSortId>],
     ) -> ItemEnum {
-        let name = name_as_rs_ident(name);
+        let name = name_as_camel_ident(name);
         let variant_tys = sorts
             .iter()
             .map(|sort| -> syn::Type {
@@ -124,14 +126,14 @@ mod tests {
     fn test_data_structure() {
         let formatted = formatted(&langspec_examples::fib());
         let expected = expect_test::expect![[r#"
-            pub struct fiblang {
-                pub fib: Vec<fib>,
-                pub Nat: Vec<Nat>,
+            pub struct Fib {
+                pub f: Vec<F>,
+                pub nat: Vec<Nat>,
             }
-            pub struct fib(pub usize, pub usize);
+            pub struct F(pub usize, pub usize);
             pub enum Nat {
                 NatLit(usize),
-                fib(Box<usize>),
+                F(Box<usize>),
             }
         "#]];
         expected.assert_eq(&formatted);

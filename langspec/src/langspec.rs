@@ -2,11 +2,14 @@ use functor_derive::Functor;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// All names must be unique within a LangSpec unless they are different fields of the same [Name]
 pub struct Name {
-    /// Must be a valid identifier in the Rust language; must be unique within this LangSpec
-    pub name: String,
-    /// Optional alias which may be more human-readable and can be an arbitrary UTF-8 string
-    pub alias: Option<String>,
+    /// Must not contain whitespace (whether operator symbols such as '-' are permitted is TBD)
+    pub human: String,
+    /// CamelCase alias
+    pub camel: String,
+    /// snake_case alias
+    pub snake: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, Functor)]

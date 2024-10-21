@@ -104,10 +104,10 @@ impl TerminalLangSpec for LangSpecFlat {
     fn canonical_from<L: LangSpec>(l: &L) -> Self {
         let name = l.name().clone();
         let mut products_sorted = l.products().collect::<Vec<_>>();
-        products_sorted.sort_by_key(|pid| l.product_name(pid.clone()).name.clone());
+        products_sorted.sort_by_key(|pid| l.product_name(pid.clone()).human.clone());
         let products_sorted = products_sorted;
         let mut sums_sorted = l.sums().collect::<Vec<_>>();
-        sums_sorted.sort_by_key(|sid| l.sum_name(sid.clone()).name.clone());
+        sums_sorted.sort_by_key(|sid| l.sum_name(sid.clone()).human.clone());
         let sums_sorted = sums_sorted;
         let products = products_sorted
             .iter()

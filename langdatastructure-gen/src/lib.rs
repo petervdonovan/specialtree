@@ -4,8 +4,11 @@ use syn::parse_quote;
 pub mod idxbased;
 pub mod refbased;
 
-pub fn name_as_rs_ident(name: &Name) -> syn::Ident {
-    syn::Ident::new(&name.name, proc_macro2::Span::call_site())
+pub fn name_as_snake_ident(name: &Name) -> syn::Ident {
+    syn::Ident::new(&name.snake, proc_macro2::Span::call_site())
+}
+pub fn name_as_camel_ident(name: &Name) -> syn::Ident {
+    syn::Ident::new(&name.camel, proc_macro2::Span::call_site())
 }
 
 pub fn asi2rs_type<L: LangSpec>(
@@ -13,7 +16,7 @@ pub fn asi2rs_type<L: LangSpec>(
     asi: AlgebraicSortId<L::ProductId, L::SumId>,
 ) -> syn::Type {
     let name = lsf.algebraic_sort_name(asi);
-    let ty_name = name_as_rs_ident(name);
+    let ty_name = name_as_camel_ident(name);
     parse_quote!(#ty_name)
 }
 
@@ -40,7 +43,7 @@ pub fn asi2rs_ident<L: LangSpec>(
     asi: AlgebraicSortId<L::ProductId, L::SumId>,
 ) -> syn::Ident {
     let name = lsf.algebraic_sort_name(asi);
-    name_as_rs_ident(name)
+    name_as_camel_ident(name)
 }
 pub fn sort2rs_ident<L: LangSpec>(
     lsf: &L,
