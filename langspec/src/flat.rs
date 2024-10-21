@@ -35,6 +35,71 @@ impl std::fmt::Display for LangSpecFlat {
     }
 }
 
+impl crate::langspec::LangSpec for crate::flat::LangSpecFlat {
+    type ProductId = crate::flat::ProductId;
+
+    type SumId = crate::flat::SumId;
+
+    type AlgebraicSortId = crate::flat::FlatAlgebraicSortId;
+
+    fn name(&self) -> &crate::langspec::Name {
+        &self.name
+    }
+
+    fn products(&self) -> impl Iterator<Item = Self::ProductId> {
+        (0..self.products.len()).map(crate::flat::ProductId)
+    }
+
+    fn sums(&self) -> impl Iterator<Item = Self::SumId> {
+        (0..self.sums.len()).map(crate::flat::SumId)
+    }
+
+    fn product_name(&self, id: Self::ProductId) -> &crate::langspec::Name {
+        &self.products[id].name
+    }
+
+    fn sum_name(&self, id: Self::SumId) -> &crate::langspec::Name {
+        &self.sums[id].name
+    }
+
+    fn product_sorts(
+        &self,
+        id: Self::ProductId,
+    ) -> impl Iterator<Item = crate::langspec::SortId<Self::AlgebraicSortId>> {
+        self.products[id].sorts.iter().cloned()
+    }
+
+    fn sum_sorts(
+        &self,
+        id: Self::SumId,
+    ) -> impl Iterator<Item = crate::langspec::SortId<Self::AlgebraicSortId>> {
+        self.sums[id].sorts.iter().cloned()
+    }
+
+    fn prod_to_unique_nat(&self, id: Self::ProductId) -> usize {
+        id.0
+    }
+
+    fn prod_from_unique_nat(&self, nat: usize) -> Self::ProductId {
+        crate::flat::ProductId(nat)
+    }
+
+    fn sum_to_unique_nat(&self, id: Self::SumId) -> usize {
+        id.0
+    }
+
+    fn sum_from_unique_nat(&self, nat: usize) -> Self::SumId {
+        crate::flat::SumId(nat)
+    }
+
+    fn asi_convert(
+        &self,
+        id: Self::AlgebraicSortId,
+    ) -> crate::langspec::AlgebraicSortId<Self::ProductId, Self::SumId> {
+        id
+    }
+}
+
 impl TerminalLangSpec for LangSpecFlat {
     fn canonical_from<L: LangSpec>(l: &L) -> Self {
         let name = l.name().clone();
@@ -95,58 +160,3 @@ impl TerminalLangSpec for LangSpecFlat {
         }
     }
 }
-
-// impl From<LangSpecFlat> for LangSpecHuman {
-//     fn from(ls: LangSpecFlat) -> Self {
-//         fn sortid2string(s: crate::flat::FlatAlgebraicSortId, ls: &LangSpecFlat) -> String {
-//             match s {
-//                 crate::flat::FlatAlgebraicSortId::Product(pid) => {
-//                     ls.products[pid].name.name.clone()
-//                 }
-//                 crate::flat::FlatAlgebraicSortId::Sum(sid) => ls.sums[sid].name.name.clone(),
-//             }
-//         }
-//         fn map_sorts(
-//             sorts: &[crate::flat::FlatSortId],
-//             ls: &LangSpecFlat,
-//         ) -> Vec<crate::humanreadable::SortId> {
-//             sorts
-//                 .iter()
-//                 .map(|sid| match sid {
-//                     crate::flat::FlatSortId::Algebraic(a) => {
-//                         crate::humanreadable::SortId::Algebraic(sortid2string(*a, ls))
-//                     }
-//                     crate::flat::FlatSortId::Set(a) => {
-//                         crate::humanreadable::SortId::Set(sortid2string(*a, ls))
-//                     }
-//                     crate::flat::FlatSortId::Sequence(a) => {
-//                         crate::humanreadable::SortId::Algebraic(sortid2string(*a, ls))
-//                     }
-//                     crate::flat::FlatSortId::NatLiteral => crate::humanreadable::SortId::NatLiteral,
-//                 })
-//                 .collect()
-//         }
-//         let name = ls.name.clone();
-//         let products = ls
-//             .products
-//             .iter_enumerated()
-//             .map(|(_prodid, prod)| crate::humanreadable::Product {
-//                 name: prod.name.clone(),
-//                 sorts: map_sorts(prod.sorts.as_ref(), &ls),
-//             })
-//             .collect::<Vec<_>>();
-//         let sums = ls
-//             .sums
-//             .iter_enumerated()
-//             .map(|(_sumid, sum)| crate::humanreadable::Sum {
-//                 name: sum.name.clone(),
-//                 sorts: map_sorts(sum.sorts.as_ref(), &ls),
-//             })
-//             .collect::<Vec<_>>();
-//         LangSpecHuman {
-//             name,
-//             products,
-//             sums,
-//         }
-//     }
-// }

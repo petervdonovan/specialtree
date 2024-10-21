@@ -4,7 +4,7 @@ pub fn fib() -> LangSpecHuman {
     serde_yml::from_str(
         r#"
     name:
-        name: fib
+        name: fiblang
     products:
     - name:
         name: fib
@@ -34,7 +34,7 @@ mod tests {
         let lsh = fib();
         let expected = expect_test::expect![[r#"
             name:
-              name: fib
+              name: fiblang
               alias: null
             products:
             - name:

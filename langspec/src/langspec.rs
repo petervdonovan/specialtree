@@ -52,6 +52,17 @@ pub trait LangSpec {
         &self,
         id: Self::AlgebraicSortId,
     ) -> AlgebraicSortId<Self::ProductId, Self::SumId>;
+    fn sid_convert(
+        &self,
+        sid: SortId<Self::AlgebraicSortId>,
+    ) -> SortId<AlgebraicSortId<Self::ProductId, Self::SumId>> {
+        match sid {
+            SortId::NatLiteral => SortId::NatLiteral,
+            SortId::Algebraic(asi) => SortId::Algebraic(self.asi_convert(asi)),
+            SortId::Set(asi) => SortId::Set(self.asi_convert(asi)),
+            SortId::Sequence(asi) => SortId::Sequence(self.asi_convert(asi)),
+        }
+    }
 }
 /// Marks a langspec as an element of the iso class of terminal objects in the category of [LangSpec]s.
 /// Needed because a [From] impl would conflict with the blanket impl for [From] for all types.

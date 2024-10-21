@@ -1,28 +1,25 @@
-use langspec::{
-    flat::LangSpecFlat,
-    langspec::{LangSpec, Name, SortId},
-};
+use langspec::langspec::{AlgebraicSortId, LangSpec, Name, SortId};
 use syn::parse_quote;
 
 pub mod idxbased;
 pub mod refbased;
 
-pub fn name_as_rs_type(name: &Name) -> syn::Ident {
+pub fn name_as_rs_ident(name: &Name) -> syn::Ident {
     syn::Ident::new(&name.name, proc_macro2::Span::call_site())
 }
 
-pub fn asi2rs_type(
-    lsf: &LangSpecFlat,
-    asi: &<LangSpecFlat as LangSpec>::AlgebraicSortId,
+pub fn asi2rs_type<L: LangSpec>(
+    lsf: &L,
+    asi: AlgebraicSortId<L::ProductId, L::SumId>,
 ) -> syn::Type {
-    let name = lsf.algebraic_sort_name(*asi);
-    let ty_name = name_as_rs_type(name);
+    let name = lsf.algebraic_sort_name(asi);
+    let ty_name = name_as_rs_ident(name);
     parse_quote!(#ty_name)
 }
 
-pub fn sort2rs_type(
-    lsf: &LangSpecFlat,
-    sort: &SortId<<LangSpecFlat as LangSpec>::AlgebraicSortId>,
+pub fn sort2rs_type<L: LangSpec>(
+    lsf: &L,
+    sort: SortId<AlgebraicSortId<L::ProductId, L::SumId>>,
 ) -> syn::Type {
     match sort {
         SortId::NatLiteral => parse_quote!(usize),
@@ -38,16 +35,16 @@ pub fn sort2rs_type(
     }
 }
 
-pub fn asi2rs_ident(
-    lsf: &LangSpecFlat,
-    asi: &<LangSpecFlat as LangSpec>::AlgebraicSortId,
+pub fn asi2rs_ident<L: LangSpec>(
+    lsf: &L,
+    asi: AlgebraicSortId<L::ProductId, L::SumId>,
 ) -> syn::Ident {
-    let name = lsf.algebraic_sort_name(*asi);
-    name_as_rs_type(name)
+    let name = lsf.algebraic_sort_name(asi);
+    name_as_rs_ident(name)
 }
-pub fn sort2rs_ident(
-    lsf: &LangSpecFlat,
-    sort: &SortId<<LangSpecFlat as LangSpec>::AlgebraicSortId>,
+pub fn sort2rs_ident<L: LangSpec>(
+    lsf: &L,
+    sort: SortId<AlgebraicSortId<L::ProductId, L::SumId>>,
 ) -> syn::Ident {
     match sort {
         SortId::NatLiteral => syn::Ident::new("NatLit", proc_macro2::Span::call_site()),
