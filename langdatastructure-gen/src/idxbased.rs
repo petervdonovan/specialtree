@@ -5,7 +5,8 @@ use langspec::{
 };
 use syn::{parse_quote, ItemEnum, ItemStruct};
 
-use crate::{asi2rs_type, name_as_camel_ident, name_as_snake_ident, sort2rs_ident};
+use langspec_gen_util::LangSpecGen;
+use langspec_gen_util::{name_as_camel_ident, name_as_snake_ident};
 
 pub struct GenResult {
     pub db: ItemStruct,
@@ -39,8 +40,8 @@ pub fn gen<L: LangSpec>(l: &L) -> GenResult {
         let sum_names = l.sums().map(|id| name_as_snake_ident(l.sum_name(id)));
         let prod_tys = l
             .products()
-            .map(|id| asi2rs_type(l, AlgebraicSortId::Product(id)));
-        let sum_tys = l.sums().map(|id| asi2rs_type(l, AlgebraicSortId::Sum(id)));
+            .map(|id| l.asi2rs_type(AlgebraicSortId::Product(id)));
+        let sum_tys = l.sums().map(|id| l.asi2rs_type(AlgebraicSortId::Sum(id)));
         parse_quote!(
             pub struct #name {
                 #(pub #prod_names: Vec<#prod_tys>,)*
@@ -80,7 +81,7 @@ pub fn gen<L: LangSpec>(l: &L) -> GenResult {
             .collect::<Vec<_>>();
         let variant_names = sorts
             .iter()
-            .map(|sort| -> syn::Ident { sort2rs_ident(ls, ls.sid_convert(sort.clone())) })
+            .map(|sort| -> syn::Ident { ls.sort2rs_ident(ls.sid_convert(sort.clone())) })
             .collect::<Vec<_>>();
         parse_quote!(
             pub enum #name {

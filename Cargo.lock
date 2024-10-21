@@ -24,7 +24,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "rustc_version",
- "syn 2.0.80",
+ "syn 2.0.82",
 ]
 
 [[package]]
@@ -56,6 +56,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "extensionof-gen"
+version = "0.1.0"
+dependencies = [
+ "langdatastructure-gen",
+ "langspec",
+ "syn 2.0.82",
+]
+
+[[package]]
 name = "functor_derive"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -75,7 +84,7 @@ dependencies = [
  "proc-macro-error",
  "proc-macro2",
  "quote",
- "syn 2.0.80",
+ "syn 2.0.82",
 ]
 
 [[package]]
@@ -122,10 +131,11 @@ dependencies = [
  "expect-test",
  "langspec",
  "langspec-examples",
+ "langspec-gen-util",
  "prettyplease",
  "proc-macro2",
  "quote",
- "syn 2.0.80",
+ "syn 2.0.82",
  "trybuild",
 ]
 
@@ -148,6 +158,15 @@ dependencies = [
  "langspec",
  "serde_yml",
  "typed-index-collections",
+]
+
+[[package]]
+name = "langspec-gen-util"
+version = "0.1.0"
+dependencies = [
+ "langspec",
+ "proc-macro2",
+ "syn 2.0.82",
 ]
 
 [[package]]
@@ -210,7 +229,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "904afd36257cdb6ce0bee88b7981847bd7b955e5e216bb32f466b302923ad446"
 dependencies = [
  "proc-macro2",
- "syn 2.0.80",
+ "syn 2.0.82",
 ]
 
 [[package]]
@@ -293,7 +312,7 @@ checksum = "243902eda00fad750862fc144cea25caca5e20d615af0a81bee94ca738f1df1f"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.80",
+ "syn 2.0.82",
 ]
 
 [[package]]
@@ -352,9 +371,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "2.0.80"
+version = "2.0.82"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6e185e337f816bc8da115b8afcb3324006ccc82eeaddf35113888d3bd8e44ac"
+checksum = "83540f837a8afc019423a8edb95b52a8effe46957ee402287f4292fae35be021"
 dependencies = [
  "proc-macro2",
  "quote",

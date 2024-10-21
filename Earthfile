@@ -12,7 +12,7 @@ install:
 source:
     FROM +install
     COPY --keep-ts Cargo.toml Cargo.lock ./
-    COPY --keep-ts --dir langdatastructure-gen langspec langspec-examples pattern sexprfmt ./
+    COPY --keep-ts --dir langspec langspec-examples pattern sexprfmt langspec-gen-util langdatastructure-gen extensionof-gen ./
 
 build:
     FROM +source

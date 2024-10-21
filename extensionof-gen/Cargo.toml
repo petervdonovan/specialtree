@@ -1,0 +1,9 @@
+[package]
+name = "extensionof-gen"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+langdatastructure-gen = { version = "0.1.0", path = "../langdatastructure-gen" }
+langspec = { version = "0.1.0", path = "../langspec" }
+syn = "2.0.82"

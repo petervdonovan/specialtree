@@ -5,7 +5,7 @@ use langspec::{
 };
 use syn::{parse_quote, ItemEnum, ItemStruct};
 
-use crate::{name_as_camel_ident, sort2rs_ident, sort2rs_type};
+use langspec_gen_util::{name_as_camel_ident, LangSpecGen};
 
 pub fn gen(lsf: &LangSpecFlat) -> (Vec<ItemStruct>, Vec<ItemEnum>) {
     fn struct_item(
@@ -16,7 +16,7 @@ pub fn gen(lsf: &LangSpecFlat) -> (Vec<ItemStruct>, Vec<ItemEnum>) {
         let name = name_as_camel_ident(name);
         let fields = sorts
             .iter()
-            .map(|sort| -> syn::Type { sort2rs_type(lsf, *sort) });
+            .map(|sort| -> syn::Type { lsf.sort2rs_type(*sort) });
         parse_quote!(
             pub struct #name(#(pub #fields),*);
         )
@@ -30,7 +30,7 @@ pub fn gen(lsf: &LangSpecFlat) -> (Vec<ItemStruct>, Vec<ItemEnum>) {
         let variant_tys = sorts
             .iter()
             .map(|sort| -> syn::Type {
-                let rs_type = sort2rs_type(lsf, *sort);
+                let rs_type = lsf.sort2rs_type(*sort);
                 if let SortId::Algebraic(_) = sort {
                     parse_quote!(Box<#rs_type>)
                 } else {
@@ -40,7 +40,7 @@ pub fn gen(lsf: &LangSpecFlat) -> (Vec<ItemStruct>, Vec<ItemEnum>) {
             .collect::<Vec<_>>();
         let variant_names = sorts
             .iter()
-            .map(|sort| -> syn::Ident { sort2rs_ident(lsf, *sort) })
+            .map(|sort| -> syn::Ident { lsf.sort2rs_ident(*sort) })
             .collect::<Vec<_>>();
         parse_quote!(
             pub enum #name {
