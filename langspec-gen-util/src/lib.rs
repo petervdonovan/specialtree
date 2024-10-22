@@ -15,6 +15,7 @@ pub struct ProdGenData<
 > {
     pub snake_name: syn::Ident,
     pub camel_name: syn::Ident,
+    pub rs_ty: syn::Type,
     pub sort_rs_idents: I0,
     pub sort_rs_types: I1,
     pub sort_shapes: I2,
@@ -27,9 +28,27 @@ pub struct SumGenData<
 > {
     pub snake_name: syn::Ident,
     pub camel_name: syn::Ident,
+    pub rs_ty: syn::Type,
     pub sort_rs_idents: I0,
     pub sort_rs_types: I1,
     pub sort_shapes: I2,
+}
+
+#[macro_export]
+macro_rules! transpose {
+    ($records:expr, $($field:ident),*) => {
+        $(
+            let mut $field = vec![];
+        )*
+        for record67142647 in $records {
+            $(
+                $field.push(record67142647.$field);
+            )*
+        }
+        $(
+            let $field = $field;
+        )*
+    };
 }
 
 pub struct LangSpecGen<'a, L: LangSpec> {
@@ -88,6 +107,7 @@ impl<'a, L: LangSpec> LangSpecGen<'a, L> {
                 &self.bak.product_name(id.clone()).camel.clone(),
                 proc_macro2::Span::call_site(),
             );
+            let rs_ty = parse_quote!(#camel_name);
             let sort_rs_idents = self
                 .bak
                 .product_sorts(id.clone())
@@ -103,12 +123,36 @@ impl<'a, L: LangSpec> LangSpecGen<'a, L> {
             ProdGenData {
                 snake_name,
                 camel_name,
+                rs_ty,
                 sort_rs_idents,
                 sort_rs_types,
                 sort_shapes,
             }
         })
     }
+    // pub fn prod_gen_datas_transposed<'b>(
+    //     &'b self,
+    // ) -> (
+    //     Vec<syn::Ident>,
+    //     Vec<syn::Ident>,
+    //     Vec<syn::Type>,
+    //     Vec<impl Iterator<Item = syn::Ident> + 'b>,
+    //     Vec<impl Iterator<Item = syn::Type> + 'b>,
+    //     Vec<impl Iterator<Item = SortShape> + 'b>,
+    // )
+    // where
+    //     'a: 'b,
+    // {
+    //     transpose!(
+    //         self.prod_gen_datas(),
+    //         snake_name,
+    //         camel_name,
+    //         rs_ty,
+    //         sort_rs_idents,
+    //         sort_rs_types,
+    //         sort_shapes
+    //     )
+    // }
     pub fn sum_gen_datas<'b>(
         &'b self,
     ) -> impl Iterator<
@@ -130,6 +174,7 @@ impl<'a, L: LangSpec> LangSpecGen<'a, L> {
                 &self.bak.sum_name(id.clone()).camel.clone(),
                 proc_macro2::Span::call_site(),
             );
+            let rs_ty = parse_quote!(#camel_name);
             let sort_rs_idents = self
                 .bak
                 .sum_sorts(id.clone())
@@ -145,6 +190,7 @@ impl<'a, L: LangSpec> LangSpecGen<'a, L> {
             SumGenData {
                 snake_name,
                 camel_name,
+                rs_ty,
                 sort_rs_idents,
                 sort_rs_types,
                 sort_shapes,

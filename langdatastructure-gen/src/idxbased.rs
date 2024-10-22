@@ -1,7 +1,7 @@
 use langspec::{
     flat::LangSpecFlat,
     humanreadable::LangSpecHuman,
-    langspec::{AlgebraicSortId, LangSpec, SortId, TerminalLangSpec},
+    langspec::{LangSpec, SortId, TerminalLangSpec},
 };
 use syn::{parse_quote, ItemEnum, ItemStruct};
 
@@ -33,21 +33,19 @@ pub fn gen<L: LangSpec>(l: &L) -> GenResult {
         }
     }
     fn gen_db<L: LangSpec>(l: &LangSpecGen<L>) -> ItemStruct {
+        langspec_gen_util::transpose!(l.prod_gen_datas(), snake_name, rs_ty);
+        let prod_fields = quote::quote! {
+            #(pub #snake_name: Vec<#rs_ty>,)*
+        };
+        langspec_gen_util::transpose!(l.sum_gen_datas(), snake_name, rs_ty);
+        let sum_fields = quote::quote! {
+            #(pub #snake_name: Vec<#rs_ty>,)*
+        };
         let name = name_as_camel_ident(l.bak.name());
-        let prod_names = l.prod_gen_datas().map(|data| data.snake_name);
-        let sum_names = l.sum_gen_datas().map(|data| data.snake_name);
-        let prod_tys = l
-            .bak
-            .products()
-            .map(|id| l.asi2rs_type(AlgebraicSortId::Product(id)));
-        let sum_tys = l
-            .bak
-            .sums()
-            .map(|id| l.asi2rs_type(AlgebraicSortId::Sum(id)));
         parse_quote!(
             pub struct #name {
-                #(pub #prod_names: Vec<#prod_tys>,)*
-                #(pub #sum_names: Vec<#sum_tys>,)*
+                #prod_fields
+                #sum_fields
             }
         )
     }
