@@ -10,30 +10,34 @@ pub fn name_as_camel_ident(name: &Name) -> syn::Ident {
 
 pub struct ProdGenData<
     I0: Iterator<Item = syn::Ident>,
-    I1: Iterator<Item = syn::Type>,
-    I2: Iterator<Item = SortId<AlgebraicSortId<(), ()>>>,
+    I1: Iterator<Item = syn::Ident>,
+    I2: Iterator<Item = syn::Type>,
+    I3: Iterator<Item = SortId<AlgebraicSortId<(), ()>>>,
 > {
-    pub snake_name: syn::Ident,
-    pub camel_name: syn::Ident,
+    pub snake_ident: syn::Ident,
+    pub camel_ident: syn::Ident,
     pub rs_ty: syn::Type,
     pub n_sorts: usize,
-    pub sort_rs_idents: I0,
-    pub sort_rs_types: I1,
-    pub sort_shapes: I2,
+    pub sort_rs_camel_idents: I0,
+    pub sort_rs_snake_idents: I1,
+    pub sort_rs_types: I2,
+    pub sort_shapes: I3,
 }
 
 pub struct SumGenData<
     I0: Iterator<Item = syn::Ident>,
-    I1: Iterator<Item = syn::Type>,
-    I2: Iterator<Item = SortId<AlgebraicSortId<(), ()>>>,
+    I1: Iterator<Item = syn::Ident>,
+    I2: Iterator<Item = syn::Type>,
+    I3: Iterator<Item = SortId<AlgebraicSortId<(), ()>>>,
 > {
-    pub snake_name: syn::Ident,
-    pub camel_name: syn::Ident,
+    pub snake_ident: syn::Ident,
+    pub camel_ident: syn::Ident,
     pub rs_ty: syn::Type,
     pub n_sorts: usize,
-    pub sort_rs_idents: I0,
-    pub sort_rs_types: I1,
-    pub sort_shapes: I2,
+    pub sort_rs_camel_idents: I0,
+    pub sort_rs_snake_idents: I1,
+    pub sort_rs_types: I2,
+    pub sort_shapes: I3,
 }
 
 #[macro_export]
@@ -88,10 +92,31 @@ impl<'a, L: LangSpec> LangSpecGen<'a, L> {
             ),
         }
     }
+    pub fn sort2rs_snake_ident(
+        &self,
+        sort: SortId<AlgebraicSortId<L::ProductId, L::SumId>>,
+    ) -> syn::Ident {
+        match sort {
+            SortId::NatLiteral => syn::Ident::new("nat_lit", proc_macro2::Span::call_site()),
+            SortId::Algebraic(asi) => {
+                let name = self.bak.algebraic_sort_name(asi);
+                name_as_snake_ident(name)
+            }
+            SortId::Set(asi) => syn::Ident::new(
+                &format!("nat_set_of_{}", self.asi2rs_ident(asi)),
+                proc_macro2::Span::call_site(),
+            ),
+            SortId::Sequence(asi) => syn::Ident::new(
+                &format!("nat_seq_of_{}", self.asi2rs_ident(asi)),
+                proc_macro2::Span::call_site(),
+            ),
+        }
+    }
     pub fn prod_gen_datas<'b>(
         &'b self,
     ) -> impl Iterator<
         Item = ProdGenData<
+            impl Iterator<Item = syn::Ident> + 'b,
             impl Iterator<Item = syn::Ident> + 'b,
             impl Iterator<Item = syn::Type> + 'b,
             impl Iterator<Item = SortId<AlgebraicSortId<(), ()>>> + 'b,
@@ -101,19 +126,23 @@ impl<'a, L: LangSpec> LangSpecGen<'a, L> {
         'a: 'b,
     {
         self.bak.products().map(move |id| {
-            let snake_name = syn::Ident::new(
+            let snake_ident = syn::Ident::new(
                 &self.bak.product_name(id.clone()).snake.clone(),
                 proc_macro2::Span::call_site(),
             );
-            let camel_name = syn::Ident::new(
+            let camel_ident = syn::Ident::new(
                 &self.bak.product_name(id.clone()).camel.clone(),
                 proc_macro2::Span::call_site(),
             );
-            let rs_ty = parse_quote!(#camel_name);
-            let sort_rs_idents = self
+            let rs_ty = parse_quote!(#camel_ident);
+            let sort_rs_camel_idents = self
                 .bak
                 .product_sorts(id.clone())
                 .map(|sort| self.sort2rs_ident(self.bak.sid_convert(sort)));
+            let sort_rs_snake_idents = self
+                .bak
+                .product_sorts(id.clone())
+                .map(|sort| self.sort2rs_snake_ident(self.bak.sid_convert(sort)));
             let sort_rs_types = self
                 .bak
                 .product_sorts(id.clone())
@@ -124,11 +153,12 @@ impl<'a, L: LangSpec> LangSpecGen<'a, L> {
                 .map(|it| SortShape::project(self.bak, it));
             let n_sorts = self.bak.product_sorts(id).count();
             ProdGenData {
-                snake_name,
-                camel_name,
+                snake_ident,
+                camel_ident,
                 rs_ty,
                 n_sorts,
-                sort_rs_idents,
+                sort_rs_camel_idents,
+                sort_rs_snake_idents,
                 sort_rs_types,
                 sort_shapes,
             }
@@ -139,6 +169,7 @@ impl<'a, L: LangSpec> LangSpecGen<'a, L> {
     ) -> impl Iterator<
         Item = SumGenData<
             impl Iterator<Item = syn::Ident> + 'b,
+            impl Iterator<Item = syn::Ident> + 'b,
             impl Iterator<Item = syn::Type> + 'b,
             impl Iterator<Item = SortShape> + 'b,
         >,
@@ -147,19 +178,23 @@ impl<'a, L: LangSpec> LangSpecGen<'a, L> {
         'a: 'b,
     {
         self.bak.sums().map(move |id| {
-            let snake_name = syn::Ident::new(
+            let snake_ident = syn::Ident::new(
                 &self.bak.sum_name(id.clone()).snake.clone(),
                 proc_macro2::Span::call_site(),
             );
-            let camel_name = syn::Ident::new(
+            let camel_ident = syn::Ident::new(
                 &self.bak.sum_name(id.clone()).camel.clone(),
                 proc_macro2::Span::call_site(),
             );
-            let rs_ty = parse_quote!(#camel_name);
-            let sort_rs_idents = self
+            let rs_ty = parse_quote!(#camel_ident);
+            let sort_rs_camel_idents = self
                 .bak
                 .sum_sorts(id.clone())
                 .map(|sort| self.sort2rs_ident(self.bak.sid_convert(sort)));
+            let sort_rs_snake_idents = self
+                .bak
+                .sum_sorts(id.clone())
+                .map(|sort| self.sort2rs_snake_ident(self.bak.sid_convert(sort)));
             let sort_rs_types = self
                 .bak
                 .sum_sorts(id.clone())
@@ -170,11 +205,12 @@ impl<'a, L: LangSpec> LangSpecGen<'a, L> {
                 .map(|it| it.fmap(|it| self.bak.asi_convert(it).fmap_p(|_| ()).fmap_s(|_| ())));
             let n_sorts = self.bak.sum_sorts(id).count();
             SumGenData {
-                snake_name,
-                camel_name,
+                snake_ident,
+                camel_ident,
                 rs_ty,
                 n_sorts,
-                sort_rs_idents,
+                sort_rs_camel_idents,
+                sort_rs_snake_idents,
                 sort_rs_types,
                 sort_shapes,
             }

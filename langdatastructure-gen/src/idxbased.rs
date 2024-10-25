@@ -33,13 +33,13 @@ pub fn gen<L: LangSpec>(l: &L) -> GenResult {
         }
     }
     fn gen_db<L: LangSpec>(l: &LangSpecGen<L>) -> ItemStruct {
-        langspec_gen_util::transpose!(l.prod_gen_datas(), snake_name, rs_ty);
+        langspec_gen_util::transpose!(l.prod_gen_datas(), snake_ident, rs_ty);
         let prod_fields = quote::quote! {
-            #(pub #snake_name: Vec<#rs_ty>,)*
+            #(pub #snake_ident: Vec<#rs_ty>,)*
         };
-        langspec_gen_util::transpose!(l.sum_gen_datas(), snake_name, rs_ty);
+        langspec_gen_util::transpose!(l.sum_gen_datas(), snake_ident, rs_ty);
         let sum_fields = quote::quote! {
-            #(pub #snake_name: Vec<#rs_ty>,)*
+            #(pub #snake_ident: Vec<#rs_ty>,)*
         };
         let name = name_as_camel_ident(l.bak.name());
         parse_quote!(
@@ -58,7 +58,7 @@ pub fn gen<L: LangSpec>(l: &L) -> GenResult {
         .prod_gen_datas()
         .map(
             |ProdGenData {
-                 camel_name,
+                 camel_ident: camel_name,
                  sort_rs_types,
                  ..
              }| {
@@ -74,8 +74,8 @@ pub fn gen<L: LangSpec>(l: &L) -> GenResult {
         .sum_gen_datas()
         .map(
             |SumGenData {
-                 camel_name,
-                 sort_rs_idents,
+                 camel_ident: camel_name,
+                 sort_rs_camel_idents: sort_rs_idents,
                  sort_rs_types,
                  sort_shapes,
                  ..

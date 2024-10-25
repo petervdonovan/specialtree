@@ -30,7 +30,7 @@ pub fn gen(l: &LangSpecFlat) -> (Vec<ItemStruct>, Vec<ItemEnum>) {
         .prod_gen_datas()
         .map(
             |ProdGenData {
-                 camel_name,
+                 camel_ident: camel_name,
                  sort_rs_types,
                  ..
              }| {
@@ -46,8 +46,8 @@ pub fn gen(l: &LangSpecFlat) -> (Vec<ItemStruct>, Vec<ItemEnum>) {
         lg.sum_gen_datas()
             .map(
                 |SumGenData {
-                     camel_name,
-                     sort_rs_idents,
+                     camel_ident: camel_name,
+                     sort_rs_camel_idents: sort_rs_idents,
                      sort_rs_types,
                      sort_shapes,
                      ..

@@ -12,10 +12,10 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
         )
     }
     fn limpl_trait<L: LangSpec>(base_path: &syn::Path, ls: &LangSpecGen<L>) -> syn::Item {
-        transpose!(ls.prod_gen_datas(), camel_name);
-        let prod_types = camel_name;
-        transpose!(ls.sum_gen_datas(), camel_name);
-        let sum_types = camel_name;
+        transpose!(ls.prod_gen_datas(), camel_ident);
+        let prod_types = camel_ident;
+        transpose!(ls.sum_gen_datas(), camel_ident);
+        let sum_types = camel_ident;
         parse_quote!(
             pub trait LImpl {
                 type NatLit: #base_path::owned::NatLit;
@@ -35,8 +35,8 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
             ls: &LangSpecGen<L>,
         ) {
             for ProdGenData {
-                camel_name,
-                sort_rs_idents,
+                camel_ident: camel_name,
+                sort_rs_camel_idents,
                 ..
             } in ls.prod_gen_datas()
             {
@@ -45,9 +45,9 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
                         type LImpl: #base_path::LImpl;
                         type Ref<'a>;
                         type RefMut<'a>;
-                        fn new(l: &mut Self::LImpl, args: (#(<Self::LImpl as #base_path::LImpl>::#sort_rs_idents),*)) -> Self;
-                        fn get_ref<'a>(self, l: &'a Self::LImpl) -> Self::Ref<'a>;
-                        fn get_mut<'a>(self, l: &'a mut Self::LImpl) -> Self::RefMut<'a>;
+                        fn new(l: &mut Self::LImpl, args: (#(<Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents),*)) -> Self;
+                        fn get_ref(self, l: &Self::LImpl) -> Self::Ref<'_>;
+                        fn get_mut(self, l: &mut Self::LImpl) -> Self::RefMut<'_>;
                     }
                 );
                 ret.push(parse_quote!(#gen));
@@ -55,9 +55,10 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
         }
         fn sums<L: LangSpec>(ret: &mut Vec<syn::Item>, base_path: &syn::Path, ls: &LangSpecGen<L>) {
             for SumGenData {
-                camel_name,
+                camel_ident: camel_name,
                 // sort_rs_types,
-                sort_rs_idents,
+                sort_rs_camel_idents,
+                sort_rs_snake_idents,
                 ..
             } in ls.sum_gen_datas()
             {
@@ -67,7 +68,7 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
                         type Ref<'a>;
                         type RefMut<'a>;
                         #(
-                            fn #sort_rs_idents(l: &mut Self::LImpl, from: <Self::LImpl as #base_path::LImpl>::#sort_rs_idents) -> Self;
+                            fn #sort_rs_snake_idents(l: &mut Self::LImpl, from: <Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents) -> Self;
                         )*
                     }
                 ));
@@ -101,16 +102,16 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
             ls: &LangSpecGen<L>,
         ) {
             for ProdGenData {
-                camel_name,
+                camel_ident,
                 n_sorts,
-                sort_rs_idents,
+                sort_rs_camel_idents,
                 ..
             } in ls.prod_gen_datas()
             {
                 let idx = (0..n_sorts)
                     .map(|i| syn::LitInt::new(&i.to_string(), proc_macro2::Span::call_site()));
                 let gen = quote::quote!(
-                    pub trait #camel_name<'a>: Copy #(+ #base_path::Projection<Self::LImpl, #idx, To=<<Self::LImpl as #base_path::LImpl>::#sort_rs_idents as #base_path::owned::#sort_rs_idents>::Ref<'a>>)* {
+                    pub trait #camel_ident<'a>: Copy #(+ #base_path::Projection<Self::LImpl, #idx, To=<<Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents as #base_path::owned::#sort_rs_camel_idents>::Ref<'a>>)* {
                         type LImpl: #base_path::LImpl;
                     }
                 );
@@ -119,16 +120,17 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
         }
         fn sums<L: LangSpec>(ret: &mut Vec<syn::Item>, base_path: &syn::Path, ls: &LangSpecGen<L>) {
             for SumGenData {
-                camel_name,
-                sort_rs_idents,
+                camel_ident,
+                sort_rs_camel_idents,
+                sort_rs_snake_idents,
                 ..
             } in ls.sum_gen_datas()
             {
                 ret.push(parse_quote!(
-                    pub trait #camel_name<'a>: Copy {
+                    pub trait #camel_ident<'a>: Copy {
                         type LImpl: #base_path::LImpl;
                         #(
-                            fn #sort_rs_idents<'b: 'a>(self, l: &'b Self::LImpl) -> Option<<<Self::LImpl as #base_path::LImpl>::#sort_rs_idents as #base_path::owned::#sort_rs_idents>::Ref<'a>>;
+                            fn #sort_rs_snake_idents<'b: 'a>(self, l: &'b Self::LImpl) -> Option<<<Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents as #base_path::owned::#sort_rs_camel_idents>::Ref<'a>>;
                         )*
                     }
                 ));
@@ -137,10 +139,8 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
         let mut ret: Vec<syn::Item> = vec![];
         prods(&mut ret, base_path, ls);
         sums(&mut ret, base_path, ls);
-        let projection_trait = projection_trait();
         parse_quote!(
             pub mod reference {
-                #projection_trait
                 #(#ret)*
             }
         )
@@ -152,16 +152,16 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
             ls: &LangSpecGen<L>,
         ) {
             for ProdGenData {
-                camel_name,
+                camel_ident,
                 n_sorts,
-                sort_rs_idents,
+                sort_rs_camel_idents,
                 ..
             } in ls.prod_gen_datas()
             {
                 let idx = (0..n_sorts)
                     .map(|i| syn::LitInt::new(&i.to_string(), proc_macro2::Span::call_site()));
                 let gen = quote::quote!(
-                    pub trait #camel_name<'a>: Copy #(+ #base_path::Projection<Self::LImpl, #idx, To=<<Self::LImpl as #base_path::LImpl>::#sort_rs_idents as #base_path::owned::#sort_rs_idents>::RefMut<'a>>)* {
+                    pub trait #camel_ident<'a>: Copy #(+ #base_path::Projection<Self::LImpl, #idx, To=<<Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents as #base_path::owned::#sort_rs_camel_idents>::RefMut<'a>>)* {
                         type LImpl: #base_path::LImpl;
                     }
                 );
@@ -170,22 +170,23 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
         }
         fn sums<L: LangSpec>(ret: &mut Vec<syn::Item>, base_path: &syn::Path, ls: &LangSpecGen<L>) {
             for SumGenData {
-                camel_name,
+                camel_ident,
                 // sort_rs_types,
-                sort_rs_idents,
+                sort_rs_camel_idents,
+                sort_rs_snake_idents,
                 ..
             } in ls.sum_gen_datas()
             {
                 ret.push(parse_quote!(
-                    pub trait #camel_name<'a>: Copy {
+                    pub trait #camel_ident<'a>: Copy {
                         type LImpl: #base_path::LImpl;
                         #(
-                            fn #sort_rs_idents<'b: 'a>(self, l: &'b mut Self::LImpl) -> Option<<<Self::LImpl as #base_path::LImpl>::#sort_rs_idents as #base_path::owned::#sort_rs_idents>::RefMut<'b>>;
+                            fn #sort_rs_snake_idents<'b: 'a>(self, l: &'b mut Self::LImpl) -> Option<<<Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents as #base_path::owned::#sort_rs_camel_idents>::RefMut<'b>>;
                         )*
                         fn set<'b: 'a, 'c>(
                             self,
                             l: &'b mut Self::LImpl,
-                            value: <<Self::LImpl as #base_path::LImpl>::#camel_name as #base_path::owned::#camel_name>::Ref<'c>,
+                            value: <<Self::LImpl as #base_path::LImpl>::#camel_ident as #base_path::owned::#camel_ident>::Ref<'c>,
                         );
                     }
                 ));
@@ -249,58 +250,70 @@ mod tests {
                     fn project(self, l: &LImpl) -> Self::To;
                 }
                 pub trait LImpl {
-                    type F;
-                    type Nat;
+                    type NatLit: crate::owned::NatLit;
+                    type F: crate::owned::F;
+                    type Nat: crate::owned::Nat;
                 }
                 pub trait ExtensionOf {
                     type Any;
                     fn take_reduct<L: ExtensionOf>(&self, term: &Self::Any) -> (L, L::Any);
                 }
                 pub mod owned {
-                    type NatLit = usize;
-                    pub trait F: Eq + for<'a> From<crate::reference::F<'a>> {
-                        type LImpl: crate::LImpl;
-                        type Ref<'a>: Into<Self> + From<Self>;
-                        type RefMut<'a>: Into<Self::Ref>;
-                        fn new(l: &mut LImpl, args: (Self::LImpl::Nat, Self::LImpl::Nat)) -> Self;
-                        fn get_ref<'a>(self, l: &'a Self::LImpl) -> Self::Ref<'a>;
-                        fn get_mut<'a>(self, l: &'a mut Self::LImpl) -> Self::RefMut<'a>;
+                    pub trait NatLit: Into<usize> + From<usize> {
+                        type Ref<'a>;
+                        type RefMut<'a>;
                     }
-                    pub trait Nat<LImpl>: Eq + From<crate::reference::Nat> {
-                        type Ref: Into<Self> + From<Self>;
-                        type RefMut: Into<Ref>;
-                        fn NatLit(l: &mut LImpl, from: LImpl::NatLit) -> Self;
-                        fn F(l: &mut LImpl, from: LImpl::F) -> Self;
+                    pub trait F: Eq {
+                        type LImpl: crate::LImpl;
+                        type Ref<'a>;
+                        type RefMut<'a>;
+                        fn new(
+                            l: &mut Self::LImpl,
+                            args: (
+                                <Self::LImpl as crate::LImpl>::Nat,
+                                <Self::LImpl as crate::LImpl>::Nat,
+                            ),
+                        ) -> Self;
+                        fn get_ref(self, l: &Self::LImpl) -> Self::Ref<'_>;
+                        fn get_mut(self, l: &mut Self::LImpl) -> Self::RefMut<'_>;
+                    }
+                    pub trait Nat: Eq {
+                        type LImpl: crate::LImpl;
+                        type Ref<'a>;
+                        type RefMut<'a>;
+                        fn nat_lit(
+                            l: &mut Self::LImpl,
+                            from: <Self::LImpl as crate::LImpl>::NatLit,
+                        ) -> Self;
+                        fn f(l: &mut Self::LImpl, from: <Self::LImpl as crate::LImpl>::F) -> Self;
                     }
                 }
                 pub mod reference {
-                    pub trait Projection<LImpl, const N: u8> {
-                        type To;
-                        fn project(self, l: &LImpl) -> Self::To;
-                    }
                     pub trait F<
                         'a,
                     >: Copy + crate::Projection<
                             Self::LImpl,
                             0,
-                            To = <Self::LImpl::Nat as crate::owned::Nat>::Ref,
+                            To = <<Self::LImpl as crate::LImpl>::Nat as crate::owned::Nat>::Ref<'a>,
                         > + crate::Projection<
                             Self::LImpl,
                             1,
-                            To = <Self::LImpl::Nat as crate::owned::Nat>::Ref,
+                            To = <<Self::LImpl as crate::LImpl>::Nat as crate::owned::Nat>::Ref<'a>,
                         > {
                         type LImpl: crate::LImpl;
                     }
                     pub trait Nat<'a>: Copy {
                         type LImpl: crate::LImpl;
-                        fn NatLit(
+                        fn nat_lit<'b: 'a>(
                             self,
-                            l: &Self::LImpl,
-                        ) -> Option<<Self::LImpl::NatLit as crate::owned::NatLit>::Ref>;
-                        fn F(
+                            l: &'b Self::LImpl,
+                        ) -> Option<
+                            <<Self::LImpl as crate::LImpl>::NatLit as crate::owned::NatLit>::Ref<'a>,
+                        >;
+                        fn f<'b: 'a>(
                             self,
-                            l: &Self::LImpl,
-                        ) -> Option<<Self::LImpl::F as crate::owned::F>::Ref>;
+                            l: &'b Self::LImpl,
+                        ) -> Option<<<Self::LImpl as crate::LImpl>::F as crate::owned::F>::Ref<'a>>;
                     }
                 }
                 pub mod mut_reference {
@@ -309,25 +322,38 @@ mod tests {
                     >: Copy + crate::Projection<
                             Self::LImpl,
                             0,
-                            To = <Self::LImpl::Nat as crate::owned::Nat>::RefMut,
+                            To = <<Self::LImpl as crate::LImpl>::Nat as crate::owned::Nat>::RefMut<
+                                'a,
+                            >,
                         > + crate::Projection<
                             Self::LImpl,
                             1,
-                            To = <Self::LImpl::Nat as crate::owned::Nat>::RefMut,
+                            To = <<Self::LImpl as crate::LImpl>::Nat as crate::owned::Nat>::RefMut<
+                                'a,
+                            >,
                         > {
                         type LImpl: crate::LImpl;
                     }
                     pub trait Nat<'a>: Copy {
                         type LImpl: crate::LImpl;
-                        fn NatLit(
+                        fn nat_lit<'b: 'a>(
                             self,
-                            l: &LImpl,
-                        ) -> Option<<Self::LImpl::NatLit as crate::owned::NatLit>::RefMut>;
-                        fn F(self, l: &LImpl) -> Option<<Self::LImpl::F as crate::owned::F>::RefMut>;
-                        fn set(
+                            l: &'b mut Self::LImpl,
+                        ) -> Option<
+                            <<Self::LImpl as crate::LImpl>::NatLit as crate::owned::NatLit>::RefMut<
+                                'b,
+                            >,
+                        >;
+                        fn f<'b: 'a>(
                             self,
-                            l: &mut Self::LImpl,
-                            value: <Self::LImpl::Nat as crate::owned::Nat>::Ref,
+                            l: &'b mut Self::LImpl,
+                        ) -> Option<
+                            <<Self::LImpl as crate::LImpl>::F as crate::owned::F>::RefMut<'b>,
+                        >;
+                        fn set<'b: 'a, 'c>(
+                            self,
+                            l: &'b mut Self::LImpl,
+                            value: <<Self::LImpl as crate::LImpl>::Nat as crate::owned::Nat>::Ref<'c>,
                         );
                     }
                 }

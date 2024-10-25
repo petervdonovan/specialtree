@@ -28,26 +28,24 @@ pub mod extension_of {
                     <Self::LImpl as crate::extension_of::LImpl>::Nat,
                 ),
             ) -> Self;
-            fn get_ref<'a>(self, l: &'a Self::LImpl) -> Self::Ref<'a>;
-            fn get_mut<'a>(self, l: &'a mut Self::LImpl) -> Self::RefMut<'a>;
+            fn get_ref(self, l: &Self::LImpl) -> Self::Ref<'_>;
+            fn get_mut(self, l: &mut Self::LImpl) -> Self::RefMut<'_>;
         }
         pub trait Nat: Eq {
             type LImpl: crate::extension_of::LImpl;
             type Ref<'a>;
             type RefMut<'a>;
-            fn NatLit(
+            fn nat_lit(
                 l: &mut Self::LImpl,
                 from: <Self::LImpl as crate::extension_of::LImpl>::NatLit,
             ) -> Self;
-            fn F(l: &mut Self::LImpl, from: <Self::LImpl as crate::extension_of::LImpl>::F)
-                -> Self;
+            fn f(
+                l: &mut Self::LImpl,
+                from: <Self::LImpl as crate::extension_of::LImpl>::F,
+            ) -> Self;
         }
     }
     pub mod reference {
-        pub trait Projection<LImpl, const N: u8> {
-            type To;
-            fn project(self, l: &LImpl) -> Self::To;
-        }
         pub trait F<
             'a,
         >: Copy + crate::extension_of::Projection<
@@ -67,7 +65,7 @@ pub mod extension_of {
         }
         pub trait Nat<'a>: Copy {
             type LImpl: crate::extension_of::LImpl;
-            fn NatLit<'b: 'a>(
+            fn nat_lit<'b: 'a>(
                 self,
                 l: &'b Self::LImpl,
             ) -> Option<
@@ -75,7 +73,7 @@ pub mod extension_of {
                     'a,
                 >,
             >;
-            fn F<'b: 'a>(
+            fn f<'b: 'a>(
                 self,
                 l: &'b Self::LImpl,
             ) -> Option<
@@ -105,7 +103,7 @@ pub mod extension_of {
         }
         pub trait Nat<'a>: Copy {
             type LImpl: crate::extension_of::LImpl;
-            fn NatLit<'b: 'a>(
+            fn nat_lit<'b: 'a>(
                 self,
                 l: &'b mut Self::LImpl,
             ) -> Option<
@@ -113,7 +111,7 @@ pub mod extension_of {
                     'b,
                 >,
             >;
-            fn F<'b: 'a>(
+            fn f<'b: 'a>(
                 self,
                 l: &'b mut Self::LImpl,
             ) -> Option<
