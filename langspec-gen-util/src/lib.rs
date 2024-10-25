@@ -16,6 +16,7 @@ pub struct ProdGenData<
     pub snake_name: syn::Ident,
     pub camel_name: syn::Ident,
     pub rs_ty: syn::Type,
+    pub n_sorts: usize,
     pub sort_rs_idents: I0,
     pub sort_rs_types: I1,
     pub sort_shapes: I2,
@@ -29,6 +30,7 @@ pub struct SumGenData<
     pub snake_name: syn::Ident,
     pub camel_name: syn::Ident,
     pub rs_ty: syn::Type,
+    pub n_sorts: usize,
     pub sort_rs_idents: I0,
     pub sort_rs_types: I1,
     pub sort_shapes: I2,
@@ -118,41 +120,20 @@ impl<'a, L: LangSpec> LangSpecGen<'a, L> {
                 .map(|sort| self.sort2rs_type(sort));
             let sort_shapes = self
                 .bak
-                .product_sorts(id)
+                .product_sorts(id.clone())
                 .map(|it| SortShape::project(self.bak, it));
+            let n_sorts = self.bak.product_sorts(id).count();
             ProdGenData {
                 snake_name,
                 camel_name,
                 rs_ty,
+                n_sorts,
                 sort_rs_idents,
                 sort_rs_types,
                 sort_shapes,
             }
         })
     }
-    // pub fn prod_gen_datas_transposed<'b>(
-    //     &'b self,
-    // ) -> (
-    //     Vec<syn::Ident>,
-    //     Vec<syn::Ident>,
-    //     Vec<syn::Type>,
-    //     Vec<impl Iterator<Item = syn::Ident> + 'b>,
-    //     Vec<impl Iterator<Item = syn::Type> + 'b>,
-    //     Vec<impl Iterator<Item = SortShape> + 'b>,
-    // )
-    // where
-    //     'a: 'b,
-    // {
-    //     transpose!(
-    //         self.prod_gen_datas(),
-    //         snake_name,
-    //         camel_name,
-    //         rs_ty,
-    //         sort_rs_idents,
-    //         sort_rs_types,
-    //         sort_shapes
-    //     )
-    // }
     pub fn sum_gen_datas<'b>(
         &'b self,
     ) -> impl Iterator<
@@ -185,12 +166,14 @@ impl<'a, L: LangSpec> LangSpecGen<'a, L> {
                 .map(|sort| self.sort2rs_type(sort));
             let sort_shapes = self
                 .bak
-                .sum_sorts(id)
+                .sum_sorts(id.clone())
                 .map(|it| it.fmap(|it| self.bak.asi_convert(it).fmap_p(|_| ()).fmap_s(|_| ())));
+            let n_sorts = self.bak.sum_sorts(id).count();
             SumGenData {
                 snake_name,
                 camel_name,
                 rs_ty,
+                n_sorts,
                 sort_rs_idents,
                 sort_rs_types,
                 sort_shapes,
