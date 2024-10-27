@@ -21,11 +21,10 @@ build:
 
 generate-tests:
     FROM +build
-    RUN ls
-    RUN ls target
-    RUN cat langdatastructure-gen/examples/generate-tests.rs
-    DO rust+CARGO --args="run --example generate-tests" --output="target/debug/[^/\.]+"
+    DO rust+CARGO --args="run --example generate-langdatastructure-tests" --output="target/debug/[^/\.]+"
+    DO rust+CARGO --args="run --example generate-extensionof-tests" --output="target/debug/[^/\.]+"
     SAVE ARTIFACT langdatastructure-gen/tests AS LOCAL langdatastructure-gen/tests
+    SAVE ARTIFACT extensionof-gen/tests AS LOCAL extensionof-gen/tests
 
 test:
     FROM +generate-tests

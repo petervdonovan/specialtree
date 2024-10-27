@@ -14,6 +14,12 @@ pub fn fib() -> LangSpecHuman {
         snake: f
       sorts:
       - !Algebraic ℕ
+    - name:
+        human: +
+        camel: Plus
+        snake: plus
+      sorts:
+      - !Algebraic ℕ
       - !Algebraic ℕ
     sums:
     - name:
@@ -24,6 +30,8 @@ pub fn fib() -> LangSpecHuman {
       - !NatLiteral
       - !Algebraic
         f
+      - !Algebraic
+        +
 "#,
     )
     .unwrap()
@@ -48,6 +56,12 @@ mod tests {
                 snake: f
               sorts:
               - !Algebraic ℕ
+            - name:
+                human: '+'
+                camel: Plus
+                snake: plus
+              sorts:
+              - !Algebraic ℕ
               - !Algebraic ℕ
             sums:
             - name:
@@ -57,6 +71,7 @@ mod tests {
               sorts:
               - NatLiteral
               - !Algebraic f
+              - !Algebraic '+'
         "#]];
         expected.assert_eq(&serde_yml::to_string(&lsh).unwrap());
     }

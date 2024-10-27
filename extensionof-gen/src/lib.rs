@@ -251,6 +251,7 @@ mod tests {
                 }
                 pub trait LImpl {
                     type NatLit: crate::owned::NatLit;
+                    type Plus: crate::owned::Plus;
                     type F: crate::owned::F;
                     type Nat: crate::owned::Nat;
                 }
@@ -263,7 +264,7 @@ mod tests {
                         type Ref<'a>;
                         type RefMut<'a>;
                     }
-                    pub trait F: Eq {
+                    pub trait Plus: Eq {
                         type LImpl: crate::LImpl;
                         type Ref<'a>;
                         type RefMut<'a>;
@@ -277,6 +278,17 @@ mod tests {
                         fn get_ref(self, l: &Self::LImpl) -> Self::Ref<'_>;
                         fn get_mut(self, l: &mut Self::LImpl) -> Self::RefMut<'_>;
                     }
+                    pub trait F: Eq {
+                        type LImpl: crate::LImpl;
+                        type Ref<'a>;
+                        type RefMut<'a>;
+                        fn new(
+                            l: &mut Self::LImpl,
+                            args: (<Self::LImpl as crate::LImpl>::Nat),
+                        ) -> Self;
+                        fn get_ref(self, l: &Self::LImpl) -> Self::Ref<'_>;
+                        fn get_mut(self, l: &mut Self::LImpl) -> Self::RefMut<'_>;
+                    }
                     pub trait Nat: Eq {
                         type LImpl: crate::LImpl;
                         type Ref<'a>;
@@ -286,10 +298,14 @@ mod tests {
                             from: <Self::LImpl as crate::LImpl>::NatLit,
                         ) -> Self;
                         fn f(l: &mut Self::LImpl, from: <Self::LImpl as crate::LImpl>::F) -> Self;
+                        fn plus(
+                            l: &mut Self::LImpl,
+                            from: <Self::LImpl as crate::LImpl>::Plus,
+                        ) -> Self;
                     }
                 }
                 pub mod reference {
-                    pub trait F<
+                    pub trait Plus<
                         'a,
                     >: Copy + crate::Projection<
                             Self::LImpl,
@@ -298,6 +314,15 @@ mod tests {
                         > + crate::Projection<
                             Self::LImpl,
                             1,
+                            To = <<Self::LImpl as crate::LImpl>::Nat as crate::owned::Nat>::Ref<'a>,
+                        > {
+                        type LImpl: crate::LImpl;
+                    }
+                    pub trait F<
+                        'a,
+                    >: Copy + crate::Projection<
+                            Self::LImpl,
+                            0,
                             To = <<Self::LImpl as crate::LImpl>::Nat as crate::owned::Nat>::Ref<'a>,
                         > {
                         type LImpl: crate::LImpl;
@@ -314,10 +339,16 @@ mod tests {
                             self,
                             l: &'b Self::LImpl,
                         ) -> Option<<<Self::LImpl as crate::LImpl>::F as crate::owned::F>::Ref<'a>>;
+                        fn plus<'b: 'a>(
+                            self,
+                            l: &'b Self::LImpl,
+                        ) -> Option<
+                            <<Self::LImpl as crate::LImpl>::Plus as crate::owned::Plus>::Ref<'a>,
+                        >;
                     }
                 }
                 pub mod mut_reference {
-                    pub trait F<
+                    pub trait Plus<
                         'a,
                     >: Copy + crate::Projection<
                             Self::LImpl,
@@ -328,6 +359,17 @@ mod tests {
                         > + crate::Projection<
                             Self::LImpl,
                             1,
+                            To = <<Self::LImpl as crate::LImpl>::Nat as crate::owned::Nat>::RefMut<
+                                'a,
+                            >,
+                        > {
+                        type LImpl: crate::LImpl;
+                    }
+                    pub trait F<
+                        'a,
+                    >: Copy + crate::Projection<
+                            Self::LImpl,
+                            0,
                             To = <<Self::LImpl as crate::LImpl>::Nat as crate::owned::Nat>::RefMut<
                                 'a,
                             >,
@@ -349,6 +391,12 @@ mod tests {
                             l: &'b mut Self::LImpl,
                         ) -> Option<
                             <<Self::LImpl as crate::LImpl>::F as crate::owned::F>::RefMut<'b>,
+                        >;
+                        fn plus<'b: 'a>(
+                            self,
+                            l: &'b mut Self::LImpl,
+                        ) -> Option<
+                            <<Self::LImpl as crate::LImpl>::Plus as crate::owned::Plus>::RefMut<'b>,
                         >;
                         fn set<'b: 'a, 'c>(
                             self,

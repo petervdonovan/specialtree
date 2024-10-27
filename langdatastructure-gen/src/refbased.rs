@@ -87,10 +87,12 @@ mod tests {
     fn test_data_structure() {
         let formatted = formatted(&langspec_examples::fib());
         let expected = expect_test::expect![[r#"
-            pub struct F(pub Nat, pub Nat);
+            pub struct Plus(pub Nat, pub Nat);
+            pub struct F(pub Nat);
             pub enum Nat {
                 NatLit(usize),
                 F(Box<F>),
+                Plus(Box<Plus>),
             }
         "#]];
         expected.assert_eq(&formatted);

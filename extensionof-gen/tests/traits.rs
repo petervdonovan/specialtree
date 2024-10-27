@@ -5,6 +5,7 @@ pub mod extension_of {
     }
     pub trait LImpl {
         type NatLit: crate::extension_of::owned::NatLit;
+        type Plus: crate::extension_of::owned::Plus;
         type F: crate::extension_of::owned::F;
         type Nat: crate::extension_of::owned::Nat;
     }
@@ -17,7 +18,7 @@ pub mod extension_of {
             type Ref<'a>;
             type RefMut<'a>;
         }
-        pub trait F: Eq {
+        pub trait Plus: Eq {
             type LImpl: crate::extension_of::LImpl;
             type Ref<'a>;
             type RefMut<'a>;
@@ -27,6 +28,17 @@ pub mod extension_of {
                     <Self::LImpl as crate::extension_of::LImpl>::Nat,
                     <Self::LImpl as crate::extension_of::LImpl>::Nat,
                 ),
+            ) -> Self;
+            fn get_ref(self, l: &Self::LImpl) -> Self::Ref<'_>;
+            fn get_mut(self, l: &mut Self::LImpl) -> Self::RefMut<'_>;
+        }
+        pub trait F: Eq {
+            type LImpl: crate::extension_of::LImpl;
+            type Ref<'a>;
+            type RefMut<'a>;
+            fn new(
+                l: &mut Self::LImpl,
+                args: (<Self::LImpl as crate::extension_of::LImpl>::Nat),
             ) -> Self;
             fn get_ref(self, l: &Self::LImpl) -> Self::Ref<'_>;
             fn get_mut(self, l: &mut Self::LImpl) -> Self::RefMut<'_>;
@@ -43,10 +55,14 @@ pub mod extension_of {
                 l: &mut Self::LImpl,
                 from: <Self::LImpl as crate::extension_of::LImpl>::F,
             ) -> Self;
+            fn plus(
+                l: &mut Self::LImpl,
+                from: <Self::LImpl as crate::extension_of::LImpl>::Plus,
+            ) -> Self;
         }
     }
     pub mod reference {
-        pub trait F<
+        pub trait Plus<
             'a,
         >: Copy + crate::extension_of::Projection<
                 Self::LImpl,
@@ -57,6 +73,17 @@ pub mod extension_of {
             > + crate::extension_of::Projection<
                 Self::LImpl,
                 1,
+                To = <<Self::LImpl as crate::extension_of::LImpl>::Nat as crate::extension_of::owned::Nat>::Ref<
+                    'a,
+                >,
+            > {
+            type LImpl: crate::extension_of::LImpl;
+        }
+        pub trait F<
+            'a,
+        >: Copy + crate::extension_of::Projection<
+                Self::LImpl,
+                0,
                 To = <<Self::LImpl as crate::extension_of::LImpl>::Nat as crate::extension_of::owned::Nat>::Ref<
                     'a,
                 >,
@@ -81,10 +108,18 @@ pub mod extension_of {
                     'a,
                 >,
             >;
+            fn plus<'b: 'a>(
+                self,
+                l: &'b Self::LImpl,
+            ) -> Option<
+                <<Self::LImpl as crate::extension_of::LImpl>::Plus as crate::extension_of::owned::Plus>::Ref<
+                    'a,
+                >,
+            >;
         }
     }
     pub mod mut_reference {
-        pub trait F<
+        pub trait Plus<
             'a,
         >: Copy + crate::extension_of::Projection<
                 Self::LImpl,
@@ -95,6 +130,17 @@ pub mod extension_of {
             > + crate::extension_of::Projection<
                 Self::LImpl,
                 1,
+                To = <<Self::LImpl as crate::extension_of::LImpl>::Nat as crate::extension_of::owned::Nat>::RefMut<
+                    'a,
+                >,
+            > {
+            type LImpl: crate::extension_of::LImpl;
+        }
+        pub trait F<
+            'a,
+        >: Copy + crate::extension_of::Projection<
+                Self::LImpl,
+                0,
                 To = <<Self::LImpl as crate::extension_of::LImpl>::Nat as crate::extension_of::owned::Nat>::RefMut<
                     'a,
                 >,
@@ -116,6 +162,14 @@ pub mod extension_of {
                 l: &'b mut Self::LImpl,
             ) -> Option<
                 <<Self::LImpl as crate::extension_of::LImpl>::F as crate::extension_of::owned::F>::RefMut<
+                    'b,
+                >,
+            >;
+            fn plus<'b: 'a>(
+                self,
+                l: &'b mut Self::LImpl,
+            ) -> Option<
+                <<Self::LImpl as crate::extension_of::LImpl>::Plus as crate::extension_of::owned::Plus>::RefMut<
                     'b,
                 >,
             >;
