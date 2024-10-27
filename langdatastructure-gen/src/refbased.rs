@@ -7,7 +7,7 @@ use syn::{parse_quote, ItemEnum, ItemStruct};
 
 use langspec_gen_util::{LangSpecGen, ProdGenData, SumGenData};
 
-pub fn gen(l: &LangSpecFlat) -> (Vec<ItemStruct>, Vec<ItemEnum>) {
+pub fn gen(base_path: &syn::Path, l: &LangSpecFlat) -> (Vec<ItemStruct>, Vec<ItemEnum>) {
     pub fn sort2rs_type(sort: SortId<syn::Type>) -> syn::Type {
         match sort {
             SortId::NatLiteral => parse_quote!(usize),
@@ -25,6 +25,7 @@ pub fn gen(l: &LangSpecFlat) -> (Vec<ItemStruct>, Vec<ItemEnum>) {
     let lg = LangSpecGen {
         bak: l,
         sort2rs_type,
+        type_base_path: base_path.clone(),
     };
     let prods = lg
         .prod_gen_datas()
@@ -71,7 +72,7 @@ pub fn gen(l: &LangSpecFlat) -> (Vec<ItemStruct>, Vec<ItemEnum>) {
 
 pub fn formatted(lsh: &LangSpecHuman) -> String {
     let lsf: LangSpecFlat = LangSpecFlat::canonical_from(lsh);
-    let (structs, enums) = gen(&lsf);
+    let (structs, enums) = gen(&parse_quote!(crate), &lsf);
     prettyplease::unparse(&syn::parse_quote! {
         #(#structs)*
         #(#enums)*

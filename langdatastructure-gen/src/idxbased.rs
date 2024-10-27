@@ -3,43 +3,30 @@ use langspec::{
     humanreadable::LangSpecHuman,
     langspec::{LangSpec, SortId, TerminalLangSpec},
 };
-use syn::{parse_quote, ItemEnum, ItemStruct};
+use syn::{parse_quote, ItemStruct};
 
 use langspec_gen_util::{name_as_camel_ident, SumGenData};
 use langspec_gen_util::{LangSpecGen, ProdGenData};
 
-pub struct GenResult {
-    pub db: ItemStruct,
-    pub prods: Vec<ItemStruct>,
-    pub sums: Vec<ItemEnum>,
-}
-
-impl GenResult {
-    pub fn to_items(self) -> Vec<syn::Item> {
-        let mut items = vec![syn::Item::Struct(self.db)];
-        items.extend(self.prods.into_iter().map(syn::Item::Struct));
-        items.extend(self.sums.into_iter().map(syn::Item::Enum));
-        items
-    }
-}
-
-pub fn gen<L: LangSpec>(l: &L) -> GenResult {
-    fn sort2rs_idx_type(sort: SortId<syn::Type>) -> syn::Type {
-        match sort {
-            SortId::NatLiteral | SortId::Algebraic(_) => parse_quote!(usize),
-            SortId::Set(_) | SortId::Sequence(_) => {
-                parse_quote!(Vec<usize>)
-            }
+pub fn sort2rs_idx_type(sort: SortId<syn::Type>) -> syn::Type {
+    match sort {
+        SortId::NatLiteral => parse_quote!(usize),
+        SortId::Algebraic(ty) => ty,
+        SortId::Set(ty) | SortId::Sequence(ty) => {
+            parse_quote!(Vec<#ty>)
         }
     }
-    fn gen_db<L: LangSpec>(l: &LangSpecGen<L>) -> ItemStruct {
+}
+
+pub fn gen<L: LangSpec>(base_path: &syn::Path, l: &L) -> syn::ItemMod {
+    fn gen_db<L: LangSpec>(base_path: &syn::Path, l: &LangSpecGen<L>) -> ItemStruct {
         langspec_gen_util::transpose!(l.prod_gen_datas(), snake_ident, rs_ty);
         let prod_fields = quote::quote! {
-            #(pub #snake_ident: Vec<#rs_ty>,)*
+            #(pub #snake_ident: Vec<#base_path::idxbased::data::#rs_ty>,)*
         };
         langspec_gen_util::transpose!(l.sum_gen_datas(), snake_ident, rs_ty);
         let sum_fields = quote::quote! {
-            #(pub #snake_ident: Vec<#rs_ty>,)*
+            #(pub #snake_ident: Vec<#base_path::idxbased::data::#rs_ty>,)*
         };
         let name = name_as_camel_ident(l.bak.name());
         parse_quote!(
@@ -52,60 +39,85 @@ pub fn gen<L: LangSpec>(l: &L) -> GenResult {
     let lg = LangSpecGen {
         bak: l,
         sort2rs_type: sort2rs_idx_type,
+        type_base_path: parse_quote!(#base_path::idxbased),
     };
-    let db = gen_db(&lg);
+    let db = gen_db(base_path, &lg);
+    let prod_datas = lg.prod_gen_datas().map(
+        |ProdGenData {
+             camel_ident: camel_name,
+             sort_rs_types,
+             ..
+         }|
+         -> syn::ItemStruct {
+            parse_quote!(
+                pub struct #camel_name (
+                    #(pub #sort_rs_types,)*
+                );
+            )
+        },
+    );
+    let sum_datas = lg.sum_gen_datas().map(
+        |SumGenData {
+             camel_ident: camel_name,
+             sort_rs_camel_idents: sort_rs_idents,
+             sort_rs_types,
+             sort_shapes,
+             ..
+         }|
+         -> syn::ItemEnum {
+            let variant_tys = sort_rs_types
+                .zip(sort_shapes)
+                .map(|(ty, shape)| -> syn::Type {
+                    if let SortId::Algebraic(_) = shape {
+                        parse_quote!(Box<#ty>)
+                    } else {
+                        ty
+                    }
+                });
+            parse_quote!(
+                pub enum #camel_name {
+                    #(#sort_rs_idents(#variant_tys)),*
+                }
+            )
+        },
+    );
     let prods = lg
         .prod_gen_datas()
-        .map(
-            |ProdGenData {
-                 camel_ident: camel_name,
-                 sort_rs_types,
-                 ..
-             }| {
-                parse_quote!(
-                    pub struct #camel_name (
-                        #(pub #sort_rs_types,)*
-                    );
-                )
-            },
-        )
-        .collect();
+        .map(|ProdGenData { camel_ident, .. }| -> syn::ItemStruct {
+            parse_quote! {
+                #[derive(Clone, Copy)]
+                pub struct #camel_ident(pub usize);
+            }
+        });
     let sums = lg
         .sum_gen_datas()
-        .map(
-            |SumGenData {
-                 camel_ident: camel_name,
-                 sort_rs_camel_idents: sort_rs_idents,
-                 sort_rs_types,
-                 sort_shapes,
-                 ..
-             }| {
-                let variant_tys = sort_rs_types
-                    .zip(sort_shapes)
-                    .map(|(ty, shape)| -> syn::Type {
-                        if let SortId::Algebraic(_) = shape {
-                            parse_quote!(Box<#ty>)
-                        } else {
-                            ty
-                        }
-                    });
-                parse_quote!(
-                    pub enum #camel_name {
-                        #(#sort_rs_idents(#variant_tys)),*
-                    }
-                )
-            },
-        )
-        .collect();
-    GenResult { db, prods, sums }
+        .map(|SumGenData { camel_ident, .. }| -> syn::ItemStruct {
+            parse_quote! {
+                #[derive(Clone, Copy)]
+                pub struct #camel_ident(pub usize);
+            }
+        });
+    let byline = langspec_gen_util::byline!();
+    syn::parse_quote! {
+        #byline
+        pub mod idxbased {
+            #db
+            pub(crate) mod data {
+                #(#prod_datas)*
+                #(#sum_datas)*
+            }
+            pub type NatLit = usize;
+            #(#prods)*
+            #(#sums)*
+        }
+    }
 }
 
 pub fn formatted(lsh: &LangSpecHuman) -> String {
     let lsf: LangSpecFlat = LangSpecFlat::canonical_from(lsh);
-    let gen_result = gen(&lsf);
-    let items = gen_result.to_items();
+    let gen_result = gen(&parse_quote!(crate), &lsf);
     prettyplease::unparse(&syn::parse_quote! {
-        #(#items)*
+        #gen_result
     })
 }
 
@@ -118,17 +130,28 @@ mod tests {
     fn test_data_structure() {
         let formatted = formatted(&langspec_examples::fib());
         let expected = expect_test::expect![[r#"
-            pub struct Fib {
-                pub plus: Vec<Plus>,
-                pub f: Vec<F>,
-                pub nat: Vec<Nat>,
-            }
-            pub struct Plus(pub usize, pub usize);
-            pub struct F(pub usize);
-            pub enum Nat {
-                NatLit(usize),
-                F(Box<usize>),
-                Plus(Box<usize>),
+            /// generated by langdatastructure_gen::idxbased
+            pub mod idxbased {
+                pub struct Fib {
+                    pub plus: Vec<crate::idxbased::data::Plus>,
+                    pub f: Vec<crate::idxbased::data::F>,
+                    pub nat: Vec<crate::idxbased::data::Nat>,
+                }
+                pub(crate) mod data {
+                    pub struct Plus(pub usize, pub usize);
+                    pub struct F(pub usize);
+                    pub enum Nat {
+                        NatLit(usize),
+                        F(Box<usize>),
+                        Plus(Box<usize>),
+                    }
+                }
+                #[derive(Clone, Copy)]
+                pub struct Plus(pub usize);
+                #[derive(Clone, Copy)]
+                pub struct F(pub usize);
+                #[derive(Clone, Copy)]
+                pub struct Nat(pub usize);
             }
         "#]];
         expected.assert_eq(&formatted);

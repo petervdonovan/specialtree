@@ -41,11 +41,11 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
             } in ls.prod_gen_datas()
             {
                 let gen = quote::quote!(
-                    pub trait #camel_name: Eq {
+                    pub trait #camel_name {
                         type LImpl: #base_path::LImpl;
                         type Ref<'a>;
                         type RefMut<'a>;
-                        fn new(l: &mut Self::LImpl, args: (#(<Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents),*)) -> Self;
+                        fn new(l: &mut Self::LImpl, args: (#(<Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents,)*)) -> Self;
                         fn get_ref(self, l: &Self::LImpl) -> Self::Ref<'_>;
                         fn get_mut(self, l: &mut Self::LImpl) -> Self::RefMut<'_>;
                     }
@@ -56,14 +56,13 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
         fn sums<L: LangSpec>(ret: &mut Vec<syn::Item>, base_path: &syn::Path, ls: &LangSpecGen<L>) {
             for SumGenData {
                 camel_ident: camel_name,
-                // sort_rs_types,
                 sort_rs_camel_idents,
                 sort_rs_snake_idents,
                 ..
             } in ls.sum_gen_datas()
             {
                 ret.push(parse_quote!(
-                    pub trait #camel_name: Eq {
+                    pub trait #camel_name {
                         type LImpl: #base_path::LImpl;
                         type Ref<'a>;
                         type RefMut<'a>;
@@ -113,6 +112,7 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
                 let gen = quote::quote!(
                     pub trait #camel_ident<'a>: Copy #(+ #base_path::Projection<Self::LImpl, #idx, To=<<Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents as #base_path::owned::#sort_rs_camel_idents>::Ref<'a>>)* {
                         type LImpl: #base_path::LImpl;
+                        fn is_eq<'b: 'a>(self, l: &'b Self::LImpl, other: Self) -> bool;
                     }
                 );
                 ret.push(parse_quote!(#gen));
@@ -132,6 +132,7 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
                         #(
                             fn #sort_rs_snake_idents<'b: 'a>(self, l: &'b Self::LImpl) -> Option<<<Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents as #base_path::owned::#sort_rs_camel_idents>::Ref<'a>>;
                         )*
+                        fn is_eq<'b: 'a>(self, l: &'b Self::LImpl, other: Self) -> bool;
                     }
                 ));
             }
@@ -207,6 +208,7 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
     let lg = LangSpecGen {
         bak: ls,
         sort2rs_type: fail,
+        type_base_path: base_path.clone(),
     };
     let extension_of = gen_extension_of();
     let owned = gen_owned(base_path, &lg);
@@ -214,7 +216,9 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
     let mut_reference = gen_mut_reference(base_path, &lg);
     let projection_trait = projection_trait();
     let limpl_trait = limpl_trait(base_path, &lg);
+    let byline = langspec_gen_util::byline!();
     parse_quote!(
+        #byline
         pub mod extension_of {
             #projection_trait
             #limpl_trait
