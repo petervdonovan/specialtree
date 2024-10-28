@@ -39,6 +39,8 @@ pub struct ProdGenData<
     I1: Iterator<Item = syn::Ident>,
     I2: Iterator<Item = syn::Type>,
     I3: Iterator<Item = SortId<AlgebraicSortId<(), ()>>>,
+    I4: Iterator<Item = syn::LitInt>,
+    I5: Iterator<Item = syn::Ident>,
 > {
     pub snake_ident: syn::Ident,
     pub camel_ident: syn::Ident,
@@ -48,6 +50,8 @@ pub struct ProdGenData<
     pub sort_rs_snake_idents: I1,
     pub sort_rs_types: I2,
     pub sort_shapes: I3,
+    pub idx: I4,
+    pub ty_idx: I5,
 }
 
 pub struct SumGenData<
@@ -79,6 +83,15 @@ macro_rules! transpose {
         }
         $(
             let $field = $field;
+        )*
+    };
+}
+
+#[macro_export]
+macro_rules! collect {
+    ($($field:ident),*) => {
+        $(
+            let $field = $field.collect::<Vec<_>>();
         )*
     };
 }
@@ -151,6 +164,8 @@ impl<'a, L: LangSpec> LangSpecGen<'a, L> {
             impl Iterator<Item = syn::Ident> + 'b,
             impl Iterator<Item = syn::Type> + 'b,
             impl Iterator<Item = SortId<AlgebraicSortId<(), ()>>> + 'b,
+            impl Iterator<Item = syn::LitInt> + 'b,
+            impl Iterator<Item = syn::Ident> + 'b,
         >,
     > + 'b
     where
@@ -183,6 +198,11 @@ impl<'a, L: LangSpec> LangSpecGen<'a, L> {
                 .product_sorts(id.clone())
                 .map(|it| SortShape::project(self.bak, it));
             let n_sorts = self.bak.product_sorts(id).count();
+            let idx = (0..n_sorts)
+                .map(|i| syn::LitInt::new(&i.to_string(), proc_macro2::Span::call_site()));
+            let ty_idx = (0..n_sorts)
+                .map(|it| format!("T{}", it)) // This is a hack: name generation. Move it to gen utils at least
+                .map(|it| syn::Ident::new(&it, proc_macro2::Span::call_site()));
             ProdGenData {
                 snake_ident,
                 camel_ident,
@@ -192,6 +212,8 @@ impl<'a, L: LangSpec> LangSpecGen<'a, L> {
                 sort_rs_snake_idents,
                 sort_rs_types,
                 sort_shapes,
+                idx,
+                ty_idx,
             }
         })
     }

@@ -111,8 +111,6 @@ mod owned {
                         #byline
                         impl #extension_of::owned::#camel_ident for #data_structure::#rs_ty {
                             type LImpl = #data_structure::#ls_camel_ident;
-                            type Ref<'a> = Self;
-                            type RefMut<'a> = Self;
                             fn new(l: &mut Self::LImpl, args: (#(<Self::LImpl as #extension_of::LImpl>::#sort_rs_camel_idents,)*)) -> Self {
                                 // hash-consing not yet implemented
                                 let data = #data_structure::data::#camel_ident(#(args.#arg_idxs),*);
@@ -120,10 +118,10 @@ mod owned {
                                 l.#snake_ident.push(data);
                                 Self(ret)
                             }
-                            fn get_ref(&self, _l: &Self::LImpl) -> Self::Ref<'_> {
+                            fn get_ref(&self, _l: &Self::LImpl) -> impl #extension_of::reference::#camel_ident<'_> {
                                 *self
                             }
-                            fn get_mut(&mut self, _l: &mut Self::LImpl) -> Self::RefMut<'_> {
+                            fn get_mut(&mut self, _l: &mut Self::LImpl) -> impl #extension_of::mut_reference::#camel_ident<'_> {
                                 *self
                             }
                         }
@@ -155,8 +153,6 @@ mod owned {
                     #byline
                     impl #extension_of::owned::#camel_ident for #data_structure::#camel_ident {
                         type LImpl = #data_structure::#ls_camel_ident;
-                        type Ref<'a> = Self;
-                        type RefMut<'a> = Self;
                         #(
                             fn #sort_rs_snake_idents(l: &mut Self::LImpl, from: <Self::LImpl as #extension_of::LImpl>::#sort_rs_camel_idents) -> Self {
                                 let data = #data_structure::data::#camel_ident::#sort_rs_camel_idents(#maybe_box_from);
@@ -165,10 +161,10 @@ mod owned {
                                 Self(ret)
                             }
                         )*
-                        fn get_ref(&self, _l: &Self::LImpl) -> Self::Ref<'_> {
+                        fn get_ref(&self, _l: &Self::LImpl) -> impl #extension_of::reference::#camel_ident<'_> {
                             *self
                         }
-                        fn get_mut(&mut self, _l: &mut Self::LImpl) -> Self::RefMut<'_> {
+                        fn get_mut(&mut self, _l: &mut Self::LImpl) -> impl #extension_of::mut_reference::#camel_ident<'_> {
                             *self
                         }
                     }
