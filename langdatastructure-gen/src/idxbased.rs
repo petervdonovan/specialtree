@@ -19,23 +19,6 @@ pub fn sort2rs_idx_type(sort: SortId<syn::Type>) -> syn::Type {
 }
 
 pub fn gen<L: LangSpec>(base_path: &syn::Path, l: &L) -> syn::ItemMod {
-    fn gen_db<L: LangSpec>(base_path: &syn::Path, l: &LangSpecGen<L>) -> ItemStruct {
-        langspec_gen_util::transpose!(l.prod_gen_datas(), snake_ident, rs_ty);
-        let prod_fields = quote::quote! {
-            #(pub #snake_ident: Vec<#base_path::idxbased::data::#rs_ty>,)*
-        };
-        langspec_gen_util::transpose!(l.sum_gen_datas(), snake_ident, rs_ty);
-        let sum_fields = quote::quote! {
-            #(pub #snake_ident: Vec<#base_path::idxbased::data::#rs_ty>,)*
-        };
-        let name = name_as_camel_ident(l.bak.name());
-        parse_quote!(
-            pub struct #name {
-                #prod_fields
-                #sum_fields
-            }
-        )
-    }
     let lg = LangSpecGen {
         bak: l,
         sort2rs_type: sort2rs_idx_type,
@@ -111,6 +94,26 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, l: &L) -> syn::ItemMod {
             #(#sums)*
         }
     }
+}
+
+pub(crate) fn gen_db<L: LangSpec>(base_path: &syn::Path, l: &LangSpecGen<L>) -> ItemStruct {
+    langspec_gen_util::transpose!(l.prod_gen_datas(), snake_ident, rs_ty);
+    let prod_fields = quote::quote! {
+        #(pub #snake_ident: Vec<#base_path::idxbased::data::#rs_ty>,)*
+    };
+    langspec_gen_util::transpose!(l.sum_gen_datas(), snake_ident, rs_ty);
+    let sum_fields = quote::quote! {
+        #(pub #snake_ident: Vec<#base_path::idxbased::data::#rs_ty>,)*
+    };
+    let name = name_as_camel_ident(l.bak.name());
+    let byline = langspec_gen_util::byline!();
+    parse_quote!(
+        #byline
+        pub struct #name {
+            #prod_fields
+            #sum_fields
+        }
+    )
 }
 
 pub fn formatted(lsh: &LangSpecHuman) -> String {

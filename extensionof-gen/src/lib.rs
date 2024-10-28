@@ -3,205 +3,6 @@ use langspec_gen_util::{transpose, LangSpecGen, ProdGenData, SumGenData};
 use syn::parse_quote;
 
 pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
-    fn gen_extension_of() -> syn::Item {
-        parse_quote!(
-            pub trait ExtensionOf {
-                type Any;
-                fn take_reduct<L: ExtensionOf>(&self, term: &Self::Any) -> (L, L::Any);
-            }
-        )
-    }
-    fn limpl_trait<L: LangSpec>(base_path: &syn::Path, ls: &LangSpecGen<L>) -> syn::Item {
-        transpose!(ls.prod_gen_datas(), camel_ident);
-        let prod_types = camel_ident;
-        transpose!(ls.sum_gen_datas(), camel_ident);
-        let sum_types = camel_ident;
-        parse_quote!(
-            pub trait LImpl {
-                type NatLit: #base_path::owned::NatLit;
-                #(
-                    type #prod_types: #base_path::owned::#prod_types;
-                )*
-                #(
-                    type #sum_types: #base_path::owned::#sum_types;
-                )*
-            }
-        )
-    }
-    fn gen_owned<L: LangSpec>(base_path: &syn::Path, ls: &LangSpecGen<L>) -> syn::Item {
-        fn prods<L: LangSpec>(
-            ret: &mut Vec<syn::Item>,
-            base_path: &syn::Path,
-            ls: &LangSpecGen<L>,
-        ) {
-            for ProdGenData {
-                camel_ident: camel_name,
-                sort_rs_camel_idents,
-                ..
-            } in ls.prod_gen_datas()
-            {
-                let gen = quote::quote!(
-                    pub trait #camel_name {
-                        type LImpl: #base_path::LImpl;
-                        type Ref<'a>;
-                        type RefMut<'a>;
-                        fn new(l: &mut Self::LImpl, args: (#(<Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents,)*)) -> Self;
-                        fn get_ref(self, l: &Self::LImpl) -> Self::Ref<'_>;
-                        fn get_mut(self, l: &mut Self::LImpl) -> Self::RefMut<'_>;
-                    }
-                );
-                ret.push(parse_quote!(#gen));
-            }
-        }
-        fn sums<L: LangSpec>(ret: &mut Vec<syn::Item>, base_path: &syn::Path, ls: &LangSpecGen<L>) {
-            for SumGenData {
-                camel_ident: camel_name,
-                sort_rs_camel_idents,
-                sort_rs_snake_idents,
-                ..
-            } in ls.sum_gen_datas()
-            {
-                ret.push(parse_quote!(
-                    pub trait #camel_name {
-                        type LImpl: #base_path::LImpl;
-                        type Ref<'a>;
-                        type RefMut<'a>;
-                        #(
-                            fn #sort_rs_snake_idents(l: &mut Self::LImpl, from: <Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents) -> Self;
-                        )*
-                    }
-                ));
-            }
-        }
-        let mut ret: Vec<syn::Item> = vec![];
-        prods(&mut ret, base_path, ls);
-        sums(&mut ret, base_path, ls);
-        parse_quote!(
-            pub mod owned {
-                pub trait NatLit: Into<usize> + From<usize> {
-                    type Ref<'a>;
-                    type RefMut<'a>;
-                }
-                #(#ret)*
-            }
-        )
-    }
-    fn projection_trait() -> syn::ItemTrait {
-        parse_quote!(
-            pub trait Projection<LImpl, const N: u8> {
-                type To;
-                fn project(self, l: &LImpl) -> Self::To;
-            }
-        )
-    }
-    fn gen_reference<L: LangSpec>(base_path: &syn::Path, ls: &LangSpecGen<L>) -> syn::Item {
-        fn prods<L: LangSpec>(
-            ret: &mut Vec<syn::Item>,
-            base_path: &syn::Path,
-            ls: &LangSpecGen<L>,
-        ) {
-            for ProdGenData {
-                camel_ident,
-                n_sorts,
-                sort_rs_camel_idents,
-                ..
-            } in ls.prod_gen_datas()
-            {
-                let idx = (0..n_sorts)
-                    .map(|i| syn::LitInt::new(&i.to_string(), proc_macro2::Span::call_site()));
-                let gen = quote::quote!(
-                    pub trait #camel_ident<'a>: Copy #(+ #base_path::Projection<Self::LImpl, #idx, To=<<Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents as #base_path::owned::#sort_rs_camel_idents>::Ref<'a>>)* {
-                        type LImpl: #base_path::LImpl;
-                        fn is_eq<'b: 'a>(self, l: &'b Self::LImpl, other: Self) -> bool;
-                    }
-                );
-                ret.push(parse_quote!(#gen));
-            }
-        }
-        fn sums<L: LangSpec>(ret: &mut Vec<syn::Item>, base_path: &syn::Path, ls: &LangSpecGen<L>) {
-            for SumGenData {
-                camel_ident,
-                sort_rs_camel_idents,
-                sort_rs_snake_idents,
-                ..
-            } in ls.sum_gen_datas()
-            {
-                ret.push(parse_quote!(
-                    pub trait #camel_ident<'a>: Copy {
-                        type LImpl: #base_path::LImpl;
-                        #(
-                            fn #sort_rs_snake_idents<'b: 'a>(self, l: &'b Self::LImpl) -> Option<<<Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents as #base_path::owned::#sort_rs_camel_idents>::Ref<'a>>;
-                        )*
-                        fn is_eq<'b: 'a>(self, l: &'b Self::LImpl, other: Self) -> bool;
-                    }
-                ));
-            }
-        }
-        let mut ret: Vec<syn::Item> = vec![];
-        prods(&mut ret, base_path, ls);
-        sums(&mut ret, base_path, ls);
-        parse_quote!(
-            pub mod reference {
-                #(#ret)*
-            }
-        )
-    }
-    fn gen_mut_reference<L: LangSpec>(base_path: &syn::Path, ls: &LangSpecGen<L>) -> syn::Item {
-        fn prods<L: LangSpec>(
-            ret: &mut Vec<syn::Item>,
-            base_path: &syn::Path,
-            ls: &LangSpecGen<L>,
-        ) {
-            for ProdGenData {
-                camel_ident,
-                n_sorts,
-                sort_rs_camel_idents,
-                ..
-            } in ls.prod_gen_datas()
-            {
-                let idx = (0..n_sorts)
-                    .map(|i| syn::LitInt::new(&i.to_string(), proc_macro2::Span::call_site()));
-                let gen = quote::quote!(
-                    pub trait #camel_ident<'a>: Copy #(+ #base_path::Projection<Self::LImpl, #idx, To=<<Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents as #base_path::owned::#sort_rs_camel_idents>::RefMut<'a>>)* {
-                        type LImpl: #base_path::LImpl;
-                    }
-                );
-                ret.push(parse_quote!(#gen));
-            }
-        }
-        fn sums<L: LangSpec>(ret: &mut Vec<syn::Item>, base_path: &syn::Path, ls: &LangSpecGen<L>) {
-            for SumGenData {
-                camel_ident,
-                // sort_rs_types,
-                sort_rs_camel_idents,
-                sort_rs_snake_idents,
-                ..
-            } in ls.sum_gen_datas()
-            {
-                ret.push(parse_quote!(
-                    pub trait #camel_ident<'a>: Copy {
-                        type LImpl: #base_path::LImpl;
-                        #(
-                            fn #sort_rs_snake_idents<'b: 'a>(self, l: &'b mut Self::LImpl) -> Option<<<Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents as #base_path::owned::#sort_rs_camel_idents>::RefMut<'b>>;
-                        )*
-                        fn set<'b: 'a, 'c>(
-                            self,
-                            l: &'b mut Self::LImpl,
-                            value: <<Self::LImpl as #base_path::LImpl>::#camel_ident as #base_path::owned::#camel_ident>::Ref<'c>,
-                        );
-                    }
-                ));
-            }
-        }
-        let mut ret: Vec<syn::Item> = vec![];
-        prods(&mut ret, base_path, ls);
-        sums(&mut ret, base_path, ls);
-        parse_quote!(
-            pub mod mut_reference {
-                #(#ret)*
-            }
-        )
-    }
     fn fail(_: langspec::langspec::SortId<syn::Type>) -> syn::Type {
         panic!("must be type-agnostic");
     }
@@ -211,9 +12,9 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
         type_base_path: base_path.clone(),
     };
     let extension_of = gen_extension_of();
-    let owned = gen_owned(base_path, &lg);
-    let reference = gen_reference(base_path, &lg);
-    let mut_reference = gen_mut_reference(base_path, &lg);
+    let owned = owned::gen(base_path, &lg);
+    let reference = reference::gen(base_path, &lg);
+    let mut_reference = mut_reference::gen(base_path, &lg);
     let projection_trait = projection_trait();
     let limpl_trait = limpl_trait(base_path, &lg);
     let byline = langspec_gen_util::byline!();
@@ -228,6 +29,249 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
             #mut_reference
         }
     )
+}
+
+fn gen_extension_of() -> syn::Item {
+    parse_quote!(
+        pub trait ExtensionOf {
+            type Any;
+            fn take_reduct<L: ExtensionOf>(&self, term: &Self::Any) -> (L, L::Any);
+        }
+    )
+}
+fn limpl_trait<L: LangSpec>(base_path: &syn::Path, ls: &LangSpecGen<L>) -> syn::Item {
+    transpose!(ls.prod_gen_datas(), camel_ident);
+    let prod_types = camel_ident;
+    transpose!(ls.sum_gen_datas(), camel_ident);
+    let sum_types = camel_ident;
+    let byline = langspec_gen_util::byline!();
+    parse_quote!(
+        #byline
+        pub trait LImpl {
+            type NatLit: #base_path::owned::NatLit;
+            #(
+                type #prod_types: #base_path::owned::#prod_types;
+            )*
+            #(
+                type #sum_types: #base_path::owned::#sum_types;
+            )*
+        }
+    )
+}
+mod owned {
+    use super::*;
+    pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &LangSpecGen<L>) -> syn::Item {
+        let mut ret: Vec<syn::Item> = vec![];
+        prods(&mut ret, base_path, ls);
+        sums(&mut ret, base_path, ls);
+        let byline = langspec_gen_util::byline!();
+        parse_quote!(
+            #byline
+            pub mod owned {
+                pub trait NatLit: Into<usize> + From<usize> {
+                    type Ref<'a> where Self: 'a;
+                    type RefMut<'a> where Self: 'a;
+                }
+                #(#ret)*
+            }
+        )
+    }
+    pub fn prods<L: LangSpec>(
+        ret: &mut Vec<syn::Item>,
+        base_path: &syn::Path,
+        ls: &LangSpecGen<L>,
+    ) {
+        let byline = langspec_gen_util::byline!();
+        for ProdGenData {
+            camel_ident: camel_name,
+            sort_rs_camel_idents,
+            ..
+        } in ls.prod_gen_datas()
+        {
+            let gen = quote::quote!(
+                #byline
+                pub trait #camel_name {
+                    type LImpl: #base_path::LImpl;
+                    type Ref<'a> where Self: 'a;
+                    type RefMut<'a> where Self: 'a;
+                    fn new(l: &mut Self::LImpl, args: (#(<Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents,)*)) -> Self;
+                    fn get_ref(&self, l: &Self::LImpl) -> Self::Ref<'_>;
+                    fn get_mut(&mut self, l: &mut Self::LImpl) -> Self::RefMut<'_>;
+                }
+            );
+            ret.push(parse_quote!(#gen));
+        }
+    }
+    pub fn sums<L: LangSpec>(ret: &mut Vec<syn::Item>, base_path: &syn::Path, ls: &LangSpecGen<L>) {
+        let byline = langspec_gen_util::byline!();
+        for SumGenData {
+            camel_ident: camel_name,
+            sort_rs_camel_idents,
+            sort_rs_snake_idents,
+            ..
+        } in ls.sum_gen_datas()
+        {
+            ret.push(parse_quote!(
+                #byline
+                pub trait #camel_name {
+                    type LImpl: #base_path::LImpl;
+                    type Ref<'a> where Self: 'a;
+                    type RefMut<'a> where Self: 'a;
+                    #(
+                        fn #sort_rs_snake_idents(l: &mut Self::LImpl, from: <Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents) -> Self;
+                    )*
+                    fn get_ref(&self, l: &Self::LImpl) -> Self::Ref<'_>;
+                    fn get_mut(&mut self, l: &mut Self::LImpl) -> Self::RefMut<'_>;
+                }
+            ));
+        }
+    }
+}
+fn projection_trait() -> syn::ItemTrait {
+    parse_quote!(
+        pub trait Projection<LImpl, const N: u8> {
+            type To;
+            fn project(self, l: &LImpl) -> Self::To;
+        }
+    )
+}
+mod reference {
+    use super::*;
+    pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &LangSpecGen<L>) -> syn::Item {
+        let mut ret: Vec<syn::Item> = vec![];
+        prods(&mut ret, base_path, ls);
+        sums(&mut ret, base_path, ls);
+        let byline = langspec_gen_util::byline!();
+        parse_quote!(
+            #byline
+            pub mod reference {
+                #(#ret)*
+            }
+        )
+    }
+    pub fn prods<L: LangSpec>(
+        ret: &mut Vec<syn::Item>,
+        base_path: &syn::Path,
+        ls: &LangSpecGen<L>,
+    ) {
+        let byline = langspec_gen_util::byline!();
+        for ProdGenData {
+            camel_ident,
+            n_sorts,
+            sort_rs_camel_idents,
+            ..
+        } in ls.prod_gen_datas()
+        {
+            let sort_rs_camel_idents = sort_rs_camel_idents.collect::<Vec<_>>();
+            let idx = (0..n_sorts)
+                .map(|i| syn::LitInt::new(&i.to_string(), proc_macro2::Span::call_site()));
+            let gen = quote::quote!(
+                #byline
+                pub trait #camel_ident<'a>: Copy #(
+                    + #base_path::Projection<Self::LImpl, #idx, To=<<Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents as #base_path::owned::#sort_rs_camel_idents>::Ref<'a>>
+                )*
+                where #(
+                    <Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents: 'a,
+                )*
+                {
+                    type LImpl: #base_path::LImpl;
+                    fn is_eq<'b: 'a>(self, l: &'b Self::LImpl, other: Self) -> bool;
+                }
+            );
+            ret.push(parse_quote!(#gen));
+        }
+    }
+    pub fn sums<L: LangSpec>(ret: &mut Vec<syn::Item>, base_path: &syn::Path, ls: &LangSpecGen<L>) {
+        let byline = langspec_gen_util::byline!();
+        for SumGenData {
+            camel_ident,
+            sort_rs_camel_idents,
+            sort_rs_snake_idents,
+            ..
+        } in ls.sum_gen_datas()
+        {
+            ret.push(parse_quote!(
+                #byline
+                pub trait #camel_ident<'a>: Copy {
+                    type LImpl: #base_path::LImpl;
+                    #(
+                        fn #sort_rs_snake_idents<'b: 'a>(self, l: &'b Self::LImpl) -> Option<<<Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents as #base_path::owned::#sort_rs_camel_idents>::Ref<'a>>;
+                    )*
+                    fn is_eq<'b: 'a>(self, l: &'b Self::LImpl, other: Self) -> bool;
+                }
+            ));
+        }
+    }
+}
+
+mod mut_reference {
+    use super::*;
+    pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &LangSpecGen<L>) -> syn::Item {
+        let mut ret: Vec<syn::Item> = vec![];
+        prods(&mut ret, base_path, ls);
+        sums(&mut ret, base_path, ls);
+        parse_quote!(
+            pub mod mut_reference {
+                #(#ret)*
+            }
+        )
+    }
+
+    pub fn prods<L: LangSpec>(
+        ret: &mut Vec<syn::Item>,
+        base_path: &syn::Path,
+        ls: &LangSpecGen<L>,
+    ) {
+        let byline = langspec_gen_util::byline!();
+        for ProdGenData {
+            camel_ident,
+            n_sorts,
+            sort_rs_camel_idents,
+            ..
+        } in ls.prod_gen_datas()
+        {
+            let sort_rs_camel_idents = sort_rs_camel_idents.collect::<Vec<_>>();
+            let idx = (0..n_sorts)
+                .map(|i| syn::LitInt::new(&i.to_string(), proc_macro2::Span::call_site()));
+            let gen = quote::quote!(
+                #byline
+                pub trait #camel_ident<'a>: Copy #(+ #base_path::Projection<Self::LImpl, #idx, To=<<Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents as #base_path::owned::#sort_rs_camel_idents>::RefMut<'a>>)*
+                where #(
+                    <Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents: 'a,
+                )*
+                {
+                    type LImpl: #base_path::LImpl;
+                }
+            );
+            ret.push(parse_quote!(#gen));
+        }
+    }
+    pub fn sums<L: LangSpec>(ret: &mut Vec<syn::Item>, base_path: &syn::Path, ls: &LangSpecGen<L>) {
+        let byline = langspec_gen_util::byline!();
+        for SumGenData {
+            camel_ident,
+            // sort_rs_types,
+            sort_rs_camel_idents,
+            sort_rs_snake_idents,
+            ..
+        } in ls.sum_gen_datas()
+        {
+            ret.push(parse_quote!(
+                #byline
+                pub trait #camel_ident<'a>: Copy {
+                    type LImpl: #base_path::LImpl;
+                    #(
+                        fn #sort_rs_snake_idents<'b: 'a>(self, l: &'b mut Self::LImpl) -> Option<<<Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents as #base_path::owned::#sort_rs_camel_idents>::RefMut<'b>>;
+                    )*
+                    fn set<'b: 'a, 'c>(
+                        self,
+                        l: &'b mut Self::LImpl,
+                        value: <<Self::LImpl as #base_path::LImpl>::#camel_ident as #base_path::owned::#camel_ident>::Ref<'c>,
+                    );
+                }
+            ));
+        }
+    }
 }
 
 pub fn formatted(base_path: &syn::Path, lsh: &langspec::humanreadable::LangSpecHuman) -> String {

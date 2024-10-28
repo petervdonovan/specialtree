@@ -7,7 +7,7 @@ use syn::{parse_quote, ItemEnum, ItemStruct};
 
 use langspec_gen_util::{LangSpecGen, ProdGenData, SumGenData};
 
-pub fn gen(base_path: &syn::Path, l: &LangSpecFlat) -> (Vec<ItemStruct>, Vec<ItemEnum>) {
+pub fn gen(base_path: &syn::Path, l: &LangSpecFlat) -> syn::ItemMod {
     pub fn sort2rs_type(sort: SortId<syn::Type>) -> syn::Type {
         match sort {
             SortId::NatLiteral => parse_quote!(usize),
@@ -27,55 +27,58 @@ pub fn gen(base_path: &syn::Path, l: &LangSpecFlat) -> (Vec<ItemStruct>, Vec<Ite
         sort2rs_type,
         type_base_path: base_path.clone(),
     };
-    let prods = lg
-        .prod_gen_datas()
-        .map(
-            |ProdGenData {
-                 camel_ident: camel_name,
-                 sort_rs_types,
-                 ..
-             }| {
-                let ret = quote::quote!(
-                    pub struct #camel_name(#(pub #sort_rs_types),*);
-                );
-                println!("{}", &ret);
-                parse_quote!(#ret)
-            },
-        )
-        .collect();
-    let sums =
-        lg.sum_gen_datas()
-            .map(
-                |SumGenData {
-                     camel_ident: camel_name,
-                     sort_rs_camel_idents: sort_rs_idents,
-                     sort_rs_types,
-                     sort_shapes,
-                     ..
-                 }| {
-                    let sort_rs_types = sort_rs_types.zip(sort_shapes).map::<syn::Type, _>(
-                        |(ty, shape)| match shape {
-                            SortId::Algebraic(_) => parse_quote!(Box<#ty>),
-                            _ => ty,
-                        },
-                    );
-                    parse_quote!(
-                        pub enum #camel_name {
-                            #(#sort_rs_idents(#sort_rs_types)),*
-                        }
-                    )
-                },
+    let prods = lg.prod_gen_datas().map(
+        |ProdGenData {
+             camel_ident: camel_name,
+             sort_rs_types,
+             ..
+         }|
+         -> syn::ItemStruct {
+            let ret = quote::quote!(
+                pub struct #camel_name(#(pub #sort_rs_types),*);
+            );
+            println!("{}", &ret);
+            parse_quote!(#ret)
+        },
+    );
+    let sums = lg.sum_gen_datas().map(
+        |SumGenData {
+             camel_ident: camel_name,
+             sort_rs_camel_idents: sort_rs_idents,
+             sort_rs_types,
+             sort_shapes,
+             ..
+         }|
+         -> syn::ItemEnum {
+            let sort_rs_types =
+                sort_rs_types
+                    .zip(sort_shapes)
+                    .map::<syn::Type, _>(|(ty, shape)| match shape {
+                        SortId::Algebraic(_) => parse_quote!(Box<#ty>),
+                        _ => ty,
+                    });
+            parse_quote!(
+                pub enum #camel_name {
+                    #(#sort_rs_idents(#sort_rs_types)),*
+                }
             )
-            .collect();
-    (prods, sums)
+        },
+    );
+    let byline = langspec_gen_util::byline!();
+    parse_quote! {
+        #byline
+        pub mod refbased {
+            #(#prods)*
+            #(#sums)*
+        }
+    }
 }
 
 pub fn formatted(lsh: &LangSpecHuman) -> String {
     let lsf: LangSpecFlat = LangSpecFlat::canonical_from(lsh);
-    let (structs, enums) = gen(&parse_quote!(crate), &lsf);
+    let m = gen(&parse_quote!(crate), &lsf);
     prettyplease::unparse(&syn::parse_quote! {
-        #(#structs)*
-        #(#enums)*
+        #m
     })
 }
 

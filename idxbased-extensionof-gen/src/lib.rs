@@ -13,92 +13,70 @@ pub struct BasePaths {
 }
 
 pub fn gen<L: LangSpec>(bps: &BasePaths, ls: &L) -> syn::Item {
-    fn limpl<L: LangSpec>(
-        BasePaths {
+    let ls = LangSpecGen {
+        bak: ls,
+        sort2rs_type: sort2rs_idx_type,
+        type_base_path: bps.data_structure.clone(),
+    };
+    let limpl = limpl(bps, &ls);
+    let owned = owned::gen(bps, &ls);
+    let byline = langspec_gen_util::byline!();
+    syn::parse_quote!(
+        #byline
+        pub mod idxbased_extension_of {
+            #limpl
+            #owned
+        }
+    )
+}
+
+fn limpl<L: LangSpec>(
+    BasePaths {
+        extension_of,
+        data_structure,
+        ..
+    }: &BasePaths,
+    ls: &LangSpecGen<L>,
+) -> syn::Item {
+    transpose!(ls.prod_gen_datas(), camel_ident, rs_ty);
+    let (prod_idents, prod_rs_tys) = (camel_ident, rs_ty);
+    transpose!(ls.sum_gen_datas(), camel_ident, rs_ty);
+    let (sum_idents, sum_rs_tys) = (camel_ident, rs_ty);
+    let camel_ident = ls.camel_ident();
+    let byline = langspec_gen_util::byline!();
+    syn::parse_quote! {
+        #byline
+        impl #extension_of::LImpl for #data_structure::#camel_ident {
+            type NatLit = #data_structure::NatLit;
+            #(
+                type #prod_idents = #data_structure::#prod_rs_tys;
+            )*
+            #(
+                type #sum_idents = #data_structure::#sum_rs_tys;
+            )*
+        }
+    }
+}
+mod owned {
+    use langspec_gen_util::SumGenData;
+
+    use super::*;
+    pub fn gen<L: LangSpec>(bps: &BasePaths, ls: &LangSpecGen<L>) -> syn::Item {
+        let prods = gen_prods(bps, ls);
+        let sums = gen_sums(bps, ls);
+        let BasePaths {
             extension_of,
             data_structure,
             ..
-        }: &BasePaths,
-        ls: &LangSpecGen<L>,
-    ) -> syn::Item {
-        transpose!(ls.prod_gen_datas(), camel_ident, rs_ty);
-        let (prod_idents, prod_rs_tys) = (camel_ident, rs_ty);
-        transpose!(ls.sum_gen_datas(), camel_ident, rs_ty);
-        let (sum_idents, sum_rs_tys) = (camel_ident, rs_ty);
-        let camel_ident = ls.camel_ident();
-        syn::parse_quote! {
-            impl #extension_of::LImpl for #data_structure::#camel_ident {
-                type NatLit = #data_structure::NatLit;
-                #(
-                    type #prod_idents = #data_structure::#prod_rs_tys;
-                )*
-                #(
-                    type #sum_idents = #data_structure::#sum_rs_tys;
-                )*
-            }
-        }
-    }
-    fn gen_owned<L: LangSpec>(bps: &BasePaths, ls: &LangSpecGen<L>) -> syn::Item {
-        fn gen_prods<L: LangSpec>(
-            BasePaths {
-                extension_of,
-                data_structure,
-                ..
-            }: &BasePaths,
-            ls: &LangSpecGen<L>,
-        ) -> Vec<syn::ItemImpl> {
-            let ls_camel_ident = ls.camel_ident();
-            ls.prod_gen_datas()
-                .map(
-                    |ProdGenData {
-                         snake_ident,
-                         camel_ident,
-                         rs_ty,
-                         n_sorts,
-                         sort_rs_camel_idents,
-                         sort_rs_snake_idents,
-                         sort_rs_types,
-                         sort_shapes,
-                     }| {
-                        let arg_idxs = (0..n_sorts).map(|i| syn::Index::from(i));
-                        syn::parse_quote! {
-                            impl #extension_of::owned::#camel_ident for #data_structure::#rs_ty {
-                                type LImpl = #data_structure::#ls_camel_ident;
-                                type Ref<'a> = Self;
-                                type RefMut<'a> = Self;
-                                fn new(l: &mut Self::LImpl, args: (#(<Self::LImpl as #extension_of::LImpl>::#sort_rs_camel_idents,)*)) -> Self {
-                                    // hash-consing not yet implemented
-                                    let data = #data_structure::data::#camel_ident(#(args.#arg_idxs),*);
-                                    let ret = l.#snake_ident.len();
-                                    l.#snake_ident.push(data);
-                                    Self(ret)
-                                }
-                                fn get_ref(self, _l: &Self::LImpl) -> Self::Ref<'_> {
-                                    self
-                                }
-                                fn get_mut(self, _l: &mut Self::LImpl) -> Self::RefMut<'_> {
-                                    self
-                                }
-                            }
-                        }
-                    },
-                )
-                .collect()
-        }
-        fn gen_sums<L: LangSpec>(
-            BasePaths {
-                extension_of,
-                data_structure,
-                ..
-            }: &BasePaths,
-            ls: &LangSpecGen<L>,
-        ) -> Vec<syn::ItemImpl> {
-            vec![]
-        }
-        let prods = gen_prods(bps, ls);
-        let sums = gen_sums(bps, ls);
+        } = bps;
+        let byline = langspec_gen_util::byline!();
         syn::parse_quote!(
+            #byline
             pub mod owned {
+                impl #extension_of::owned::NatLit for #data_structure::NatLit {
+                    type Ref<'a> = Self;
+                    type RefMut<'a> = Self;
+                }
                 #(
                     #prods
                 )*
@@ -108,21 +86,95 @@ pub fn gen<L: LangSpec>(bps: &BasePaths, ls: &L) -> syn::Item {
             }
         )
     }
-    let ls = LangSpecGen {
-        bak: ls,
-        sort2rs_type: sort2rs_idx_type,
-        type_base_path: bps.data_structure.clone(),
-    };
-    let limpl = limpl(bps, &ls);
-    let owned = gen_owned(bps, &ls);
-    let byline = langspec_gen_util::byline!();
-    syn::parse_quote!(
-        #byline
-        pub mod idxbased_extension_of {
-            #limpl
-            #owned
-        }
-    )
+    pub fn gen_prods<'c: 'd, 'd, L: LangSpec>(
+        BasePaths {
+            extension_of,
+            data_structure,
+            ..
+        }: &'d BasePaths,
+        ls: &'c LangSpecGen<L>,
+    ) -> impl Iterator<Item = syn::ItemImpl> + 'd {
+        let ls_camel_ident = ls.camel_ident();
+        ls.prod_gen_datas()
+            .map(
+                move |ProdGenData {
+                     snake_ident,
+                     camel_ident,
+                     rs_ty,
+                     n_sorts,
+                     sort_rs_camel_idents,
+                     ..
+                 }| {
+                    let arg_idxs = (0..n_sorts).map(syn::Index::from);
+                    let byline = langspec_gen_util::byline!();
+                    syn::parse_quote! {
+                        #byline
+                        impl #extension_of::owned::#camel_ident for #data_structure::#rs_ty {
+                            type LImpl = #data_structure::#ls_camel_ident;
+                            type Ref<'a> = Self;
+                            type RefMut<'a> = Self;
+                            fn new(l: &mut Self::LImpl, args: (#(<Self::LImpl as #extension_of::LImpl>::#sort_rs_camel_idents,)*)) -> Self {
+                                // hash-consing not yet implemented
+                                let data = #data_structure::data::#camel_ident(#(args.#arg_idxs),*);
+                                let ret = l.#snake_ident.len();
+                                l.#snake_ident.push(data);
+                                Self(ret)
+                            }
+                            fn get_ref(&self, _l: &Self::LImpl) -> Self::Ref<'_> {
+                                *self
+                            }
+                            fn get_mut(&mut self, _l: &mut Self::LImpl) -> Self::RefMut<'_> {
+                                *self
+                            }
+                        }
+                    }
+                },
+            )
+    }
+    pub fn gen_sums<'c: 'd, 'd, L: LangSpec>(
+        BasePaths {
+            extension_of,
+            data_structure,
+            ..
+        }: &'d BasePaths,
+        ls: &'c LangSpecGen<L>,
+    ) -> impl Iterator<Item = syn::ItemImpl> + 'd {
+        let ls_camel_ident = ls.camel_ident();
+        ls.sum_gen_datas()
+            .map(move |SumGenData { camel_ident, snake_ident,
+                sort_rs_camel_idents,
+                sort_rs_snake_idents, sort_shapes, .. }| {
+                let maybe_box_from = sort_shapes.map(|shape| {
+                    match shape {
+                        langspec::langspec::SortId::Algebraic(_) => quote::quote!(Box::new(from)),
+                        _ => quote::quote!(from),
+                    }
+                });
+                let byline = langspec_gen_util::byline!();
+                syn::parse_quote! {
+                    #byline
+                    impl #extension_of::owned::#camel_ident for #data_structure::#camel_ident {
+                        type LImpl = #data_structure::#ls_camel_ident;
+                        type Ref<'a> = Self;
+                        type RefMut<'a> = Self;
+                        #(
+                            fn #sort_rs_snake_idents(l: &mut Self::LImpl, from: <Self::LImpl as #extension_of::LImpl>::#sort_rs_camel_idents) -> Self {
+                                let data = #data_structure::data::#camel_ident::#sort_rs_camel_idents(#maybe_box_from);
+                                let ret = l.#snake_ident.len();
+                                l.#snake_ident.push(data);
+                                Self(ret)
+                            }
+                        )*
+                        fn get_ref(&self, _l: &Self::LImpl) -> Self::Ref<'_> {
+                            *self
+                        }
+                        fn get_mut(&mut self, _l: &mut Self::LImpl) -> Self::RefMut<'_> {
+                            *self
+                        }
+                    }
+                }
+            })
+    }
 }
 
 pub fn formatted(lsh: &LangSpecHuman) -> String {
