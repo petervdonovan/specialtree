@@ -74,8 +74,6 @@ mod owned {
             #byline
             pub mod owned {
                 impl #extension_of::owned::NatLit for #data_structure::NatLit {
-                    type Ref<'a> = Self;
-                    type RefMut<'a> = Self;
                 }
                 #(
                     #prods
@@ -118,10 +116,10 @@ mod owned {
                                 l.#snake_ident.push(data);
                                 Self(ret)
                             }
-                            fn get_ref(&self, _l: &Self::LImpl) -> impl #extension_of::reference::#camel_ident<'_> {
+                            fn get_ref<'a, 'b: 'a>(&'a self, _l: &'b Self::LImpl) -> impl #extension_of::reference::#camel_ident<'a> {
                                 *self
                             }
-                            fn get_mut(&mut self, _l: &mut Self::LImpl) -> impl #extension_of::mut_reference::#camel_ident<'_> {
+                            fn get_mut<'a, 'b: 'a>(&'a mut self, _l: &'b mut Self::LImpl) -> impl #extension_of::mut_reference::#camel_ident<'a> {
                                 *self
                             }
                         }

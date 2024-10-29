@@ -68,9 +68,7 @@ mod owned {
         parse_quote!(
             #byline
             pub mod owned {
-                pub trait NatLit: Into<usize> + From<usize> {
-                    type Ref<'a> where Self: 'a;
-                    type RefMut<'a> where Self: 'a;
+                pub trait NatLit {
                 }
                 #(#ret)*
             }
@@ -143,6 +141,8 @@ mod reference {
         parse_quote!(
             #byline
             pub mod reference {
+                pub trait NatLit<'a> {
+                }
                 #(#ret)*
             }
         )
@@ -218,6 +218,8 @@ mod mut_reference {
         sums(&mut ret, base_path, ls);
         parse_quote!(
             pub mod mut_reference {
+                pub trait NatLit<'a> {
+                }
                 #(#ret)*
             }
         )
