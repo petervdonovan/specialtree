@@ -8,7 +8,7 @@ use syn::{parse_quote, ItemEnum, ItemStruct};
 use langspec_gen_util::{LangSpecGen, ProdGenData, SumGenData};
 
 pub fn gen(base_path: &syn::Path, l: &LangSpecFlat) -> syn::ItemMod {
-    pub fn sort2rs_type(sort: SortId<syn::Type>) -> syn::Type {
+    pub fn sort2rs_type(_base_path: &syn::Path, sort: SortId<syn::Type>) -> syn::Type {
         match sort {
             SortId::NatLiteral => parse_quote!(usize),
             SortId::Algebraic(asi) => asi,

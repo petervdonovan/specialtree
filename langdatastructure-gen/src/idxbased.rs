@@ -8,9 +8,9 @@ use syn::{parse_quote, ItemStruct};
 use langspec_gen_util::{name_as_camel_ident, SumGenData};
 use langspec_gen_util::{LangSpecGen, ProdGenData};
 
-pub fn sort2rs_idx_type(sort: SortId<syn::Type>) -> syn::Type {
+pub fn sort2rs_idx_type(base_path: &syn::Path, sort: SortId<syn::Type>) -> syn::Type {
     match sort {
-        SortId::NatLiteral => parse_quote!(usize),
+        SortId::NatLiteral => parse_quote!(#base_path::NatLit),
         SortId::Algebraic(ty) => ty,
         SortId::Set(ty) | SortId::Sequence(ty) => {
             parse_quote!(Vec<#ty>)
@@ -52,7 +52,7 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, l: &L) -> syn::ItemMod {
                 .zip(sort_shapes)
                 .map(|(ty, shape)| -> syn::Type {
                     if let SortId::Algebraic(_) = shape {
-                        parse_quote!(Box<#ty>)
+                        ty
                     } else {
                         ty
                     }
@@ -89,7 +89,7 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, l: &L) -> syn::ItemMod {
                 #(#prod_datas)*
                 #(#sum_datas)*
             }
-            pub type NatLit = usize;
+            pub struct NatLit(usize);
             #(#prods)*
             #(#sums)*
         }

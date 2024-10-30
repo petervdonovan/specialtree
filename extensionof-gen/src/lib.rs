@@ -3,7 +3,7 @@ use langspec_gen_util::{transpose, LangSpecGen, ProdGenData, SumGenData};
 use syn::parse_quote;
 
 pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
-    fn fail(_: langspec::langspec::SortId<syn::Type>) -> syn::Type {
+    fn fail(_: &syn::Path, _: langspec::langspec::SortId<syn::Type>) -> syn::Type {
         panic!("must be type-agnostic");
     }
     let lg = LangSpecGen {

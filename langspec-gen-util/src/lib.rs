@@ -98,7 +98,7 @@ macro_rules! collect {
 
 pub struct LangSpecGen<'a, L: LangSpec> {
     pub bak: &'a L,
-    pub sort2rs_type: fn(SortId<syn::Type>) -> syn::Type,
+    pub sort2rs_type: for<'b> fn(&'b syn::Path, SortId<syn::Type>) -> syn::Type,
     pub type_base_path: syn::Path,
 }
 
@@ -113,7 +113,10 @@ impl<'a, L: LangSpec> LangSpecGen<'a, L> {
         parse_quote!(#tbp::#ty_name)
     }
     pub fn sort2rs_type(&self, sort: SortId<L::AlgebraicSortId>) -> syn::Type {
-        (self.sort2rs_type)(sort.fmap(|it| self.asi2rs_type(self.bak.asi_convert(it))))
+        (self.sort2rs_type)(
+            &self.type_base_path,
+            sort.fmap(|it| self.asi2rs_type(self.bak.asi_convert(it))),
+        )
     }
     pub fn asi2rs_ident(&self, asi: AlgebraicSortId<L::ProductId, L::SumId>) -> syn::Ident {
         let name = self.bak.algebraic_sort_name(asi);
