@@ -142,6 +142,8 @@ mod reference {
             #byline
             pub mod reference {
                 pub trait NatLit<'a> {
+                    type LImpl: #base_path::LImpl;
+                    fn is_eq<'b: 'a>(self, l: &'b Self::LImpl, other: Self) -> bool;
                 }
                 #(#ret)*
             }
@@ -269,18 +271,19 @@ mod mut_reference {
             collect!(sort_rs_camel_idents);
             ret.push(parse_quote!(
                 #byline
-                pub trait #camel_ident<'a>: Copy {
+                pub trait #camel_ident<'a>: 'a + Copy {
                     type LImpl: #base_path::LImpl;
+                    type Owned: #base_path::owned::#camel_ident;
                     #(
-                        type #sort_rs_camel_idents: #base_path::reference::#sort_rs_camel_idents<'a>;
+                        type #sort_rs_camel_idents: #base_path::mut_reference::#sort_rs_camel_idents<'a>;
                     )*
                     #(
-                        fn #sort_rs_snake_idents<'b: 'a>(self, l: &'b mut Self::LImpl) -> Option<Self::#sort_rs_camel_idents>;
+                        fn #sort_rs_snake_idents<'b: 'a>(self, l: &'b Self::LImpl) -> Option<Self::#sort_rs_camel_idents>;
                     )*
-                    fn set<'b: 'a, 'c, O: #base_path::reference::#camel_ident<'c>>(
+                    fn set<'b: 'a>(
                         self,
                         l: &'b mut Self::LImpl,
-                        value: O,
+                        value: Self::Owned,
                     );
                 }
             ));

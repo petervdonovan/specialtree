@@ -33,6 +33,7 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, l: &L) -> syn::ItemMod {
          }|
          -> syn::ItemStruct {
             parse_quote!(
+                #[derive(Clone, Copy)]
                 pub struct #camel_name (
                     #(pub #sort_rs_types,)*
                 );
@@ -58,6 +59,7 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, l: &L) -> syn::ItemMod {
                     }
                 });
             parse_quote!(
+                #[derive(Clone, Copy)]
                 pub enum #camel_name {
                     #(#sort_rs_idents(#variant_tys)),*
                 }
@@ -89,7 +91,8 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, l: &L) -> syn::ItemMod {
                 #(#prod_datas)*
                 #(#sum_datas)*
             }
-            pub struct NatLit(usize);
+            #[derive(Clone, Copy)]
+            pub struct NatLit(pub usize);
             #(#prods)*
             #(#sums)*
         }
