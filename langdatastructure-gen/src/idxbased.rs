@@ -92,7 +92,7 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, l: &L) -> syn::ItemMod {
                 #(#sum_datas)*
             }
             #[derive(Clone, Copy)]
-            pub struct NatLit(pub usize);
+            pub struct NatLit(pub u64);
             #(#prods)*
             #(#sums)*
         }

@@ -18,11 +18,13 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
     let projection_trait = projection_trait();
     let limpl_trait = limpl_trait(base_path, &lg);
     let byline = langspec_gen_util::byline!();
+    let any_type = any_type(base_path, &lg);
     parse_quote!(
         #byline
         pub mod extension_of {
-            #projection_trait
             #limpl_trait
+            #any_type
+            #projection_trait
             #extension_of
             #owned
             #reference
@@ -48,12 +50,55 @@ fn limpl_trait<L: LangSpec>(base_path: &syn::Path, ls: &LangSpecGen<L>) -> syn::
     parse_quote!(
         #byline
         pub trait LImpl {
-            type NatLit: #base_path::owned::NatLit;
+            type NatLit: #base_path::owned::NatLit<LImpl = Self>;
             #(
-                type #prod_types: #base_path::owned::#prod_types;
+                type #prod_types: #base_path::owned::#prod_types<LImpl = Self>;
             )*
             #(
-                type #sum_types: #base_path::owned::#sum_types;
+                type #sum_types: #base_path::owned::#sum_types<LImpl = Self>;
+            )*
+            fn convert<
+                LImpl: #base_path::LImpl<#(#prod_types = #prod_types,)* #(#sum_types = #sum_types,)*>,
+                NatLit, #(#prod_types: #base_path::owned::#prod_types<LImpl = LImpl>,)* #(#sum_types: #base_path::owned::#sum_types<LImpl = LImpl>,)*
+            >(&mut self, lo: &LImpl, from: #base_path::Any<
+                NatLit, #(#prod_types,)* #(#sum_types,)*
+            >) -> #base_path::Any<
+                NatLit, #(Self::#prod_types,)* #(Self::#sum_types,)*
+            > {
+                #(
+                    use #base_path::reference::#prod_types;
+                )*
+                #(
+                    use #base_path::reference::#sum_types;
+                )*
+                match from {
+                    #base_path::Any::NatLit(nat_lit) => #base_path::Any::NatLit(nat_lit),
+                    #(
+                        #base_path::Any::#prod_types(p) => #base_path::Any::#prod_types(p.get_ref(lo).convert(lo, self)),
+                    )*
+                    #(
+                        #base_path::Any::#sum_types(s) => #base_path::Any::#sum_types(s.get_ref(lo).convert(lo, self)),
+                    )*
+                }
+            }
+        }
+    )
+}
+fn any_type<L: LangSpec>(base_path: &syn::Path, ls: &LangSpecGen<L>) -> syn::Item {
+    transpose!(ls.prod_gen_datas(), camel_ident);
+    let prod_types = camel_ident;
+    transpose!(ls.sum_gen_datas(), camel_ident);
+    let sum_types = camel_ident;
+    let byline = langspec_gen_util::byline!();
+    parse_quote!(
+        #byline
+        pub enum Any<NatLit, #(#prod_types: #base_path::owned::#prod_types,)* #(#sum_types: #base_path::owned::#sum_types,)*> {
+            NatLit(NatLit),
+            #(
+                #prod_types(#prod_types),
+            )*
+            #(
+                #sum_types(#sum_types),
             )*
         }
     )
@@ -68,7 +113,8 @@ mod owned {
         parse_quote!(
             #byline
             pub mod owned {
-                pub trait NatLit {
+                pub trait NatLit: From<u64> {
+                    type LImpl: #base_path::LImpl;
                 }
                 #(#ret)*
             }
@@ -91,8 +137,8 @@ mod owned {
                 pub trait #camel_name {
                     type LImpl: #base_path::LImpl;
                     fn new(l: &mut Self::LImpl, args: (#(<Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents,)*)) -> Self;
-                    fn get_ref<'a, 'b: 'a>(&'a self, l: &'b Self::LImpl) -> impl #base_path::reference::#camel_name<'a>;
-                    fn get_mut<'a, 'b: 'a>(&'a mut self, l: &'b mut Self::LImpl) -> impl #base_path::mut_reference::#camel_name<'a>;
+                    fn get_ref<'a, 'b: 'a>(&'a self, l: &'b Self::LImpl) -> impl #base_path::reference::#camel_name<'a, LImpl = Self::LImpl>;
+                    fn get_mut<'a, 'b: 'a>(&'a mut self, l: &'b mut Self::LImpl) -> impl #base_path::mut_reference::#camel_name<'a, LImpl = Self::LImpl>;
                 }
             );
             ret.push(parse_quote!(#gen));
@@ -114,8 +160,8 @@ mod owned {
                     #(
                         fn #sort_rs_snake_idents(l: &mut Self::LImpl, from: <Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents) -> Self;
                     )*
-                    fn get_ref(&self, l: &Self::LImpl) -> impl #base_path::reference::#camel_name<'_>;
-                    fn get_mut(&mut self, l: &mut Self::LImpl) -> impl #base_path::mut_reference::#camel_name<'_>;
+                    fn get_ref(&self, l: &Self::LImpl) -> impl #base_path::reference::#camel_name<'_, LImpl = Self::LImpl>;
+                    fn get_mut(&mut self, l: &mut Self::LImpl) -> impl #base_path::mut_reference::#camel_name<'_, LImpl = Self::LImpl>;
                 }
             ));
         }
@@ -141,9 +187,17 @@ mod reference {
         parse_quote!(
             #byline
             pub mod reference {
-                pub trait NatLit<'a> {
+                pub trait NatLit<'a>: Into<u64> {
                     type LImpl: #base_path::LImpl;
-                    fn is_eq<'b: 'a>(self, l: &'b Self::LImpl, other: Self) -> bool;
+                    fn is_eq<'b: 'a>(self: Self, l: &'b Self::LImpl, other: Self) -> bool;
+                    fn convert<'b: 'a, 'c, O: #base_path::owned::NatLit>(
+                        self,
+                        _l: &'b Self::LImpl,
+                        _lo: &'c mut O::LImpl,
+                    ) -> O {
+                        let intermediate: u64 = self.into();
+                        O::from(intermediate)
+                    }
                 }
                 #(#ret)*
             }
@@ -163,7 +217,7 @@ mod reference {
             ..
         } in ls.prod_gen_datas()
         {
-            collect!(sort_rs_camel_idents, ty_idx);
+            collect!(sort_rs_camel_idents, idx, ty_idx);
             let gen = quote::quote!(
                 #byline
                 pub trait #camel_ident<'a>: Copy + 'a #(
@@ -175,9 +229,19 @@ mod reference {
                 {
                     type LImpl: #base_path::LImpl;
                     #(
-                        type #ty_idx: #base_path::reference::#sort_rs_camel_idents<'a>;
+                        type #ty_idx: #base_path::reference::#sort_rs_camel_idents<'a, LImpl = Self::LImpl>;
                     )*
                     fn is_eq<'b: 'a>(self, l: &'b Self::LImpl, other: Self) -> bool;
+                    fn convert<'b: 'a, 'c, O: #base_path::owned::#camel_ident>(
+                        self,
+                        l: &'b Self::LImpl,
+                        lo: &'c mut O::LImpl,
+                    ) -> O {
+                        let args = (#(
+                            <Self as #base_path::Projection<Self::LImpl, #idx>>::project(self, l).convert(l, lo),
+                        )*);
+                        O::new(lo, args)
+                    }
                 }
             );
             ret.push(parse_quote!(#gen));
@@ -192,18 +256,31 @@ mod reference {
             ..
         } in ls.sum_gen_datas()
         {
-            let sort_rs_camel_idents = sort_rs_camel_idents.collect::<Vec<_>>();
+            collect!(sort_rs_camel_idents, sort_rs_snake_idents);
             ret.push(parse_quote!(
                 #byline
                 pub trait #camel_ident<'a>: Copy + 'a {
                     type LImpl: #base_path::LImpl;
                     #(
-                        type #sort_rs_camel_idents: #base_path::reference::#sort_rs_camel_idents<'a>;
+                        type #sort_rs_camel_idents: #base_path::reference::#sort_rs_camel_idents<'a, LImpl=Self::LImpl>;
                     )*
                     #(
                         fn #sort_rs_snake_idents<'b: 'a>(self, l: &'b Self::LImpl) -> Option<Self::#sort_rs_camel_idents>;
                     )*
                     fn is_eq<'b: 'a>(self, l: &'b Self::LImpl, other: Self) -> bool;
+                    fn convert<'b: 'a, 'c, O: #base_path::owned::#camel_ident>(
+                        self,
+                        l: &'b Self::LImpl,
+                        lo: &'c mut O::LImpl,
+                    ) -> O {
+                        #(
+                            if let Some(x) = self.#sort_rs_snake_idents(l) {
+                                let arg = x.convert(l, lo);
+                                return O::#sort_rs_snake_idents(lo, arg);
+                            }
+                        )*
+                        panic!("unreachable");
+                    }
                 }
             ));
         }

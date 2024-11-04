@@ -72,11 +72,23 @@ mod owned {
             data_structure,
             ..
         } = bps;
+        let ls_camel_ident = ls.camel_ident();
         let byline = langspec_gen_util::byline!();
         syn::parse_quote!(
             #byline
             pub mod owned {
                 impl #extension_of::owned::NatLit for #data_structure::NatLit {
+                    type LImpl = #data_structure::#ls_camel_ident;
+                }
+                impl std::convert::From<u64> for #data_structure::NatLit {
+                    fn from(x: u64) -> Self {
+                        Self(x)
+                    }
+                }
+                impl std::convert::From<#data_structure::NatLit> for u64 {
+                    fn from(x: #data_structure::NatLit) -> Self {
+                        x.0
+                    }
                 }
                 #(
                     #prods
@@ -119,10 +131,10 @@ mod owned {
                                 l.#snake_ident.push(data);
                                 Self(ret)
                             }
-                            fn get_ref<'a, 'b: 'a>(&'a self, _l: &'b Self::LImpl) -> impl #extension_of::reference::#camel_ident<'a> {
+                            fn get_ref<'a, 'b: 'a>(&'a self, _l: &'b Self::LImpl) -> impl #extension_of::reference::#camel_ident<'a, LImpl = Self::LImpl> {
                                 *self
                             }
-                            fn get_mut<'a, 'b: 'a>(&'a mut self, _l: &'b mut Self::LImpl) -> impl #extension_of::mut_reference::#camel_ident<'a> {
+                            fn get_mut<'a, 'b: 'a>(&'a mut self, _l: &'b mut Self::LImpl) -> impl #extension_of::mut_reference::#camel_ident<'a, LImpl = Self::LImpl> {
                                 *self
                             }
                         }
@@ -156,10 +168,10 @@ mod owned {
                                 Self(ret)
                             }
                         )*
-                        fn get_ref(&self, _l: &Self::LImpl) -> impl #extension_of::reference::#camel_ident<'_> {
+                        fn get_ref(&self, _l: &Self::LImpl) -> impl #extension_of::reference::#camel_ident<'_, LImpl = Self::LImpl> {
                             *self
                         }
-                        fn get_mut(&mut self, _l: &mut Self::LImpl) -> impl #extension_of::mut_reference::#camel_ident<'_> {
+                        fn get_mut(&mut self, _l: &mut Self::LImpl) -> impl #extension_of::mut_reference::#camel_ident<'_, LImpl = Self::LImpl> {
                             *self
                         }
                     }
@@ -208,7 +220,7 @@ mod reference {
             pub mod reference {
                 impl<'a> #extension_of::reference::NatLit<'a> for #data_structure::NatLit {
                     type LImpl = #data_structure::#ls_camel_ident;
-                    fn is_eq<'b: 'a>(self, l: &'b Self::LImpl, other: Self) -> bool {
+                    fn is_eq<'b: 'a>(self, _l: &'b Self::LImpl, other: Self) -> bool {
                         self.0 == other.0
                     }
                 }
