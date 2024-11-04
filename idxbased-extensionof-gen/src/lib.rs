@@ -9,7 +9,6 @@ use langspec_gen_util::{transpose, LangSpecGen, ProdGenData, SumGenData};
 pub struct BasePaths {
     extension_of: syn::Path,
     data_structure: syn::Path,
-    impls: syn::Path,
 }
 
 pub fn gen<L: LangSpec>(bps: &BasePaths, ls: &L) -> syn::Item {
@@ -154,7 +153,7 @@ mod owned {
         ls.sum_gen_datas()
             .map(move |SumGenData { camel_ident, snake_ident,
                 sort_rs_camel_idents,
-                sort_rs_snake_idents, sort_shapes, .. }| {
+                sort_rs_snake_idents, .. }| {
                 let byline = langspec_gen_util::byline!();
                 syn::parse_quote! {
                     #byline
@@ -185,7 +184,6 @@ pub fn formatted(lsh: &LangSpecHuman) -> String {
     let bps = BasePaths {
         extension_of: syn::parse_quote!(crate::extension_of),
         data_structure: syn::parse_quote!(crate::data_structure::idxbased),
-        impls: syn::parse_quote!(crate::impls),
     };
     let m = gen(&bps, &lsf);
     let extension_of = extensionof_gen::gen(&bps.extension_of, &lsf);
@@ -245,7 +243,6 @@ mod reference {
         ls.prod_gen_datas().map(
             move |ProdGenData {
                  camel_ident,
-                 snake_ident,
                  rs_ty,
                  sort_rs_camel_idents,
                  ty_idx,
@@ -280,11 +277,9 @@ mod reference {
             },
         ).chain(ls.prod_gen_datas().flat_map(
             move |ProdGenData {
-                 camel_ident,
                  snake_ident,
                  rs_ty,
                  sort_rs_camel_idents,
-                 ty_idx,
                  idx,
                  ..
              }| {

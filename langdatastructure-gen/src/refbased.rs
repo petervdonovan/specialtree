@@ -3,7 +3,7 @@ use langspec::{
     humanreadable::LangSpecHuman,
     langspec::{SortId, TerminalLangSpec},
 };
-use syn::{parse_quote, ItemEnum, ItemStruct};
+use syn::parse_quote;
 
 use langspec_gen_util::{LangSpecGen, ProdGenData, SumGenData};
 
