@@ -1,31 +1,31 @@
 use langspec::{
     flat::LangSpecFlat,
     humanreadable::LangSpecHuman,
-    langspec::{SortId, TerminalLangSpec},
+    langspec::{LangSpec, SortId, TerminalLangSpec},
 };
 use syn::parse_quote;
 
 use langspec_gen_util::{LangSpecGen, ProdGenData, SumGenData};
 
-pub fn gen(base_path: &syn::Path, l: &LangSpecFlat) -> syn::ItemMod {
-    pub fn sort2rs_type(_base_path: &syn::Path, sort: SortId<syn::Type>) -> syn::Type {
-        match sort {
-            SortId::NatLiteral => parse_quote!(usize),
-            SortId::Algebraic(asi) => asi,
-            SortId::Set(asi) => {
-                let inner_ty = asi;
-                parse_quote!(Vec<#inner_ty>)
-            }
-            SortId::Sequence(asi) => {
-                let inner_ty = asi;
-                parse_quote!(Vec<#inner_ty>)
-            }
+pub fn sort2rs_type(_base_path: &syn::Path, sort: SortId<syn::Type>) -> syn::Type {
+    match sort {
+        SortId::NatLiteral => parse_quote!(u64),
+        SortId::Algebraic(asi) => asi,
+        SortId::Set(asi) => {
+            let inner_ty = asi;
+            parse_quote!(Vec<#inner_ty>)
+        }
+        SortId::Sequence(asi) => {
+            let inner_ty = asi;
+            parse_quote!(Vec<#inner_ty>)
         }
     }
+}
+pub fn gen(base_path: &syn::Path, l: &LangSpecFlat) -> syn::ItemMod {
     let lg = LangSpecGen {
         bak: l,
         sort2rs_type,
-        type_base_path: base_path.clone(),
+        type_base_path: parse_quote!(#base_path::refbased),
     };
     let prods = lg.prod_gen_datas().map(
         |ProdGenData {
@@ -37,7 +37,6 @@ pub fn gen(base_path: &syn::Path, l: &LangSpecFlat) -> syn::ItemMod {
             let ret = quote::quote!(
                 pub struct #camel_name(#(pub #sort_rs_types),*);
             );
-            println!("{}", &ret);
             parse_quote!(#ret)
         },
     );
@@ -64,13 +63,25 @@ pub fn gen(base_path: &syn::Path, l: &LangSpecFlat) -> syn::ItemMod {
             )
         },
     );
+    let limpl = gen_limpl(base_path, &lg);
     let byline = langspec_gen_util::byline!();
     parse_quote! {
         #byline
         pub mod refbased {
+            #limpl
+            pub type NatLit = u64;
             #(#prods)*
             #(#sums)*
         }
+    }
+}
+
+pub fn gen_limpl<L: LangSpec>(_base_path: &syn::Path, lg: &LangSpecGen<L>) -> syn::Item {
+    let ls_camel_ident = lg.camel_ident();
+    let byline = langspec_gen_util::byline!();
+    parse_quote! {
+        #byline
+        pub struct #ls_camel_ident;
     }
 }
 

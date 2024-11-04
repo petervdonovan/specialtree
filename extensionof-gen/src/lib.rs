@@ -189,7 +189,7 @@ mod reference {
             pub mod reference {
                 pub trait NatLit<'a>: Into<u64> {
                     type LImpl: #base_path::LImpl;
-                    fn is_eq<'b: 'a>(self: Self, l: &'b Self::LImpl, other: Self) -> bool;
+                    fn is_eq<'b: 'a>(self, l: &'b Self::LImpl, other: Self) -> bool;
                     fn convert<'b: 'a, 'c, O: #base_path::owned::NatLit>(
                         self,
                         _l: &'b Self::LImpl,
@@ -321,7 +321,7 @@ mod mut_reference {
             collect!(sort_rs_camel_idents, ty_idx);
             let gen = quote::quote!(
                 #byline
-                pub trait #camel_ident<'a>: Copy #(+ #base_path::Projection<Self::LImpl, #idx, To=Self::#ty_idx>)*
+                pub trait #camel_ident<'a>: #(#base_path::Projection<Self::LImpl, #idx, To=Self::#ty_idx>)+*
                 where #(
                     <Self::LImpl as #base_path::LImpl>::#sort_rs_camel_idents: 'a,
                 )*
@@ -348,7 +348,7 @@ mod mut_reference {
             collect!(sort_rs_camel_idents);
             ret.push(parse_quote!(
                 #byline
-                pub trait #camel_ident<'a>: 'a + Copy {
+                pub trait #camel_ident<'a>: 'a {
                     type LImpl: #base_path::LImpl;
                     type Owned: #base_path::owned::#camel_ident;
                     #(
