@@ -172,9 +172,10 @@ dependencies = [
  "langspec-examples",
  "langspec-gen-util",
  "prettyplease",
+ "quote",
  "refbased-extensionof-gen",
  "serde",
- "serde_yml",
+ "serde_json",
  "syn 2.0.87",
 ]
 
