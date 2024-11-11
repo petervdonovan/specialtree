@@ -70,6 +70,11 @@ pub struct SumGenData<
     pub sort_shapes: I3,
 }
 
+pub struct CommonGenData<I0: Iterator<Item = syn::Ident>, I1: Iterator<Item = syn::Ident>> {
+    pub snake_ident: I0,
+    pub camel_ident: I1,
+}
+
 #[macro_export]
 macro_rules! transpose {
     ($records:expr, $($field:ident),*) => {
@@ -157,6 +162,27 @@ impl<'a, L: LangSpec> LangSpecGen<'a, L> {
                 &format!("nat_seq_of_{}", self.asi2rs_ident(asi)),
                 proc_macro2::Span::call_site(),
             ),
+        }
+    }
+    pub fn common_gen_datas(
+        &self,
+    ) -> CommonGenData<impl Iterator<Item = syn::Ident> + '_, impl Iterator<Item = syn::Ident> + '_>
+    {
+        let snake_ident = self.bak.products().map(|id| {
+            syn::Ident::new(
+                &self.bak.product_name(id.clone()).snake.clone(),
+                proc_macro2::Span::call_site(),
+            )
+        });
+        let camel_ident = self.bak.products().map(|id| {
+            syn::Ident::new(
+                &self.bak.product_name(id.clone()).camel.clone(),
+                proc_macro2::Span::call_site(),
+            )
+        });
+        CommonGenData {
+            snake_ident,
+            camel_ident,
         }
     }
     pub fn prod_gen_datas<'b>(

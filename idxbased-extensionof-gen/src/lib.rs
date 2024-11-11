@@ -7,8 +7,8 @@ use langspec::{
 use langspec_gen_util::{transpose, LangSpecGen, ProdGenData, SumGenData};
 
 pub struct BasePaths {
-    extension_of: syn::Path,
-    data_structure: syn::Path,
+    pub extension_of: syn::Path,
+    pub data_structure: syn::Path,
 }
 
 pub fn gen<L: LangSpec>(bps: &BasePaths, ls: &L) -> syn::Item {
@@ -84,29 +84,12 @@ mod owned {
     pub fn gen<L: LangSpec>(bps: &BasePaths, ls: &LangSpecGen<L>) -> syn::Item {
         let prods = gen_prods(bps, ls);
         let sums = gen_sums(bps, ls);
-        let BasePaths {
-            extension_of,
-            data_structure,
-            ..
-        } = bps;
-        let ls_camel_ident = ls.camel_ident();
+        let nat_lit = nat_lit(bps, ls);
         let byline = langspec_gen_util::byline!();
         syn::parse_quote!(
             #byline
             pub mod owned {
-                impl #extension_of::owned::NatLit for #data_structure::NatLit {
-                    type LImpl = #data_structure::#ls_camel_ident;
-                }
-                impl std::convert::From<u64> for #data_structure::NatLit {
-                    fn from(x: u64) -> Self {
-                        Self(x)
-                    }
-                }
-                impl std::convert::From<#data_structure::NatLit> for u64 {
-                    fn from(x: #data_structure::NatLit) -> Self {
-                        x.0
-                    }
-                }
+                #(#nat_lit)*
                 #(
                     #prods
                 )*
@@ -115,6 +98,56 @@ mod owned {
                 )*
             }
         )
+    }
+    pub fn nat_lit<L: LangSpec>(
+        BasePaths {
+            extension_of,
+            data_structure,
+            ..
+        }: &BasePaths,
+        ls: &LangSpecGen<L>,
+    ) -> impl Iterator<Item = syn::ItemImpl> {
+        let ls_camel_ident = ls.camel_ident();
+        let byline = langspec_gen_util::byline!();
+        vec![
+            syn::parse_quote! {
+                #byline
+                impl #extension_of::owned::NatLit for #data_structure::NatLit {
+                    type LImpl = #data_structure::#ls_camel_ident;
+                    fn get_ref<'a, 'b: 'a>(
+                        &'a self,
+                        _l: &'b Self::LImpl,
+                    ) -> impl #extension_of::reference::NatLit<'a, LImpl = Self::LImpl> {
+                        *self
+                    }
+
+                    fn get_mut<'a, 'b: 'a>(
+                        &'a mut self,
+                        _l: &'b mut Self::LImpl,
+                    ) -> impl #extension_of::mut_reference::NatLit<'a, LImpl = Self::LImpl>
+                    {
+                        *self
+                    }
+                }
+            },
+            syn::parse_quote! {
+                #byline
+                impl std::convert::From<u64> for #data_structure::NatLit {
+                    fn from(x: u64) -> Self {
+                        Self(x)
+                    }
+                }
+            },
+            syn::parse_quote! {
+                #byline
+                impl std::convert::From<#data_structure::NatLit> for u64 {
+                    fn from(x: #data_structure::NatLit) -> Self {
+                        x.0
+                    }
+                }
+            },
+        ]
+        .into_iter()
     }
     pub fn gen_prods<'c: 'd, 'd, L: LangSpec>(
         BasePaths {
@@ -384,17 +417,12 @@ mod mut_reference {
     pub fn gen<L: LangSpec>(bps: &BasePaths, ls: &LangSpecGen<L>) -> syn::Item {
         let prods = gen_prods(bps, ls);
         let sums = gen_sums(bps, ls);
-        let BasePaths {
-            extension_of,
-            data_structure,
-            ..
-        } = bps;
+        let nat_lit = gen_nat_lit(bps, ls);
         let byline = langspec_gen_util::byline!();
         syn::parse_quote!(
             #byline
             pub mod mut_reference {
-                impl<'a> #extension_of::mut_reference::NatLit<'a> for #data_structure::NatLit {
-                }
+                #nat_lit
                 #(
                     #prods
                 )*
@@ -403,6 +431,23 @@ mod mut_reference {
                 )*
             }
         )
+    }
+    pub fn gen_nat_lit<'c: 'd, 'd, L: LangSpec>(
+        BasePaths {
+            extension_of,
+            data_structure,
+            ..
+        }: &'d BasePaths,
+        ls: &'c LangSpecGen<L>,
+    ) -> syn::ItemImpl {
+        let ls_camel_ident = ls.camel_ident();
+        let byline = langspec_gen_util::byline!();
+        syn::parse_quote! {
+            #byline
+            impl<'a> #extension_of::mut_reference::NatLit<'a> for #data_structure::NatLit {
+                type LImpl = #data_structure::#ls_camel_ident;
+            }
+        }
     }
     pub fn gen_prods<'c: 'd, 'd, L: LangSpec>(
         BasePaths {

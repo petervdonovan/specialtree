@@ -164,6 +164,7 @@ dependencies = [
 name = "langserde"
 version = "0.1.0"
 dependencies = [
+ "expect-test",
  "extensionof-gen",
  "idxbased-extensionof-gen",
  "langdatastructure-gen",

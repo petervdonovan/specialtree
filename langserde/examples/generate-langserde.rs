@@ -5,6 +5,6 @@ fn main() {
     std::fs::create_dir_all(&target_dir).unwrap();
 
     let formatted = langserde::formatted(&langspec_examples::fib());
-    let target_file = target_dir.join("refbased-extensionof.rs");
+    let target_file = target_dir.join("langserde.rs");
     std::fs::write(target_file, formatted).unwrap();
 }

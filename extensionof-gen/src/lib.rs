@@ -60,11 +60,7 @@ fn limpl_trait<L: LangSpec>(base_path: &syn::Path, ls: &LangSpecGen<L>) -> syn::
             fn convert<
                 LImpl: #base_path::LImpl<#(#prod_types = #prod_types,)* #(#sum_types = #sum_types,)*>,
                 NatLit, #(#prod_types: #base_path::owned::#prod_types<LImpl = LImpl>,)* #(#sum_types: #base_path::owned::#sum_types<LImpl = LImpl>,)*
-            >(&mut self, lo: &LImpl, from: #base_path::Any<
-                NatLit, #(#prod_types,)* #(#sum_types,)*
-            >) -> #base_path::Any<
-                NatLit, #(Self::#prod_types,)* #(Self::#sum_types,)*
-            > {
+            >(&mut self, lo: &LImpl, from: #base_path::Any<LImpl>) -> #base_path::Any<Self> {
                 #(
                     use #base_path::reference::#prod_types;
                 )*
@@ -72,7 +68,11 @@ fn limpl_trait<L: LangSpec>(base_path: &syn::Path, ls: &LangSpecGen<L>) -> syn::
                     use #base_path::reference::#sum_types;
                 )*
                 match from {
-                    #base_path::Any::NatLit(nat_lit) => #base_path::Any::NatLit(nat_lit),
+                    #base_path::Any::NatLit(nat_lit) => #base_path::Any::NatLit({
+                        use #base_path::owned::NatLit;
+                        let intermediate: u64 = nat_lit.get_ref(lo).into();
+                        intermediate.into()
+                    }),
                     #(
                         #base_path::Any::#prod_types(p) => #base_path::Any::#prod_types(p.get_ref(lo).convert(lo, self)),
                     )*
@@ -92,13 +92,13 @@ fn any_type<L: LangSpec>(base_path: &syn::Path, ls: &LangSpecGen<L>) -> syn::Ite
     let byline = langspec_gen_util::byline!();
     parse_quote!(
         #byline
-        pub enum Any<NatLit, #(#prod_types: #base_path::owned::#prod_types,)* #(#sum_types: #base_path::owned::#sum_types,)*> {
-            NatLit(NatLit),
+        pub enum Any<LImpl: #base_path::LImpl> {
+            NatLit(LImpl::NatLit),
             #(
-                #prod_types(#prod_types),
+                #prod_types(LImpl::#prod_types),
             )*
             #(
-                #sum_types(#sum_types),
+                #sum_types(LImpl::#sum_types),
             )*
         }
     )
@@ -110,13 +110,23 @@ mod owned {
         prods(&mut ret, base_path, ls);
         sums(&mut ret, base_path, ls);
         let byline = langspec_gen_util::byline!();
+        let nat_lit = nat_lit(base_path, ls);
         parse_quote!(
             #byline
             pub mod owned {
-                pub trait NatLit: From<u64> {
-                    type LImpl: #base_path::LImpl;
-                }
+                #nat_lit
                 #(#ret)*
+            }
+        )
+    }
+    pub fn nat_lit<L: LangSpec>(base_path: &syn::Path, _ls: &LangSpecGen<L>) -> syn::Item {
+        let byline = langspec_gen_util::byline!();
+        parse_quote!(
+            #byline
+            pub trait NatLit: From<u64> {
+                type LImpl: #base_path::LImpl;
+                fn get_ref<'a, 'b: 'a>(&'a self, l: &'b Self::LImpl) -> impl #base_path::reference::NatLit<'a, LImpl = Self::LImpl>;
+                fn get_mut<'a, 'b: 'a>(&'a mut self, l: &'b mut Self::LImpl) -> impl #base_path::mut_reference::NatLit<'a, LImpl = Self::LImpl>;
             }
         )
     }
@@ -298,6 +308,7 @@ mod mut_reference {
         parse_quote!(
             pub mod mut_reference {
                 pub trait NatLit<'a> {
+                    type LImpl: #base_path::LImpl;
                 }
                 #(#ret)*
             }
