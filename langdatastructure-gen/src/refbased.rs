@@ -21,11 +21,16 @@ pub fn sort2rs_type(_base_path: &syn::Path, sort: SortId<syn::Type>) -> syn::Typ
         }
     }
 }
-pub fn gen(base_path: &syn::Path, l: &LangSpecFlat) -> syn::ItemMod {
+pub fn gen(base_path: &syn::Path, l: &LangSpecFlat, serde: bool) -> syn::ItemMod {
     let lg = LangSpecGen {
         bak: l,
         sort2rs_type,
         type_base_path: parse_quote!(#base_path::refbased),
+    };
+    let serde = if serde {
+        quote::quote!(#[derive(serde::Serialize, serde::Deserialize)])
+    } else {
+        quote::quote!()
     };
     let prods = lg.prod_gen_datas().map(
         |ProdGenData {
@@ -35,6 +40,7 @@ pub fn gen(base_path: &syn::Path, l: &LangSpecFlat) -> syn::ItemMod {
          }|
          -> syn::ItemStruct {
             let ret = quote::quote!(
+                #serde
                 pub struct #camel_name(#(pub #sort_rs_types),*);
             );
             parse_quote!(#ret)
@@ -57,6 +63,7 @@ pub fn gen(base_path: &syn::Path, l: &LangSpecFlat) -> syn::ItemMod {
                         _ => ty,
                     });
             parse_quote!(
+                #serde
                 pub enum #camel_name {
                     #(#sort_rs_idents(#sort_rs_types)),*
                 }
@@ -81,13 +88,14 @@ pub fn gen_limpl<L: LangSpec>(_base_path: &syn::Path, lg: &LangSpecGen<L>) -> sy
     let byline = langspec_gen_util::byline!();
     parse_quote! {
         #byline
+        #[derive(Default)]
         pub struct #ls_camel_ident;
     }
 }
 
 pub fn formatted(lsh: &LangSpecHuman) -> String {
     let lsf: LangSpecFlat = LangSpecFlat::canonical_from(lsh);
-    let m = gen(&parse_quote!(crate), &lsf);
+    let m = gen(&parse_quote!(crate), &lsf, false);
     prettyplease::unparse(&syn::parse_quote! {
         #m
     })

@@ -25,7 +25,7 @@ pub fn gen<L: LangSpec>(bps: &BasePaths, ls: &L) -> syn::Item {
     syn::parse_quote!(
         #byline
         pub mod idxbased_extension_of {
-            #limpl
+            #(#limpl)*
             #owned
             #reference
             #mut_reference
@@ -40,25 +40,43 @@ fn limpl<L: LangSpec>(
         ..
     }: &BasePaths,
     ls: &LangSpecGen<L>,
-) -> syn::Item {
-    transpose!(ls.prod_gen_datas(), camel_ident, rs_ty);
-    let (prod_idents, prod_rs_tys) = (camel_ident, rs_ty);
-    transpose!(ls.sum_gen_datas(), camel_ident, rs_ty);
-    let (sum_idents, sum_rs_tys) = (camel_ident, rs_ty);
+) -> impl Iterator<Item = syn::Item> {
+    transpose!(ls.prod_gen_datas(), camel_ident, rs_ty, snake_ident);
+    let (prod_idents, prod_snake_idents, prod_rs_tys) = (camel_ident, snake_ident, rs_ty);
+    transpose!(ls.sum_gen_datas(), camel_ident, snake_ident, rs_ty);
+    let (sum_idents, sum_snake_idents, sum_rs_tys) = (camel_ident, snake_ident, rs_ty);
     let camel_ident = ls.camel_ident();
     let byline = langspec_gen_util::byline!();
-    syn::parse_quote! {
-        #byline
-        impl #extension_of::LImpl for #data_structure::#camel_ident {
-            type NatLit = #data_structure::NatLit;
-            #(
-                type #prod_idents = #data_structure::#prod_rs_tys;
-            )*
-            #(
-                type #sum_idents = #data_structure::#sum_rs_tys;
-            )*
-        }
-    }
+    vec![
+        syn::parse_quote! {
+            #byline
+            impl #extension_of::LImpl for #data_structure::#camel_ident {
+                type NatLit = #data_structure::NatLit;
+                #(
+                    type #prod_idents = #data_structure::#prod_rs_tys;
+                )*
+                #(
+                    type #sum_idents = #data_structure::#sum_rs_tys;
+                )*
+            }
+        },
+        syn::parse_quote! {
+            #byline
+            impl core::default::Default for #data_structure::#camel_ident {
+                fn default() -> Self {
+                    Self {
+                        #(
+                            #prod_snake_idents: core::default::Default::default(),
+                        )*
+                        #(
+                            #sum_snake_idents: core::default::Default::default(),
+                        )*
+                    }
+                }
+            }
+        },
+    ]
+    .into_iter()
 }
 mod owned {
 

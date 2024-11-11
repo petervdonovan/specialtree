@@ -49,7 +49,7 @@ fn limpl_trait<L: LangSpec>(base_path: &syn::Path, ls: &LangSpecGen<L>) -> syn::
     let byline = langspec_gen_util::byline!();
     parse_quote!(
         #byline
-        pub trait LImpl {
+        pub trait LImpl: core::default::Default {
             type NatLit: #base_path::owned::NatLit<LImpl = Self>;
             #(
                 type #prod_types: #base_path::owned::#prod_types<LImpl = Self>;

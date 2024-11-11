@@ -173,8 +173,11 @@ pub fn formatted(lsh: &LangSpecHuman) -> String {
     };
     let m = gen(&bps, &lsf);
     let extension_of = extensionof_gen::gen(&bps.extension_of, &lsf);
-    let data_structure =
-        langdatastructure_gen::refbased::gen(&syn::parse_quote!(crate::data_structure), &lsf);
+    let data_structure = langdatastructure_gen::refbased::gen(
+        &syn::parse_quote!(crate::data_structure),
+        &lsf,
+        false,
+    );
     prettyplease::unparse(&syn::parse_quote!(
         #m
         #extension_of

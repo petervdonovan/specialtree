@@ -1,0 +1,20 @@
+[package]
+name = "langserde"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+extensionof-gen = { version = "0.1.0", path = "../extensionof-gen" }
+idxbased-extensionof-gen = { version = "0.1.0", path = "../idxbased-extensionof-gen" }
+langdatastructure-gen = { version = "0.1.0", path = "../langdatastructure-gen" }
+langspec = { version = "0.1.0", path = "../langspec" }
+langspec-gen-util = { version = "0.1.0", path = "../langspec-gen-util" }
+prettyplease = "0.2.25"
+refbased-extensionof-gen = { version = "0.1.0", path = "../refbased-extensionof-gen" }
+serde_yml = "0.0.12"
+syn = "2.0.87"
+
+[dev-dependencies]
+langspec-examples = { path = "../langspec-examples" }
+serde = { version = "1.0.214", features = ["derive"] }
+serde_yml = "0.0.12"
