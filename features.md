@@ -44,6 +44,7 @@ implementation for language:
 
 - pub fn join_over(self, other, vector of type names) { }
 - pub fn sum_broadcast(self, other) { add other as a variant of every sum type. requires that other is not already part of every sum type because the outgoing maps of sum types are anonymous. this can be ensured by newtyping other }
+  - needed for pattern languages (add Hole)
 - include impls of Default for specific sum types as part of the langspec
 - pub fn prod_broadcast(self, other) { add other as a field of every product type. }
 - pub fn exclude(self, other, vector of type names to remove) { }

@@ -101,7 +101,7 @@ impl crate::langspec::LangSpec for crate::flat::LangSpecFlat {
 }
 
 impl TerminalLangSpec for LangSpecFlat {
-    fn canonical_from<L: LangSpec>(l: &L) -> Self {
+    fn canonical_from<L: LangSpec + ?Sized>(l: &L) -> Self {
         let name = l.name().clone();
         let mut products_sorted = l.products().collect::<Vec<_>>();
         products_sorted.sort_by_key(|pid| l.product_name(pid.clone()).human.clone());

@@ -95,9 +95,13 @@ pub trait LangSpec {
             .map(|(n, _)| n)
             .chain(self.sum_datas().map(|(n, _)| n))
     }
+
+    fn canonical_into<Bot: TerminalLangSpec>(&self) -> Bot {
+        Bot::canonical_from(self)
+    }
 }
 /// Marks a langspec as an element of the iso class of terminal objects in the category of [LangSpec]s.
 /// Needed because a [From] impl would conflict with the blanket impl for [From] for all types.
 pub trait TerminalLangSpec: LangSpec {
-    fn canonical_from<L: LangSpec>(l: &L) -> Self;
+    fn canonical_from<L: LangSpec + ?Sized>(l: &L) -> Self;
 }
