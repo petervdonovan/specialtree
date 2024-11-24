@@ -64,6 +64,7 @@ pub trait LangSpec {
     fn sum_to_unique_nat(&self, id: Self::SumId) -> usize;
     fn sum_from_unique_nat(&self, nat: usize) -> Self::SumId;
     fn asi_convert(&self, id: Self::AlgebraicSortId) -> UnpackedAlgebraicSortId<Self>;
+    fn asi_unconvert(&self, id: UnpackedAlgebraicSortId<Self>) -> Self::AlgebraicSortId;
     fn sid_convert(&self, sid: SortId<Self::AlgebraicSortId>) -> UnpackedSortId<Self> {
         match sid {
             SortId::NatLiteral => SortId::NatLiteral,

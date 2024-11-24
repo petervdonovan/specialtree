@@ -98,6 +98,13 @@ impl crate::langspec::LangSpec for crate::flat::LangSpecFlat {
     ) -> crate::langspec::AlgebraicSortId<Self::ProductId, Self::SumId> {
         id
     }
+
+    fn asi_unconvert(
+        &self,
+        id: crate::langspec::UnpackedAlgebraicSortId<Self>,
+    ) -> Self::AlgebraicSortId {
+        id
+    }
 }
 
 impl TerminalLangSpec for LangSpecFlat {

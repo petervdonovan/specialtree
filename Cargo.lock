@@ -222,6 +222,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "langspec-sumextend"
+version = "0.1.0"
+dependencies = [
+ "expect-test",
+ "functor_derive",
+ "langspec",
+ "langspec-examples",
+ "serde_json",
+ "serde_yml",
+]
+
+[[package]]
 name = "lexpr"
 version = "0.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"

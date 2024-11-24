@@ -150,6 +150,13 @@ impl<L0: LangSpec, L1: LangSpec> LangSpec for Join<L0, L1> {
     ) -> langspec::langspec::UnpackedAlgebraicSortId<Self> {
         id
     }
+
+    fn asi_unconvert(
+        &self,
+        id: langspec::langspec::UnpackedAlgebraicSortId<Self>,
+    ) -> Self::AlgebraicSortId {
+        id
+    }
 }
 
 #[cfg(test)]

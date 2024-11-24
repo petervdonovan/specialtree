@@ -171,4 +171,14 @@ impl crate::langspec::LangSpec for crate::humanreadable::LangSpecHuman {
             panic!("Sort not found: {}", id)
         }
     }
+
+    fn asi_unconvert(
+        &self,
+        id: crate::langspec::UnpackedAlgebraicSortId<Self>,
+    ) -> Self::AlgebraicSortId {
+        match id {
+            crate::langspec::AlgebraicSortId::Product(pid) => pid,
+            crate::langspec::AlgebraicSortId::Sum(sid) => sid,
+        }
+    }
 }
