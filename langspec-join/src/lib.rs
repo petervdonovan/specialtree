@@ -159,6 +159,27 @@ impl<L0: LangSpec, L1: LangSpec> LangSpec for Join<L0, L1> {
     }
 }
 
+impl<L: langspec::langspec::ToLiteral, R: langspec::langspec::ToLiteral>
+    langspec::langspec::ToLiteral for Either<L, R>
+{
+    fn to_literal(&self) -> syn::Expr {
+        match self {
+            Either::Left(l) => {
+                let l = l.to_literal();
+                syn::parse_quote! {
+                    langspec_join::Either::Left(#l)
+                }
+            }
+            Either::Right(r) => {
+                let r = r.to_literal();
+                syn::parse_quote! {
+                    langspec_join::Either::Right(#r)
+                }
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

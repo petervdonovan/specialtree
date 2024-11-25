@@ -39,8 +39,8 @@ impl SortShape {
 }
 
 pub trait LangSpec {
-    type ProductId: Clone + Eq;
-    type SumId: Clone + Eq;
+    type ProductId: Clone + Eq + ToLiteral;
+    type SumId: Clone + Eq + ToLiteral;
     type AlgebraicSortId: Clone + Eq;
 
     fn name(&self) -> &Name;
@@ -105,4 +105,8 @@ pub trait LangSpec {
 /// Needed because a [From] impl would conflict with the blanket impl for [From] for all types.
 pub trait TerminalLangSpec: LangSpec {
     fn canonical_from<L: LangSpec + ?Sized>(l: &L) -> Self;
+}
+
+pub trait ToLiteral {
+    fn to_literal(&self) -> syn::Expr;
 }

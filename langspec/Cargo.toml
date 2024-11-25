@@ -10,4 +10,8 @@ derive_more = "0.99.18"
 functor_derive = "0.4.3"
 serde = { version = "1.0.203", features = ["derive"] }
 serde_yml = "0.0.12"
+syn = "2.0.89"
 typed-index-collections = { version = "3.1.0", features = ["serde-std"] }
+
+[dev-dependencies]
+quote = "1.0.37"

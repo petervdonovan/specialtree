@@ -167,3 +167,32 @@ impl TerminalLangSpec for LangSpecFlat {
         }
     }
 }
+
+impl crate::langspec::ToLiteral for ProductId {
+    fn to_literal(&self) -> syn::Expr {
+        let inner = &self.0;
+        syn::parse_quote! { langspec::flat::ProductId(#inner) }
+    }
+}
+
+impl crate::langspec::ToLiteral for SumId {
+    fn to_literal(&self) -> syn::Expr {
+        let inner = &self.0;
+        syn::parse_quote! { langspec::flat::SumId(#inner) }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::langspec::ToLiteral as _;
+
+    #[test]
+    fn test_to_literal() {
+        let s = crate::flat::ProductId(42usize);
+        let literal = s.to_literal();
+        assert_eq!(
+            quote::quote!(#literal).to_string(),
+            "langspec :: flat :: ProductId (42usize)"
+        );
+    }
+}

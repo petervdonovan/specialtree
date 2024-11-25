@@ -1,7 +1,7 @@
 use langspec::langspec::LangSpec;
 
 pub enum Term<'a, L> {
-    NatLiteral(usize),
+    NatLiteral(u64),
     Algebraic(AlgebraicTerm<'a, L>),
     Set(Box<dyn Iterator<Item = AlgebraicTerm<'a, L>> + 'a>),
     Sequence(Box<dyn Iterator<Item = AlgebraicTerm<'a, L>> + 'a>),
