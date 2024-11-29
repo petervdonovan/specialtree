@@ -1,15 +1,17 @@
 [package]
-name = "idxbased-extensionof-gen"
+name = "related-gen"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
-expect-test = "1.5.0"
-extensionof-gen = { version = "0.1.0", path = "../extensionof-gen" }
 langdatastructure-gen = { version = "0.1.0", path = "../langdatastructure-gen" }
 langspec = { version = "0.1.0", path = "../langspec" }
-langspec-examples = { version = "0.1.0", path = "../langspec-examples" }
 langspec-gen-util = { version = "0.1.0", path = "../langspec-gen-util" }
-prettyplease = "0.2.25"
+prettyplease = "0.2.24"
+proc-macro2 = "1.0.89"
 quote = "1.0.37"
-syn = "2.0.85"
+syn = "2.0.82"
+
+[dev-dependencies]
+expect-test = "1.5.0"
+langspec-examples = { path = "../langspec-examples" }

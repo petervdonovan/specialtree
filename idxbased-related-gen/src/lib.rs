@@ -1,4 +1,4 @@
-use langdatastructure_gen::refbased::sort2rs_type;
+use langdatastructure_gen::idxbased::sort2rs_idx_type;
 use langspec::{
     flat::LangSpecFlat,
     humanreadable::LangSpecHuman,
@@ -14,7 +14,7 @@ pub struct BasePaths {
 pub fn gen<L: LangSpec>(bps: &BasePaths, ls: &L) -> syn::Item {
     let ls = LangSpecGen {
         bak: ls,
-        sort2rs_type,
+        sort2rs_type: sort2rs_idx_type,
         type_base_path: bps.data_structure.clone(),
     };
     let limpl = limpl(bps, &ls);
@@ -24,8 +24,8 @@ pub fn gen<L: LangSpec>(bps: &BasePaths, ls: &L) -> syn::Item {
     let byline = langspec_gen_util::byline!();
     syn::parse_quote!(
         #byline
-        pub mod refbased_extension_of {
-            #limpl
+        pub mod idxbased_extension_of {
+            #(#limpl)*
             #owned
             #reference
             #mut_reference
@@ -40,25 +40,43 @@ fn limpl<L: LangSpec>(
         ..
     }: &BasePaths,
     ls: &LangSpecGen<L>,
-) -> syn::Item {
-    transpose!(ls.prod_gen_datas(), camel_ident, rs_ty);
-    let (prod_idents, prod_rs_tys) = (camel_ident, rs_ty);
-    transpose!(ls.sum_gen_datas(), camel_ident, rs_ty);
-    let (sum_idents, sum_rs_tys) = (camel_ident, rs_ty);
+) -> impl Iterator<Item = syn::Item> {
+    transpose!(ls.prod_gen_datas(), camel_ident, rs_ty, snake_ident);
+    let (prod_idents, prod_snake_idents, prod_rs_tys) = (camel_ident, snake_ident, rs_ty);
+    transpose!(ls.sum_gen_datas(), camel_ident, snake_ident, rs_ty);
+    let (sum_idents, sum_snake_idents, sum_rs_tys) = (camel_ident, snake_ident, rs_ty);
     let camel_ident = ls.camel_ident();
     let byline = langspec_gen_util::byline!();
-    syn::parse_quote! {
-        #byline
-        impl #extension_of::LImpl for #data_structure::#camel_ident {
-            type NatLit = #data_structure::NatLit;
-            #(
-                type #prod_idents = #data_structure::#prod_rs_tys;
-            )*
-            #(
-                type #sum_idents = #data_structure::#sum_rs_tys;
-            )*
-        }
-    }
+    vec![
+        syn::parse_quote! {
+            #byline
+            impl #extension_of::LImpl for #data_structure::#camel_ident {
+                type NatLit = #data_structure::NatLit;
+                #(
+                    type #prod_idents = #data_structure::#prod_rs_tys;
+                )*
+                #(
+                    type #sum_idents = #data_structure::#sum_rs_tys;
+                )*
+            }
+        },
+        syn::parse_quote! {
+            #byline
+            impl core::default::Default for #data_structure::#camel_ident {
+                fn default() -> Self {
+                    Self {
+                        #(
+                            #prod_snake_idents: core::default::Default::default(),
+                        )*
+                        #(
+                            #sum_snake_idents: core::default::Default::default(),
+                        )*
+                    }
+                }
+            }
+        },
+    ]
+    .into_iter()
 }
 mod owned {
 
@@ -66,12 +84,12 @@ mod owned {
     pub fn gen<L: LangSpec>(bps: &BasePaths, ls: &LangSpecGen<L>) -> syn::Item {
         let prods = gen_prods(bps, ls);
         let sums = gen_sums(bps, ls);
-        let nat_lit = gen_nat_lit(bps, ls);
+        let nat_lit = nat_lit(bps, ls);
         let byline = langspec_gen_util::byline!();
         syn::parse_quote!(
             #byline
             pub mod owned {
-                #nat_lit
+                #(#nat_lit)*
                 #(
                     #prods
                 )*
@@ -81,28 +99,55 @@ mod owned {
             }
         )
     }
-    pub fn gen_nat_lit<'c: 'd, 'd, L: LangSpec>(
+    pub fn nat_lit<L: LangSpec>(
         BasePaths {
             extension_of,
             data_structure,
             ..
-        }: &'d BasePaths,
-        ls: &'c LangSpecGen<L>,
-    ) -> syn::ItemImpl {
+        }: &BasePaths,
+        ls: &LangSpecGen<L>,
+    ) -> impl Iterator<Item = syn::ItemImpl> {
         let ls_camel_ident = ls.camel_ident();
         let byline = langspec_gen_util::byline!();
-        syn::parse_quote! {
-            #byline
-            impl #extension_of::owned::NatLit for #data_structure::NatLit {
-                type LImpl = #data_structure::#ls_camel_ident;
-                fn get_ref<'a, 'b: 'a>(&'a self, _l: &'b Self::LImpl) -> impl #extension_of::reference::NatLit<'a, LImpl = Self::LImpl> {
-                    *self
+        vec![
+            syn::parse_quote! {
+                #byline
+                impl #extension_of::owned::NatLit for #data_structure::NatLit {
+                    type LImpl = #data_structure::#ls_camel_ident;
+                    fn get_ref<'a, 'b: 'a>(
+                        &'a self,
+                        _l: &'b Self::LImpl,
+                    ) -> impl #extension_of::reference::NatLit<'a, LImpl = Self::LImpl> {
+                        *self
+                    }
+
+                    fn get_mut<'a, 'b: 'a>(
+                        &'a mut self,
+                        _l: &'b mut Self::LImpl,
+                    ) -> impl #extension_of::mut_reference::NatLit<'a, LImpl = Self::LImpl>
+                    {
+                        *self
+                    }
                 }
-                fn get_mut<'a, 'b: 'a>(&'a mut self, _l: &'b mut Self::LImpl) -> impl #extension_of::mut_reference::NatLit<'a, LImpl = Self::LImpl> {
-                    self
+            },
+            syn::parse_quote! {
+                #byline
+                impl std::convert::From<u64> for #data_structure::NatLit {
+                    fn from(x: u64) -> Self {
+                        Self(x)
+                    }
                 }
-            }
-        }
+            },
+            syn::parse_quote! {
+                #byline
+                impl std::convert::From<#data_structure::NatLit> for u64 {
+                    fn from(x: #data_structure::NatLit) -> Self {
+                        x.0
+                    }
+                }
+            },
+        ]
+        .into_iter()
     }
     pub fn gen_prods<'c: 'd, 'd, L: LangSpec>(
         BasePaths {
@@ -116,6 +161,7 @@ mod owned {
         ls.prod_gen_datas()
             .map(
                 move |ProdGenData {
+                     snake_ident,
                      camel_ident,
                      rs_ty,
                      n_sorts,
@@ -128,14 +174,18 @@ mod owned {
                         #byline
                         impl #extension_of::owned::#camel_ident for #data_structure::#rs_ty {
                             type LImpl = #data_structure::#ls_camel_ident;
-                            fn new(_l: &mut Self::LImpl, args: (#(<Self::LImpl as #extension_of::LImpl>::#sort_rs_camel_idents,)*)) -> Self {
-                                Self(#(args.#arg_idxs),*)
+                            fn new(l: &mut Self::LImpl, args: (#(<Self::LImpl as #extension_of::LImpl>::#sort_rs_camel_idents,)*)) -> Self {
+                                // hash-consing not yet implemented
+                                let data = #data_structure::data::#camel_ident(#(args.#arg_idxs),*);
+                                let ret = l.#snake_ident.len();
+                                l.#snake_ident.push(data);
+                                Self(ret)
                             }
                             fn get_ref<'a, 'b: 'a>(&'a self, _l: &'b Self::LImpl) -> impl #extension_of::reference::#camel_ident<'a, LImpl = Self::LImpl> {
-                                self
+                                *self
                             }
                             fn get_mut<'a, 'b: 'a>(&'a mut self, _l: &'b mut Self::LImpl) -> impl #extension_of::mut_reference::#camel_ident<'a, LImpl = Self::LImpl> {
-                                self
+                                *self
                             }
                         }
                     }
@@ -154,26 +204,25 @@ mod owned {
         ls.sum_gen_datas()
             .map(move |SumGenData { camel_ident, snake_ident,
                 sort_rs_camel_idents,
-                sort_rs_snake_idents, sort_shapes, .. }| {
+                sort_rs_snake_idents, .. }| {
                 let byline = langspec_gen_util::byline!();
-                let maybe_boxed_from = sort_shapes.map(|shape| match shape {
-                    langspec::langspec::SortId::Algebraic(_) => quote::quote!(Box::new),
-                    _ => quote::quote!(|a| a),
-                });
                 syn::parse_quote! {
                     #byline
                     impl #extension_of::owned::#camel_ident for #data_structure::#camel_ident {
                         type LImpl = #data_structure::#ls_camel_ident;
                         #(
-                            fn #sort_rs_snake_idents(_l: &mut Self::LImpl, from: <Self::LImpl as #extension_of::LImpl>::#sort_rs_camel_idents) -> Self {
-                                Self::#sort_rs_camel_idents((#maybe_boxed_from)(from))
+                            fn #sort_rs_snake_idents(l: &mut Self::LImpl, from: <Self::LImpl as #extension_of::LImpl>::#sort_rs_camel_idents) -> Self {
+                                let data = #data_structure::data::#camel_ident::#sort_rs_camel_idents(from);
+                                let ret = l.#snake_ident.len();
+                                l.#snake_ident.push(data);
+                                Self(ret)
                             }
                         )*
                         fn get_ref(&self, _l: &Self::LImpl) -> impl #extension_of::reference::#camel_ident<'_, LImpl = Self::LImpl> {
-                            self
+                            *self
                         }
                         fn get_mut(&mut self, _l: &mut Self::LImpl) -> impl #extension_of::mut_reference::#camel_ident<'_, LImpl = Self::LImpl> {
-                            self
+                            *self
                         }
                     }
                 }
@@ -185,15 +234,12 @@ pub fn formatted(lsh: &LangSpecHuman) -> String {
     let lsf: LangSpecFlat = LangSpecFlat::canonical_from(lsh);
     let bps = BasePaths {
         extension_of: syn::parse_quote!(crate::extension_of),
-        data_structure: syn::parse_quote!(crate::data_structure::refbased),
+        data_structure: syn::parse_quote!(crate::data_structure::idxbased),
     };
     let m = gen(&bps, &lsf);
-    let extension_of = extensionof_gen::gen(&bps.extension_of, &lsf);
-    let data_structure = langdatastructure_gen::refbased::gen(
-        &syn::parse_quote!(crate::data_structure),
-        &lsf,
-        false,
-    );
+    let extension_of = related_gen::gen(&bps.extension_of, &lsf);
+    let data_structure =
+        langdatastructure_gen::idxbased::gen(&syn::parse_quote!(crate::data_structure), &lsf);
     prettyplease::unparse(&syn::parse_quote!(
         #m
         #extension_of
@@ -205,7 +251,6 @@ pub fn formatted(lsh: &LangSpecHuman) -> String {
 
 mod reference {
 
-    use langspec::langspec::AlgebraicSortId;
     use langspec_gen_util::collect;
 
     use super::*;
@@ -225,7 +270,7 @@ mod reference {
                 impl<'a> #extension_of::reference::NatLit<'a> for #data_structure::NatLit {
                     type LImpl = #data_structure::#ls_camel_ident;
                     fn is_eq<'b: 'a>(self, _l: &'b Self::LImpl, other: Self) -> bool {
-                        self == other
+                        self.0 == other.0
                     }
                 }
                 #(
@@ -236,23 +281,6 @@ mod reference {
                 )*
             }
         )
-    }
-    pub fn camels2rs_ty(
-        data_structure: syn::Path,
-        camels: impl Iterator<Item = syn::Ident>,
-        shapes: impl Iterator<Item = langspec::langspec::SortId<AlgebraicSortId<(), ()>>>,
-    ) -> impl Iterator<Item = syn::Type> {
-        camels.zip(shapes).map(move |(camel, shape)| match shape {
-            langspec::langspec::SortId::NatLiteral => {
-                syn::parse_quote!(#data_structure::NatLit)
-            }
-            langspec::langspec::SortId::Algebraic(_) => {
-                syn::parse_quote!(&'a #data_structure::#camel)
-            }
-            _ => {
-                todo!()
-            }
-        })
     }
     pub fn gen_prods<'c: 'd, 'd, L: LangSpec>(
         BasePaths {
@@ -278,10 +306,10 @@ mod reference {
                 let byline = langspec_gen_util::byline!();
                 syn::parse_quote! {
                     #byline
-                    impl<'a> #extension_of::reference::#camel_ident<'a> for &'a #data_structure::#rs_ty {
+                    impl<'a> #extension_of::reference::#camel_ident<'a> for #data_structure::#rs_ty {
                         type LImpl = #data_structure::#ls_camel_ident;
                         #(
-                            type #ty_idx = &'a #data_structure::#sort_rs_camel_idents;
+                            type #ty_idx = #data_structure::#sort_rs_camel_idents;
                         )*
                         fn is_eq<'b: 'a>(self, l: &'b Self::LImpl, other: Self) -> bool {
                             #(
@@ -304,29 +332,17 @@ mod reference {
                  rs_ty,
                  sort_rs_camel_idents,
                  idx,
-                 sort_shapes,
                  ..
              }| {
                 let ls_camel_ident = ls.camel_ident();
-                collect!(idx, sort_shapes, sort_rs_camel_idents);
-                let accessors = sort_shapes.iter().zip(idx.clone()).map(|(shape, idx)| -> syn::Expr {
-                    match shape {
-                        langspec::langspec::SortId::NatLiteral => {
-                            syn::parse_quote!(self.idx)
-                        }
-                        _ => {
-                            syn::parse_quote!(&self.#idx)
-                        }
-                    }
-                }).collect::<Vec<_>>();
-                let tys = camels2rs_ty(data_structure.clone(), sort_rs_camel_idents.clone().into_iter(), sort_shapes.into_iter());
-                idx.into_iter().zip(sort_rs_camel_idents).zip(tys.zip(accessors)).map(
-                    move |((idx, sort_rs_camel_idents), (ty, accessor))|{
+                idx.zip(sort_rs_camel_idents).map(
+                    move |(idx, sort_rs_camel_idents)|{
                         let ret: syn::ItemImpl = syn::parse_quote! {
-                            impl<'a> #extension_of::Projection<#data_structure::#ls_camel_ident, #idx> for &'a #data_structure::#rs_ty {
-                                type To = #ty;
-                                fn project(self, _l: &#data_structure::#ls_camel_ident) -> Self::To {
-                                    #accessor
+                            impl #extension_of::Projection<#data_structure::#ls_camel_ident, #idx> for #data_structure::#rs_ty {
+                                type To = #data_structure::#sort_rs_camel_idents;
+                                fn project(self, l: &#data_structure::#ls_camel_ident) -> Self::To {
+                                    let my_data = &l.#snake_ident[self.0];
+                                    my_data.#idx
                                 }
                             }
                         };
@@ -352,32 +368,22 @@ mod reference {
                  rs_ty,
                  sort_rs_camel_idents,
                  sort_rs_snake_idents,
-                    sort_shapes,
                  ..
              }| {
                 let byline = langspec_gen_util::byline!();
-                collect!(sort_rs_camel_idents, sort_shapes);
-                let tys = camels2rs_ty(data_structure.clone(), sort_rs_camel_idents.clone().into_iter(), sort_shapes.clone().into_iter());
-                let accessors = sort_shapes.iter().map(|shape| -> syn::Expr {match shape {
-                    langspec::langspec::SortId::NatLiteral => {
-                        syn::parse_quote!(*a)
-                    }
-                    _ => {
-                        syn::parse_quote!(a)
-                    }
-                }});
-                collect!(accessors);
+                collect!(sort_rs_camel_idents);
                 let ret = quote::quote! {
                     #byline
-                    impl<'a> #extension_of::reference::#camel_ident<'a> for &'a #data_structure::#rs_ty {
+                    impl<'a> #extension_of::reference::#camel_ident<'a> for #data_structure::#rs_ty {
                         type LImpl = #data_structure::#ls_camel_ident;
                         #(
-                            type #sort_rs_camel_idents = #tys;
+                            type #sort_rs_camel_idents = #data_structure::#sort_rs_camel_idents;
                         )*
                         #(
-                            fn #sort_rs_snake_idents<'b: 'a>(self, _l: &'b Self::LImpl) -> Option<Self::#sort_rs_camel_idents> {
-                                match self {
-                                    #data_structure::#rs_ty::#sort_rs_camel_idents(a) => Some(#accessors),
+                            fn #sort_rs_snake_idents<'b: 'a>(self, l: &'b Self::LImpl) -> Option<Self::#sort_rs_camel_idents> {
+                                let my_data = &l.#snake_ident[self.0];
+                                match my_data {
+                                    #data_structure::data::#rs_ty::#sort_rs_camel_idents(a) => Some(*a),
                                     _ => None,
                                 }
                             }
@@ -386,10 +392,10 @@ mod reference {
                             #(
                                 use #extension_of::reference::#sort_rs_camel_idents;
                             )*
-                            match (self, other) {
+                            match (&l.#snake_ident[self.0], &l.#snake_ident[other.0]) {
                                 #(
-                                    (#data_structure::#rs_ty::#sort_rs_camel_idents(b), #data_structure::#rs_ty::#sort_rs_camel_idents(a)) => {
-                                        b.is_eq(l, #accessors)
+                                    (#data_structure::data::#rs_ty::#sort_rs_camel_idents(a), #data_structure::data::#rs_ty::#sort_rs_camel_idents(b)) => {
+                                        a.is_eq(l, *b)
                                     }
                                 )*
                                 _ => false,
@@ -438,7 +444,7 @@ mod mut_reference {
         let byline = langspec_gen_util::byline!();
         syn::parse_quote! {
             #byline
-            impl<'a> #extension_of::mut_reference::NatLit<'a> for &'a mut #data_structure::NatLit {
+            impl<'a> #extension_of::mut_reference::NatLit<'a> for #data_structure::NatLit {
                 type LImpl = #data_structure::#ls_camel_ident;
             }
         }
@@ -463,38 +469,15 @@ mod mut_reference {
                 let byline = langspec_gen_util::byline!();
                 syn::parse_quote! {
                     #byline
-                    impl<'a> #extension_of::mut_reference::#camel_ident<'a> for &'a mut #data_structure::#rs_ty {
+                    impl<'a> #extension_of::mut_reference::#camel_ident<'a> for #data_structure::#rs_ty {
                         type LImpl = #data_structure::#ls_camel_ident;
                         #(
-                            type #ty_idx = &'a mut #data_structure::#sort_rs_camel_idents;
+                            type #ty_idx = #data_structure::#sort_rs_camel_idents;
                         )*
                     }
                 }
             },
-        ).chain(ls.prod_gen_datas().flat_map(
-            move |ProdGenData {
-                 rs_ty,
-                 sort_rs_camel_idents,
-                 idx,
-                 ..
-             }| {
-                let ls_camel_ident = ls.camel_ident();
-                collect!(idx, sort_rs_camel_idents);
-                idx.into_iter().zip(sort_rs_camel_idents).map(
-                    move |(idx, sort_rs_camel_idents)|{
-                        let ret: syn::ItemImpl = syn::parse_quote! {
-                            impl<'a> #extension_of::Projection<#data_structure::#ls_camel_ident, #idx> for &'a mut #data_structure::#rs_ty {
-                                type To = &'a mut #data_structure::#sort_rs_camel_idents;
-                                fn project(self, _l: &#data_structure::#ls_camel_ident) -> Self::To {
-                                    &mut self.#idx
-                                }
-                            }
-                        };
-                        ret
-                    }
-                )
-            },
-        ))
+        )
     }
     pub fn gen_sums<'c: 'd, 'd, L: LangSpec>(
         BasePaths {
@@ -517,26 +500,29 @@ mod mut_reference {
             let byline = langspec_gen_util::byline!();
             syn::parse_quote! {
                 #byline
-                impl<'a> #extension_of::mut_reference::#camel_ident<'a> for &'a mut #data_structure::#rs_ty {
+                impl<'a> #extension_of::mut_reference::#camel_ident<'a> for #data_structure::#rs_ty {
                     type LImpl = #data_structure::#ls_camel_ident;
                     type Owned = #data_structure::#camel_ident;
                     #(
-                        type #sort_rs_camel_idents = &'a mut #data_structure::#sort_rs_camel_idents;
+                        type #sort_rs_camel_idents = #data_structure::#sort_rs_camel_idents;
                     )*
                     #(
-                        fn #sort_rs_snake_idents<'b: 'a>(self, _l: &'b Self::LImpl) -> Option<Self::#sort_rs_camel_idents> {
-                            match self {
-                                #data_structure::#rs_ty::#sort_rs_camel_idents(a) => Some(a),
+                        fn #sort_rs_snake_idents<'b: 'a>(self, l: &'b Self::LImpl) -> Option<Self::#sort_rs_camel_idents> {
+                            let my_data = &l.#snake_ident[self.0];
+                            match my_data {
+                                #data_structure::data::#rs_ty::#sort_rs_camel_idents(a) => Some(*a),
                                 _ => None,
                             }
                         }
                     )*
                     fn set<'b: 'a>(
                         self,
-                        _l: &'b mut Self::LImpl,
+                        l: &'b mut Self::LImpl,
                         value: Self::Owned,
                     ) {
-                        *self = value;
+                        let their_data = l.#snake_ident[value.0];
+                        let my_data = &mut l.#snake_ident[self.0];
+                        *my_data = their_data;
                     }
                 }
             }

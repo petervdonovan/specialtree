@@ -12,7 +12,7 @@ install:
 source:
     FROM +install
     COPY --keep-ts Cargo.toml Cargo.lock ./
-    COPY --keep-ts --dir langspec langspec-examples pattern sexprfmt langspec-gen-util langdatastructure-gen extensionof-gen idxbased-extensionof-gen ./
+    COPY --keep-ts --dir langspec langspec-examples pattern sexprfmt langspec-gen-util langdatastructure-gen related-gen idxbased-related-gen ./
 
 build:
     FROM +source
@@ -22,9 +22,9 @@ build:
 generate-tests:
     FROM +build
     DO rust+CARGO --args="run --example generate-langdatastructure-tests" --output="target/debug/[^/\.]+"
-    DO rust+CARGO --args="run --example generate-extensionof-tests" --output="target/debug/[^/\.]+"
+    DO rust+CARGO --args="run --example generate-related-tests" --output="target/debug/[^/\.]+"
     SAVE ARTIFACT langdatastructure-gen/tests AS LOCAL langdatastructure-gen/tests
-    SAVE ARTIFACT extensionof-gen/tests AS LOCAL extensionof-gen/tests
+    SAVE ARTIFACT related-gen/tests AS LOCAL related-gen/tests
 
 test:
     FROM +generate-tests

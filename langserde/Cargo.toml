@@ -4,14 +4,14 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-extensionof-gen = { version = "0.1.0", path = "../extensionof-gen" }
-idxbased-extensionof-gen = { version = "0.1.0", path = "../idxbased-extensionof-gen" }
+related-gen = { version = "0.1.0", path = "../related-gen" }
+idxbased-related-gen = { version = "0.1.0", path = "../idxbased-related-gen" }
 langdatastructure-gen = { version = "0.1.0", path = "../langdatastructure-gen" }
 langspec = { version = "0.1.0", path = "../langspec" }
 langspec-gen-util = { version = "0.1.0", path = "../langspec-gen-util" }
 prettyplease = "0.2.25"
 quote = "1.0.37"
-refbased-extensionof-gen = { version = "0.1.0", path = "../refbased-extensionof-gen" }
+refbased-related-gen = { version = "0.1.0", path = "../refbased-related-gen" }
 syn = "2.0.87"
 
 [dev-dependencies]

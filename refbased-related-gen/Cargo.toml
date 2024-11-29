@@ -1,10 +1,10 @@
 [package]
-name = "refbased-extensionof-gen"
+name = "refbased-related-gen"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-extensionof-gen = { version = "0.1.0", path = "../extensionof-gen" }
+related-gen = { version = "0.1.0", path = "../related-gen" }
 langdatastructure-gen = { version = "0.1.0", path = "../langdatastructure-gen" }
 langspec = { version = "0.1.0", path = "../langspec" }
 langspec-gen-util = { version = "0.1.0", path = "../langspec-gen-util" }

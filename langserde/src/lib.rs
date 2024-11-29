@@ -56,21 +56,21 @@ pub fn formatted(lsh: &LangSpecHuman) -> String {
         type_base_path: syn::parse_quote!(crate::types),
     };
     let (parse, unparse) = gen(&bps, &syn::parse_quote! {Nat});
-    let refbased_extension_of = refbased_extensionof_gen::gen(
-        &refbased_extensionof_gen::BasePaths {
+    let refbased_extension_of = refbased_related_gen::gen(
+        &refbased_related_gen::BasePaths {
             extension_of: bps.extension_of.clone(),
             data_structure: bps.refbased_data_structure.clone(),
         },
         &lsf,
     );
-    let idxbased_extension_of = idxbased_extensionof_gen::gen(
-        &idxbased_extensionof_gen::BasePaths {
+    let idxbased_extension_of = idxbased_related_gen::gen(
+        &idxbased_related_gen::BasePaths {
             extension_of: bps.extension_of.clone(),
             data_structure: idxbased_data_structure_path.clone(),
         },
         &lsf,
     );
-    let extension_of = extensionof_gen::gen(&bps.extension_of, &lsf);
+    let extension_of = related_gen::gen(&bps.extension_of, &lsf);
     let data_structure =
         langdatastructure_gen::refbased::gen(&syn::parse_quote!(crate::data_structure), &lsf, true);
     let idxbased_data_structure =

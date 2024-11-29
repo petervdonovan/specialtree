@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-extensionof-gen = { version = "0.1.0", path = "../extensionof-gen" }
+related-gen = { version = "0.1.0", path = "../related-gen" }
 langspec = { version = "0.1.0", path = "../langspec" }
 langspec-gen-util = { version = "0.1.0", path = "../langspec-gen-util" }
 prettyplease = "0.2.25"

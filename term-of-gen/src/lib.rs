@@ -182,7 +182,7 @@ pub fn formatted(lsh: &langspec::humanreadable::LangSpecHuman) -> String {
         &lsf,
         &syn::parse_quote! { langspec::flat::LangSpecFlat },
     );
-    let extension_of = extensionof_gen::gen(&bps.extension_of, &lsf);
+    let extension_of = related_gen::gen(&bps.extension_of, &lsf);
     prettyplease::unparse(&syn::parse_quote!(
         #m
         #extension_of

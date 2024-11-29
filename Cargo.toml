@@ -2,8 +2,8 @@
 
 resolver = "2"
 members = [
-    "extensionof-gen",
-    "idxbased-extensionof-gen",
+    "related-gen",
+    "idxbased-related-gen",
     "langdatastructure-gen",
     "langserde",
     "langspec",
@@ -12,7 +12,9 @@ members = [
     "langspec-join",
     "langspec-sumextend",
     "pattern",
-    "refbased-extensionof-gen",
+    "refbased-related-gen",
     "term-of-gen",
-    "sexprfmt", "term-of",
+    "sexprfmt",
+    "term-of",
+    "pattern-lang",
 ]

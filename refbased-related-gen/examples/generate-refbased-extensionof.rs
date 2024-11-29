@@ -4,10 +4,7 @@ pub fn main() {
     let target_dir = target_dir.join("tests");
     std::fs::create_dir_all(&target_dir).unwrap();
 
-    let formatted = extensionof_gen::formatted(
-        &syn::parse_quote!(crate::extension_of),
-        &langspec_examples::fib(),
-    );
-    let target_file = target_dir.join("traits.rs");
+    let formatted = refbased_related_gen::formatted(&langspec_examples::fib());
+    let target_file = target_dir.join("refbased-related.rs");
     std::fs::write(target_file, formatted).unwrap();
 }
