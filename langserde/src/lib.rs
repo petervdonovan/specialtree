@@ -6,7 +6,7 @@ pub struct BasePaths {
     pub extension_of: syn::Path,
 }
 
-pub fn gen(
+pub fn generate(
     BasePaths {
         refbased_data_structure,
         extension_of,
@@ -55,26 +55,29 @@ pub fn formatted(lsh: &LangSpecHuman) -> String {
         sort2rs_type: |_, _| syn::parse_quote!(syn::Type),
         type_base_path: syn::parse_quote!(crate::types),
     };
-    let (parse, unparse) = gen(&bps, &syn::parse_quote! {Nat});
-    let refbased_extension_of = refbased_related_gen::gen(
+    let (parse, unparse) = generate(&bps, &syn::parse_quote! {Nat});
+    let refbased_extension_of = refbased_related_gen::generate(
         &refbased_related_gen::BasePaths {
             extension_of: bps.extension_of.clone(),
             data_structure: bps.refbased_data_structure.clone(),
         },
         &lsf,
     );
-    let idxbased_extension_of = idxbased_related_gen::gen(
+    let idxbased_extension_of = idxbased_related_gen::generate(
         &idxbased_related_gen::BasePaths {
             extension_of: bps.extension_of.clone(),
             data_structure: idxbased_data_structure_path.clone(),
         },
         &lsf,
     );
-    let extension_of = related_gen::gen(&bps.extension_of, &lsf);
-    let data_structure =
-        langdatastructure_gen::refbased::gen(&syn::parse_quote!(crate::data_structure), &lsf, true);
+    let extension_of = related_gen::generate(&bps.extension_of, &lsf);
+    let data_structure = langdatastructure_gen::refbased::generate(
+        &syn::parse_quote!(crate::data_structure),
+        &lsf,
+        true,
+    );
     let idxbased_data_structure =
-        langdatastructure_gen::idxbased::gen(&syn::parse_quote!(crate::data_structure), &lsf);
+        langdatastructure_gen::idxbased::generate(&syn::parse_quote!(crate::data_structure), &lsf);
     let ls_camel_name = lsfg.camel_ident();
     let test: syn::ItemFn = syn::parse_quote! {
         #[test]

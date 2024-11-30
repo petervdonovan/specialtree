@@ -7,7 +7,7 @@ pub struct BasePaths {
     generate_to: syn::Path,
 }
 
-pub fn gen<L: LangSpec>(bp: &BasePaths, l: &L, ls_ty: &syn::Path) -> syn::ItemMod {
+pub fn generate<L: LangSpec>(bp: &BasePaths, l: &L, ls_ty: &syn::Path) -> syn::ItemMod {
     let lg = LangSpecGen {
         bak: l,
         sort2rs_type: |_, _| panic!("should be independent of concrete types"),
@@ -177,12 +177,12 @@ pub fn formatted(lsh: &langspec::humanreadable::LangSpecHuman) -> String {
         reference: syn::parse_quote!(crate::extension_of::reference),
         generate_to: syn::parse_quote!(crate),
     };
-    let m = gen(
+    let m = generate(
         &bps,
         &lsf,
         &syn::parse_quote! { langspec::flat::LangSpecFlat },
     );
-    let extension_of = related_gen::gen(&bps.extension_of, &lsf);
+    let extension_of = related_gen::generate(&bps.extension_of, &lsf);
     prettyplease::unparse(&syn::parse_quote!(
         #m
         #extension_of

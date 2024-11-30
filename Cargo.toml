@@ -1,6 +1,8 @@
 [workspace]
 
 resolver = "2"
+cargo-features = ["edition2024"]
+
 members = [
     "related-gen",
     "idxbased-related-gen",
@@ -17,4 +19,7 @@ members = [
     "sexprfmt",
     "term-of",
     "pattern-lang",
+    "specialized-term",
+    "specialized-term-gen",
+    "abstracted-langspec-gen-util",
 ]

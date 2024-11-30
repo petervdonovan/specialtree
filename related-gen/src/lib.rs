@@ -1,8 +1,8 @@
 use langspec::langspec::LangSpec;
-use langspec_gen_util::{transpose, LangSpecGen, ProdGenData, SumGenData};
+use langspec_gen_util::{LangSpecGen, ProdGenData, SumGenData, transpose};
 use syn::parse_quote;
 
-pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
+pub fn generate<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
     fn fail(_: &syn::Path, _: langspec::langspec::SortId<syn::Type>) -> syn::Type {
         panic!("must be type-agnostic");
     }
@@ -11,9 +11,9 @@ pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::Item {
         sort2rs_type: fail,
         type_base_path: base_path.clone(),
     };
-    let owned = owned::gen(base_path, &lg);
-    let reference = reference::gen(base_path, &lg);
-    let mut_reference = mut_reference::gen(base_path, &lg);
+    let owned = owned::generate(base_path, &lg);
+    let reference = reference::generate(base_path, &lg);
+    let mut_reference = mut_reference::generate(base_path, &lg);
     let projection_trait = projection_trait();
     let limpl_trait = limpl_trait(base_path, &lg);
     let byline = langspec_gen_util::byline!();
@@ -49,7 +49,7 @@ fn limpl_trait<L: LangSpec>(base_path: &syn::Path, ls: &LangSpecGen<L>) -> syn::
 }
 mod owned {
     use super::*;
-    pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &LangSpecGen<L>) -> syn::Item {
+    pub fn generate<L: LangSpec>(base_path: &syn::Path, ls: &LangSpecGen<L>) -> syn::Item {
         let mut ret: Vec<syn::Item> = vec![];
         prods(&mut ret, base_path, ls);
         sums(&mut ret, base_path, ls);
@@ -86,7 +86,7 @@ mod owned {
             ..
         } in ls.prod_gen_datas()
         {
-            let gen = quote::quote!(
+            let generate = quote::quote!(
                 #byline
                 pub trait #camel_name {
                     type LImpl: #base_path::LImpl;
@@ -95,7 +95,7 @@ mod owned {
                     fn get_mut<'a, 'b: 'a>(&'a mut self, l: &'b mut Self::LImpl) -> impl #base_path::mut_reference::#camel_name<'a, LImpl = Self::LImpl>;
                 }
             );
-            ret.push(parse_quote!(#gen));
+            ret.push(parse_quote!(#generate));
         }
     }
     pub fn sums<L: LangSpec>(ret: &mut Vec<syn::Item>, base_path: &syn::Path, ls: &LangSpecGen<L>) {
@@ -133,7 +133,7 @@ mod reference {
     use langspec_gen_util::collect;
 
     use super::*;
-    pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &LangSpecGen<L>) -> syn::Item {
+    pub fn generate<L: LangSpec>(base_path: &syn::Path, ls: &LangSpecGen<L>) -> syn::Item {
         let mut ret: Vec<syn::Item> = vec![];
         prods(&mut ret, base_path, ls);
         sums(&mut ret, base_path, ls);
@@ -172,7 +172,7 @@ mod reference {
         } in ls.prod_gen_datas()
         {
             collect!(sort_rs_camel_idents, idx, ty_idx);
-            let gen = quote::quote!(
+            let generate = quote::quote!(
                 #byline
                 pub trait #camel_ident<'a>: Copy + 'a #(
                     + #base_path::Projection<Self::LImpl, #idx, To=Self::#ty_idx>
@@ -198,7 +198,7 @@ mod reference {
                     }
                 }
             );
-            ret.push(parse_quote!(#gen));
+            ret.push(parse_quote!(#generate));
         }
     }
     pub fn sums<L: LangSpec>(ret: &mut Vec<syn::Item>, base_path: &syn::Path, ls: &LangSpecGen<L>) {
@@ -245,7 +245,7 @@ mod mut_reference {
     use langspec_gen_util::collect;
 
     use super::*;
-    pub fn gen<L: LangSpec>(base_path: &syn::Path, ls: &LangSpecGen<L>) -> syn::Item {
+    pub fn generate<L: LangSpec>(base_path: &syn::Path, ls: &LangSpecGen<L>) -> syn::Item {
         let mut ret: Vec<syn::Item> = vec![];
         prods(&mut ret, base_path, ls);
         sums(&mut ret, base_path, ls);
@@ -274,7 +274,7 @@ mod mut_reference {
         } in ls.prod_gen_datas()
         {
             collect!(sort_rs_camel_idents, ty_idx);
-            let gen = quote::quote!(
+            let generate = quote::quote!(
                 #byline
                 pub trait #camel_ident<'a>: #(#base_path::Projection<Self::LImpl, #idx, To=Self::#ty_idx>)+*
                 where #(
@@ -287,7 +287,7 @@ mod mut_reference {
                     )*
                 }
             );
-            ret.push(parse_quote!(#gen));
+            ret.push(parse_quote!(#generate));
         }
     }
     pub fn sums<L: LangSpec>(ret: &mut Vec<syn::Item>, base_path: &syn::Path, ls: &LangSpecGen<L>) {
@@ -326,7 +326,7 @@ mod mut_reference {
 pub fn formatted(base_path: &syn::Path, lsh: &langspec::humanreadable::LangSpecHuman) -> String {
     let lsf: langspec::flat::LangSpecFlat =
         <langspec::flat::LangSpecFlat as langspec::langspec::TerminalLangSpec>::canonical_from(lsh);
-    let gen_result = gen(base_path, &lsf);
+    let gen_result = generate(base_path, &lsf);
     prettyplease::unparse(&syn::parse_quote! {
         #gen_result
     })
@@ -341,7 +341,7 @@ mod tests {
     fn test_data_structure() {
         let formatted = formatted(&parse_quote!(crate), &langspec_examples::fib());
         let expected = expect_test::expect![[r#"
-            /// generated by [related_gen::gen]
+            /// generated by [related_gen::generate]
             pub mod extension_of {
                 /// generated by [related_gen::limpl_trait]
                 pub trait LImpl: core::default::Default {
@@ -354,7 +354,7 @@ mod tests {
                     type To;
                     fn project(self, l: &LImpl) -> Self::To;
                 }
-                /// generated by [related_gen::owned::gen]
+                /// generated by [related_gen::owned::generate]
                 pub mod owned {
                     /// generated by [related_gen::owned::nat_lit]
                     pub trait NatLit: From<u64> {
@@ -425,7 +425,7 @@ mod tests {
                         ) -> impl crate::mut_reference::Nat<'_, LImpl = Self::LImpl>;
                     }
                 }
-                /// generated by [related_gen::reference::gen]
+                /// generated by [related_gen::reference::generate]
                 pub mod reference {
                     pub trait NatLit<'a>: Into<u64> {
                         type LImpl: crate::LImpl;

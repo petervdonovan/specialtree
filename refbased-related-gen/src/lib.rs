@@ -11,16 +11,16 @@ pub struct BasePaths {
     pub data_structure: syn::Path,
 }
 
-pub fn gen<L: LangSpec>(bps: &BasePaths, ls: &L) -> syn::Item {
+pub fn generate<L: LangSpec>(bps: &BasePaths, ls: &L) -> syn::Item {
     let ls = LangSpecGen {
         bak: ls,
         sort2rs_type,
         type_base_path: bps.data_structure.clone(),
     };
     let limpl = limpl(bps, &ls);
-    let owned = owned::gen(bps, &ls);
-    let reference = reference::gen(bps, &ls);
-    let mut_reference = mut_reference::gen(bps, &ls);
+    let owned = owned::generate(bps, &ls);
+    let reference = reference::generate(bps, &ls);
+    let mut_reference = mut_reference::generate(bps, &ls);
     let byline = langspec_gen_util::byline!();
     syn::parse_quote!(
         #byline
@@ -63,7 +63,7 @@ fn limpl<L: LangSpec>(
 mod owned {
 
     use super::*;
-    pub fn gen<L: LangSpec>(bps: &BasePaths, ls: &LangSpecGen<L>) -> syn::Item {
+    pub fn generate<L: LangSpec>(bps: &BasePaths, ls: &LangSpecGen<L>) -> syn::Item {
         let prods = gen_prods(bps, ls);
         let sums = gen_sums(bps, ls);
         let nat_lit = gen_nat_lit(bps, ls);
@@ -187,9 +187,9 @@ pub fn formatted(lsh: &LangSpecHuman) -> String {
         extension_of: syn::parse_quote!(crate::extension_of),
         data_structure: syn::parse_quote!(crate::data_structure::refbased),
     };
-    let m = gen(&bps, &lsf);
-    let extension_of = related_gen::gen(&bps.extension_of, &lsf);
-    let data_structure = langdatastructure_gen::refbased::gen(
+    let m = generate(&bps, &lsf);
+    let extension_of = related_gen::generate(&bps.extension_of, &lsf);
+    let data_structure = langdatastructure_gen::refbased::generate(
         &syn::parse_quote!(crate::data_structure),
         &lsf,
         false,
@@ -209,7 +209,7 @@ mod reference {
     use langspec_gen_util::collect;
 
     use super::*;
-    pub fn gen<L: LangSpec>(bps: &BasePaths, ls: &LangSpecGen<L>) -> syn::Item {
+    pub fn generate<L: LangSpec>(bps: &BasePaths, ls: &LangSpecGen<L>) -> syn::Item {
         let prods = gen_prods(bps, ls);
         let sums = gen_sums(bps, ls);
         let BasePaths {
@@ -408,7 +408,7 @@ mod mut_reference {
     use langspec_gen_util::collect;
 
     use super::*;
-    pub fn gen<L: LangSpec>(bps: &BasePaths, ls: &LangSpecGen<L>) -> syn::Item {
+    pub fn generate<L: LangSpec>(bps: &BasePaths, ls: &LangSpecGen<L>) -> syn::Item {
         let prods = gen_prods(bps, ls);
         let sums = gen_sums(bps, ls);
         let nat_lit = gen_nat_lit(bps, ls);
