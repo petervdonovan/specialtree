@@ -135,11 +135,11 @@ impl<'a, L: LangSpec> LangSpecGen<'a, L> {
             SortId::NatLiteral => syn::Ident::new("NatLit", proc_macro2::Span::call_site()),
             SortId::Algebraic(asi) => self.asi2rs_ident(asi),
             SortId::Set(asi) => syn::Ident::new(
-                &format!("NatSetOf{}", self.asi2rs_ident(asi)),
+                &format!("SetOf{}", self.asi2rs_ident(asi)),
                 proc_macro2::Span::call_site(),
             ),
             SortId::Sequence(asi) => syn::Ident::new(
-                &format!("NatSeqOf{}", self.asi2rs_ident(asi)),
+                &format!("SeqOf{}", self.asi2rs_ident(asi)),
                 proc_macro2::Span::call_site(),
             ),
         }

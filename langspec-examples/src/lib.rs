@@ -19,8 +19,26 @@ pub fn fib() -> LangSpecHuman {
         camel: Plus
         snake: plus
       sorts:
+      - !Algebraic LeftOperand
+      - !Algebraic RightOperand
+    - name:
+        human: LeftOperand
+        camel: LeftOperand
+        snake: left_operand
+      sorts:
       - !Algebraic ℕ
+    - name:
+        human: RightOperand
+        camel: RightOperand
+        snake: right_operand
+      sorts:
       - !Algebraic ℕ
+    - name:
+        human: ∑
+        camel: Sum
+        snake: sum
+      sorts:
+      - !Set ℕ
     sums:
     - name:
         human: ℕ
