@@ -144,6 +144,26 @@ impl<'a, L: LangSpec> LangSpecGen<'a, L> {
             ),
         }
     }
+    // pub fn sort2rs_ty_relpath(
+    //     &self,
+    //     sort: SortId<AlgebraicSortId<L::ProductId, L::SumId>>,
+    // ) -> syn::Type {
+    //     match sort {
+    //         SortId::NatLiteral => syn::parse_quote! { NatLit },
+    //         SortId::Algebraic(asi) => {
+    //             let ident = self.asi2rs_ident(asi);
+    //             syn::parse_quote! { #ident }
+    //         }
+    //         SortId::Set(asi) => {
+    //             let ident = self.asi2rs_ident(asi);
+    //             syn::parse_quote! { SetOf<#ident> }
+    //         }
+    //         SortId::Sequence(asi) => {
+    //             let ident = self.asi2rs_ident(asi);
+    //             syn::parse_quote! { SeqOf<#ident> }
+    //         }
+    //     }
+    // }
     pub fn sort2rs_snake_ident(
         &self,
         sort: SortId<AlgebraicSortId<L::ProductId, L::SumId>>,

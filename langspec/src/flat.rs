@@ -1,21 +1,28 @@
+use bounded_slice::BoundedSlice;
 use derive_more::{From, Into};
 use serde::{Deserialize, Serialize};
 use typed_index_collections::TiVec;
 
-use crate::langspec::{AlgebraicSortId, LangSpec, Name, SortId, TerminalLangSpec};
+use crate::{
+    langspec::{AlgebraicSortId, LangSpec, Name, SortId, TerminalLangSpec},
+    sort_id_of,
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LangSpecFlat {
     pub name: Name,
     pub products: TiVec<ProductId, Product>,
     pub sums: TiVec<SumId, Sum>,
+    ty_meta_funcs: TiVec<FlatTyMetaFuncId, TyMetaFunc>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, From, Into, PartialEq, Eq)]
 pub struct ProductId(pub usize);
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, From, Into, PartialEq, Eq)]
 pub struct SumId(pub usize);
-pub type FlatSortId = SortId<FlatAlgebraicSortId>;
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, From, Into, PartialEq, Eq)]
+pub struct FlatTyMetaFuncId(pub usize);
+pub type FlatSortId = sort_id_of!(LangSpecFlat);
 pub type FlatAlgebraicSortId = AlgebraicSortId<ProductId, SumId>;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -29,6 +36,12 @@ pub struct Sum {
     pub sorts: Box<[FlatSortId]>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TyMetaFunc {
+    pub name: Name,
+    pub args: Vec<Name>,
+}
+
 impl std::fmt::Display for LangSpecFlat {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", serde_yml::to_string(self).unwrap())
@@ -40,7 +53,11 @@ impl crate::langspec::LangSpec for crate::flat::LangSpecFlat {
 
     type SumId = crate::flat::SumId;
 
-    type AlgebraicSortId = crate::flat::FlatAlgebraicSortId;
+    type TyMetaFuncId = crate::flat::FlatTyMetaFuncId;
+
+    const MAX_TY_FUNC_ARGS: usize = 1;
+
+    // type AlgebraicSortId = crate::flat::FlatAlgebraicSortId;
 
     fn name(&self) -> &crate::langspec::Name {
         &self.name
@@ -54,6 +71,10 @@ impl crate::langspec::LangSpec for crate::flat::LangSpecFlat {
         (0..self.sums.len()).map(crate::flat::SumId)
     }
 
+    fn ty_meta_funcs(&self) -> impl Iterator<Item = Self::TyMetaFuncId> {
+        (0..self.ty_meta_funcs.len()).map(crate::flat::FlatTyMetaFuncId)
+    }
+
     fn product_name(&self, id: Self::ProductId) -> &crate::langspec::Name {
         &self.products[id].name
     }
@@ -65,14 +86,14 @@ impl crate::langspec::LangSpec for crate::flat::LangSpecFlat {
     fn product_sorts(
         &self,
         id: Self::ProductId,
-    ) -> impl Iterator<Item = crate::langspec::SortId<Self::AlgebraicSortId>> {
+    ) -> impl Iterator<Item = SortId<Self::ProductId, Self::SumId, Self::TyMetaFuncId, 1>>
+    where
+        [(); 1]:,
+    {
         self.products[id].sorts.iter().cloned()
     }
 
-    fn sum_sorts(
-        &self,
-        id: Self::SumId,
-    ) -> impl Iterator<Item = crate::langspec::SortId<Self::AlgebraicSortId>> {
+    fn sum_sorts(&self, id: Self::SumId) -> impl Iterator<Item = sort_id_of!(Self)> {
         self.sums[id].sorts.iter().cloned()
     }
 
@@ -92,23 +113,26 @@ impl crate::langspec::LangSpec for crate::flat::LangSpecFlat {
         crate::flat::SumId(nat)
     }
 
-    fn asi_convert(
-        &self,
-        id: Self::AlgebraicSortId,
-    ) -> crate::langspec::AlgebraicSortId<Self::ProductId, Self::SumId> {
-        id
-    }
+    // fn asi_convert(
+    //     &self,
+    //     id: Self::AlgebraicSortId,
+    // ) -> crate::langspec::AlgebraicSortId<Self::ProductId, Self::SumId> {
+    //     id
+    // }
 
-    fn asi_unconvert(
-        &self,
-        id: crate::langspec::UnpackedAlgebraicSortId<Self>,
-    ) -> Self::AlgebraicSortId {
-        id
-    }
+    // fn asi_unconvert(
+    //     &self,
+    //     id: crate::langspec::UnpackedAlgebraicSortId<Self>,
+    // ) -> Self::AlgebraicSortId {
+    //     id
+    // }
 }
 
 impl TerminalLangSpec for LangSpecFlat {
-    fn canonical_from<L: LangSpec + ?Sized>(l: &L) -> Self {
+    fn canonical_from<L: LangSpec + ?Sized>(l: &L) -> Self
+    where
+        [(); L::MAX_TY_FUNC_ARGS]:,
+    {
         let name = l.name().clone();
         let mut products_sorted = l.products().collect::<Vec<_>>();
         products_sorted.sort_by_key(|pid| l.product_name(pid.clone()).human.clone());
@@ -123,7 +147,7 @@ impl TerminalLangSpec for LangSpecFlat {
                 let sorts = l
                     .product_sorts(pid.clone())
                     .map(|sid| {
-                        sid.fmap(|asi| match l.asi_convert(asi) {
+                        sid.fmap_a(|asi| match asi {
                             AlgebraicSortId::Product(p) => FlatAlgebraicSortId::Product(ProductId(
                                 products_sorted.iter().position(|it| it == &p).unwrap(),
                             )),
@@ -131,6 +155,7 @@ impl TerminalLangSpec for LangSpecFlat {
                                 sums_sorted.iter().position(|it| it == &s).unwrap(),
                             )),
                         })
+                        .fmap_f(|fid| FlatTyMetaFuncId(fid.0))
                     })
                     .collect::<Vec<_>>()
                     .into_boxed_slice();
@@ -145,7 +170,7 @@ impl TerminalLangSpec for LangSpecFlat {
                 let sorts = l
                     .sum_sorts(sid.clone())
                     .map(|sid| {
-                        sid.fmap(|asi| match l.asi_convert(asi) {
+                        sid.fmap_a(|asi| match l.asi_convert(asi) {
                             AlgebraicSortId::Product(p) => FlatAlgebraicSortId::Product(ProductId(
                                 products_sorted.iter().position(|it| it == &p).unwrap(),
                             )),
@@ -179,6 +204,13 @@ impl crate::langspec::ToLiteral for SumId {
     fn to_literal(&self) -> syn::Expr {
         let inner = &self.0;
         syn::parse_quote! { langspec::flat::SumId(#inner) }
+    }
+}
+
+impl crate::langspec::ToLiteral for FlatTyMetaFuncId {
+    fn to_literal(&self) -> syn::Expr {
+        let inner = &self.0;
+        syn::parse_quote! { langspec::flat::FlatAlgebraicTyMetaFuncId(#inner) }
     }
 }
 

@@ -51,7 +51,9 @@ pub mod extension_of {
         {}
         pub trait Sum: specialized_term::Heaped + specialized_term::CanonicallyConstructibleFrom<
                 (
-                    <<Self as specialized_term::Heaped>::Heap as crate::extension_of::Heap>::SetOfNat,
+                    <<Self as specialized_term::Heaped>::Heap as crate::extension_of::Heap>::SetOf<
+                        Nat,
+                    >,
                 ),
             >
         where
@@ -146,10 +148,10 @@ pub mod extension_of {
                 Heap = Heap,
             > + specialized_term::CanonicallyMaybeConvertibleTo<
                 'heap,
-                Self::SetOfNat,
+                Self::SetOf<Nat>,
                 specialized_term::ExpansionMaybeConversionFallibility,
             > {
-            type SetOfNat: specialized_term::Heaped<Heap = Heap>;
+            type SetOf<Nat>: specialized_term::Heaped<Heap = Heap>;
         }
         pub trait Nat<
             'a,
