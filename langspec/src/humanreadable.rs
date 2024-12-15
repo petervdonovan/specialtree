@@ -1,23 +1,26 @@
 use serde::{Deserialize, Serialize};
 
-use crate::langspec::Name;
+use crate::{langspec::Name, tymetafunc::TyMetaFuncSpec};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct LangSpecHuman {
+pub struct LangSpecHuman<Tmfs: TyMetaFuncSpec> {
     pub name: Name,
-    pub products: Vec<Product>,
-    pub sums: Vec<Sum>,
+    pub products: Vec<Product<Tmfs>>,
+    pub sums: Vec<Sum<Tmfs>>,
     pub ty_meta_funcs: Vec<TyMetaFunc>,
+    _phantom: std::marker::PhantomData<Tmfs>,
 }
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Product {
+#[serde(bound = "")]
+pub struct Product<Tmfs: TyMetaFuncSpec> {
     pub name: Name,
-    pub sorts: Vec<SortId>,
+    pub sorts: Vec<SortId<Tmfs>>,
 }
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Sum {
+#[serde(bound = "")]
+pub struct Sum<Tmfs: TyMetaFuncSpec> {
     pub name: Name,
-    pub sorts: Vec<SortId>,
+    pub sorts: Vec<SortId<Tmfs>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -26,7 +29,7 @@ pub struct TyMetaFunc {
     pub args: Vec<Name>,
 }
 
-pub type SortId = crate::langspec::SortIdOf<LangSpecHuman>;
+pub type SortId<Tmfs> = crate::langspec::SortIdOf<LangSpecHuman<Tmfs>>;
 
 // impl TerminalLangSpec for LangSpecHuman {
 //     fn canonical_from<L: crate::langspec::LangSpec + ?Sized>(l: &L) -> Self {
@@ -82,12 +85,12 @@ pub type SortId = crate::langspec::SortIdOf<LangSpecHuman>;
 //     }
 // }
 
-impl crate::langspec::LangSpec for crate::humanreadable::LangSpecHuman {
+impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::humanreadable::LangSpecHuman<Tmfs> {
     type ProductId = String;
 
     type SumId = String;
 
-    type TyMetaFuncId = String;
+    type Tmfs = Tmfs;
 
     // type AlgebraicSortId = String;
 
@@ -103,9 +106,9 @@ impl crate::langspec::LangSpec for crate::humanreadable::LangSpecHuman {
         self.sums.iter().map(|s| s.name.human.clone())
     }
 
-    fn ty_meta_funcs(&self) -> impl Iterator<Item = Self::TyMetaFuncId> {
-        self.ty_meta_funcs.iter().map(|f| f.name.human.clone())
-    }
+    // fn ty_meta_funcs(&self) -> impl Iterator<Item = Self::TyMetaFuncId> {
+    //     self.ty_meta_funcs.iter().map(|f| f.name.human.clone())
+    // }
 
     fn product_name(&self, id: Self::ProductId) -> &crate::langspec::Name {
         self.products
@@ -120,14 +123,6 @@ impl crate::langspec::LangSpec for crate::humanreadable::LangSpecHuman {
             .iter()
             .find(|s| s.name.human == id)
             .map(|s| &s.name)
-            .unwrap()
-    }
-
-    fn ty_meta_func_name(&self, id: Self::TyMetaFuncId) -> &crate::langspec::Name {
-        self.ty_meta_funcs
-            .iter()
-            .find(|f| f.name.human == id)
-            .map(|f| &f.name)
             .unwrap()
     }
 
@@ -150,16 +145,16 @@ impl crate::langspec::LangSpec for crate::humanreadable::LangSpecHuman {
             .unwrap()
     }
 
-    fn ty_meta_func_args(
-        &self,
-        id: Self::TyMetaFuncId,
-    ) -> impl Iterator<Item = &crate::langspec::Name> {
-        self.ty_meta_funcs
-            .iter()
-            .find(|f| f.name.human == id)
-            .map(|f| f.args.iter())
-            .unwrap()
-    }
+    // fn ty_meta_func_args(
+    //     &self,
+    //     id: Self::TyMetaFuncId,
+    // ) -> impl Iterator<Item = &crate::langspec::Name> {
+    //     self.ty_meta_funcs
+    //         .iter()
+    //         .find(|f| f.name.human == id)
+    //         .map(|f| f.args.iter())
+    //         .unwrap()
+    // }
 
     fn prod_to_unique_nat(&self, id: Self::ProductId) -> usize {
         self.products

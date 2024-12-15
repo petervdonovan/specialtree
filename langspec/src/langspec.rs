@@ -3,6 +3,8 @@
 use functor_derive::Functor;
 use serde::{Deserialize, Serialize};
 
+use crate::tymetafunc::TyMetaFuncSpec;
+
 // use crate::humanreadable::SortId;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -16,7 +18,8 @@ pub struct Name {
     pub snake: String,
 }
 #[allow(type_alias_bounds)]
-pub type SortIdOf<L: LangSpec + ?Sized> = SortId<L::ProductId, L::SumId, L::TyMetaFuncId>;
+pub type SortIdOf<L: LangSpec + ?Sized> =
+    SortId<L::ProductId, L::SumId, <L::Tmfs as TyMetaFuncSpec>::TyMetaFuncId>;
 
 #[derive(Debug, Serialize, Deserialize, Clone, Functor)]
 #[functor(ProductId as p, SumId as s, TyMetaFuncId as f)]
@@ -47,14 +50,17 @@ impl<P, S, F> SortId<P, S, F> {
 pub trait LangSpec {
     type ProductId: Clone + Eq + ToLiteral;
     type SumId: Clone + Eq + ToLiteral;
-    type TyMetaFuncId: Clone + Eq + ToLiteral;
+    type Tmfs: TyMetaFuncSpec;
 
     fn name(&self) -> &Name;
     fn products(&self) -> impl Iterator<Item = Self::ProductId>;
     fn sums(&self) -> impl Iterator<Item = Self::SumId>;
     fn product_name(&self, id: Self::ProductId) -> &Name;
     fn sum_name(&self, id: Self::SumId) -> &Name;
-    fn ty_meta_func_name(&self, id: Self::TyMetaFuncId) -> &Name;
+    // fn ty_meta_func_name(
+    //     &self,
+    //     id: <Self::TyMetaFuncSpec as TyMetaFuncSpec>::TyMetaFuncId,
+    // ) -> &Name;
     fn algebraic_sort_name(&self, id: AlgebraicSortId<Self::ProductId, Self::SumId>) -> &Name {
         match id {
             AlgebraicSortId::Product(pid) => self.product_name(pid),
@@ -63,8 +69,11 @@ pub trait LangSpec {
     }
     fn product_sorts(&self, id: Self::ProductId) -> impl Iterator<Item = SortIdOf<Self>>;
     fn sum_sorts(&self, id: Self::SumId) -> impl Iterator<Item = SortIdOf<Self>>;
-    fn ty_meta_func_args(&self, id: Self::TyMetaFuncId) -> impl Iterator<Item = &Name>;
-    fn ty_meta_funcs(&self) -> impl Iterator<Item = Self::TyMetaFuncId>;
+    // fn ty_meta_func_args(
+    //     &self,
+    //     id: <Self::Tmfs as TyMetaFuncSpec>::TyMetaFuncId,
+    // ) -> impl Iterator<Item = &Name>;
+    // fn ty_meta_funcs(&self) -> impl Iterator<Item = <Self::Tmfs as TyMetaFuncSpec>::TyMetaFuncId>;
     fn prod_to_unique_nat(&self, id: Self::ProductId) -> usize;
     fn prod_from_unique_nat(&self, nat: usize) -> Self::ProductId;
     fn sum_to_unique_nat(&self, id: Self::SumId) -> usize;
@@ -114,14 +123,14 @@ pub trait LangSpec {
     //         .chain(self.sum_datas().map(|(n, _)| n))
     // }
 
-    fn canonical_into<Bot: TerminalLangSpec>(&self) -> Bot {
+    fn canonical_into<Bot: TerminalLangSpec<Tmfs = Self::Tmfs>>(&self) -> Bot {
         Bot::canonical_from(self)
     }
 }
 /// Marks a langspec as an element of the iso class of terminal objects in the category of [LangSpec]s.
 /// Needed because a [From] impl would conflict with the blanket impl for [From] for all types.
 pub trait TerminalLangSpec: LangSpec {
-    fn canonical_from<L: LangSpec + ?Sized>(l: &L) -> Self;
+    fn canonical_from<L: LangSpec<Tmfs = <Self as LangSpec>::Tmfs> + ?Sized>(l: &L) -> Self;
 }
 
 pub trait ToLiteral {
