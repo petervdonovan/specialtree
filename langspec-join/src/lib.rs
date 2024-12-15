@@ -144,19 +144,19 @@ impl<L0: LangSpec, L1: LangSpec> LangSpec for Join<L0, L1> {
         }
     }
 
-    fn asi_convert(
-        &self,
-        id: Self::AlgebraicSortId,
-    ) -> langspec::langspec::UnpackedAlgebraicSortId<Self> {
-        id
-    }
+    // fn asi_convert(
+    //     &self,
+    //     id: Self::AlgebraicSortId,
+    // ) -> langspec::langspec::UnpackedAlgebraicSortId<Self> {
+    //     id
+    // }
 
-    fn asi_unconvert(
-        &self,
-        id: langspec::langspec::UnpackedAlgebraicSortId<Self>,
-    ) -> Self::AlgebraicSortId {
-        id
-    }
+    // fn asi_unconvert(
+    //     &self,
+    //     id: langspec::langspec::UnpackedAlgebraicSortId<Self>,
+    // ) -> Self::AlgebraicSortId {
+    //     id
+    // }
 }
 
 impl<L: langspec::langspec::ToLiteral, R: langspec::langspec::ToLiteral>

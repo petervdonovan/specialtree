@@ -1,4 +1,5 @@
-use bounded_slice::BoundedSlice;
+#![allow(clippy::needless_question_mark)]
+
 use functor_derive::Functor;
 use serde::{Deserialize, Serialize};
 
@@ -14,65 +15,55 @@ pub struct Name {
     /// snake_case alias
     pub snake: String,
 }
+#[allow(type_alias_bounds)]
+pub type SortIdOf<L: LangSpec + ?Sized> = SortId<L::ProductId, L::SumId, L::TyMetaFuncId>;
 
-// pub type SortIdOf<L: LangSpec + ?Sized> =
-//     SortId<L::ProductId, L::SumId, L::TyMetaFuncId, { L::MAX_TY_FUNC_ARGS as usize }>;
-#[macro_export]
-macro_rules! sort_id_of {
-    ($langspec:ty) => {
-        SortId<
-            <$langspec as LangSpec>::ProductId,
-            <$langspec as LangSpec>::SumId,
-            <$langspec as LangSpec>::TyMetaFuncId,
-            { <$langspec as LangSpec>::MAX_TY_FUNC_ARGS },
-        >
-    };
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, Functor)]
+#[derive(Debug, Serialize, Deserialize, Clone, Functor)]
 #[functor(ProductId as p, SumId as s, TyMetaFuncId as f)]
-pub enum SortId<ProductId: Copy, SumId: Copy, TyMetaFuncId: Copy, const MAX_TY_FUNC_ARGS: usize> {
+pub enum SortId<ProductId, SumId, TyMetaFuncId> {
     Algebraic(AlgebraicSortId<ProductId, SumId>),
-    TyMetaFunc(MappedType<AlgebraicSortId<ProductId, SumId>, TyMetaFuncId, MAX_TY_FUNC_ARGS>),
+    TyMetaFunc(MappedType<AlgebraicSortId<ProductId, SumId>, TyMetaFuncId>),
 }
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, Functor)]
+#[derive(Debug, Serialize, Deserialize, Clone, Functor)]
 #[functor(AlgebraicSortId as a, TyMetaFuncId as f)]
-pub struct MappedType<AlgebraicSortId: Copy, TyMetaFuncId: Copy, const MAX_TY_FUNC_ARGS: usize> {
+pub struct MappedType<AlgebraicSortId, TyMetaFuncId> {
     pub f: TyMetaFuncId,
-    pub a: BoundedSlice<AlgebraicSortId, MAX_TY_FUNC_ARGS>,
+    pub a: Vec<AlgebraicSortId>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Functor)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Functor)]
 #[functor(ProductId as p, SumId as s)]
 pub enum AlgebraicSortId<ProductId, SumId> {
     Product(ProductId),
     Sum(SumId),
 }
-pub type SortShape<const S: usize> = SortId<(), (), (), S>;
-impl<P: Copy, S: Copy, F: Copy, const SA: usize> SortId<P, S, F, SA> {
-    pub fn project(self) -> SortShape<SA> {
+pub type SortShape = SortId<(), (), ()>;
+impl<P, S, F> SortId<P, S, F> {
+    pub fn project(self) -> SortShape {
         self.fmap_p(|_| ()).fmap_s(|_| ()).fmap_f(|_| ())
     }
 }
 
-pub trait LangSpec<const MAX_TY_FUNC_ARGS: usize> {
-    type ProductId: Copy + Clone + Eq + ToLiteral;
-    type SumId: Copy + Clone + Eq + ToLiteral;
-    type TyMetaFuncId: Copy + Clone + Eq + ToLiteral;
+pub trait LangSpec {
+    type ProductId: Clone + Eq + ToLiteral;
+    type SumId: Clone + Eq + ToLiteral;
+    type TyMetaFuncId: Clone + Eq + ToLiteral;
 
     fn name(&self) -> &Name;
     fn products(&self) -> impl Iterator<Item = Self::ProductId>;
     fn sums(&self) -> impl Iterator<Item = Self::SumId>;
     fn product_name(&self, id: Self::ProductId) -> &Name;
     fn sum_name(&self, id: Self::SumId) -> &Name;
+    fn ty_meta_func_name(&self, id: Self::TyMetaFuncId) -> &Name;
     fn algebraic_sort_name(&self, id: AlgebraicSortId<Self::ProductId, Self::SumId>) -> &Name {
         match id {
             AlgebraicSortId::Product(pid) => self.product_name(pid),
             AlgebraicSortId::Sum(sid) => self.sum_name(sid),
         }
     }
-    fn product_sorts(&self, id: Self::ProductId) -> impl Iterator<Item = sort_id_of!(Self)>;
-    fn sum_sorts(&self, id: Self::SumId) -> impl Iterator<Item = sort_id_of!(Self)>;
+    fn product_sorts(&self, id: Self::ProductId) -> impl Iterator<Item = SortIdOf<Self>>;
+    fn sum_sorts(&self, id: Self::SumId) -> impl Iterator<Item = SortIdOf<Self>>;
+    fn ty_meta_func_args(&self, id: Self::TyMetaFuncId) -> impl Iterator<Item = &Name>;
     fn ty_meta_funcs(&self) -> impl Iterator<Item = Self::TyMetaFuncId>;
     fn prod_to_unique_nat(&self, id: Self::ProductId) -> usize;
     fn prod_from_unique_nat(&self, nat: usize) -> Self::ProductId;
@@ -130,9 +121,7 @@ pub trait LangSpec<const MAX_TY_FUNC_ARGS: usize> {
 /// Marks a langspec as an element of the iso class of terminal objects in the category of [LangSpec]s.
 /// Needed because a [From] impl would conflict with the blanket impl for [From] for all types.
 pub trait TerminalLangSpec: LangSpec {
-    fn canonical_from<L: LangSpec + ?Sized>(l: &L) -> Self
-    where
-        [(); L::MAX_TY_FUNC_ARGS]:;
+    fn canonical_from<L: LangSpec + ?Sized>(l: &L) -> Self;
 }
 
 pub trait ToLiteral {

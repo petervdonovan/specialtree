@@ -1,4 +1,4 @@
-use langspec::langspec::{AlgebraicSortId, LangSpec, Name, SortId, SortShape};
+use langspec::langspec::{AlgebraicSortId, LangSpec, Name, SortId, SortIdOf, SortShape};
 use syn::parse_quote;
 
 pub use proc_macro2;
@@ -38,7 +38,7 @@ pub struct ProdGenData<
     I0: Iterator<Item = syn::Ident>,
     I1: Iterator<Item = syn::Ident>,
     I2: Iterator<Item = syn::Type>,
-    I3: Iterator<Item = SortId<AlgebraicSortId<(), ()>>>,
+    I3: Iterator<Item = SortShape>,
     I4: Iterator<Item = syn::LitInt>,
     I5: Iterator<Item = syn::Ident>,
 > {
@@ -58,7 +58,7 @@ pub struct SumGenData<
     I0: Iterator<Item = syn::Ident>,
     I1: Iterator<Item = syn::Ident>,
     I2: Iterator<Item = syn::Type>,
-    I3: Iterator<Item = SortId<AlgebraicSortId<(), ()>>>,
+    I3: Iterator<Item = SortShape>,
 > {
     pub snake_ident: syn::Ident,
     pub camel_ident: syn::Ident,
@@ -117,20 +117,14 @@ impl<'a, L: LangSpec> LangSpecGen<'a, L> {
         let tbp = &self.type_base_path;
         parse_quote!(#tbp::#ty_name)
     }
-    pub fn sort2rs_type(&self, sort: SortId<L::AlgebraicSortId>) -> syn::Type {
-        (self.sort2rs_type)(
-            &self.type_base_path,
-            sort.fmap(|it| self.asi2rs_type(self.bak.asi_convert(it))),
-        )
+    pub fn sort2rs_type(&self, sort: SortIdOf<L>) -> syn::Type {
+        (self.sort2rs_type)(&self.type_base_path, sort)
     }
     pub fn asi2rs_ident(&self, asi: AlgebraicSortId<L::ProductId, L::SumId>) -> syn::Ident {
         let name = self.bak.algebraic_sort_name(asi);
         name_as_camel_ident(name)
     }
-    pub fn sort2rs_ident(
-        &self,
-        sort: SortId<AlgebraicSortId<L::ProductId, L::SumId>>,
-    ) -> syn::Ident {
+    pub fn sort2rs_ident(&self, sort: SortIdOf<L>) -> syn::Ident {
         match sort {
             SortId::NatLiteral => syn::Ident::new("NatLit", proc_macro2::Span::call_site()),
             SortId::Algebraic(asi) => self.asi2rs_ident(asi),
