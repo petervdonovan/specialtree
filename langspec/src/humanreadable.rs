@@ -31,68 +31,12 @@ pub struct TyMetaFunc {
 
 pub type SortId<Tmfs> = crate::langspec::SortIdOf<LangSpecHuman<Tmfs>>;
 
-// impl TerminalLangSpec for LangSpecHuman {
-//     fn canonical_from<L: crate::langspec::LangSpec + ?Sized>(l: &L) -> Self {
-//         let name = l.name().clone();
-//         let mut products_sorted = l.products().collect::<Vec<_>>();
-//         products_sorted.sort_by_key(|pid| l.product_name(pid.clone()).human.clone());
-//         let products_sorted = products_sorted;
-//         let mut sums_sorted = l.sums().collect::<Vec<_>>();
-//         sums_sorted.sort_by_key(|sid| l.sum_name(sid.clone()).human.clone());
-//         let sums_sorted = sums_sorted;
-//         let products = products_sorted
-//             .iter()
-//             .map(|p| {
-//                 let name = l.product_name(p.clone()).clone();
-//                 let sorts = l
-//                     .product_sorts(p.clone())
-//                     // .map(|sid| {
-//                     //     sid.fmap(|asi| match l.asi_convert(asi) {
-//                     //         crate::langspec::AlgebraicSortId::Product(p) => {
-//                     //             l.product_name(p).human.clone()
-//                     //         }
-//                     //         crate::langspec::AlgebraicSortId::Sum(s) => l.sum_name(s).human.clone(),
-//                     //     })
-//                     // })
-//                     .map(|sid| sid.fmap_p())
-//                     .collect();
-//                 Product { name, sorts }
-//             })
-//             .collect();
-//         let sums = sums_sorted
-//             .iter()
-//             .map(|s| {
-//                 let name = l.sum_name(s.clone()).clone();
-//                 let sorts = l
-//                     .sum_sorts(s.clone())
-//                     .map(|sid| {
-//                         sid.fmap(|asi| match l.asi_convert(asi) {
-//                             crate::langspec::AlgebraicSortId::Product(p) => {
-//                                 l.product_name(p).human.clone()
-//                             }
-//                             crate::langspec::AlgebraicSortId::Sum(s) => l.sum_name(s).human.clone(),
-//                         })
-//                     })
-//                     .collect();
-//                 Sum { name, sorts }
-//             })
-//             .collect();
-//         LangSpecHuman {
-//             name,
-//             products,
-//             sums,
-//         }
-//     }
-// }
-
 impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::humanreadable::LangSpecHuman<Tmfs> {
     type ProductId = String;
 
     type SumId = String;
 
     type Tmfs = Tmfs;
-
-    // type AlgebraicSortId = String;
 
     fn name(&self) -> &crate::langspec::Name {
         &self.name
@@ -105,10 +49,6 @@ impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::humanreadable::L
     fn sums(&self) -> impl Iterator<Item = Self::SumId> {
         self.sums.iter().map(|s| s.name.human.clone())
     }
-
-    // fn ty_meta_funcs(&self) -> impl Iterator<Item = Self::TyMetaFuncId> {
-    //     self.ty_meta_funcs.iter().map(|f| f.name.human.clone())
-    // }
 
     fn product_name(&self, id: Self::ProductId) -> &crate::langspec::Name {
         self.products
@@ -145,17 +85,6 @@ impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::humanreadable::L
             .unwrap()
     }
 
-    // fn ty_meta_func_args(
-    //     &self,
-    //     id: Self::TyMetaFuncId,
-    // ) -> impl Iterator<Item = &crate::langspec::Name> {
-    //     self.ty_meta_funcs
-    //         .iter()
-    //         .find(|f| f.name.human == id)
-    //         .map(|f| f.args.iter())
-    //         .unwrap()
-    // }
-
     fn prod_to_unique_nat(&self, id: Self::ProductId) -> usize {
         self.products
             .iter()
@@ -174,39 +103,6 @@ impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::humanreadable::L
     fn sum_from_unique_nat(&self, nat: usize) -> Self::SumId {
         self.sums[nat].name.human.clone()
     }
-
-    // fn asi_convert(
-    //     &self,
-    //     id: Self::AlgebraicSortId,
-    // ) -> crate::langspec::AlgebraicSortId<Self::ProductId, Self::SumId> {
-    //     if let Some(pid) = self
-    //         .products
-    //         .iter()
-    //         .map(|p| p.name.human.clone())
-    //         .find(|name| name == &id)
-    //     {
-    //         crate::langspec::AlgebraicSortId::Product(pid)
-    //     } else if let Some(sid) = self
-    //         .sums
-    //         .iter()
-    //         .map(|s| s.name.human.clone())
-    //         .find(|name| name == &id)
-    //     {
-    //         crate::langspec::AlgebraicSortId::Sum(sid)
-    //     } else {
-    //         panic!("Sort not found: {}", id)
-    //     }
-    // }
-
-    // fn asi_unconvert(
-    //     &self,
-    //     id: crate::langspec::UnpackedAlgebraicSortId<Self>,
-    // ) -> Self::AlgebraicSortId {
-    //     match id {
-    //         crate::langspec::AlgebraicSortId::Product(pid) => pid,
-    //         crate::langspec::AlgebraicSortId::Sum(sid) => sid,
-    //     }
-    // }
 }
 
 impl crate::langspec::ToLiteral for String {
