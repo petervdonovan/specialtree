@@ -1,0 +1,10 @@
+[package]
+name = "tymetafuncspec-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+langspec = { version = "0.1.0", path = "../langspec" }
+once_cell = "1.20.2"
+serde = { version = "1.0.216", features = ["derive"] }
+syn = "2.0.90"

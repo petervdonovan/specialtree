@@ -1,11 +1,12 @@
 use serde::{Deserialize, Serialize};
 
 use crate::langspec::{Name, ToLiteral};
-
+#[derive(Clone)]
 pub struct RustGenericTrait<ArgIds> {
     pub ty_func: syn::Path,
     pub args: Box<[ArgIds]>,
 }
+#[derive(Clone)]
 pub struct TyMetaFuncData<TyMetaFuncArgId> {
     pub name: Name,
     pub args: Box<[(TyMetaFuncArgId, Name)]>,

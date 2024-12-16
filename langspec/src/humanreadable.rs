@@ -3,11 +3,12 @@ use serde::{Deserialize, Serialize};
 use crate::{langspec::Name, tymetafunc::TyMetaFuncSpec};
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(bound = "")]
 pub struct LangSpecHuman<Tmfs: TyMetaFuncSpec> {
     pub name: Name,
     pub products: Vec<Product<Tmfs>>,
     pub sums: Vec<Sum<Tmfs>>,
-    pub ty_meta_funcs: Vec<TyMetaFunc>,
+    #[serde(skip)]
     _phantom: std::marker::PhantomData<Tmfs>,
 }
 #[derive(Debug, Serialize, Deserialize)]
@@ -21,12 +22,6 @@ pub struct Product<Tmfs: TyMetaFuncSpec> {
 pub struct Sum<Tmfs: TyMetaFuncSpec> {
     pub name: Name,
     pub sorts: Vec<SortId<Tmfs>>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct TyMetaFunc {
-    pub name: Name,
-    pub args: Vec<Name>,
 }
 
 pub type SortId<Tmfs> = crate::langspec::SortIdOf<LangSpecHuman<Tmfs>>;
