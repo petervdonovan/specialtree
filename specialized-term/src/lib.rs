@@ -15,9 +15,9 @@ where
 {
     fn maybe_convert(self, heap: &'heap Self::Heap) -> Result<T, Fallibility>;
 }
-pub trait SettableTo<'heap, T>: Heaped {
-    fn set_to(&mut self, heap: &'heap mut Self::Heap, t: T);
-}
+// pub trait SettableTo<'heap, T>: Heaped {
+//     fn set_to(&mut self, heap: &'heap mut Self::Heap, t: T);
+// }
 pub trait MutableCollection<'a, 'heap: 'a>:
     Heaped
     + IntoIterator<Item = <Self as MutableCollection<'a, 'heap>>::Item>

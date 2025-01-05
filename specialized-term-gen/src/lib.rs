@@ -1,28 +1,31 @@
-use abstracted_langspec_gen::AbstractedLSGen;
+use abstracted_langspec_gen::HeapType;
+use abstracted_langspec_gen::{AbstractedLsGen, byline, transpose};
 use langspec::langspec::LangSpec;
-use langspec_gen_util::{byline, transpose};
 use syn::parse_quote;
 
+use abstracted_langspec_gen::{
+    AlgebraicsBasePath, CanonicallyConstructibleFromGenData, CanonicallyMaybeToGenData, TyGenData,
+};
+
 pub fn generate<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::ItemMod {
-    let lg = AbstractedLSGen { bak: ls };
+    let lg = AbstractedLsGen { bak: ls };
     let owned = owned::generate(base_path, &lg);
     let reference = reference::generate(base_path, &lg);
-    let mut_reference = mut_reference::generate(base_path, &lg);
+    // let mut_reference = mut_referenc::generate(base_path, &lg);
     let heap_trait = heap_trait(base_path, &lg);
-    let byline = langspec_gen_util::byline!();
+    let byline = byline!();
     parse_quote!(
         #byline
         pub mod extension_of {
             #heap_trait
             #owned
             #reference
-            #mut_reference
         }
     )
 }
 pub(crate) fn heap_trait<L: LangSpec>(
     base_path: &syn::Path,
-    ls: &AbstractedLSGen<L>,
+    ls: &AbstractedLsGen<L>,
 ) -> syn::ItemTrait {
     transpose!(ls.ty_gen_datas(), camel_ident);
     let byline = byline!();
@@ -36,10 +39,9 @@ pub(crate) fn heap_trait<L: LangSpec>(
     }
 }
 mod owned {
-    use abstracted_langspec_gen::{CanonicallyConstructibleFromGenData, TyGenData};
 
     use super::*;
-    pub fn generate<L: LangSpec>(base_path: &syn::Path, ls: &AbstractedLSGen<L>) -> syn::ItemMod {
+    pub fn generate<L: LangSpec>(base_path: &syn::Path, ls: &AbstractedLsGen<L>) -> syn::ItemMod {
         let traits = ls.ty_gen_datas().map(
             |TyGenData {
                  camel_ident,
@@ -47,9 +49,13 @@ mod owned {
                  ..
              }|
              -> syn::ItemTrait {
-                let ccf_sort_tys = ccf_sort_tys(&|camel_ident, _| {
-                    syn::parse_quote! { <<Self as specialized_term::Heaped>::Heap as #base_path::extension_of::Heap>::#camel_ident }
-                });
+                let path = quote::quote! {
+                    <<Self as specialized_term::Heaped>::Heap as #base_path::extension_of::Heap>
+                };
+                let ccf_sort_tys = ccf_sort_tys(
+                    HeapType(syn::parse_quote! {<Self as specialized_term::Heaped>::Heap}),
+                    AlgebraicsBasePath(quote::quote! { #path:: }),
+                );
                 let ccf_bounds = ccf_sort_tys.iter().map(|ccf| -> syn::TraitBound {
                     syn::parse_quote! {
                         specialized_term::CanonicallyConstructibleFrom<#ccf>
@@ -63,7 +69,7 @@ mod owned {
                 }
             },
         );
-        let byline = langspec_gen_util::byline!();
+        let byline = byline!();
         parse_quote! {
             #byline
             mod owned {
@@ -75,35 +81,42 @@ mod owned {
     }
 }
 mod reference {
-    use abstracted_langspec_gen::{
-        CanonicallyConstructibleFromGenData, CanonicallyMaybeToGenData, TyGenData,
-    };
-    use langspec_gen_util::collect;
 
     use super::*;
-    pub fn generate<L: LangSpec>(base_path: &syn::Path, ls: &AbstractedLSGen<L>) -> syn::ItemMod {
+    pub fn generate<L: LangSpec>(base_path: &syn::Path, ls: &AbstractedLsGen<L>) -> syn::ItemMod {
         let traits = ls.ty_gen_datas().map(
             |TyGenData {
                  camel_ident, cmt: CanonicallyMaybeToGenData {
-                    cmt_sort_camels,
+                    cmt_sort_tys,
+                    algebraic_cmt_sort_tys,
                  }, ..
              }| -> syn::ItemTrait {
-                collect!(cmt_sort_camels);
-                let trait_bounds = cmt_sort_camels.iter().map(|cmt_camel| -> syn::TraitBound {
+                let cst = cmt_sort_tys(
+                    HeapType(syn::parse_quote! {Heap}),
+                    AlgebraicsBasePath(quote::quote! { Self:: })
+                );
+                let trait_bounds = cst.iter().map(|cmt| -> syn::TraitBound {
                     syn::parse_quote! {
-                        specialized_term::CanonicallyMaybeConvertibleTo<'heap, Self::#cmt_camel, specialized_term::ExpansionMaybeConversionFallibility>
+                        specialized_term::CanonicallyMaybeConvertibleTo<'heap, #cmt, specialized_term::ExpansionMaybeConversionFallibility>
                     }
                 });
-                syn::parse_quote! {
+                let cst = algebraic_cmt_sort_tys(
+                    HeapType(syn::parse_quote! {Heap}),
+                    AlgebraicsBasePath(syn::parse_quote! { })
+                );
+                let ret = quote::quote! {
                     pub trait #camel_ident<'a, 'heap: 'a, Heap: #base_path::extension_of::Heap>: specialized_term::Heaped<Heap = Heap> #( + #trait_bounds )* {
                         #(
-                            type #cmt_sort_camels: specialized_term::Heaped<Heap = Heap>;
+                            type #cst: specialized_term::Heaped<Heap = Heap>;
                         )*
                     }
+                };
+                syn::parse_quote! {
+                    #ret
                 }
             },
         );
-        let byline = langspec_gen_util::byline!();
+        let byline = byline!();
         parse_quote! {
             #byline
             mod reference {
@@ -114,20 +127,16 @@ mod reference {
         }
     }
 }
-mod mut_reference {
-    use super::*;
-    pub fn generate<L: LangSpec>(base_path: &syn::Path, ls: &AbstractedLSGen<L>) -> syn::ItemMod {
-        parse_quote! {
-            mod mut_reference {
 
-            }
-        }
-    }
-}
-
-pub fn formatted(base_path: &syn::Path, lsh: &langspec::humanreadable::LangSpecHuman) -> String {
-    let lsf: langspec::flat::LangSpecFlat =
-        <langspec::flat::LangSpecFlat as langspec::langspec::TerminalLangSpec>::canonical_from(lsh);
+pub fn formatted(
+    base_path: &syn::Path,
+    lsh: &langspec::humanreadable::LangSpecHuman<tymetafuncspec_core::Core>,
+) -> String {
+    let lsf: langspec::flat::LangSpecFlat<tymetafuncspec_core::Core> = <langspec::flat::LangSpecFlat<
+        tymetafuncspec_core::Core,
+    > as langspec::langspec::TerminalLangSpec>::canonical_from(
+        lsh
+    );
     let gen_result = generate(base_path, &lsf);
     prettyplease::unparse(&syn::parse_quote! {
         #gen_result

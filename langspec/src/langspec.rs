@@ -48,8 +48,8 @@ impl<P, S, F> SortId<P, S, F> {
 }
 
 pub trait LangSpec {
-    type ProductId: Clone + Eq + ToLiteral;
-    type SumId: Clone + Eq + ToLiteral;
+    type ProductId: Clone + Eq + ToLiteral + 'static;
+    type SumId: Clone + Eq + ToLiteral + 'static;
     type Tmfs: TyMetaFuncSpec;
 
     fn name(&self) -> &Name;

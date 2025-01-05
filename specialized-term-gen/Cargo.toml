@@ -7,13 +7,12 @@ edition = "2024"
 
 [dependencies]
 abstracted-langspec-gen = { version = "0.1.0", path = "../abstracted-langspec-gen-util" }
-langdatastructure-gen = { version = "0.1.0", path = "../langdatastructure-gen" }
 langspec = { version = "0.1.0", path = "../langspec" }
-langspec-gen-util = { version = "0.1.0", path = "../langspec-gen-util" }
 prettyplease = "0.2.24"
 proc-macro2 = "1.0.89"
 quote = "1.0.37"
 syn = "2.0.82"
+tymetafuncspec-core = { version = "0.1.0", path = "../tymetafuncspec-core" }
 
 [dev-dependencies]
 expect-test = "1.5.0"

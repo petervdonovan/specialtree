@@ -7,7 +7,6 @@ name = "abstracted-langspec-gen"
 version = "0.1.0"
 dependencies = [
  "langspec",
- "langspec-gen-util",
  "proc-macro2",
  "syn 2.0.90",
 ]
@@ -480,15 +479,14 @@ version = "0.1.0"
 dependencies = [
  "abstracted-langspec-gen",
  "expect-test",
- "langdatastructure-gen",
  "langspec",
  "langspec-examples",
- "langspec-gen-util",
  "prettyplease",
  "proc-macro2",
  "quote",
  "specialized-term",
  "syn 2.0.90",
+ "tymetafuncspec-core",
 ]
 
 [[package]]
@@ -603,6 +601,7 @@ dependencies = [
  "langspec",
  "once_cell",
  "serde",
+ "specialized-term",
  "syn 2.0.90",
 ]
 

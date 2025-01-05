@@ -1,8 +1,9 @@
 use langspec::{
     langspec::{Name, ToLiteral},
-    tymetafunc::{TyMetaFuncData, TyMetaFuncSpec},
+    tymetafunc::{RustTyMap, TyMetaFuncData, TyMetaFuncSpec},
 };
 use serde::{Deserialize, Serialize};
+use specialized_term::Heaped;
 
 pub struct Core;
 #[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize)]
@@ -33,6 +34,10 @@ thread_local! {
                 camel: "NatLit".into(),
                 snake: "nat_lit".into(),
             },
+            imp: RustTyMap {
+                ty_func: syn::parse_quote!(tymetafuncspec_core::BoundedNat),
+                args: vec![].into_boxed_slice(),
+            },
             args: vec![]
             .into_boxed_slice(),
             maybe_conversions: vec![].into_boxed_slice(),
@@ -44,7 +49,17 @@ thread_local! {
                 camel: "Set".into(),
                 snake: "set".into(),
             },
-            args: vec![]
+            imp: RustTyMap {
+                ty_func: syn::parse_quote!(tymetafuncspec_core::Set),
+                args: vec![CoreTmfArgId(0)].into_boxed_slice(),
+            },
+            args: vec![
+                (CoreTmfArgId(0), Name {
+                    human: "elem".into(),
+                    camel: "Elem".into(),
+                    snake: "elem".into(),
+                }),
+            ]
             .into_boxed_slice(),
             maybe_conversions: vec![].into_boxed_slice(),
             canonical_froms: vec![].into_boxed_slice(),
@@ -55,7 +70,17 @@ thread_local! {
                 camel: "Seq".into(),
                 snake: "seq".into(),
             },
-            args: vec![]
+            imp: RustTyMap {
+                ty_func: syn::parse_quote!(tymetafuncspec_core::Seq),
+                args: vec![CoreTmfArgId(0)].into_boxed_slice(),
+            },
+            args: vec![
+                (CoreTmfArgId(0), Name {
+                    human: "elem".into(),
+                    camel: "Elem".into(),
+                    snake: "elem".into(),
+                }),
+            ]
             .into_boxed_slice(),
             maybe_conversions: vec![].into_boxed_slice(),
             canonical_froms: vec![].into_boxed_slice(),
@@ -67,11 +92,27 @@ impl TyMetaFuncSpec for Core {
     type TyMetaFuncId = CoreTmfId;
     type TyMetaFuncArgId = CoreTmfArgId;
 
-    fn ty_meta_funcs(&self) -> impl Iterator<Item = Self::TyMetaFuncId> {
-        (0..CORE_BAK.with(|cb| cb.len())).map(CoreTmfId)
-    }
-
-    fn ty_meta_func_data(&self, id: &Self::TyMetaFuncId) -> TyMetaFuncData<Self::TyMetaFuncArgId> {
+    fn ty_meta_func_data(id: &Self::TyMetaFuncId) -> TyMetaFuncData<Self::TyMetaFuncArgId> {
         CORE_BAK.with(|cb| cb[id.0].clone())
     }
+}
+pub struct BoundedNat<Heap> {
+    heap: std::marker::PhantomData<Heap>,
+    pub n: usize,
+}
+impl<Heap> Heaped for BoundedNat<Heap> {
+    type Heap = Heap;
+}
+
+pub struct Set<Heap, Elem> {
+    heap: std::marker::PhantomData<Heap>,
+    pub items: std::vec::Vec<Elem>,
+}
+impl<Heap, Elem> Heaped for Set<Heap, Elem> {
+    type Heap = Heap;
+}
+
+pub struct Seq<Heap, Elem> {
+    heap: std::marker::PhantomData<Heap>,
+    pub items: std::vec::Vec<Elem>,
 }
