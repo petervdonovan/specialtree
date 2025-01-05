@@ -1,10 +1,14 @@
 #![feature(never_type)]
 
-pub trait CanonicallyConstructibleFrom<T>
+pub trait CanonicallyConstructibleFrom<T>: Sized
 where
     Self: Heaped,
 {
     fn construct(heap: &mut Self::Heap, t: T) -> Self;
+    fn deconstruct(self) -> T;
+    fn reconstruct<F: Fn(T) -> T>(&mut self, heap: &mut Self::Heap, f: F) {
+        take_mut::take(self, |s| Self::construct(heap, f(Self::deconstruct(s))))
+    }
 }
 pub trait Heaped {
     type Heap;
@@ -43,47 +47,47 @@ pub trait MutableCollection<'a, 'heap: 'a>:
 //     fn advance(&mut self);
 //     fn finish(self) -> Self::C;
 // }
-pub trait MutableCollectionTyFunc {
-    type MC<'a, 'heap: 'a, Item>: MutableCollection<'a, 'heap, Item = Item>;
-}
-pub struct MutableSet<'a, 'heap: 'a, T: Heaped, Bak: MutableCollectionTyFunc>(
-    Bak::MC<'a, 'heap, T>,
-);
-impl<'a, 'heap: 'a, T: Heaped, Bak: MutableCollectionTyFunc> Heaped
-    for MutableSet<'a, 'heap, T, Bak>
-{
-    type Heap = T::Heap;
-}
-impl<'a, 'heap: 'a, Bak: MutableCollectionTyFunc, T: Heaped, U: Heaped, Fallibility>
-    CanonicallyMaybeConvertibleTo<'heap, MutableSet<'a, 'heap, U, Bak>, Fallibility>
-    for MutableSet<'a, 'heap, T, Bak>
-where
-    T: CanonicallyMaybeConvertibleTo<'heap, U, Fallibility>,
-{
-    fn maybe_convert(
-        self,
-        heap: &'heap Self::Heap,
-    ) -> Result<MutableSet<'a, 'heap, U, Bak>, Fallibility> {
-        let mut ret = <Bak::MC<'a, 'heap, U> as FromIterator<U>>::from_iter(std::iter::empty());
-        for t in self.0 {
-            ret.insert(t.maybe_convert(heap)?);
-        }
-        Ok(MutableSet(ret))
-    }
-}
-impl<'a, 'heap: 'a, Bak: MutableCollectionTyFunc, T: Heaped, U: Heaped>
-    CanonicallyConstructibleFrom<MutableSet<'a, 'heap, U, Bak>> for MutableSet<'a, 'heap, T, Bak>
-where
-    T: CanonicallyConstructibleFrom<(U,)>,
-{
-    fn construct(heap: &mut Self::Heap, t: MutableSet<'a, 'heap, U, Bak>) -> Self {
-        let mut ret = <Bak::MC<'a, 'heap, T> as FromIterator<T>>::from_iter(std::iter::empty());
-        for u in t.0 {
-            ret.insert(T::construct(heap, (u,)));
-        }
-        MutableSet(ret)
-    }
-}
+// pub trait MutableCollectionTyFunc {
+//     type MC<'a, 'heap: 'a, Item>: MutableCollection<'a, 'heap, Item = Item>;
+// }
+// pub struct MutableSet<'a, 'heap: 'a, T: Heaped, Bak: MutableCollectionTyFunc>(
+//     Bak::MC<'a, 'heap, T>,
+// );
+// impl<'a, 'heap: 'a, T: Heaped, Bak: MutableCollectionTyFunc> Heaped
+//     for MutableSet<'a, 'heap, T, Bak>
+// {
+//     type Heap = T::Heap;
+// }
+// impl<'a, 'heap: 'a, Bak: MutableCollectionTyFunc, T: Heaped, U: Heaped, Fallibility>
+//     CanonicallyMaybeConvertibleTo<'heap, MutableSet<'a, 'heap, U, Bak>, Fallibility>
+//     for MutableSet<'a, 'heap, T, Bak>
+// where
+//     T: CanonicallyMaybeConvertibleTo<'heap, U, Fallibility>,
+// {
+//     fn maybe_convert(
+//         self,
+//         heap: &'heap Self::Heap,
+//     ) -> Result<MutableSet<'a, 'heap, U, Bak>, Fallibility> {
+//         let mut ret = <Bak::MC<'a, 'heap, U> as FromIterator<U>>::from_iter(std::iter::empty());
+//         for t in self.0 {
+//             ret.insert(t.maybe_convert(heap)?);
+//         }
+//         Ok(MutableSet(ret))
+//     }
+// }
+// impl<'a, 'heap: 'a, Bak: MutableCollectionTyFunc, T: Heaped, U: Heaped>
+//     CanonicallyConstructibleFrom<MutableSet<'a, 'heap, U, Bak>> for MutableSet<'a, 'heap, T, Bak>
+// where
+//     T: CanonicallyConstructibleFrom<(U,)>,
+// {
+//     fn construct(heap: &mut Self::Heap, t: MutableSet<'a, 'heap, U, Bak>) -> Self {
+//         let mut ret = <Bak::MC<'a, 'heap, T> as FromIterator<T>>::from_iter(std::iter::empty());
+//         for u in t.0 {
+//             ret.insert(T::construct(heap, (u,)));
+//         }
+//         MutableSet(ret)
+//     }
+// }
 pub struct UsingIntermediary<T, Intermediary> {
     t: T,
     _intermediary: std::marker::PhantomData<Intermediary>,
