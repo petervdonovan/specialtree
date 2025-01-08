@@ -1,6 +1,6 @@
 use langspec::{
     langspec::{Name, ToLiteral},
-    tymetafunc::{RustTyMap, TyMetaFuncData, TyMetaFuncSpec},
+    tymetafunc::{IdentifiedBy, RustTyMap, TyMetaFuncData, TyMetaFuncSpec},
 };
 use serde::{Deserialize, Serialize};
 use specialized_term::Heaped;
@@ -26,7 +26,7 @@ impl ToLiteral for CoreTmfArgId {
 }
 
 thread_local! {
-    static CORE_BAK: once_cell::sync::Lazy<[TyMetaFuncData<CoreTmfArgId>; 3]> =
+    static CORE_BAK: once_cell::sync::Lazy<[TyMetaFuncData<CoreTmfArgId>; 4]> =
     once_cell::sync::Lazy::new(|| {
         [TyMetaFuncData {
             name: Name {
@@ -40,6 +40,7 @@ thread_local! {
             },
             args: vec![]
             .into_boxed_slice(),
+            idby: IdentifiedBy::Tmf,
             maybe_conversions: vec![].into_boxed_slice(),
             canonical_froms: vec![].into_boxed_slice(),
         },
@@ -61,6 +62,7 @@ thread_local! {
                 }),
             ]
             .into_boxed_slice(),
+            idby: IdentifiedBy::Tmf,
             maybe_conversions: vec![].into_boxed_slice(),
             canonical_froms: vec![].into_boxed_slice(),
         },
@@ -82,6 +84,29 @@ thread_local! {
                 }),
             ]
             .into_boxed_slice(),
+            idby: IdentifiedBy::Tmf,
+            maybe_conversions: vec![].into_boxed_slice(),
+            canonical_froms: vec![].into_boxed_slice(),
+        },
+        TyMetaFuncData {
+            name: Name {
+                human: "idx_box".into(),
+                camel: "IdxBox".into(),
+                snake: "idx_box".into(),
+            },
+            imp: RustTyMap {
+                ty_func: syn::parse_quote!(tymetafuncspec_core::IdxBox),
+                args: vec![CoreTmfArgId(0)].into_boxed_slice(),
+            },
+            args: vec![
+                (CoreTmfArgId(0), Name {
+                    human: "elem".into(),
+                    camel: "Elem".into(),
+                    snake: "elem".into(),
+                }),
+            ]
+            .into_boxed_slice(),
+            idby: IdentifiedBy::FirstTmfArg,
             maybe_conversions: vec![].into_boxed_slice(),
             canonical_froms: vec![].into_boxed_slice(),
         }]

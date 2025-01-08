@@ -12,10 +12,16 @@ pub struct RustTyMap<ArgIds> {
     pub args: Box<[ArgIds]>,
 }
 #[derive(Clone)]
+pub enum IdentifiedBy {
+    Tmf,
+    FirstTmfArg,
+}
+#[derive(Clone)]
 pub struct TyMetaFuncData<TyMetaFuncArgId> {
     pub name: Name,
     pub args: Box<[(TyMetaFuncArgId, Name)]>,
     pub imp: RustTyMap<TyMetaFuncArgId>,
+    pub idby: IdentifiedBy,
     pub maybe_conversions: Box<[RustGenericTrait<TyMetaFuncArgId>]>,
     pub canonical_froms: Box<[RustGenericTrait<TyMetaFuncArgId>]>,
 }

@@ -1,4 +1,5 @@
-use langspec::tymetafunc::{RustTyMap, TyMetaFuncSpec};
+use langspec::langspec::Name;
+use langspec::tymetafunc::{IdentifiedBy, RustTyMap, TyMetaFuncSpec};
 use langspec::{
     langspec::{AlgebraicSortId, LangSpec, MappedType, SortId, SortIdOf},
     tymetafunc::TyMetaFuncData,
@@ -62,6 +63,9 @@ pub struct AlgebraicsBasePath(pub proc_macro2::TokenStream); // a prefix of a sy
 pub struct HeapType(pub syn::Type);
 pub struct CanonicallyConstructibleFromGenData<'a> {
     pub ccf_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
+    pub flattened_ccf_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
+    pub ccf_sort_camel_idents: Box<dyn Fn() -> Vec<syn::Ident> + 'a>,
+    pub ccf_sort_snake_idents: Box<dyn Fn() -> Vec<syn::Ident> + 'a>,
 }
 pub struct AbstractedLsGen<'a, L: LangSpec> {
     pub bak: &'a L,
@@ -100,14 +104,41 @@ impl<L: LangSpec> AbstractedLsGen<'_, L> {
                     },
                 },
                 ccf: CanonicallyConstructibleFromGenData {
-                    ccf_sort_tys: Box::new(move |ht, abp| {
-                        let fields_tys = self
-                            .bak
+                    ccf_sort_tys: Box::new({
+                        let pid = pid.clone();
+                        move |ht, abp| {
+                            let fields_tys = self
+                                .bak
+                                .product_sorts(pid.clone())
+                                .map(|sort| self.sort2rs_ty(sort.clone(), &ht, &abp));
+                            vec![syn::parse_quote! {
+                                (#( #fields_tys, )*)
+                            }]
+                        }
+                    }),
+                    flattened_ccf_sort_tys: Box::new({
+                        let pid = pid.clone();
+                        move |ht, abp| {
+                            self.bak
+                                .product_sorts(pid.clone())
+                                .map(|sort| self.sort2rs_ty(sort.clone(), &ht, &abp))
+                                .collect()
+                        }
+                    }),
+                    ccf_sort_camel_idents: Box::new({
+                        let pid = pid.clone();
+                        move || {
+                            self.bak
+                                .product_sorts(pid.clone())
+                                .map(|sort| sort_ident(self, sort, |name| &name.camel))
+                                .collect()
+                        }
+                    }),
+                    ccf_sort_snake_idents: Box::new(move || {
+                        self.bak
                             .product_sorts(pid.clone())
-                            .map(|sort| self.sort2rs_ty(sort.clone(), &ht, &abp));
-                        vec![syn::parse_quote! {
-                            (#( #fields_tys, )*)
-                        }]
+                            .map(|sort| sort_ident(self, sort, |name| &name.snake))
+                            .collect()
                     }),
                 },
             })
@@ -141,14 +172,39 @@ impl<L: LangSpec> AbstractedLsGen<'_, L> {
                     },
                 },
                 ccf: CanonicallyConstructibleFromGenData {
-                    ccf_sort_tys: Box::new(move |ht, abp| {
-                        let fields_tys = self
-                            .bak
+                    ccf_sort_tys: Box::new({
+                        let sid = sid.clone();
+                        move |ht, abp| {
+                            self.bak
+                                .sum_sorts(sid.clone())
+                                .map(|sort| self.sort2rs_ty(sort.clone(), &ht, &abp))
+                                .map(|ty| syn::parse_quote! { (#ty,) })
+                                .collect()
+                        }
+                    }),
+                    flattened_ccf_sort_tys: Box::new({
+                        let sid = sid.clone();
+                        move |ht, abp| {
+                            self.bak
+                                .sum_sorts(sid.clone())
+                                .map(|sort| self.sort2rs_ty(sort.clone(), &ht, &abp))
+                                .collect()
+                        }
+                    }),
+                    ccf_sort_camel_idents: Box::new({
+                        let sid = sid.clone();
+                        move || {
+                            self.bak
+                                .sum_sorts(sid.clone())
+                                .map(|sort| sort_ident(self, sort, |name| &name.camel))
+                                .collect()
+                        }
+                    }),
+                    ccf_sort_snake_idents: Box::new(move || {
+                        self.bak
                             .sum_sorts(sid.clone())
-                            .map(|sort| self.sort2rs_ty(sort.clone(), &ht, &abp));
-                        vec![syn::parse_quote! {
-                            (#( #fields_tys, )*)
-                        }]
+                            .map(|sort| sort_ident(self, sort, |name| &name.snake))
+                            .collect()
                     }),
                 },
             }))
@@ -177,6 +233,33 @@ impl<L: LangSpec> AbstractedLsGen<'_, L> {
                 let ht = &ht.0;
                 syn::parse_quote! { #ty_func<#ht, #( #args, )* > }
             }
+        }
+    }
+}
+
+fn sort_ident<L: LangSpec>(
+    alg: &AbstractedLsGen<L>,
+    sort: SortIdOf<L>,
+    get_ident: fn(&Name) -> &str,
+) -> proc_macro2::Ident {
+    // &self.bak.algebraic_sort_name(sort.clone()).camel.clone(),
+    match &sort {
+        SortId::Algebraic(asi) => syn::Ident::new(
+            get_ident(alg.bak.algebraic_sort_name(asi.clone())),
+            proc_macro2::Span::call_site(),
+        ),
+        SortId::TyMetaFunc(MappedType { f, a }) => {
+            let TyMetaFuncData { name, idby, .. } = L::Tmfs::ty_meta_func_data(f);
+            syn::Ident::new(
+                match idby {
+                    IdentifiedBy::Tmf => get_ident(&name),
+                    IdentifiedBy::FirstTmfArg => {
+                        let arg = a.first().unwrap();
+                        get_ident(alg.bak.algebraic_sort_name(arg.clone()))
+                    }
+                },
+                proc_macro2::Span::call_site(),
+            )
         }
     }
 }

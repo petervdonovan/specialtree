@@ -8,7 +8,7 @@ pub fn main() {
     let target_file = target_dir.join("fib_refbased.rs");
     std::fs::write(target_file, formatted).unwrap();
 
-    let formatted = langdatastructure_gen::idxbased::formatted(&langspec_examples::fib());
-    let target_file = target_dir.join("fib_idxbased.rs");
-    std::fs::write(target_file, formatted).unwrap();
+    // let formatted = langdatastructure_gen::idxbased::formatted(&langspec_examples::fib());
+    // let target_file = target_dir.join("fib_idxbased.rs");
+    // std::fs::write(target_file, formatted).unwrap();
 }

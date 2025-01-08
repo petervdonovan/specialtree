@@ -151,15 +151,16 @@ checksum = "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
 name = "langdatastructure-gen"
 version = "0.1.0"
 dependencies = [
+ "abstracted-langspec-gen",
  "expect-test",
  "langspec",
  "langspec-examples",
- "langspec-gen-util",
  "prettyplease",
  "proc-macro2",
  "quote",
  "syn 2.0.90",
  "trybuild",
+ "tymetafuncspec-core",
 ]
 
 [[package]]
