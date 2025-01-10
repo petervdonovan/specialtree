@@ -59,13 +59,33 @@ pub struct CanonicallyMaybeToGenData<'a> {
     pub algebraic_cmt_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
 }
 // pub type TyRelPath2Ty<'a> = &'a dyn Fn(syn::Type, SortShape) -> syn::Type;
-pub struct AlgebraicsBasePath(pub proc_macro2::TokenStream); // a prefix of a syn::TypePath
+pub struct AlgebraicsBasePath(proc_macro2::TokenStream); // a prefix of a syn::TypePath
+impl AlgebraicsBasePath {
+    pub fn new(bp: proc_macro2::TokenStream) -> Self {
+        if !(bp.to_string().is_empty() || bp.to_string().ends_with("::")) {
+            panic!(
+                "AlgebraicsBasePath must end with '::' but instead is \"{}\"",
+                bp
+            );
+        }
+        Self(bp)
+    }
+    pub fn to_token_stream(&self) -> proc_macro2::TokenStream {
+        self.0.clone()
+    }
+}
 pub struct HeapType(pub syn::Type);
 pub struct CanonicallyConstructibleFromGenData<'a> {
     pub ccf_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
+    pub heap_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<HstData> + 'a>,
     pub flattened_ccf_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
     pub ccf_sort_camel_idents: Box<dyn Fn() -> Vec<syn::Ident> + 'a>,
     pub ccf_sort_snake_idents: Box<dyn Fn() -> Vec<syn::Ident> + 'a>,
+}
+pub struct HstData {
+    pub heap_sort_ty: syn::Type,
+    pub heap_sort_snake_ident: syn::Ident,
+    pub heap_sort_camel_ident: syn::Ident,
 }
 pub struct AbstractedLsGen<'a, L: LangSpec> {
     pub bak: &'a L,
@@ -116,6 +136,26 @@ impl<L: LangSpec> AbstractedLsGen<'_, L> {
                             }]
                         }
                     }),
+                    heap_sort_tys: Box::new({
+                        let pid = pid.clone();
+                        move |ht, abp| {
+                            self.bak
+                                .product_sorts(pid.clone())
+                                .zip(
+                                    (self.product_heap_sort_camel_idents(&pid).into_iter())
+                                        .zip(self.product_heap_sort_snake_idents(&pid)),
+                                )
+                                .filter_map(|(sort, (camel, snake))| {
+                                    self.sort2heap_ty(sort, &ht, &abp)
+                                        .map(|heap_sort_ty| HstData {
+                                            heap_sort_ty,
+                                            heap_sort_snake_ident: snake,
+                                            heap_sort_camel_ident: camel,
+                                        })
+                                })
+                                .collect()
+                        }
+                    }),
                     flattened_ccf_sort_tys: Box::new({
                         let pid = pid.clone();
                         move |ht, abp| {
@@ -127,18 +167,10 @@ impl<L: LangSpec> AbstractedLsGen<'_, L> {
                     }),
                     ccf_sort_camel_idents: Box::new({
                         let pid = pid.clone();
-                        move || {
-                            self.bak
-                                .product_sorts(pid.clone())
-                                .map(|sort| sort_ident(self, sort, |name| &name.camel))
-                                .collect()
-                        }
+                        move || self.product_heap_sort_camel_idents(&pid)
                     }),
                     ccf_sort_snake_idents: Box::new(move || {
-                        self.bak
-                            .product_sorts(pid.clone())
-                            .map(|sort| sort_ident(self, sort, |name| &name.snake))
-                            .collect()
+                        self.product_heap_sort_snake_idents(&pid)
                     }),
                 },
             })
@@ -182,6 +214,26 @@ impl<L: LangSpec> AbstractedLsGen<'_, L> {
                                 .collect()
                         }
                     }),
+                    heap_sort_tys: Box::new({
+                        let sid = sid.clone();
+                        move |ht, abp| {
+                            self.bak
+                                .sum_sorts(sid.clone())
+                                .zip(
+                                    (self.sum_heap_sort_camel_idents(&sid).into_iter())
+                                        .zip(self.sum_heap_sort_snake_idents(&sid)),
+                                )
+                                .filter_map(|(sort, (camel, snake))| {
+                                    self.sort2heap_ty(sort, &ht, &abp)
+                                        .map(|heap_sort_ty| HstData {
+                                            heap_sort_ty,
+                                            heap_sort_snake_ident: snake,
+                                            heap_sort_camel_ident: camel,
+                                        })
+                                })
+                                .collect()
+                        }
+                    }),
                     flattened_ccf_sort_tys: Box::new({
                         let sid = sid.clone();
                         move |ht, abp| {
@@ -193,19 +245,9 @@ impl<L: LangSpec> AbstractedLsGen<'_, L> {
                     }),
                     ccf_sort_camel_idents: Box::new({
                         let sid = sid.clone();
-                        move || {
-                            self.bak
-                                .sum_sorts(sid.clone())
-                                .map(|sort| sort_ident(self, sort, |name| &name.camel))
-                                .collect()
-                        }
+                        move || self.sum_heap_sort_camel_idents(&sid)
                     }),
-                    ccf_sort_snake_idents: Box::new(move || {
-                        self.bak
-                            .sum_sorts(sid.clone())
-                            .map(|sort| sort_ident(self, sort, |name| &name.snake))
-                            .collect()
-                    }),
+                    ccf_sort_snake_idents: Box::new(move || self.sum_heap_sort_snake_idents(&sid)),
                 },
             }))
     }
@@ -224,7 +266,7 @@ impl<L: LangSpec> AbstractedLsGen<'_, L> {
             }
             SortId::TyMetaFunc(MappedType { f, a }) => {
                 let TyMetaFuncData {
-                    imp: RustTyMap { ty_func, args: _ },
+                    imp: RustTyMap { ty_func },
                     ..
                 } = L::Tmfs::ty_meta_func_data(&f);
                 let args = a
@@ -234,6 +276,51 @@ impl<L: LangSpec> AbstractedLsGen<'_, L> {
                 syn::parse_quote! { #ty_func<#ht, #( #args, )* > }
             }
         }
+    }
+    pub fn sort2heap_ty(
+        &self,
+        sort: SortIdOf<L>,
+        ht: &HeapType,
+        abp: &AlgebraicsBasePath,
+    ) -> Option<syn::Type> {
+        match sort {
+            SortId::Algebraic(_) => None,
+            SortId::TyMetaFunc(MappedType { f, a }) => {
+                let TyMetaFuncData {
+                    heapbak: RustTyMap { ty_func },
+                    ..
+                } = L::Tmfs::ty_meta_func_data(&f);
+                let args = a
+                    .iter()
+                    .map(|arg| self.sort2rs_ty(SortId::Algebraic(arg.clone()), ht, abp));
+                let ht = &ht.0;
+                Some(syn::parse_quote! { #ty_func<#ht, #( #args, )* > })
+            }
+        }
+    }
+    fn product_heap_sort_camel_idents(&self, pid: &L::ProductId) -> Vec<syn::Ident> {
+        self.bak
+            .product_sorts(pid.clone())
+            .map(|sort| sort_ident(self, sort, |name| &name.camel))
+            .collect()
+    }
+    fn product_heap_sort_snake_idents(&self, pid: &L::ProductId) -> Vec<syn::Ident> {
+        self.bak
+            .product_sorts(pid.clone())
+            .map(|sort| sort_ident(self, sort, |name| &name.snake))
+            .collect()
+    }
+    fn sum_heap_sort_camel_idents(&self, sid: &L::SumId) -> Vec<syn::Ident> {
+        self.bak
+            .sum_sorts(sid.clone())
+            .map(|sort| sort_ident(self, sort, |name| &name.camel))
+            .collect()
+    }
+    fn sum_heap_sort_snake_idents(&self, sid: &L::SumId) -> Vec<syn::Ident> {
+        self.bak
+            .sum_sorts(sid.clone())
+            .map(|sort| sort_ident(self, sort, |name| &name.snake))
+            .collect()
     }
 }
 

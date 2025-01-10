@@ -71,8 +71,8 @@ pub fn fib() -> LangSpecHuman<tymetafuncspec_core::Core> {
                 },
                 "sorts": [
                     {"TyMetaFunc": {"f": 0, "a": []}},
-                    {"Algebraic": {"Product": "f"}},
-                    {"Algebraic": {"Product": "+"}}
+                    {"TyMetaFunc": {"f": 3, "a": [{"Product": "f"}]}},
+                    {"TyMetaFunc": {"f": 3, "a": [{"Product": "+"}]}}
                 ]
             }
         ]
