@@ -45,7 +45,7 @@ mod owned {
         let traits = ls.ty_gen_datas().map(
             |TyGenData {
                  camel_ident,
-                 ccf: CanonicallyConstructibleFromGenData { ccf_sort_tys },
+                 ccf: CanonicallyConstructibleFromGenData { ccf_sort_tys, .. },
                  ..
              }|
              -> syn::ItemTrait {
@@ -54,7 +54,7 @@ mod owned {
                 };
                 let ccf_sort_tys = ccf_sort_tys(
                     HeapType(syn::parse_quote! {<Self as specialized_term::Heaped>::Heap}),
-                    AlgebraicsBasePath(quote::quote! { #path:: }),
+                    AlgebraicsBasePath::new(quote::quote! { #path:: }),
                 );
                 let ccf_bounds = ccf_sort_tys.iter().map(|ccf| -> syn::TraitBound {
                     syn::parse_quote! {
@@ -93,7 +93,7 @@ mod reference {
              }| -> syn::ItemTrait {
                 let cst = cmt_sort_tys(
                     HeapType(syn::parse_quote! {Heap}),
-                    AlgebraicsBasePath(quote::quote! { Self:: })
+                    AlgebraicsBasePath::new(quote::quote! { Self:: })
                 );
                 let trait_bounds = cst.iter().map(|cmt| -> syn::TraitBound {
                     syn::parse_quote! {
@@ -102,7 +102,7 @@ mod reference {
                 });
                 let cst = algebraic_cmt_sort_tys(
                     HeapType(syn::parse_quote! {Heap}),
-                    AlgebraicsBasePath(syn::parse_quote! { })
+                    AlgebraicsBasePath::new(syn::parse_quote! { })
                 );
                 let ret = quote::quote! {
                     pub trait #camel_ident<'a, 'heap: 'a, Heap: #base_path::extension_of::Heap>: specialized_term::Heaped<Heap = Heap> #( + #trait_bounds )* {

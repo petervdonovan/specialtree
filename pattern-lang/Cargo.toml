@@ -1,9 +1,0 @@
-[package]
-name = "pattern-lang"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-expect-test = "1.5.0"
-langspec = { version = "0.1.0", path = "../langspec" }
-serde_yml = "0.0.12"
