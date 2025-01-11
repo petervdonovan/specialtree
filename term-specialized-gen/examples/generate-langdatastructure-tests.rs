@@ -4,7 +4,7 @@ pub fn main() {
     let target_dir = target_dir.join("tests");
     std::fs::create_dir_all(&target_dir).unwrap();
 
-    let formatted = langdatastructure_gen::refbased::formatted(&langspec_examples::fib());
+    let formatted = term_specialized_gen::formatted(&langspec_examples::fib());
     let target_file = target_dir.join("fib.rs");
     std::fs::write(target_file, formatted).unwrap();
 

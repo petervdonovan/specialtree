@@ -3,7 +3,7 @@ use langspec::{
     tymetafunc::{IdentifiedBy, RustTyMap, TyMetaFuncData, TyMetaFuncSpec},
 };
 use serde::{Deserialize, Serialize};
-use specialized_term::{CanonicallyConstructibleFrom, Heaped};
+use term::{CanonicallyConstructibleFrom, Heaped};
 
 pub struct Core;
 #[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize)]

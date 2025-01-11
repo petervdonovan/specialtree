@@ -1,7 +1,9 @@
 [package]
-name = "term-of"
+name = "langspec-gen-util"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 langspec = { version = "0.1.0", path = "../langspec" }
+proc-macro2 = "1.0.92"
+syn = "2.0.90"

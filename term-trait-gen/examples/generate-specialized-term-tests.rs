@@ -4,8 +4,7 @@ pub fn main() {
     let target_dir = target_dir.join("tests");
     std::fs::create_dir_all(&target_dir).unwrap();
 
-    let formatted =
-        specialized_term_gen::formatted(&syn::parse_quote!(crate), &langspec_examples::fib());
+    let formatted = term_trait_gen::formatted(&syn::parse_quote!(crate), &langspec_examples::fib());
     let target_file = target_dir.join("traits.rs");
     std::fs::write(target_file, formatted).unwrap();
 }

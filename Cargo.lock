@@ -3,15 +3,6 @@
 version = 4
 
 [[package]]
-name = "abstracted-langspec-gen"
-version = "0.1.0"
-dependencies = [
- "langspec",
- "proc-macro2",
- "syn 2.0.90",
-]
-
-[[package]]
 name = "anyhow"
 version = "1.0.89"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -125,22 +116,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
 
 [[package]]
-name = "langdatastructure-gen"
-version = "0.1.0"
-dependencies = [
- "abstracted-langspec-gen",
- "expect-test",
- "langspec",
- "langspec-examples",
- "prettyplease",
- "proc-macro2",
- "quote",
- "syn 2.0.90",
- "trybuild",
- "tymetafuncspec-core",
-]
-
-[[package]]
 name = "langspec"
 version = "0.1.0"
 dependencies = [
@@ -162,6 +137,15 @@ dependencies = [
  "serde_json",
  "tymetafuncspec-core",
  "typed-index-collections",
+]
+
+[[package]]
+name = "langspec-gen-util"
+version = "0.1.0"
+dependencies = [
+ "langspec",
+ "proc-macro2",
+ "syn 2.0.90",
 ]
 
 [[package]]
@@ -376,29 +360,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "specialized-term"
-version = "0.1.0"
-dependencies = [
- "take_mut",
-]
-
-[[package]]
-name = "specialized-term-gen"
-version = "0.1.0"
-dependencies = [
- "abstracted-langspec-gen",
- "expect-test",
- "langspec",
- "langspec-examples",
- "prettyplease",
- "proc-macro2",
- "quote",
- "specialized-term",
- "syn 2.0.90",
- "tymetafuncspec-core",
-]
-
-[[package]]
 name = "syn"
 version = "1.0.109"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -432,10 +393,42 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42a4d50cdb458045afc8131fd91b64904da29548bcb63c7236e0844936c13078"
 
 [[package]]
-name = "term-of"
+name = "term"
 version = "0.1.0"
 dependencies = [
+ "take_mut",
+]
+
+[[package]]
+name = "term-specialized-gen"
+version = "0.1.0"
+dependencies = [
+ "expect-test",
  "langspec",
+ "langspec-examples",
+ "langspec-gen-util",
+ "prettyplease",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.90",
+ "trybuild",
+ "tymetafuncspec-core",
+]
+
+[[package]]
+name = "term-trait-gen"
+version = "0.1.0"
+dependencies = [
+ "expect-test",
+ "langspec",
+ "langspec-examples",
+ "langspec-gen-util",
+ "prettyplease",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.90",
+ "term",
+ "tymetafuncspec-core",
 ]
 
 [[package]]
@@ -503,8 +496,8 @@ dependencies = [
  "langspec",
  "once_cell",
  "serde",
- "specialized-term",
  "syn 2.0.90",
+ "term",
 ]
 
 [[package]]

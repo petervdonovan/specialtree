@@ -1,12 +1,12 @@
 [package]
-name = "langdatastructure-gen"
+name = "term-specialized-gen"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-abstracted-langspec-gen = { version = "0.1.0", path = "../abstracted-langspec-gen-util" }
+langspec-gen-util = { version = "0.1.0", path = "../langspec-gen-util" }
 expect-test = "1.5.0"
 langspec = { version = "0.1.0", path = "../langspec" }
 prettyplease = "0.2.23"

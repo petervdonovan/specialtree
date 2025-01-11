@@ -1,12 +1,10 @@
-use abstracted_langspec_gen::{
-    byline, transpose, AbstractedLsGen, AlgebraicsBasePath, HeapType, TyGenData,
-};
 use langspec::{
     flat::LangSpecFlat,
     humanreadable::LangSpecHuman,
     langspec::{AlgebraicSortId, LangSpec, TerminalLangSpec},
     tymetafunc::TyMetaFuncSpec,
 };
+use langspec_gen_util::{byline, transpose, AlgebraicsBasePath, HeapType, LsGen, TyGenData};
 use syn::parse_quote;
 
 pub fn generate<Tmfs: TyMetaFuncSpec>(
@@ -14,7 +12,7 @@ pub fn generate<Tmfs: TyMetaFuncSpec>(
     l: &LangSpecFlat<Tmfs>,
     serde: bool,
 ) -> syn::ItemMod {
-    let lg = AbstractedLsGen { bak: l };
+    let lg = LsGen { bak: l };
     let base_path = parse_quote! { #base_path::data_structure };
     let algebraics = lg
         .ty_gen_datas()
@@ -73,7 +71,7 @@ pub(crate) fn alg_dt<L: LangSpec>(
     parse_quote!(#ret)
 }
 
-pub fn gen_heap<L: LangSpec>(base_path: &syn::Path, lg: &AbstractedLsGen<L>) -> syn::File {
+pub fn gen_heap<L: LangSpec>(base_path: &syn::Path, lg: &LsGen<L>) -> syn::File {
     let alg_snakes = lg.ty_gen_datas().map(|tgd| tgd.snake_ident);
     let alg_camels = lg.ty_gen_datas().map(|tgd| tgd.camel_ident);
     let alg_heapbaks = lg.ty_gen_datas().map(alg_heapbak);

@@ -87,10 +87,10 @@ pub struct HstData {
     pub heap_sort_snake_ident: syn::Ident,
     pub heap_sort_camel_ident: syn::Ident,
 }
-pub struct AbstractedLsGen<'a, L: LangSpec> {
+pub struct LsGen<'a, L: LangSpec> {
     pub bak: &'a L,
 }
-impl<L: LangSpec> AbstractedLsGen<'_, L> {
+impl<L: LangSpec> LsGen<'_, L> {
     pub fn ty_gen_datas(&self) -> impl Iterator<Item = TyGenData<'_, L>> {
         self.bak
             .products()
@@ -325,7 +325,7 @@ impl<L: LangSpec> AbstractedLsGen<'_, L> {
 }
 
 fn sort_ident<L: LangSpec>(
-    alg: &AbstractedLsGen<L>,
+    alg: &LsGen<L>,
     sort: SortIdOf<L>,
     get_ident: fn(&Name) -> &str,
 ) -> proc_macro2::Ident {

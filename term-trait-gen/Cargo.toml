@@ -1,12 +1,12 @@
 cargo-features = ["edition2024"]
 
 [package]
-name = "specialized-term-gen"
+name = "term-trait-gen"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-abstracted-langspec-gen = { version = "0.1.0", path = "../abstracted-langspec-gen-util" }
+langspec-gen-util = { version = "0.1.0", path = "../langspec-gen-util" }
 langspec = { version = "0.1.0", path = "../langspec" }
 prettyplease = "0.2.24"
 proc-macro2 = "1.0.89"
@@ -17,4 +17,4 @@ tymetafuncspec-core = { version = "0.1.0", path = "../tymetafuncspec-core" }
 [dev-dependencies]
 expect-test = "1.5.0"
 langspec-examples = { path = "../langspec-examples" }
-specialized-term = { path = "../specialized-term" }
+term = { path = "../term" }
