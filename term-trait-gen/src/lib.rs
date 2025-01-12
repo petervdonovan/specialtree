@@ -8,7 +8,7 @@ use langspec_gen_util::{
 };
 
 pub fn generate<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::ItemMod {
-    let lg = LsGen { bak: ls };
+    let lg = LsGen::from(ls);
     let owned = owned::generate(base_path, &lg);
     let reference = reference::generate(base_path, &lg);
     // let mut_reference = mut_referenc::generate(base_path, &lg);
@@ -69,7 +69,7 @@ mod owned {
         let byline = byline!();
         parse_quote! {
             #byline
-            mod owned {
+            pub mod owned {
                 #(
                     #traits
                 )*
@@ -116,7 +116,7 @@ mod reference {
         let byline = byline!();
         parse_quote! {
             #byline
-            mod reference {
+            pub mod reference {
                 #(
                     #traits
                 )*

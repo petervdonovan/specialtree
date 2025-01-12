@@ -19,6 +19,23 @@ where
 {
     fn maybe_convert(self, heap: &'heap Self::Heap) -> Result<T, Fallibility>;
 }
+#[derive(PartialEq, Eq, Hash, Clone, Copy)]
+pub struct TyFingerprint(u128);
+impl<'a> From<&'a str> for TyFingerprint {
+    fn from(s: &'a str) -> Self {
+        TyFingerprint(twox_hash::XxHash3_128::oneshot(s.as_bytes()))
+    }
+}
+#[derive(PartialEq, Eq, Hash, Clone)]
+pub struct CcfRelation {
+    pub from: Vec<TyFingerprint>,
+    pub to: TyFingerprint,
+}
+#[derive(PartialEq, Eq, Hash, Clone)]
+pub struct MctRelation {
+    pub from: TyFingerprint,
+    pub to: TyFingerprint,
+}
 // pub trait SettableTo<'heap, T>: Heaped {
 //     fn set_to(&mut self, heap: &'heap mut Self::Heap, t: T);
 // }

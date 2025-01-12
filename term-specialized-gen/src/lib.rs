@@ -12,19 +12,21 @@ pub fn generate<Tmfs: TyMetaFuncSpec>(
     l: &LangSpecFlat<Tmfs>,
     serde: bool,
 ) -> syn::ItemMod {
-    let lg = LsGen { bak: l };
+    let lg = LsGen::from(l);
     let base_path = parse_quote! { #base_path::data_structure };
     let algebraics = lg
         .ty_gen_datas()
         .filter(|it| it.id.is_some())
         .map(|tgd| alg_dt(serde, &base_path, tgd));
+    let heaped_impls = gen_heaped_impls(&base_path, &lg);
     let heap = gen_heap(&base_path, &lg);
     let byline = byline!();
     parse_quote! {
         #byline
-        mod data_structure {
+        pub mod data_structure {
             #heap
             #(#algebraics)*
+            #heaped_impls
         }
     }
 }
@@ -82,7 +84,7 @@ pub fn gen_heap<L: LangSpec>(base_path: &syn::Path, lg: &LsGen<L>) -> syn::File 
         pub struct Heap {
             #(#alg_snakes: #base_path::heap::#alg_camels,)*
         }
-        mod heap {
+        pub mod heap {
             #(#alg_heapbaks)*
         }
     }
@@ -105,6 +107,30 @@ pub(crate) fn alg_heapbak<L: LangSpec>(tgd: TyGenData<L>) -> syn::ItemStruct {
     };
     parse_quote! {
         #ret
+    }
+}
+
+pub(crate) fn gen_heaped_impls<L: LangSpec>(base_path: &syn::Path, lg: &LsGen<L>) -> syn::ItemMod {
+    fn heaped_impl<L: LangSpec>(base_path: &syn::Path, tgd: TyGenData<L>) -> syn::ItemImpl {
+        let camel_ident = tgd.camel_ident;
+        let byline = byline!();
+        let ret = quote::quote! {
+            #byline
+            impl term::Heaped for #base_path::#camel_ident {
+                type Heap = #base_path::Heap;
+            }
+        };
+        parse_quote! {
+            #ret
+        }
+    }
+    let byline = byline!();
+    let impls = lg.ty_gen_datas().map(|tgd| heaped_impl(base_path, tgd));
+    parse_quote! {
+        #byline
+        pub mod heaped {
+            #(#impls)*
+        }
     }
 }
 

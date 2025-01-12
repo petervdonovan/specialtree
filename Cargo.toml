@@ -13,7 +13,7 @@ members = [
     "term-specialized-gen",
     "term-trait-gen",
     "term",
-    "tymetafuncspec-core",
+    "tymetafuncspec-core", "term-specialized-impl-gen",
     # "bounded-slice",
     # "idxbased-related-gen",
     # "langserde",
