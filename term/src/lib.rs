@@ -1,5 +1,7 @@
 #![feature(never_type)]
 
+pub use type_equals;
+
 pub trait CanonicallyConstructibleFrom<T>: Sized
 where
     Self: Heaped,
@@ -23,6 +25,25 @@ pub trait SuperHeap<SubHeap> {
     fn subheap_mut<T>(&mut self) -> &mut SubHeap
     where
         T: type_equals::TypeEquals<Other = SubHeap>;
+}
+#[macro_export]
+macro_rules! impl_superheap {
+    ($heapty:ty ; $subheapty:ty ; $($field_names:ident)*) => {
+        impl term::SuperHeap<$subheapty> for $heapty {
+            fn subheap<T>(&self) -> &$subheapty
+            where
+                T: term::type_equals::TypeEquals<Other = $subheapty>,
+            {
+                &self $( . $field_names)*.0
+            }
+            fn subheap_mut<T>(&mut self) -> &mut $subheapty
+            where
+                T: term::type_equals::TypeEquals<Other = $subheapty>,
+            {
+                &mut self $( . $field_names)*.0
+            }
+        }
+    };
 }
 pub trait CanonicallyMaybeConvertibleTo<'heap, T: Heaped, Fallibility>
 where

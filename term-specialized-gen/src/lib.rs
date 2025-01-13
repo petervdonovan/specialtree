@@ -99,6 +99,15 @@ pub fn gen_heap<L: LangSpec>(
         .collect::<Vec<_>>();
     let (module_names, modules_resolved) =
         gen_modules_with_prefix(base_path, &[], &heapbak_modules);
+    let superheap_impls = hgd.iter().map(|hgd| {
+        let ty_func = &hgd.ty_func.ty_func;
+        let ty_args = &hgd.ty_arg_camels;
+        let identifiers = &hgd.identifiers;
+        let abp = abp.to_token_stream();
+        quote::quote! {
+            term::impl_superheap!(#base_path::Heap ; #ty_func<#base_path::Heap, #(#abp #ty_args),*> ; #(#identifiers)*);
+        }
+    });
     let byline = byline!();
     parse_quote! {
         #byline
@@ -108,6 +117,9 @@ pub fn gen_heap<L: LangSpec>(
         }
         pub mod heap {
             #(#modules_resolved)*
+        }
+        pub mod superheap {
+            #(#superheap_impls)*
         }
     }
 }
@@ -123,7 +135,7 @@ pub(crate) fn gen_heapbak_module(
     let heapbak_ty_args = &hgd.ty_arg_camels;
     let ts = quote::quote! {
         #[derive(Default)]
-        pub struct Bak(#heapbak_ty_func<#heap_path::Heap, #(#abp #heapbak_ty_args),*>);
+        pub struct Bak(pub #heapbak_ty_func<#heap_path::Heap, #(#abp #heapbak_ty_args),*>);
     };
     (
         hgd.identifiers.clone(),

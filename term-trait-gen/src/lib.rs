@@ -26,9 +26,27 @@ pub fn generate<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::ItemMod {
 pub(crate) fn heap_trait<L: LangSpec>(base_path: &syn::Path, ls: &LsGen<L>) -> syn::ItemTrait {
     transpose!(ls.ty_gen_datas(), camel_ident);
     let byline = byline!();
+    let baks = ls
+        .heapbak_gen_datas()
+        .iter()
+        .map(|hgd| -> syn::Type {
+            let ty_func = &hgd.ty_func.ty_func;
+            let args = &hgd.ty_arg_camels;
+            syn::parse_quote! {
+                #ty_func<Self, #(Self::#args),*>
+            }
+        })
+        .collect::<Vec<_>>();
+    let bounds = if baks.is_empty() {
+        quote::quote! {}
+    } else {
+        quote::quote! {
+            : #(term::SuperHeap<#baks>)+*
+        }
+    };
     parse_quote! {
         #byline
-        pub trait Heap {
+        pub trait Heap #bounds {
             #(
                 type #camel_ident: #base_path::extension_of::owned::#camel_ident<Heap = Self>;
             )*
@@ -114,12 +132,17 @@ mod reference {
             },
         );
         let byline = byline!();
+        // parse_quote! {
+        //     #byline
+        //     pub mod reference {
+        //         #(
+        //             #traits
+        //         )*
+        //     }
+        // }
         parse_quote! {
             #byline
             pub mod reference {
-                #(
-                    #traits
-                )*
             }
         }
     }

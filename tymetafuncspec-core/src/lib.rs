@@ -22,8 +22,8 @@ macro_rules! empty_heap_bak {
     ($name:ident $(,)? $($ty_args:ident),*) => {
         #[derive(derivative::Derivative)]
         #[derivative(Default(bound=""))]
-        pub struct $name<Heap, $($ty_args),*> {
-            phantom: std::marker::PhantomData<(Heap, $($ty_args),*)>,
+        pub struct $name<Heap: ?Sized, $($ty_args),*> {
+            phantom: std::marker::PhantomData<($($ty_args,)* Heap,)>,
         }
     };
 }
@@ -250,7 +250,7 @@ impl<
 }
 #[derive(Derivative)]
 #[derivative(Default(bound = ""))]
-pub struct IdxBoxHeapBak<Heap, Elem> {
-    phantom: std::marker::PhantomData<(Heap, Elem)>,
+pub struct IdxBoxHeapBak<Heap: ?Sized, Elem> {
+    phantom: std::marker::PhantomData<(Elem, Heap)>,
     elems: std::vec::Vec<Option<Elem>>, // None is a tombstone
 }
