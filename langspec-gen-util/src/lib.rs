@@ -50,6 +50,7 @@ macro_rules! transpose {
 
 pub struct TyGenData<'a, L: LangSpec> {
     pub id: Option<AlgebraicSortId<L::ProductId, L::SumId>>,
+    pub fingerprint: TyFingerprint,
     pub snake_ident: syn::Ident,
     pub camel_ident: syn::Ident,
     pub cmt: CanonicallyMaybeToGenData<'a>,
@@ -107,6 +108,7 @@ impl<L: LangSpec> LsGen<'_, L> {
             .products()
             .map(move |pid| TyGenData {
                 id: Some(AlgebraicSortId::Product(pid.clone())),
+                fingerprint: pid_fingerprint(self.bak, &pid),
                 snake_ident: syn::Ident::new(
                     &self.bak.product_name(pid.clone()).snake.clone(),
                     proc_macro2::Span::call_site(),
@@ -187,6 +189,7 @@ impl<L: LangSpec> LsGen<'_, L> {
             })
             .chain(self.bak.sums().map(move |sid| TyGenData {
                 id: Some(AlgebraicSortId::Sum(sid.clone())),
+                fingerprint: sid_fingerprint(self.bak, &sid),
                 snake_ident: syn::Ident::new(
                     &self.bak.sum_name(sid.clone()).snake.clone(),
                     proc_macro2::Span::call_site(),

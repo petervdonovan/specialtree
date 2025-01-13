@@ -1,0 +1,10 @@
+[package]
+name = "term-unspecialized"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+derivative = "2.2.0"
+langspec = { version = "0.1.0", path = "../langspec" }
+paste = "1.0.15"
+term = { version = "0.1.0", path = "../term" }

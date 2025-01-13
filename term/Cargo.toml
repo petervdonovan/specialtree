@@ -6,5 +6,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+langspec = { version = "0.1.0", path = "../langspec" }
+proc-macro2 = "1.0.93"
+syn = "2.0.96"
 take_mut = "0.2.2"
 twox-hash = "2.1.0"
+type-equals = "0.1.0"

@@ -1,0 +1,18 @@
+[package]
+name = "term-unspecialized-impl-gen"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+langspec = { version = "0.1.0", path = "../langspec" }
+langspec-gen-util = { version = "0.1.0", path = "../langspec-gen-util" }
+prettyplease = "0.2.28"
+quote = "1.0.38"
+syn = { version = "2.0.96", features = ["full"] }
+term-trait-gen = { version = "0.1.0", path = "../term-trait-gen" }
+
+[dev-dependencies]
+langspec-examples = { path = "../langspec-examples" }
+term = { path = "../term" }
+term-unspecialized = { path = "../term-unspecialized" }
+tymetafuncspec-core = { path = "../tymetafuncspec-core" }

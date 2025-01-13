@@ -5,13 +5,24 @@ where
     Self: Heaped,
 {
     fn construct(heap: &mut Self::Heap, t: T) -> Self;
-    fn deconstruct(self) -> T;
+    fn deconstruct(self, heap: &mut Self::Heap) -> T;
     fn reconstruct<F: Fn(T) -> T>(&mut self, heap: &mut Self::Heap, f: F) {
-        take_mut::take(self, |s| Self::construct(heap, f(Self::deconstruct(s))))
+        take_mut::take(self, |s| {
+            let t = Self::deconstruct(s, heap);
+            Self::construct(heap, f(t))
+        })
     }
 }
 pub trait Heaped {
     type Heap;
+}
+pub trait SuperHeap<SubHeap> {
+    fn subheap<T>(&self) -> &SubHeap
+    where
+        T: type_equals::TypeEquals<Other = SubHeap>;
+    fn subheap_mut<T>(&mut self) -> &mut SubHeap
+    where
+        T: type_equals::TypeEquals<Other = SubHeap>;
 }
 pub trait CanonicallyMaybeConvertibleTo<'heap, T: Heaped, Fallibility>
 where
@@ -21,9 +32,27 @@ where
 }
 #[derive(PartialEq, Eq, Hash, Clone, Copy)]
 pub struct TyFingerprint(u128);
+impl TyFingerprint {
+    pub fn combine(&self, other: &Self) -> Self {
+        let mut hasher = twox_hash::XxHash3_128::new();
+        hasher.write(&self.0.to_ne_bytes());
+        hasher.write(&other.0.to_ne_bytes());
+        TyFingerprint(hasher.finish_128())
+    }
+}
 impl<'a> From<&'a str> for TyFingerprint {
     fn from(s: &'a str) -> Self {
         TyFingerprint(twox_hash::XxHash3_128::oneshot(s.as_bytes()))
+    }
+}
+impl From<u128> for TyFingerprint {
+    fn from(u: u128) -> Self {
+        TyFingerprint(u)
+    }
+}
+impl TyFingerprint {
+    pub fn lit_int(&self) -> syn::LitInt {
+        syn::LitInt::new(&format!("0x{:x}", &self.0), proc_macro2::Span::call_site())
     }
 }
 #[derive(PartialEq, Eq, Hash, Clone)]

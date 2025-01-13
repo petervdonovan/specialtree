@@ -34,4 +34,5 @@ pub trait TyMetaFuncSpec: Sized {
         + 'static
         + ToLiteral;
     fn ty_meta_func_data(id: &Self::TyMetaFuncId) -> TyMetaFuncData;
+    fn my_type() -> syn::Type;
 }

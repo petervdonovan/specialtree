@@ -43,6 +43,7 @@ pub mod term_impls {
                 }
                 fn deconstruct(
                     self,
+                    heap: &mut Self::Heap,
                 ) -> (
                     crate::data_structure::LeftOperand,
                     crate::data_structure::RightOperand,
@@ -60,7 +61,7 @@ pub mod term_impls {
                 fn construct(heap: &mut Self::Heap, t: (crate::data_structure::Nat,)) -> Self {
                     crate::data_structure::LeftOperand { nat: t.0 }
                 }
-                fn deconstruct(self) -> (crate::data_structure::Nat,) {
+                fn deconstruct(self, heap: &mut Self::Heap) -> (crate::data_structure::Nat,) {
                     (self.nat,)
                 }
             }
@@ -74,7 +75,7 @@ pub mod term_impls {
                 fn construct(heap: &mut Self::Heap, t: (crate::data_structure::Nat,)) -> Self {
                     crate::data_structure::RightOperand { nat: t.0 }
                 }
-                fn deconstruct(self) -> (crate::data_structure::Nat,) {
+                fn deconstruct(self, heap: &mut Self::Heap) -> (crate::data_structure::Nat,) {
                     (self.nat,)
                 }
             }
@@ -88,7 +89,7 @@ pub mod term_impls {
                 fn construct(heap: &mut Self::Heap, t: (crate::data_structure::Nat,)) -> Self {
                     crate::data_structure::F { nat: t.0 }
                 }
-                fn deconstruct(self) -> (crate::data_structure::Nat,) {
+                fn deconstruct(self, heap: &mut Self::Heap) -> (crate::data_structure::Nat,) {
                     (self.nat,)
                 }
             }
@@ -117,6 +118,7 @@ pub mod term_impls {
                 }
                 fn deconstruct(
                     self,
+                    heap: &mut Self::Heap,
                 ) -> (
                     tymetafuncspec_core::Set<
                         <Self as term::Heaped>::Heap,
@@ -143,6 +145,7 @@ pub mod term_impls {
                 }
                 fn deconstruct(
                     self,
+                    heap: &mut Self::Heap,
                 ) -> (tymetafuncspec_core::BoundedNat<<Self as term::Heaped>::Heap>,)
                 {
                     match self {
@@ -173,6 +176,7 @@ pub mod term_impls {
                 }
                 fn deconstruct(
                     self,
+                    heap: &mut Self::Heap,
                 ) -> (
                     tymetafuncspec_core::IdxBox<
                         <Self as term::Heaped>::Heap,
@@ -207,6 +211,7 @@ pub mod term_impls {
                 }
                 fn deconstruct(
                     self,
+                    heap: &mut Self::Heap,
                 ) -> (
                     tymetafuncspec_core::IdxBox<
                         <Self as term::Heaped>::Heap,
