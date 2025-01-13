@@ -497,6 +497,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.96",
+ "term",
  "trybuild",
  "tymetafuncspec-core",
 ]
@@ -630,6 +631,7 @@ dependencies = [
 name = "tymetafuncspec-core"
 version = "0.1.0"
 dependencies = [
+ "derivative",
  "langspec",
  "once_cell",
  "serde",

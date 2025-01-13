@@ -1,3 +1,4 @@
+use derivative::Derivative;
 use langspec::{
     langspec::{Name, ToLiteral},
     tymetafunc::{IdentifiedBy, RustTyMap, TyMetaFuncData, TyMetaFuncSpec},
@@ -19,7 +20,8 @@ impl ToLiteral for CoreTmfId {
 
 macro_rules! empty_heap_bak {
     ($name:ident $(,)? $($ty_args:ident),*) => {
-        #[derive(Default)]
+        #[derive(derivative::Derivative)]
+        #[derivative(Default(bound=""))]
         pub struct $name<Heap, $($ty_args),*> {
             phantom: std::marker::PhantomData<(Heap, $($ty_args),*)>,
         }
@@ -246,7 +248,8 @@ impl<
         }
     }
 }
-#[derive(Default)]
+#[derive(Derivative)]
+#[derivative(Default(bound = ""))]
 pub struct IdxBoxHeapBak<Heap, Elem> {
     phantom: std::marker::PhantomData<(Heap, Elem)>,
     elems: std::vec::Vec<Option<Elem>>, // None is a tombstone

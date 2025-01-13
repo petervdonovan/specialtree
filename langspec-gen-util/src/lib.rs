@@ -56,6 +56,11 @@ pub struct TyGenData<'a, L: LangSpec> {
     pub cmt: CanonicallyMaybeToGenData<'a>,
     pub ccf: CanonicallyConstructibleFromGenData<'a>,
 }
+pub struct HeapbakGenData {
+    pub identifiers: Vec<syn::Ident>,
+    pub ty_func: RustTyMap,
+    pub ty_arg_camels: Vec<syn::Ident>,
+}
 pub struct CanonicallyMaybeToGenData<'a> {
     pub cmt_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
     pub algebraic_cmt_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
@@ -264,6 +269,53 @@ impl<L: LangSpec> LsGen<'_, L> {
                     ccf_sort_snake_idents: Box::new(move || self.sum_heap_sort_snake_idents(&sid)),
                 },
             }))
+    }
+    pub fn heapbak_gen_datas(&self) -> Vec<HeapbakGenData> {
+        let mut found: std::collections::HashSet<TyFingerprint> = std::collections::HashSet::new();
+        let mut ret: Vec<HeapbakGenData> = vec![];
+        for sort in self
+            .bak
+            .products()
+            .flat_map(|pid| self.bak.product_sorts(pid))
+            .chain(self.bak.sums().flat_map(|sid| self.bak.sum_sorts(sid)))
+        {
+            match &sort {
+                SortId::Algebraic(_) => continue,
+                SortId::TyMetaFunc(MappedType { f, a }) => {
+                    let fingerprint = sortid_fingerprint(self.bak, &sort);
+                    if found.contains(&fingerprint) {
+                        continue;
+                    }
+                    found.insert(fingerprint);
+                    let ty_arg_camels = a
+                        .iter()
+                        .map(|arg| {
+                            syn::Ident::new(
+                                &self.bak.algebraic_sort_name(arg.clone()).camel,
+                                proc_macro2::Span::call_site(),
+                            )
+                        })
+                        .collect();
+                    let ty_arg_snakes = a.iter().map(|arg| {
+                        syn::Ident::new(
+                            &self.bak.algebraic_sort_name(arg.clone()).snake,
+                            proc_macro2::Span::call_site(),
+                        )
+                    });
+                    let ty_func = <L::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(f).heapbak;
+                    let snake_ident = syn::Ident::new(
+                        &<L::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(f).name.snake,
+                        proc_macro2::Span::call_site(),
+                    );
+                    ret.push(HeapbakGenData {
+                        identifiers: std::iter::once(snake_ident).chain(ty_arg_snakes).collect(),
+                        ty_func,
+                        ty_arg_camels,
+                    });
+                }
+            }
+        }
+        ret
     }
     pub fn sort2rs_ty(
         &self,

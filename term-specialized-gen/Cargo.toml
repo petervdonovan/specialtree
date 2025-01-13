@@ -16,5 +16,6 @@ syn = { version = "2.0.79", features = ["full"] }
 
 [dev-dependencies]
 langspec-examples = { path = "../langspec-examples" }
+term = { path = "../term" }
 trybuild = "1.0.101"
 tymetafuncspec-core = { path = "../tymetafuncspec-core" }

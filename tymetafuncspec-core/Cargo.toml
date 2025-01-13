@@ -10,3 +10,4 @@ serde = { version = "1.0.216", features = ["derive"] }
 term = { version = "0.1.0", path = "../term" }
 syn = "2.0.90"
 term-unspecialized = { version = "0.1.0", path = "../term-unspecialized" }
+derivative = "2.2.0"
