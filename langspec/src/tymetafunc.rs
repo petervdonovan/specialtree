@@ -33,6 +33,7 @@ pub trait TyMetaFuncSpec: Sized {
         + Eq
         + 'static
         + ToLiteral;
+    type OpaqueTerm: Serialize + for<'a> Deserialize<'a> + std::fmt::Debug + Clone + 'static;
     fn ty_meta_func_data(id: &Self::TyMetaFuncId) -> TyMetaFuncData;
     fn my_type() -> syn::Type;
 }

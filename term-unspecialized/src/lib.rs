@@ -1,5 +1,7 @@
-use langspec::{langspec::SortId, tymetafunc::TyMetaFuncSpec};
-use term::{CanonicallyConstructibleFrom, Heaped, TyFingerprint};
+use core::panic;
+
+use langspec::tymetafunc::TyMetaFuncSpec;
+use term::{CanonicallyConstructibleFrom, Heaped, SuperHeap, TyFingerprint};
 
 #[derive(derivative::Derivative)]
 #[derivative(Clone(bound = ""))]
@@ -12,11 +14,42 @@ use term::{CanonicallyConstructibleFrom, Heaped, TyFingerprint};
 /// needed because the run-time value has not been computed yet.
 pub struct Term<const TOP_FINGERPRINT: u128, Tmfs: TyMetaFuncSpec, Heap> {
     pub tyfingerprint: TyFingerprint,
-    pub args: Vec<Term<0, Tmfs, Heap>>,
+    pub args: Vec<MaybeOpaqueTerm<Tmfs, Heap>>,
     phantom: std::marker::PhantomData<(Tmfs, Heap)>,
 }
+#[derive(derivative::Derivative)]
+#[derivative(Clone(bound = ""))]
+pub enum MaybeOpaqueTerm<Tmfs: TyMetaFuncSpec, Heap> {
+    Opaque(Tmfs::OpaqueTerm),
+    Term(Term<0, Tmfs, Heap>),
+}
+impl<Tmfs: TyMetaFuncSpec, Heap> MaybeOpaqueTerm<Tmfs, Heap> {
+    pub fn to_term(self) -> Term<0, Tmfs, Heap> {
+        match self {
+            MaybeOpaqueTerm::Opaque(_) => panic!("not a term"),
+            MaybeOpaqueTerm::Term(t) => t,
+        }
+    }
+}
+#[derive(Default)]
+pub struct TermHeap {}
+impl<SubHeap> SuperHeap<SubHeap> for TermHeap {
+    fn subheap<T>(&self) -> &SubHeap
+    where
+        T: term::type_equals::TypeEquals<Other = SubHeap>,
+    {
+        panic!("Subheaps of TermHeap should not be needed")
+    }
+
+    fn subheap_mut<T>(&mut self) -> &mut SubHeap
+    where
+        T: term::type_equals::TypeEquals<Other = SubHeap>,
+    {
+        panic!("Subheaps of TermHeap should not be needed")
+    }
+}
 impl<const TOP_FINGERPRINT: u128, Tmfs: TyMetaFuncSpec, Heap> Term<TOP_FINGERPRINT, Tmfs, Heap> {
-    pub fn new(sortid: TyFingerprint, args: Vec<Term<0, Tmfs, Heap>>) -> Self {
+    pub fn new(sortid: TyFingerprint, args: Vec<MaybeOpaqueTerm<Tmfs, Heap>>) -> Self {
         (Term::<0, Tmfs, Heap> {
             tyfingerprint: sortid,
             args,
@@ -109,7 +142,7 @@ macro_rules! ccf {
                 fn construct(heap: &mut Heap, t: ($(replace_expr!($indices [< To0Term $indices >]),)*)) -> Self {
                     Term {
                         tyfingerprint: TyFingerprint::from(TOP_FINGERPRINT),
-                        args: vec![$(t.$indices.to_term(heap)),*],
+                        args: vec![$(MaybeOpaqueTerm::Term(t.$indices.to_term(heap))),*],
                         phantom: std::marker::PhantomData,
                     }
                 }
@@ -118,7 +151,7 @@ macro_rules! ccf {
                     let mut args = self.args;
                     args.reverse();
                     ($({
-                        replace_expr!($indices ([< To0Term $indices >]::from_term(heap, args.pop().unwrap())))
+                        replace_expr!($indices ([< To0Term $indices >]::from_term(heap, args.pop().unwrap().to_term())))
                     },)*)
                 }
             }

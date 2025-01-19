@@ -49,7 +49,7 @@ pub(crate) fn gen_owned_mod<L: LangSpec>(
     syn::parse_quote! {
         #byline
         pub mod owned_impls {
-            #(impl #term_trait::extension_of::owned::#camels for term_unspecialized::Term<#tmfs> {})*
+            #(impl #term_trait::extension_of::owned::#camels for <term_unspecialized::TermHeap as #term_trait::extension_of::Heap>::#camels {})*
         }
     }
 }
@@ -220,7 +220,7 @@ pub(crate) fn gen_heap_impl<L: LangSpec>(
     syn::parse_quote! {
         #byline
         impl #term_trait::extension_of::Heap for term_unspecialized::TermHeap {
-            #(type #camels = term_unspecialized::Term<#lit_fingerprints, #tmfs>;)*
+            #(type #camels = term_unspecialized::Term<#lit_fingerprints, #tmfs, Self>;)*
         }
     }
 }
