@@ -58,9 +58,17 @@ impl<const TOP_FINGERPRINT: u128, Tmfs: TyMetaFuncSpec, Heap> Term<TOP_FINGERPRI
         .dynamic_checked_cast()
     }
 }
-pub trait TermRoundTrip<const TOP_FINGERPRINT: u128, Tmfs: TyMetaFuncSpec>: Heaped {
+pub trait TermRoundTrip<const TOP_FINGERPRINT: u128, Tmfs: TyMetaFuncSpec>: Heaped + Sized {
     fn to_term(self, heap: &mut Self::Heap) -> Term<TOP_FINGERPRINT, Tmfs, Self::Heap>;
-    fn from_term(heap: &mut Self::Heap, t: Term<TOP_FINGERPRINT, Tmfs, Self::Heap>) -> Self;
+    fn from_term(
+        heap: &mut Self::Heap,
+        t: Term<TOP_FINGERPRINT, Tmfs, Self::Heap>,
+    ) -> Result<Self, FromTermError>;
+}
+#[derive(Debug)]
+pub enum FromTermError {
+    Other(String),
+    Invalid,
 }
 impl<const TOP_FINGERPRINT: u128, Tmfs: TyMetaFuncSpec, Heap> Term<TOP_FINGERPRINT, Tmfs, Heap> {
     pub fn dynamic_checked_cast<const TOP_FINGERPRINT2: u128>(
@@ -100,17 +108,23 @@ impl<const FROM_FINGERPRINT: u128, const TO_FINGERPRINT: u128, Tmfs: TyMetaFuncS
         }
     }
 
-    fn from_term(_: &mut Self::Heap, t: Term<TO_FINGERPRINT, Tmfs, Heap>) -> Self {
+    fn from_term(
+        _: &mut Self::Heap,
+        t: Term<TO_FINGERPRINT, Tmfs, Heap>,
+    ) -> Result<Self, FromTermError> {
         if !(FROM_FINGERPRINT == 0 || TO_FINGERPRINT == 0) && FROM_FINGERPRINT != TO_FINGERPRINT {
-            panic!("Both compile-time fingerprints are known and are not equal, so one of them must be wrong");
-        }
-        if t.tyfingerprint != TyFingerprint::from(FROM_FINGERPRINT) {
-            panic!("Dynamic cast failed");
-        }
-        Term::<FROM_FINGERPRINT, Tmfs, Heap> {
-            tyfingerprint: t.tyfingerprint,
-            args: t.args,
-            phantom: std::marker::PhantomData,
+            Err(FromTermError::Other(
+                "Both compile-time fingerprints are known and are not equal, so one of them must be wrong"
+                    .to_string(),
+            ))
+        } else if t.tyfingerprint != TyFingerprint::from(FROM_FINGERPRINT) {
+            Err(FromTermError::Invalid)
+        } else {
+            Ok(Term::<FROM_FINGERPRINT, Tmfs, Heap> {
+                tyfingerprint: t.tyfingerprint,
+                args: t.args,
+                phantom: std::marker::PhantomData,
+            })
         }
     }
 }
@@ -151,7 +165,7 @@ macro_rules! ccf {
                     let mut args = self.args;
                     args.reverse();
                     ($({
-                        replace_expr!($indices ([< To0Term $indices >]::from_term(heap, args.pop().unwrap().to_term())))
+                        replace_expr!($indices ([< To0Term $indices >]::from_term(heap, args.pop().unwrap().to_term()).unwrap()))
                     },)*)
                 }
             }

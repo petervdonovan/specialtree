@@ -63,6 +63,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "60b1af1c220855b6ceac025d3f6ecdd2b7c4894bfe9cd9bda4fbb4bc7c0d4cf0"
 
 [[package]]
+name = "either-id"
+version = "0.1.0"
+dependencies = [
+ "functor_derive",
+ "langspec",
+ "serde",
+ "syn 2.0.96",
+]
+
+[[package]]
 name = "equivalent"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -76,6 +86,15 @@ checksum = "9e0be0a561335815e06dab7c62e50353134c796e7a6155402a64bcff66b6a5e0"
 dependencies = [
  "dissimilar",
  "once_cell",
+]
+
+[[package]]
+name = "extension-everywhere-alternative"
+version = "0.1.0"
+dependencies = [
+ "either-id",
+ "langspec",
+ "tmfs-join",
 ]
 
 [[package]]
@@ -184,31 +203,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "langspec-join"
-version = "0.1.0"
-dependencies = [
- "expect-test",
- "functor_derive",
- "langspec",
- "langspec-examples",
- "serde_json",
- "serde_yml",
- "syn 2.0.96",
-]
-
-[[package]]
-name = "langspec-sumextend"
-version = "0.1.0"
-dependencies = [
- "expect-test",
- "functor_derive",
- "langspec",
- "langspec-examples",
- "serde_json",
- "serde_yml",
-]
-
-[[package]]
 name = "lexpr"
 version = "0.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -256,6 +250,15 @@ name = "once_cell"
 version = "1.20.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1261fe7e33c73b354eab43b1273a57c8f967d0391e80353e51f764ac02cf6775"
+
+[[package]]
+name = "parse"
+version = "0.1.0"
+dependencies = [
+ "langspec",
+ "langspec-gen-util",
+ "term-unspecialized",
+]
 
 [[package]]
 name = "paste"
@@ -377,18 +380,18 @@ checksum = "61697e0a1c7e512e84a621326239844a24d8207b4669b41bc18b32ea5cbf988b"
 
 [[package]]
 name = "serde"
-version = "1.0.216"
+version = "1.0.217"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b9781016e935a97e8beecf0c933758c97a5520d32930e460142b4cd80c6338e"
+checksum = "02fc4265df13d6fa1d00ecff087228cc0a2b5f3c0e87e258d8b94a156e984c70"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.216"
+version = "1.0.217"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "46f859dbbf73865c6627ed570e78961cd3ac92407a2d117204c49232485da55e"
+checksum = "5a9bf7cf98d04a2b28aead066b7496853d4779c9cc183c440dbac457641e19a0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -567,6 +570,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "06794f8f6c5c898b3275aebefa6b8a1cb24cd2c6c79397ab15774837a0bc5755"
 dependencies = [
  "winapi-util",
+]
+
+[[package]]
+name = "tmfs-join"
+version = "0.1.0"
+dependencies = [
+ "either-id",
+ "langspec",
+ "syn 2.0.96",
 ]
 
 [[package]]

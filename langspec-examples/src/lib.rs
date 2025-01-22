@@ -58,7 +58,7 @@ pub fn fib() -> LangSpecHuman<tymetafuncspec_core::Core> {
                     "snake": "sum"
                 },
                 "sorts": [
-                    {"TyMetaFunc": {"f": 1, "a": [{"Sum": "ℕ"}]}}
+                    {"TyMetaFunc": {"f": 1, "a": [{"Algebraic": {"Sum": "ℕ"}}]}}
                 ]
             }
         ],
@@ -71,8 +71,8 @@ pub fn fib() -> LangSpecHuman<tymetafuncspec_core::Core> {
                 },
                 "sorts": [
                     {"TyMetaFunc": {"f": 0, "a": []}},
-                    {"TyMetaFunc": {"f": 3, "a": [{"Product": "f"}]}},
-                    {"TyMetaFunc": {"f": 3, "a": [{"Product": "+"}]}}
+                    {"TyMetaFunc": {"f": 3, "a": [{"Algebraic": {"Product": "f"}}]}},
+                    {"TyMetaFunc": {"f": 3, "a": [{"Algebraic": {"Product": "+"}}]}}
                 ]
             }
         ]

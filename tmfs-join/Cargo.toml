@@ -1,0 +1,9 @@
+[package]
+name = "tmfs-join"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+either-id = { version = "0.1.0", path = "../either-id" }
+langspec = { version = "0.1.0", path = "../langspec" }
+syn = "2.0.96"

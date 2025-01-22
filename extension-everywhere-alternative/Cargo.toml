@@ -1,0 +1,9 @@
+[package]
+name = "extension-everywhere-alternative"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+either-id = { version = "0.1.0", path = "../either-id" }
+langspec = { version = "0.1.0", path = "../langspec" }
+tmfs-join = { version = "0.1.0", path = "../tmfs-join" }

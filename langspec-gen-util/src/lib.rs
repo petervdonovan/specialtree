@@ -291,14 +291,14 @@ impl<L: LangSpec> LsGen<'_, L> {
                         .iter()
                         .map(|arg| {
                             syn::Ident::new(
-                                &self.bak.algebraic_sort_name(arg.clone()).camel,
+                                &sortid_name(self.bak, arg).camel,
                                 proc_macro2::Span::call_site(),
                             )
                         })
                         .collect();
                     let ty_arg_snakes = a.iter().map(|arg| {
                         syn::Ident::new(
-                            &self.bak.algebraic_sort_name(arg.clone()).snake,
+                            &sortid_name(self.bak, arg).snake,
                             proc_macro2::Span::call_site(),
                         )
                     });
@@ -335,9 +335,7 @@ impl<L: LangSpec> LsGen<'_, L> {
                     imp: RustTyMap { ty_func },
                     ..
                 } = L::Tmfs::ty_meta_func_data(&f);
-                let args = a
-                    .iter()
-                    .map(|arg| self.sort2rs_ty(SortId::Algebraic(arg.clone()), ht, abp));
+                let args = a.iter().map(|arg| self.sort2rs_ty(arg.clone(), ht, abp));
                 let ht = &ht.0;
                 syn::parse_quote! { #ty_func<#ht, #( #args, )* > }
             }
@@ -356,9 +354,7 @@ impl<L: LangSpec> LsGen<'_, L> {
                     heapbak: RustTyMap { ty_func },
                     ..
                 } = L::Tmfs::ty_meta_func_data(&f);
-                let args = a
-                    .iter()
-                    .map(|arg| self.sort2rs_ty(SortId::Algebraic(arg.clone()), ht, abp));
+                let args = a.iter().map(|arg| self.sort2rs_ty(arg.clone(), ht, abp));
                 let ht = &ht.0;
                 Some(syn::parse_quote! { #ty_func<#ht, #( #args, )* > })
             }
@@ -367,25 +363,25 @@ impl<L: LangSpec> LsGen<'_, L> {
     fn product_heap_sort_camel_idents(&self, pid: &L::ProductId) -> Vec<syn::Ident> {
         self.bak
             .product_sorts(pid.clone())
-            .map(|sort| sort_ident(self, sort, |name| &name.camel))
+            .map(|sort| sort_ident(self, sort, |name| name.camel.clone()))
             .collect()
     }
     fn product_heap_sort_snake_idents(&self, pid: &L::ProductId) -> Vec<syn::Ident> {
         self.bak
             .product_sorts(pid.clone())
-            .map(|sort| sort_ident(self, sort, |name| &name.snake))
+            .map(|sort| sort_ident(self, sort, |name| name.snake.clone()))
             .collect()
     }
     fn sum_heap_sort_camel_idents(&self, sid: &L::SumId) -> Vec<syn::Ident> {
         self.bak
             .sum_sorts(sid.clone())
-            .map(|sort| sort_ident(self, sort, |name| &name.camel))
+            .map(|sort| sort_ident(self, sort, |name| name.camel.clone()))
             .collect()
     }
     fn sum_heap_sort_snake_idents(&self, sid: &L::SumId) -> Vec<syn::Ident> {
         self.bak
             .sum_sorts(sid.clone())
-            .map(|sort| sort_ident(self, sort, |name| &name.snake))
+            .map(|sort| sort_ident(self, sort, |name| name.snake.clone()))
             .collect()
     }
     pub fn find_transitive_mct_rel(&self, target: &MctRelation) -> Option<ConversionPath> {
@@ -533,22 +529,23 @@ pub struct TransitiveCcfConversionPaths {
 fn sort_ident<L: LangSpec>(
     alg: &LsGen<L>,
     sort: SortIdOf<L>,
-    get_ident: fn(&Name) -> &str,
+    get_ident: fn(&Name) -> String,
 ) -> proc_macro2::Ident {
-    // &self.bak.algebraic_sort_name(sort.clone()).camel.clone(),
+    // &sortid_name(&self.bak, sort.clone()).camel.clone(),
     match &sort {
         SortId::Algebraic(asi) => syn::Ident::new(
-            get_ident(alg.bak.algebraic_sort_name(asi.clone())),
+            &get_ident(alg.bak.algebraic_sort_name(asi.clone())),
             proc_macro2::Span::call_site(),
         ),
         SortId::TyMetaFunc(MappedType { f, a }) => {
             let TyMetaFuncData { name, idby, .. } = L::Tmfs::ty_meta_func_data(f);
             syn::Ident::new(
-                match idby {
+                &match idby {
                     IdentifiedBy::Tmf => get_ident(&name),
                     IdentifiedBy::FirstTmfArg => {
                         let arg = a.first().unwrap();
-                        get_ident(alg.bak.algebraic_sort_name(arg.clone()))
+                        let name = sortid_name(alg.bak, arg);
+                        get_ident(&name)
                     }
                 },
                 proc_macro2::Span::call_site(),
@@ -573,9 +570,7 @@ fn algebraics<
         SortId::Algebraic(_) => {
             Box::new(std::iter::once(sort.clone())) as Box<dyn Iterator<Item = _>>
         }
-        SortId::TyMetaFunc(mapped_type) => {
-            Box::new(mapped_type.a.clone().into_iter().map(SortId::Algebraic))
-        }
+        SortId::TyMetaFunc(mapped_type) => Box::new(mapped_type.a.clone().into_iter()),
     })
 }
 
@@ -603,8 +598,20 @@ fn sortid_fingerprint<L: LangSpec>(ls: &L, sort: &SortIdOf<L>) -> TyFingerprint 
                 IdentifiedBy::Tmf => TyFingerprint::from(name.camel.as_str()),
                 IdentifiedBy::FirstTmfArg => {
                     let arg = a.first().unwrap();
-                    asi_fingerprint(ls, arg)
+                    sortid_fingerprint(ls, arg)
                 }
+            }
+        }
+    }
+}
+fn sortid_name<L: LangSpec>(ls: &L, sort: &SortIdOf<L>) -> Name {
+    match sort {
+        SortId::Algebraic(asi) => ls.algebraic_sort_name(asi.clone()).clone(),
+        SortId::TyMetaFunc(MappedType { f, a, .. }) => {
+            let TyMetaFuncData { name, idby, .. } = L::Tmfs::ty_meta_func_data(f);
+            match idby {
+                IdentifiedBy::Tmf => name,
+                IdentifiedBy::FirstTmfArg => sortid_name(ls, a.first().unwrap()),
             }
         }
     }

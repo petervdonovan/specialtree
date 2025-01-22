@@ -25,13 +25,13 @@ pub type SortIdOf<L: LangSpec + ?Sized> =
 #[functor(ProductId as p, SumId as s, TyMetaFuncId as f)]
 pub enum SortId<ProductId, SumId, TyMetaFuncId> {
     Algebraic(AlgebraicSortId<ProductId, SumId>),
-    TyMetaFunc(MappedType<AlgebraicSortId<ProductId, SumId>, TyMetaFuncId>),
+    TyMetaFunc(MappedType<ProductId, SumId, TyMetaFuncId>),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, Functor)]
-#[functor(AlgebraicSortId as a, TyMetaFuncId as f)]
-pub struct MappedType<AlgebraicSortId, TyMetaFuncId> {
+// #[functor(AlgebraicSortId as a, TyMetaFuncId as f)]
+pub struct MappedType<ProductId, SumId, TyMetaFuncId> {
     pub f: TyMetaFuncId,
-    pub a: Vec<AlgebraicSortId>,
+    pub a: Vec<SortId<ProductId, SumId, TyMetaFuncId>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Functor)]
