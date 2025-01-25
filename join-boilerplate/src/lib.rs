@@ -1,0 +1,125 @@
+pub use either_id;
+pub use langspec;
+
+pub fn prods_max<L0: langspec::langspec::LangSpec>(l0: &L0) -> usize {
+    l0.products()
+        .map(|pid| l0.prod_to_unique_nat(pid))
+        .max()
+        .unwrap()
+}
+pub fn sums_max<L0: langspec::langspec::LangSpec>(l0: &L0) -> usize {
+    l0.sums()
+        .map(|sid| l0.sum_to_unique_nat(sid))
+        .max()
+        .unwrap()
+}
+
+#[macro_export]
+macro_rules! lsjoin {
+    () => {
+        type ProductId = join_boilerplate::either_id::Either<L0::ProductId, L1::ProductId>;
+
+        type SumId = join_boilerplate::either_id::Either<L0::SumId, L1::SumId>;
+
+        fn name(&self) -> &langspec::langspec::Name {
+            &self.name
+        }
+
+        fn products(&self) -> impl Iterator<Item = Self::ProductId> {
+            self.l0
+                .products()
+                .map(join_boilerplate::either_id::Either::Left)
+                .chain(
+                    self.l1
+                        .products()
+                        .map(join_boilerplate::either_id::Either::Right),
+                )
+        }
+
+        fn sums(&self) -> impl Iterator<Item = Self::SumId> {
+            self.l0
+                .sums()
+                .map(join_boilerplate::either_id::Either::Left)
+                .chain(
+                    self.l1
+                        .sums()
+                        .map(join_boilerplate::either_id::Either::Right),
+                )
+        }
+
+        fn product_name(&self, id: Self::ProductId) -> &Name {
+            match id {
+                join_boilerplate::either_id::Either::Left(id) => self.l0.product_name(id),
+                join_boilerplate::either_id::Either::Right(id) => self.l1.product_name(id),
+            }
+        }
+
+        fn sum_name(&self, id: Self::SumId) -> &Name {
+            match id {
+                join_boilerplate::either_id::Either::Left(id) => self.l0.sum_name(id),
+                join_boilerplate::either_id::Either::Right(id) => self.l1.sum_name(id),
+            }
+        }
+
+        fn prod_to_unique_nat(&self, id: Self::ProductId) -> usize {
+            let max = join_boilerplate::prods_max(&self.l0);
+            match id {
+                join_boilerplate::either_id::Either::Left(id) => self.l0.prod_to_unique_nat(id),
+                join_boilerplate::either_id::Either::Right(id) => {
+                    self.l1.prod_to_unique_nat(id) + max + 1
+                }
+            }
+        }
+
+        fn prod_from_unique_nat(&self, nat: usize) -> Self::ProductId {
+            let l0_max = join_boilerplate::prods_max(&self.l0);
+            if nat <= l0_max {
+                join_boilerplate::either_id::Either::Left(self.l0.prod_from_unique_nat(nat))
+            } else {
+                join_boilerplate::either_id::Either::Right(
+                    self.l1.prod_from_unique_nat(nat - l0_max - 1),
+                )
+            }
+        }
+
+        fn sum_to_unique_nat(&self, id: Self::SumId) -> usize {
+            let max = join_boilerplate::sums_max(&self.l0);
+            match id {
+                join_boilerplate::either_id::Either::Left(id) => self.l0.sum_to_unique_nat(id),
+                join_boilerplate::either_id::Either::Right(id) => {
+                    self.l1.sum_to_unique_nat(id) + max + 1
+                }
+            }
+        }
+
+        fn sum_from_unique_nat(&self, nat: usize) -> Self::SumId {
+            let l0_max = join_boilerplate::sums_max(&self.l0);
+            if nat <= l0_max {
+                join_boilerplate::either_id::Either::Left(self.l0.sum_from_unique_nat(nat))
+            } else {
+                join_boilerplate::either_id::Either::Right(
+                    self.l1.sum_from_unique_nat(nat - l0_max - 1),
+                )
+            }
+        }
+    };
+}
+#[macro_export]
+macro_rules! join_over_tmfs_as_my_sid {
+    ($Me:ty) => {
+        fn l0_as_my_sid<L0: LangSpec, L1: LangSpec>(
+            sid: join_boilerplate::langspec::langspec::SortIdOf<L0>,
+        ) -> join_boilerplate::langspec::langspec::SortIdOf<$Me> {
+            sid.fmap_p(Either::Left)
+                .fmap_s(Either::Left)
+                .fmap_f(|it| Either::Left(Either::Left(it)))
+        }
+        fn l1_as_my_sid<L0: LangSpec, L1: LangSpec>(
+            sid: join_boilerplate::langspec::langspec::SortIdOf<L1>,
+        ) -> join_boilerplate::langspec::langspec::SortIdOf<$Me> {
+            sid.fmap_p(Either::Right)
+                .fmap_s(Either::Right)
+                .fmap_f(|it| Either::Left(Either::Right(it)))
+        }
+    };
+}

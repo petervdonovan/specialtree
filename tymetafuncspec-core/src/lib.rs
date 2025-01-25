@@ -28,6 +28,13 @@ macro_rules! empty_heap_bak {
     };
 }
 
+pub const NATLIT: CoreTmfId = CoreTmfId(0);
+pub const SET: CoreTmfId = CoreTmfId(1);
+pub const SEQ: CoreTmfId = CoreTmfId(2);
+pub const IDXBOX: CoreTmfId = CoreTmfId(3);
+pub const EITHER: CoreTmfId = CoreTmfId(4);
+pub const MAYBE: CoreTmfId = CoreTmfId(5);
+
 thread_local! {
     static CORE_BAK: once_cell::sync::Lazy<[TyMetaFuncData; 6]> =
     once_cell::sync::Lazy::new(|| {
