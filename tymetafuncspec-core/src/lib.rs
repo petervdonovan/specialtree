@@ -3,6 +3,7 @@ use langspec::{
     langspec::{Name, ToLiteral},
     tymetafunc::{IdentifiedBy, RustTyMap, TyMetaFuncData, TyMetaFuncSpec},
 };
+use parse::Parse;
 use serde::{Deserialize, Serialize};
 use term::{CanonicallyConstructibleFrom, Heaped, SuperHeap, TyFingerprint};
 use term_unspecialized::{FromTermError, MaybeOpaqueTerm, Term, TermRoundTrip};
@@ -200,6 +201,35 @@ impl<Heap: SuperHeap<BoundedNatHeapBak<Heap>>> TermRoundTrip<0, Core> for Bounde
         })
     }
 }
+impl<Heap> parse::Parse for BoundedNat<Heap>
+where
+    Heap: SuperHeap<BoundedNatHeapBak<Heap>>,
+{
+    fn parse(
+        source: &str,
+        offset: parse::miette::SourceOffset,
+        _heap: &mut Self::Heap,
+        _errors: &mut Vec<parse::ParseError>,
+    ) -> Result<(Self, parse::miette::SourceOffset), parse::ParseError> {
+        let next_unicode_word = parse::unicode_segmentation::UnicodeSegmentation::unicode_words(
+            &source[offset.offset()..],
+        )
+        .next()
+        .ok_or(parse::ParseError::UnexpectedEndOfInput(offset.into()))?;
+        let n = next_unicode_word
+            .parse::<usize>()
+            .map_err(|_| parse::ParseError::TmfsParseFailure(offset.into()))?;
+        let new_offset =
+            parse::miette::SourceOffset::from(offset.offset() + next_unicode_word.len());
+        Ok((
+            Self {
+                heap: std::marker::PhantomData,
+                n,
+            },
+            new_offset,
+        ))
+    }
+}
 
 pub struct Set<Heap, Elem> {
     heap: std::marker::PhantomData<Heap>,
@@ -254,6 +284,36 @@ macro_rules! collection_term_round_trip_impl {
     };
 }
 collection_term_round_trip_impl!(Set<Heap, Elem>, tymetafuncspec_core::Set);
+impl<Heap, Elem> parse::Parse for Set<Heap, Elem>
+where
+    Heap: SuperHeap<SetHeapBak<Heap, Elem>>,
+    Elem: parse::Parse + Heaped<Heap = Heap>,
+{
+    fn parse(
+        source: &str,
+        offset: parse::miette::SourceOffset,
+        heap: &mut Self::Heap,
+        errors: &mut Vec<parse::ParseError>,
+    ) -> Result<(Self, parse::miette::SourceOffset), parse::ParseError> {
+        let mut items = Vec::new();
+        let mut offset = offset;
+        while !source[offset.offset()..].starts_with('}') {
+            let (item, new_offset) = <Elem as parse::Parse>::parse(source, offset, heap, errors)?;
+            items.push(item);
+            offset = new_offset;
+            if source[offset.offset()..].starts_with(',') {
+                offset = parse::miette::SourceOffset::from(offset.offset() + 1);
+            }
+        }
+        Ok((
+            Self {
+                items,
+                heap: std::marker::PhantomData,
+            },
+            offset,
+        ))
+    }
+}
 
 pub struct Seq<Heap, Elem> {
     heap: std::marker::PhantomData<Heap>,
@@ -264,6 +324,36 @@ impl<Heap, Elem> Heaped for Seq<Heap, Elem> {
 }
 empty_heap_bak!(SeqHeapBak, Elem);
 collection_term_round_trip_impl!(Seq<Heap, Elem>, tymetafuncspec_core::Seq);
+impl<Heap, T> parse::Parse for Seq<Heap, T>
+where
+    Heap: SuperHeap<SeqHeapBak<Heap, T>>,
+    T: parse::Parse + Heaped<Heap = Heap>,
+{
+    fn parse(
+        source: &str,
+        offset: parse::miette::SourceOffset,
+        heap: &mut Self::Heap,
+        errors: &mut Vec<parse::ParseError>,
+    ) -> Result<(Self, parse::miette::SourceOffset), parse::ParseError> {
+        let mut items = Vec::new();
+        let mut offset = offset;
+        while !source[offset.offset()..].starts_with(']') {
+            let (item, new_offset) = <T as parse::Parse>::parse(source, offset, heap, errors)?;
+            items.push(item);
+            offset = new_offset;
+            if source[offset.offset()..].starts_with(',') {
+                offset = parse::miette::SourceOffset::from(offset.offset() + 1);
+            }
+        }
+        Ok((
+            Self {
+                items,
+                heap: std::marker::PhantomData,
+            },
+            offset,
+        ))
+    }
+}
 
 pub struct IdxBox<Heap, Elem> {
     phantom: std::marker::PhantomData<(Heap, Elem)>,
@@ -320,6 +410,20 @@ pub struct IdxBoxHeapBak<Heap: ?Sized, Elem> {
     phantom: std::marker::PhantomData<(Elem, Heap)>,
     elems: std::vec::Vec<Option<Elem>>, // None is a tombstone
 }
+impl<Heap, T: Parse + Heaped<Heap = Heap>> Parse for IdxBox<Heap, T>
+where
+    Heap: SuperHeap<IdxBoxHeapBak<Heap, T>>,
+{
+    fn parse(
+        source: &str,
+        offset: parse::miette::SourceOffset,
+        heap: &mut Self::Heap,
+        errors: &mut Vec<parse::ParseError>,
+    ) -> Result<(Self, parse::miette::SourceOffset), parse::ParseError> {
+        <T as Parse>::parse(source, offset, heap, errors)
+            .map(|(t, offset)| (IdxBox::construct(heap, t), offset))
+    }
+}
 
 pub enum Either<Heap, L, R> {
     Left(L, std::marker::PhantomData<Heap>),
@@ -362,6 +466,31 @@ impl<
         }
     }
 }
+impl<Heap, L: parse::Parse + Heaped<Heap = Heap>, R: parse::Parse + Heaped<Heap = Heap>>
+    parse::Parse for Either<Heap, L, R>
+{
+    fn parse(
+        source: &str,
+        offset: parse::miette::SourceOffset,
+        heap: &mut Self::Heap,
+        errors: &mut Vec<parse::ParseError>,
+    ) -> Result<(Self, parse::miette::SourceOffset), parse::ParseError> {
+        let mut ute = match L::parse(source, offset, heap, errors) {
+            Ok(ok) => return Ok((Either::Left(ok.0, std::marker::PhantomData), ok.1)),
+            Err(e) => Some(e),
+        };
+        match R::parse(source, offset, heap, errors) {
+            Ok(ok) => return Ok((Either::Right(ok.0, std::marker::PhantomData), ok.1)),
+            Err(e) => {
+                if ute.is_none() {
+                    ute = Some(e);
+                }
+                (None::<R>, offset)
+            }
+        };
+        Err(ute.unwrap())
+    }
+}
 
 pub enum Maybe<Heap, T> {
     Just(T, std::marker::PhantomData<Heap>),
@@ -396,6 +525,25 @@ impl<Heap, T: TermRoundTrip<0, Core> + Heaped<Heap = Heap>> TermRoundTrip<0, Cor
                 std::marker::PhantomData,
             )),
             _ => Err(FromTermError::Invalid),
+        }
+    }
+}
+impl<Heap, T: parse::Parse + Heaped<Heap = Heap>> parse::Parse for Maybe<Heap, T> {
+    fn parse(
+        source: &str,
+        offset: parse::miette::SourceOffset,
+        heap: &mut Self::Heap,
+        errors: &mut Vec<parse::ParseError>,
+    ) -> Result<(Self, parse::miette::SourceOffset), parse::ParseError> {
+        if source[offset.offset()..].starts_with("nothing") {
+            return Ok((
+                Maybe::Nothing,
+                parse::miette::SourceOffset::from(offset.offset() + 7),
+            ));
+        }
+        match T::parse(source, offset, heap, errors) {
+            Ok(ok) => Ok((Maybe::Just(ok.0, std::marker::PhantomData), ok.1)),
+            Err(e) => Err(e),
         }
     }
 }

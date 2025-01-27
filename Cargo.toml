@@ -17,7 +17,7 @@ members = [
     "term-specialized-impl-gen",
     "term-unspecialized",
     "term-unspecialized-impl-gen",
-    "parse", "extension-everywhere-alternative", "either-id", "tmfs-join", "parse-gen", "extension-everywhere-maybemore", "join-boilerplate",
+    "parse", "extension-everywhere-alternative", "either-id", "tmfs-join", "parse-gen", "extension-everywhere-maybemore", "join-boilerplate", "langspec-std/std-parse-error", "langspec-std/std-parse-metadata",
     # "bounded-slice",
     # "idxbased-related-gen",
     # "langserde",

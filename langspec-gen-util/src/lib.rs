@@ -56,15 +56,17 @@ pub struct TyGenData<'a, L: LangSpec> {
     pub cmt: CanonicallyMaybeToGenData<'a>,
     pub ccf: CanonicallyConstructibleFromGenData<'a>,
 }
-pub struct HeapbakGenData {
+pub struct HeapbakGenData<'a> {
     pub identifiers: Vec<syn::Ident>,
     pub ty_func: RustTyMap,
     pub ty_arg_camels: Vec<syn::Ident>,
+    pub ty_args: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
 }
 pub struct CanonicallyMaybeToGenData<'a> {
     pub cmt_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
     pub algebraic_cmt_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
 }
+#[derive(Clone)]
 pub struct AlgebraicsBasePath(proc_macro2::TokenStream); // a prefix of a syn::TypePath
 impl AlgebraicsBasePath {
     pub fn new(bp: proc_macro2::TokenStream) -> Self {
@@ -84,9 +86,9 @@ pub struct HeapType(pub syn::Type);
 pub struct CanonicallyConstructibleFromGenData<'a> {
     pub ccf_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
     pub heap_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<HstData> + 'a>,
-    pub flattened_ccf_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
-    pub ccf_sort_camel_idents: Box<dyn Fn() -> Vec<syn::Ident> + 'a>,
-    pub ccf_sort_snake_idents: Box<dyn Fn() -> Vec<syn::Ident> + 'a>,
+    pub ccf_sort_tyses: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<Vec<syn::Type>> + 'a>,
+    pub ccf_sort_camel_idents: Box<dyn Fn() -> Vec<Vec<syn::Ident>> + 'a>,
+    pub ccf_sort_snake_idents: Box<dyn Fn() -> Vec<Vec<syn::Ident>> + 'a>,
 }
 pub struct HstData {
     pub heap_sort_ty: syn::Type,
@@ -108,6 +110,9 @@ impl<'a, L: LangSpec> From<&'a L> for LsGen<'a, L> {
     }
 }
 impl<L: LangSpec> LsGen<'_, L> {
+    pub fn bak(&self) -> &L {
+        self.bak
+    }
     pub fn ty_gen_datas(&self) -> impl Iterator<Item = TyGenData<'_, L>> {
         self.bak
             .products()
@@ -174,21 +179,22 @@ impl<L: LangSpec> LsGen<'_, L> {
                                 .collect()
                         }
                     }),
-                    flattened_ccf_sort_tys: Box::new({
+                    ccf_sort_tyses: Box::new({
                         let pid = pid.clone();
                         move |ht, abp| {
-                            self.bak
+                            vec![self
+                                .bak
                                 .product_sorts(pid.clone())
                                 .map(|sort| self.sort2rs_ty(sort.clone(), &ht, &abp))
-                                .collect()
+                                .collect()]
                         }
                     }),
                     ccf_sort_camel_idents: Box::new({
                         let pid = pid.clone();
-                        move || self.product_heap_sort_camel_idents(&pid)
+                        move || vec![self.product_heap_sort_camel_idents(&pid)]
                     }),
                     ccf_sort_snake_idents: Box::new(move || {
-                        self.product_heap_sort_snake_idents(&pid)
+                        vec![self.product_heap_sort_snake_idents(&pid)]
                     }),
                 },
             })
@@ -253,20 +259,30 @@ impl<L: LangSpec> LsGen<'_, L> {
                                 .collect()
                         }
                     }),
-                    flattened_ccf_sort_tys: Box::new({
+                    ccf_sort_tyses: Box::new({
                         let sid = sid.clone();
                         move |ht, abp| {
                             self.bak
                                 .sum_sorts(sid.clone())
-                                .map(|sort| self.sort2rs_ty(sort.clone(), &ht, &abp))
+                                .map(|sort| vec![self.sort2rs_ty(sort.clone(), &ht, &abp)])
                                 .collect()
                         }
                     }),
                     ccf_sort_camel_idents: Box::new({
                         let sid = sid.clone();
-                        move || self.sum_heap_sort_camel_idents(&sid)
+                        move || {
+                            self.sum_heap_sort_camel_idents(&sid)
+                                .into_iter()
+                                .map(|it| vec![it])
+                                .collect()
+                        }
                     }),
-                    ccf_sort_snake_idents: Box::new(move || self.sum_heap_sort_snake_idents(&sid)),
+                    ccf_sort_snake_idents: Box::new(move || {
+                        self.sum_heap_sort_snake_idents(&sid)
+                            .into_iter()
+                            .map(|it| vec![it])
+                            .collect()
+                    }),
                 },
             }))
     }
@@ -279,7 +295,7 @@ impl<L: LangSpec> LsGen<'_, L> {
             .flat_map(|pid| self.bak.product_sorts(pid))
             .chain(self.bak.sums().flat_map(|sid| self.bak.sum_sorts(sid)))
         {
-            match &sort {
+            match sort.clone() {
                 SortId::Algebraic(_) => continue,
                 SortId::TyMetaFunc(MappedType { f, a }) => {
                     let fingerprint = sortid_fingerprint(self.bak, &sort);
@@ -302,15 +318,22 @@ impl<L: LangSpec> LsGen<'_, L> {
                             proc_macro2::Span::call_site(),
                         )
                     });
-                    let ty_func = <L::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(f).heapbak;
+                    let ty_func = <L::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(&f).heapbak;
                     let snake_ident = syn::Ident::new(
-                        &<L::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(f).name.snake,
+                        &<L::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(&f)
+                            .name
+                            .snake,
                         proc_macro2::Span::call_site(),
                     );
                     ret.push(HeapbakGenData {
                         identifiers: std::iter::once(snake_ident).chain(ty_arg_snakes).collect(),
                         ty_func,
                         ty_arg_camels,
+                        ty_args: Box::new(move |ht, abp| {
+                            a.iter()
+                                .map(|arg| self.sort2rs_ty(arg.clone(), &ht, &abp))
+                                .collect()
+                        }),
                     });
                 }
             }

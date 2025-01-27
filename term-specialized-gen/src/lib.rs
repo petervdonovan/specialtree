@@ -4,17 +4,10 @@ use langspec::{
     langspec::{AlgebraicSortId, LangSpec, TerminalLangSpec},
     tymetafunc::TyMetaFuncSpec,
 };
-use langspec_gen_util::{
-    byline, transpose, AlgebraicsBasePath, HeapType, HeapbakGenData, LsGen, TyGenData,
-};
+use langspec_gen_util::{byline, AlgebraicsBasePath, HeapType, HeapbakGenData, LsGen, TyGenData};
 use syn::parse_quote;
 
-pub fn generate<Tmfs: TyMetaFuncSpec>(
-    base_path: &syn::Path,
-    l: &LangSpecFlat<Tmfs>,
-    serde: bool,
-) -> syn::ItemMod {
-    let lg = LsGen::from(l);
+pub fn generate<L: LangSpec>(base_path: &syn::Path, lg: &LsGen<L>, serde: bool) -> syn::ItemMod {
     let base_path = parse_quote! { #base_path::data_structure };
     let algebraics = lg
         .ty_gen_datas()
@@ -52,13 +45,15 @@ pub(crate) fn alg_dt<L: LangSpec>(
     } else {
         quote::quote!()
     };
-    let sort_rs_types = (ccf.flattened_ccf_sort_tys)(
+    let sort_rs_types = (ccf.ccf_sort_tyses)(
         HeapType(parse_quote!(#base_path::Heap)),
         AlgebraicsBasePath::new(quote::quote!(#base_path::)),
-    );
+    )
+    .into_iter()
+    .flatten();
     let ret = match id.unwrap() {
         AlgebraicSortId::Product(_) => {
-            let sort_rs_snake_idents = (ccf.ccf_sort_snake_idents)();
+            let sort_rs_snake_idents = (ccf.ccf_sort_snake_idents)().into_iter().flatten();
             quote::quote! {
                 #serde
                 pub struct #camel_ident {
@@ -67,7 +62,7 @@ pub(crate) fn alg_dt<L: LangSpec>(
             }
         }
         _ => {
-            let sort_rs_camel_idents = (ccf.ccf_sort_camel_idents)();
+            let sort_rs_camel_idents = (ccf.ccf_sort_camel_idents)().into_iter().flatten();
             quote::quote! {
                 #serde
                 pub enum #camel_ident {
@@ -101,11 +96,11 @@ pub fn gen_heap<L: LangSpec>(
         gen_modules_with_prefix(base_path, &[], &heapbak_modules);
     let superheap_impls = hgd.iter().map(|hgd| {
         let ty_func = &hgd.ty_func.ty_func;
-        let ty_args = &hgd.ty_arg_camels;
         let identifiers = &hgd.identifiers;
-        let abp = abp.to_token_stream();
+        // let abp = abp.to_token_stream();
+        let ty_args = (hgd.ty_args)(HeapType(syn::parse_quote!{#base_path::Heap}), abp.clone());
         quote::quote! {
-            term::impl_superheap!(#base_path::Heap ; #ty_func<#base_path::Heap, #(#abp #ty_args),*> ; #(#identifiers)*);
+            term::impl_superheap!(#base_path::Heap ; #ty_func<#base_path::Heap, #(#ty_args),*> ; #(#identifiers)*);
         }
     });
     let byline = byline!();
@@ -130,12 +125,13 @@ pub(crate) fn gen_heapbak_module(
     hgd: &HeapbakGenData,
 ) -> (Vec<syn::Ident>, syn::Item) {
     let byline = byline!();
-    let abp = abp.to_token_stream();
+    // let abp = abp.to_token_stream();
     let heapbak_ty_func = &hgd.ty_func.ty_func;
-    let heapbak_ty_args = &hgd.ty_arg_camels;
+    let heapbak_ty_args =
+        (hgd.ty_args)(HeapType(syn::parse_quote! {#heap_path::Heap}), abp.clone());
     let ts = quote::quote! {
         #[derive(Default)]
-        pub struct Bak(pub #heapbak_ty_func<#heap_path::Heap, #(#abp #heapbak_ty_args),*>);
+        pub struct Bak(pub #heapbak_ty_func<#heap_path::Heap, #(#heapbak_ty_args),*>);
     };
     (
         hgd.identifiers.clone(),
@@ -266,7 +262,8 @@ pub(crate) fn gen_heaped_impls<L: LangSpec>(base_path: &syn::Path, lg: &LsGen<L>
 
 pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
     let lsf: LangSpecFlat<Tmfs> = LangSpecFlat::canonical_from(lsh);
-    let m = generate(&parse_quote!(crate), &lsf, false);
+    let lg = LsGen::from(&lsf);
+    let m = generate(&parse_quote!(crate), &lg, false);
     prettyplease::unparse(&syn::parse_quote! {
         #m
     })

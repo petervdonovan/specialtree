@@ -77,12 +77,21 @@ pub(crate) fn gen_ccf_impls<L: LangSpec>(bps: &BasePaths, tgd: &TyGenData<L>) ->
         HeapType(syn::parse_quote!(<Self as term::Heaped>::Heap)),
         AlgebraicsBasePath::new(syn::parse_quote!(#data_structure::data_structure::)),
     );
-    let ccf_tys_flattened = (tgd.ccf.flattened_ccf_sort_tys)(
+    let ccf_tys_flattened = (tgd.ccf.ccf_sort_tyses)(
         HeapType(syn::parse_quote!(<Self as term::Heaped>::Heap)),
         AlgebraicsBasePath::new(syn::parse_quote!(#data_structure::data_structure::)),
-    );
-    let ccf_sort_snake_idents = (tgd.ccf.ccf_sort_snake_idents)();
-    let ccf_sort_camel_idents = (tgd.ccf.ccf_sort_camel_idents)();
+    )
+    .into_iter()
+    .flatten()
+    .collect::<Vec<_>>();
+    let ccf_sort_snake_idents = (tgd.ccf.ccf_sort_snake_idents)()
+        .into_iter()
+        .flatten()
+        .collect::<Vec<_>>();
+    let ccf_sort_camel_idents = (tgd.ccf.ccf_sort_camel_idents)()
+        .into_iter()
+        .flatten()
+        .collect::<Vec<_>>();
     let ccf_impls = match tgd.id {
         None => vec![],
         Some(AlgebraicSortId::Product(_)) => vec![gen_ccf_impl_prod(
@@ -221,7 +230,7 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
         term_trait: syn::parse_quote!(crate),
     };
     let m = generate(&bps, &lsg, &lsg);
-    let ds = term_specialized_gen::generate(&bps.data_structure, &lsf, false);
+    let ds = term_specialized_gen::generate(&bps.data_structure, &lsg, false);
     let tt = term_trait_gen::generate(&bps.term_trait, &lsf);
     prettyplease::unparse(&syn::parse_quote! {
         #m

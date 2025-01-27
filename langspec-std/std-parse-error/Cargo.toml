@@ -1,0 +1,9 @@
+[package]
+name = "std-parse-error"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+langspec = { version = "0.1.0", path = "../../langspec" }
+serde_json = "1.0.137"
+tymetafuncspec-core = { version = "0.1.0", path = "../../tymetafuncspec-core" }

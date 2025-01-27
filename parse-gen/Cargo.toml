@@ -4,3 +4,23 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+bumpalo = "3.16.0"
+extension-everywhere-alternative = { version = "0.1.0", path = "../extension-everywhere-alternative" }
+extension-everywhere-maybemore = { version = "0.1.0", path = "../extension-everywhere-maybemore" }
+langspec = { version = "0.1.0", path = "../langspec" }
+langspec-gen-util = { version = "0.1.0", path = "../langspec-gen-util" }
+prettyplease = "0.2.29"
+quote = "1.0.38"
+std-parse-error = { version = "0.1.0", path = "../langspec-std/std-parse-error" }
+std-parse-metadata = { version = "0.1.0", path = "../langspec-std/std-parse-metadata" }
+syn = { version = "2.0.96", features = ["full"] }
+term-specialized-gen = { version = "0.1.0", path = "../term-specialized-gen" }
+term-specialized-impl-gen = { version = "0.1.0", path = "../term-specialized-impl-gen" }
+term-trait-gen = { version = "0.1.0", path = "../term-trait-gen" }
+tymetafuncspec-core = { path = "../tymetafuncspec-core" }
+
+[dev-dependencies]
+langspec-examples = { path = "../langspec-examples" }
+miette = "7.4.0"
+parse = { path = "../parse" }
+term = { path = "../term" }

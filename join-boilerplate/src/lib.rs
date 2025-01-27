@@ -62,7 +62,7 @@ macro_rules! lsjoin {
         }
 
         fn prod_to_unique_nat(&self, id: Self::ProductId) -> usize {
-            let max = join_boilerplate::prods_max(&self.l0);
+            let max = join_boilerplate::prods_max(self.l0);
             match id {
                 join_boilerplate::either_id::Either::Left(id) => self.l0.prod_to_unique_nat(id),
                 join_boilerplate::either_id::Either::Right(id) => {
@@ -72,7 +72,7 @@ macro_rules! lsjoin {
         }
 
         fn prod_from_unique_nat(&self, nat: usize) -> Self::ProductId {
-            let l0_max = join_boilerplate::prods_max(&self.l0);
+            let l0_max = join_boilerplate::prods_max(self.l0);
             if nat <= l0_max {
                 join_boilerplate::either_id::Either::Left(self.l0.prod_from_unique_nat(nat))
             } else {
@@ -83,7 +83,7 @@ macro_rules! lsjoin {
         }
 
         fn sum_to_unique_nat(&self, id: Self::SumId) -> usize {
-            let max = join_boilerplate::sums_max(&self.l0);
+            let max = join_boilerplate::sums_max(self.l0);
             match id {
                 join_boilerplate::either_id::Either::Left(id) => self.l0.sum_to_unique_nat(id),
                 join_boilerplate::either_id::Either::Right(id) => {
@@ -93,7 +93,7 @@ macro_rules! lsjoin {
         }
 
         fn sum_from_unique_nat(&self, nat: usize) -> Self::SumId {
-            let l0_max = join_boilerplate::sums_max(&self.l0);
+            let l0_max = join_boilerplate::sums_max(self.l0);
             if nat <= l0_max {
                 join_boilerplate::either_id::Either::Left(self.l0.sum_from_unique_nat(nat))
             } else {
@@ -107,14 +107,14 @@ macro_rules! lsjoin {
 #[macro_export]
 macro_rules! join_over_tmfs_as_my_sid {
     ($Me:ty) => {
-        fn l0_as_my_sid<L0: LangSpec, L1: LangSpec>(
+        fn l0_as_my_sid<'a, 'b, L0: LangSpec, L1: LangSpec>(
             sid: join_boilerplate::langspec::langspec::SortIdOf<L0>,
         ) -> join_boilerplate::langspec::langspec::SortIdOf<$Me> {
             sid.fmap_p(Either::Left)
                 .fmap_s(Either::Left)
                 .fmap_f(|it| Either::Left(Either::Left(it)))
         }
-        fn l1_as_my_sid<L0: LangSpec, L1: LangSpec>(
+        fn l1_as_my_sid<'a, 'b, L0: LangSpec, L1: LangSpec>(
             sid: join_boilerplate::langspec::langspec::SortIdOf<L1>,
         ) -> join_boilerplate::langspec::langspec::SortIdOf<$Me> {
             sid.fmap_p(Either::Right)

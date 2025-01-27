@@ -2,14 +2,14 @@ use either_id::Either;
 use langspec::langspec::{LangSpec, MappedType, Name, SortIdOf};
 use tmfs_join::TmfsJoin;
 
-pub struct EverywhereAlternative<L0: LangSpec, L1: LangSpec> {
-    name: Name,
-    l0: L0,
-    l1: L1,
-    l1_root: SortIdOf<L1>,
+pub struct EverywhereAlternative<'a, 'b, L0: LangSpec, L1: LangSpec> {
+    pub name: Name,
+    pub l0: &'a L0,
+    pub l1: &'b L1,
+    pub l1_root: SortIdOf<L1>,
 }
-join_boilerplate::join_over_tmfs_as_my_sid!(EverywhereAlternative<L0, L1>);
-impl<L0: LangSpec, L1: LangSpec> EverywhereAlternative<L0, L1> {
+join_boilerplate::join_over_tmfs_as_my_sid!(EverywhereAlternative<'a, 'b, L0, L1>);
+impl<L0: LangSpec, L1: LangSpec> EverywhereAlternative<'_, '_, L0, L1> {
     fn eitherfy(
         &self,
         sid: SortIdOf<EverywhereAlternative<L0, L1>>,
@@ -21,7 +21,7 @@ impl<L0: LangSpec, L1: LangSpec> EverywhereAlternative<L0, L1> {
     }
 }
 
-impl<L0: LangSpec, L1: LangSpec> LangSpec for EverywhereAlternative<L0, L1> {
+impl<L0: LangSpec, L1: LangSpec> LangSpec for EverywhereAlternative<'_, '_, L0, L1> {
     type Tmfs = TmfsJoin<TmfsJoin<L0::Tmfs, L1::Tmfs>, tymetafuncspec_core::Core>;
 
     join_boilerplate::lsjoin!();

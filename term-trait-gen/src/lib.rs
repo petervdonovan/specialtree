@@ -31,9 +31,13 @@ pub(crate) fn heap_trait<L: LangSpec>(base_path: &syn::Path, ls: &LsGen<L>) -> s
         .iter()
         .map(|hgd| -> syn::Type {
             let ty_func = &hgd.ty_func.ty_func;
-            let args = &hgd.ty_arg_camels;
+            // let args = &hgd.ty_arg_camels;
+            let args = (hgd.ty_args)(
+                HeapType(syn::parse_quote! {Self}),
+                AlgebraicsBasePath::new(quote::quote! {Self::}),
+            );
             syn::parse_quote! {
-                #ty_func<Self, #(Self::#args),*>
+                #ty_func<Self, #(#args),*>
             }
         })
         .collect::<Vec<_>>();
@@ -46,7 +50,7 @@ pub(crate) fn heap_trait<L: LangSpec>(base_path: &syn::Path, ls: &LsGen<L>) -> s
     };
     parse_quote! {
         #byline
-        pub trait Heap #bounds {
+        pub trait Heap #bounds + Sized {
             #(
                 type #camel_ident: #base_path::extension_of::owned::#camel_ident<Heap = Self>;
             )*
