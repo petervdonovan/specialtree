@@ -53,7 +53,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "rustc_version",
- "syn 2.0.96",
+ "syn 2.0.98",
 ]
 
 [[package]]
@@ -75,7 +75,7 @@ dependencies = [
  "functor_derive",
  "langspec",
  "serde",
- "syn 2.0.96",
+ "syn 2.0.98",
 ]
 
 [[package]]
@@ -136,7 +136,7 @@ dependencies = [
  "proc-macro-error",
  "proc-macro2",
  "quote",
- "syn 2.0.96",
+ "syn 2.0.98",
 ]
 
 [[package]]
@@ -204,7 +204,7 @@ dependencies = [
  "quote",
  "serde",
  "serde_yml",
- "syn 2.0.96",
+ "syn 2.0.98",
  "typed-index-collections",
 ]
 
@@ -225,7 +225,7 @@ version = "0.1.0"
 dependencies = [
  "langspec",
  "proc-macro2",
- "syn 2.0.96",
+ "syn 2.0.98",
  "term",
 ]
 
@@ -280,6 +280,7 @@ checksum = "317f146e2eb7021892722af37cf1b971f0a70c8406f487e24952667616192c64"
 dependencies = [
  "cfg-if",
  "miette-derive",
+ "serde",
  "thiserror 1.0.69",
  "unicode-width",
 ]
@@ -292,7 +293,7 @@ checksum = "23c9b935fbe1d6cbd1dac857b54a688145e2d93f48db36010514d0f612d0ad67"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.96",
+ "syn 2.0.98",
 ]
 
 [[package]]
@@ -306,6 +307,7 @@ name = "parse"
 version = "0.1.0"
 dependencies = [
  "miette",
+ "serde",
  "term",
  "thiserror 2.0.11",
  "unicode-segmentation",
@@ -327,7 +329,7 @@ dependencies = [
  "quote",
  "std-parse-error",
  "std-parse-metadata",
- "syn 2.0.96",
+ "syn 2.0.98",
  "term",
  "term-specialized-gen",
  "term-specialized-impl-gen",
@@ -357,7 +359,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6924ced06e1f7dfe3fa48d57b9f74f55d8915f5036121bef647ef4b204895fac"
 dependencies = [
  "proc-macro2",
- "syn 2.0.96",
+ "syn 2.0.98",
 ]
 
 [[package]]
@@ -470,7 +472,7 @@ checksum = "5a9bf7cf98d04a2b28aead066b7496853d4779c9cc183c440dbac457641e19a0"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.96",
+ "syn 2.0.98",
 ]
 
 [[package]]
@@ -522,8 +524,11 @@ name = "std-parse-error"
 version = "0.1.0"
 dependencies = [
  "langspec",
+ "parse",
+ "serde",
  "serde_json",
- "tymetafuncspec-core",
+ "syn 2.0.98",
+ "term",
 ]
 
 [[package]]
@@ -531,8 +536,11 @@ name = "std-parse-metadata"
 version = "0.1.0"
 dependencies = [
  "langspec",
+ "parse",
+ "serde",
  "serde_json",
- "tymetafuncspec-core",
+ "syn 2.0.98",
+ "term",
 ]
 
 [[package]]
@@ -548,9 +556,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "2.0.96"
+version = "2.0.98"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d5d0adab1ae378d7f53bdebc67a39f1f151407ef230f0ce2883572f5d8985c80"
+checksum = "36147f1a48ae0ec2b5b3bc5b537d267457555a10dc06f3dbc8cb11ba3006d3b1"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -575,7 +583,7 @@ version = "0.1.0"
 dependencies = [
  "langspec",
  "proc-macro2",
- "syn 2.0.96",
+ "syn 2.0.98",
  "take_mut",
  "twox-hash",
  "type-equals",
@@ -592,7 +600,7 @@ dependencies = [
  "prettyplease",
  "proc-macro2",
  "quote",
- "syn 2.0.96",
+ "syn 2.0.98",
  "term",
  "trybuild",
  "tymetafuncspec-core",
@@ -607,7 +615,7 @@ dependencies = [
  "langspec-gen-util",
  "prettyplease",
  "quote",
- "syn 2.0.96",
+ "syn 2.0.98",
  "term",
  "term-specialized-gen",
  "term-trait-gen",
@@ -625,7 +633,7 @@ dependencies = [
  "prettyplease",
  "proc-macro2",
  "quote",
- "syn 2.0.96",
+ "syn 2.0.98",
  "term",
  "tymetafuncspec-core",
 ]
@@ -649,7 +657,7 @@ dependencies = [
  "langspec-gen-util",
  "prettyplease",
  "quote",
- "syn 2.0.96",
+ "syn 2.0.98",
  "term",
  "term-trait-gen",
  "term-unspecialized",
@@ -691,7 +699,7 @@ checksum = "4fee6c4efc90059e10f81e6d42c60a18f76588c3d74cb83a0b242a2b6c7504c1"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.96",
+ "syn 2.0.98",
 ]
 
 [[package]]
@@ -702,7 +710,7 @@ checksum = "26afc1baea8a989337eeb52b6e72a039780ce45c3edfcc9c5b9d112feeb173c2"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.96",
+ "syn 2.0.98",
 ]
 
 [[package]]
@@ -711,7 +719,7 @@ version = "0.1.0"
 dependencies = [
  "either-id",
  "langspec",
- "syn 2.0.96",
+ "syn 2.0.98",
 ]
 
 [[package]]
@@ -781,7 +789,9 @@ dependencies = [
  "once_cell",
  "parse",
  "serde",
- "syn 2.0.96",
+ "std-parse-error",
+ "std-parse-metadata",
+ "syn 2.0.98",
  "term",
  "term-unspecialized",
 ]
@@ -940,5 +950,5 @@ checksum = "fa4f8080344d4671fb4e831a13ad1e68092748387dfc4f55e356242fae12ce3e"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.96",
+ "syn 2.0.98",
 ]

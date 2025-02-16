@@ -1,20 +1,12 @@
 use miette::{Diagnostic, SourceSpan};
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 pub use miette;
 pub use unicode_segmentation;
 
-// #[derive(Debug, Clone)]
-// pub struct ZeroBased(pub usize);
-
-// #[derive(Debug, Clone)]
-// pub struct ParsePosition<'a> {
-//     pub s: &'a str,
-//     pub line: ZeroBased,
-//     pub col: ZeroBased,
-// }
-#[derive(Debug, Clone)]
-pub struct Keyword(pub &'static str);
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Keyword(std::borrow::Cow<'static, str>);
 
 impl std::fmt::Display for Keyword {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -27,15 +19,20 @@ pub enum TokenKind {
     Literal,
     SanityCheck,
 }
-#[derive(Debug, Diagnostic, Error)]
+#[derive(Debug, Diagnostic, Error, Clone, Serialize, Deserialize)]
 pub enum ParseError {
     #[diagnostic(transparent)]
     UnexpectedToken(UnexpectedTokenError),
     UnexpectedEndOfInput(#[label("here")] SourceSpan),
     TmfsParseFailure(#[label("here")] SourceSpan),
 }
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ParseMetadata {
+    pub location: SourceSpan,
+    // todo: sourcespans of parts?
+}
 
-#[derive(Debug, Diagnostic, Error)]
+#[derive(Debug, Diagnostic, Error, Clone, Serialize, Deserialize)]
 pub struct UnexpectedTokenError {
     pub expected_any_of: Vec<Keyword>,
     #[label("here")]
@@ -103,11 +100,11 @@ impl std::fmt::Display for ParseError {
     }
 }
 
-pub trait Parse: term::Heaped + Sized {
+pub trait Parse<Heap>: term::Heaped<Heap = Heap> + Sized {
     fn parse(
         source: &str,
         offset: miette::SourceOffset,
         heap: &mut Self::Heap,
         errors: &mut Vec<ParseError>,
-    ) -> Result<(Self, miette::SourceOffset), ParseError>;
+    ) -> (Self, miette::SourceOffset);
 }

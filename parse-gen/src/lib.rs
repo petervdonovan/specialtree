@@ -1,6 +1,9 @@
 use extension_everywhere_alternative::EverywhereAlternative;
 use extension_everywhere_maybemore::EverywhereMaybeMore;
-use langspec::langspec::{AlgebraicSortId, LangSpec, Name, SortId};
+use langspec::{
+    langspec::{LangSpec, MappedType, Name, SortId},
+    tymetafunc::Transparency,
+};
 use langspec_gen_util::{byline, AlgebraicsBasePath, HeapType, LsGen, TyGenData};
 use syn::parse_quote;
 
@@ -15,10 +18,19 @@ pub fn generate<L: LangSpec>(bps: &BasePaths, lg: &LsGen<L>) -> syn::ItemMod {
     let arena = bumpalo::Bump::new();
     let cst = cst(&arena, lg.bak());
     let lg_cst = LsGen::from(&cst);
-    let parses = lg
-        .ty_gen_datas()
-        .zip(lg_cst.ty_gen_datas())
-        .map(|(ast_tgd, cst_tgd)| generate_parse(bps, &ast_tgd, &cst_tgd));
+    let cst_tgds = lg_cst.ty_gen_datas().collect::<Vec<_>>();
+    let parses = lg.ty_gen_datas().filter_map(|tgd| {
+        tgd.id.as_ref().map(|sid| {
+            generate_parse(
+                bps,
+                &tgd,
+                cst_tgds
+                    .iter()
+                    .find(|cst_tgd| cst_tgd.snake_ident.to_string() == tgd.snake_ident.to_string()) // FIXME: comparing idents
+                    .unwrap(),
+            )
+        })
+    });
     parse_quote! {
         #byline
         pub mod parse {
@@ -32,25 +44,30 @@ pub fn generate_parse<L: LangSpec, LCst: LangSpec>(
     tgd: &TyGenData<L>,
     cst_tgd: &TyGenData<LCst>,
 ) -> syn::Item {
-    let snake_ident = &tgd.snake_ident;
-    let camel_ident = &tgd.camel_ident;
+    let snake_ident = &cst_tgd.snake_ident;
+    let camel_ident = &cst_tgd.camel_ident;
     let byline = byline!();
+    let ast_bp = &bps.data_structure;
     let cst_bp = &bps.cst;
     let cst_bp: syn::Path = parse_quote! { #cst_bp::cst::data_structure };
-    let my_ty: syn::Type = syn::parse_quote! { #cst_bp::#camel_ident };
-    let cst: syn::Path = parse_quote! { #cst_bp::#camel_ident };
-    let ccf_snakes = (tgd.ccf.ccf_sort_snake_idents)();
-    let ccf_snakes_size1 =
-        ccf_snakes
-            .iter()
-            .filter_map(|it| if it.len() == 1 { Some(&it[0]) } else { None });
+    let my_ty: syn::Type = syn::parse_quote! { #ast_bp::#camel_ident };
+    let my_cst_ty: syn::Type = syn::parse_quote! { #cst_bp::#camel_ident };
+    let my_cst_path: syn::Path = parse_quote! { #cst_bp::#camel_ident };
+    let cst_ccf_sort_snakes = (cst_tgd.ccf.ccf_sort_snake_idents)();
     let cst_ccf_sort_tys = (cst_tgd.ccf.ccf_sort_tys)(
         HeapType(syn::parse_quote! { #cst_bp::Heap }),
         AlgebraicsBasePath::new(quote::quote!(#cst_bp::)),
     );
-    let maybe_parse_this = if ccf_snakes.len() == 1 {
+    let maybe_parse_this = if cst_ccf_sort_tys.len() == 1 {
         let cst_ccf = cst_ccf_sort_tys.first().unwrap().clone();
-        let ccf_tys = (cst_tgd.ccf.ccf_sort_tyses)(
+        let cst_ccf_tys = (cst_tgd.ccf.ccf_sort_tyses)(
+            HeapType(syn::parse_quote! { #cst_bp::Heap }),
+            AlgebraicsBasePath::new(quote::quote!(#cst_bp::)),
+        )
+        .into_iter()
+        .next()
+        .unwrap();
+        let ast_ccf_tys = (tgd.ccf.ccf_sort_tyses)(
             HeapType(syn::parse_quote! { #cst_bp::Heap }),
             AlgebraicsBasePath::new(quote::quote!(#cst_bp::)),
         )
@@ -59,10 +76,12 @@ pub fn generate_parse<L: LangSpec, LCst: LangSpec>(
         .unwrap();
         let parse_directly = gen_parse_current(
             snake_ident,
-            &ccf_tys[0..ccf_tys.len() - 1],
+            &tgd.transparency,
+            ((tgd.ccf.ccf_sort_transparencies)()[0]).as_slice(),
+            &cst_ccf_tys,
             &cst_bp,
             &cst_ccf,
-            &cst,
+            &my_cst_path,
         );
         quote::quote! {
             #parse_directly
@@ -72,8 +91,8 @@ pub fn generate_parse<L: LangSpec, LCst: LangSpec>(
     };
     let ccf_tys_size1 = cst_ccf_sort_tys
         .into_iter()
-        .zip(ccf_snakes.iter())
-        .filter_map(|(it, snake)| if snake.len() == 1 { Some(it) } else { None });
+        .zip(cst_ccf_sort_snakes.iter())
+        .filter_map(|(it, snake)| if snake.len() == 1 + 1 { Some(it) } else { None });
     let untupled_ccf_tys_size1 = (cst_tgd.ccf.ccf_sort_tyses)(
         HeapType(syn::parse_quote! { #cst_bp::Heap }),
         AlgebraicsBasePath::new(quote::quote!(#cst_bp::)),
@@ -86,16 +105,17 @@ pub fn generate_parse<L: LangSpec, LCst: LangSpec>(
             None
         }
     });
+    let cstfication = transparency2cstfication(&tgd.transparency);
     syn::parse_quote! {
         #byline
-        impl parse::Parse for #my_ty {
-            fn parse(source: &str, offset: parse::miette::SourceOffset, heap: &mut #cst_bp::Heap, errors: &mut Vec<parse::ParseError>) -> Result<(#cst, parse::miette::SourceOffset), parse::ParseError> {
+        impl parse::Parse<#cst_bp::Heap> for tymetafuncspec_core::#cstfication<#cst_bp::Heap, #my_cst_ty> {
+            fn parse(source: &str, offset: parse::miette::SourceOffset, heap: &mut #cst_bp::Heap, errors: &mut Vec<parse::ParseError>) -> (tymetafuncspec_core::#cstfication<#cst_bp::Heap, #my_cst_ty>, parse::miette::SourceOffset) {
                 let mut ute = None;
                 #maybe_parse_this ;
                 #(
                     match <#untupled_ccf_tys_size1 as parse::Parse>::parse(source, offset, heap, errors) {
                         Ok((cst, offset)) => return Ok((
-                            <#my_ty as term::CanonicallyConstructibleFrom<#ccf_tys_size1>>::construct(heap, (tymetafuncspec_core::Either::Left(cst, std::marker::PhantomData), tymetafuncspec_core::Maybe::Nothing)),
+                            <#my_cst_ty as term::CanonicallyConstructibleFrom<#ccf_tys_size1>>::construct(heap, (tymetafuncspec_core::Either::Left(cst, std::marker::PhantomData), tymetafuncspec_core::Maybe::Nothing)),
                             offset
                         )),
                         Err(e) => {
@@ -103,7 +123,7 @@ pub fn generate_parse<L: LangSpec, LCst: LangSpec>(
                         }
                     }
                 )*
-                parse_directly(source, offset, heap, errors, Err(ute.unwrap()))
+                parse_directly(source, offset, heap, errors, ute.unwrap())
             }
         }
     }
@@ -111,52 +131,75 @@ pub fn generate_parse<L: LangSpec, LCst: LangSpec>(
 
 pub fn gen_parse_current(
     snake_ident: &syn::Ident,
-    ccf_tys: &[syn::Type],
+    transparency: &Transparency,
+    ccf_tys_transparencies: &[Transparency],
+    ast_ccf_tys: &[syn::Type],
     cst_bp: &syn::Path,
     cst_ccf: &syn::Type,
     cst: &syn::Path,
 ) -> syn::ItemFn {
     let byline = byline!();
+    let cstfy_or_cstfytransparent = ccf_tys_transparencies
+        .iter()
+        .map(transparency2cstfication)
+        .collect::<Vec<_>>();
+    let top_level_cstfication = transparency2cstfication(transparency);
+    let ok_expr: syn::Expr = match transparency {
+        Transparency::Visible => {
+            syn::parse_quote! { |x| tymetafuncspec_core::cstfy_ok(x, initial_offset, offset) }
+        }
+        Transparency::Transparent => {
+            syn::parse_quote! { |x| tymetafuncspec_core::cstfy_transparent_ok(x) }
+        }
+    };
     syn::parse_quote! {
         #byline
         fn parse_directly(
             source: &str,
-            offset: parse::miette::SourceOffset,
+            initial_offset: parse::miette::SourceOffset,
             heap: &mut #cst_bp::Heap,
             errors: &mut Vec<parse::ParseError>,
-            default_ret: Result<(#cst, parse::miette::SourceOffset), parse::ParseError>,
-        ) -> Result<(#cst, parse::miette::SourceOffset), parse::ParseError> {
-            match parse::unicode_segmentation::UnicodeSegmentation::unicode_words(&source[offset.offset()..]).next() {
+            default_ret: parse::ParseError,
+        ) -> (tymetafuncspec_core::#top_level_cstfication<#cst_bp::Heap, #cst>, parse::miette::SourceOffset) {
+            match parse::unicode_segmentation::UnicodeSegmentation::unicode_words(&source[initial_offset.offset()..]).next() {
                 Some(stringify!(#snake_ident)) => {
-                    let mut offset = offset;
+                    let mut offset = initial_offset;
                     let args = (
                         #({
-                            let res = <#ccf_tys as parse::Parse>::parse(source, offset, heap, errors);
-                            match res {
-                                Ok((cst, new_offset)) => {
-                                    offset = new_offset;
-                                    cst
-                                }
-                                Err(e) => {
-                                    errors.push(e);
-                                    tymetafuncspec_core::Either::Right(
-                                        <#cst_bp::Error as term::CanonicallyConstructibleFrom<(tymetafuncspec_core::Maybe<#cst_bp::Heap, #cst_bp::Metadata>,)>>::construct(
-                                            heap,
-                                            (tymetafuncspec_core::Maybe::Nothing,)
-                                        ),
-                                        std::marker::PhantomData
-                                    )
-                                }
-                            }
+                            let (res, new_offset) = <#ast_ccf_tys as parse::Parse<_>>::parse(source, offset, heap, errors);
+                            offset = new_offset;
+                            res
                         },)*
-                        tymetafuncspec_core::Maybe::Nothing,
                     );
-                    Ok((<#cst as term::CanonicallyConstructibleFrom<#cst_ccf>>::construct(heap, args), offset))
+                    ((#ok_expr)(<#cst as term::CanonicallyConstructibleFrom<#cst_ccf>>::construct(heap, args)), offset)
                 }
-                None => Err(parse::ParseError::UnexpectedEndOfInput(offset.into())),
-                _ => default_ret,
+                None => (
+                    tymetafuncspec_core::Either::Right(
+                        std_parse_error::ParseError::new(
+                            parse::ParseError::UnexpectedEndOfInput(initial_offset.into()),
+                        ),
+                        std::marker::PhantomData,
+                    ),
+                    initial_offset,
+                ),
+                _ => (
+                    tymetafuncspec_core::Either::Right(
+                        std_parse_error::ParseError::new(
+                            default_ret,
+                        ),
+                        std::marker::PhantomData,
+                    ),
+                    initial_offset,
+                ),
             }
         }
+    }
+}
+
+fn transparency2cstfication(transparency: &Transparency) -> syn::Ident {
+    match transparency {
+        Transparency::Transparent => syn::parse_quote! { CstfyTransparent },
+        Transparency::Visible => syn::parse_quote! { Cstfy },
     }
 }
 
@@ -190,15 +233,13 @@ pub(crate) fn cst<'a, 'b: 'a, L: LangSpec>(
         },
         l0: l,
         l1: errlang,
-        l1_root: errlang
-            .products()
-            .find(|it| errlang.product_name(*it).snake == "error")
-            .map(|it| SortId::Algebraic(AlgebraicSortId::Product(it)))
-            .unwrap()
-            .clone(),
+        l1_root: SortId::TyMetaFunc(MappedType {
+            f: std_parse_error::ParseErrorTmfId(),
+            a: vec![],
+        }),
     });
     let parse_metadata = arena.alloc(std_parse_metadata::parse_metadata());
-    let cst = EverywhereMaybeMore {
+    EverywhereMaybeMore {
         name: Name {
             human: "Cst".into(),
             camel: "Cst".into(),
@@ -206,14 +247,36 @@ pub(crate) fn cst<'a, 'b: 'a, L: LangSpec>(
         },
         l0: fallible_ast,
         l1: parse_metadata,
-        l1_root: parse_metadata
-            .products()
-            .find(|it| parse_metadata.product_name(*it).snake == "metadata")
-            .map(|it| SortId::Algebraic(AlgebraicSortId::Product(it)))
-            .unwrap()
-            .clone(),
-    };
-    cst
+        l1_root: SortId::TyMetaFunc(MappedType {
+            f: std_parse_metadata::ParseMetadataTmfId(),
+            a: vec![],
+        }),
+    }
+    // EverywhereAlternative {
+    //     name: Name {
+    //         human: "Cst".into(),
+    //         camel: "Cst".into(),
+    //         snake: "cst".into(),
+    //     },
+    //     l0: arena.alloc(EverywhereMaybeMore {
+    //         name: Name {
+    //             human: "MetadataAst".into(),
+    //             camel: "MetadataAst".into(),
+    //             snake: "metadata_ast".into(),
+    //         },
+    //         l0: l,
+    //         l1: parse_metadata,
+    //         l1_root: SortId::TyMetaFunc(MappedType {
+    //             f: std_parse_metadata::ParseMetadataTmfId(),
+    //             a: vec![],
+    //         }),
+    //     }),
+    //     l1: errlang,
+    //     l1_root: SortId::TyMetaFunc(MappedType {
+    //         f: std_parse_error::ParseErrorTmfId(),
+    //         a: vec![],
+    //     }),
+    // }
 }
 
 pub fn formatted<L: LangSpec>(l: &L) -> String {

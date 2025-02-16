@@ -1,5 +1,8 @@
 use either_id::Either;
-use langspec::langspec::{LangSpec, Name};
+use langspec::{
+    langspec::{LangSpec, MappedType, Name},
+    tymetafunc::{Transparency, TyMetaFuncSpec},
+};
 use tmfs_join::TmfsJoin;
 
 pub struct EverywhereMaybeMore<'a, 'b, L0: LangSpec, L1: LangSpec> {
@@ -19,6 +22,50 @@ fn maybefy<'a, 'b, L0: LangSpec, L1: LangSpec>(
         a: vec![l1_as_my_sid::<L0, L1>(sid)],
     })
 }
+fn maybemorefy<'a, 'b, L0: LangSpec, L1: LangSpec>(
+    sid: langspec::langspec::SortIdOf<L0>,
+    maybe_sid: langspec::langspec::SortIdOf<L1>,
+) -> langspec::langspec::SortIdOf<EverywhereMaybeMore<'a, 'b, L0, L1>> {
+    langspec::langspec::SortId::TyMetaFunc(langspec::langspec::MappedType {
+        f: Either::Right(tymetafuncspec_core::PAIR),
+        a: vec![l0_as_my_sid::<L0, L1>(sid), maybefy::<L0, L1>(maybe_sid)],
+    })
+}
+fn maybemorefy_if_product<'a, 'b, L0: LangSpec, L1: LangSpec>(
+    sid: langspec::langspec::SortIdOf<L0>,
+    maybe_sid: langspec::langspec::SortIdOf<L1>,
+) -> langspec::langspec::SortIdOf<EverywhereMaybeMore<'a, 'b, L0, L1>> {
+    match sid {
+        langspec::langspec::SortId::Algebraic(langspec::langspec::AlgebraicSortId::Product(_)) => {
+            maybemorefy::<L0, L1>(sid, maybe_sid)
+        }
+        langspec::langspec::SortId::TyMetaFunc(MappedType { f, a }) => {
+            let rec = langspec::langspec::SortId::TyMetaFunc(langspec::langspec::MappedType {
+                f: Either::Left(Either::Left(f.clone())),
+                a: a.into_iter()
+                    .map(|a| maybemorefy_if_product::<L0, L1>(a, maybe_sid.clone()))
+                    .collect(),
+            });
+            // if <<L0 as LangSpec>::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(&f).transparency
+            //     == langspec::tymetafunc::Transparency::Visible
+            // {
+            //     maybemorefy::<L0, L1>(sid, maybe_sid)
+            // } else {
+            //     rec
+            // }
+            match <<L0 as LangSpec>::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(&f).transparency {
+                Transparency::Visible => {
+                    langspec::langspec::SortId::TyMetaFunc(langspec::langspec::MappedType {
+                        f: Either::Right(tymetafuncspec_core::PAIR),
+                        a: vec![rec, maybefy::<L0, L1>(maybe_sid)],
+                    })
+                }
+                Transparency::Transparent => rec,
+            }
+        }
+        _ => l0_as_my_sid::<L0, L1>(sid),
+    }
+}
 
 impl<L0: LangSpec, L1: LangSpec> LangSpec for EverywhereMaybeMore<'_, '_, L0, L1> {
     type Tmfs = TmfsJoin<TmfsJoin<L0::Tmfs, L1::Tmfs>, tymetafuncspec_core::Core>;
@@ -33,8 +80,7 @@ impl<L0: LangSpec, L1: LangSpec> LangSpec for EverywhereMaybeMore<'_, '_, L0, L1
             Either::Left(id) => Box::new(
                 self.l0
                     .product_sorts(id)
-                    .map(l0_as_my_sid::<L0, L1>)
-                    .chain(std::iter::once(maybefy::<L0, L1>(self.l1_root.clone()))),
+                    .map(|sid| maybemorefy_if_product::<L0, L1>(sid, self.l1_root.clone())),
             )
                 as Box<dyn Iterator<Item = langspec::langspec::SortIdOf<Self>>>,
             Either::Right(id) => Box::new(self.l1.product_sorts(id).map(l1_as_my_sid::<L0, L1>))
@@ -47,7 +93,11 @@ impl<L0: LangSpec, L1: LangSpec> LangSpec for EverywhereMaybeMore<'_, '_, L0, L1
         id: Self::SumId,
     ) -> impl Iterator<Item = langspec::langspec::SortIdOf<Self>> {
         match id {
-            Either::Left(id) => Box::new(self.l0.sum_sorts(id).map(l0_as_my_sid::<L0, L1>))
+            Either::Left(id) => Box::new(
+                self.l0
+                    .sum_sorts(id)
+                    .map(|sid| maybemorefy_if_product::<L0, L1>(sid, self.l1_root.clone())),
+            )
                 as Box<dyn Iterator<Item = langspec::langspec::SortIdOf<Self>>>,
             Either::Right(id) => Box::new(self.l1.sum_sorts(id).map(l1_as_my_sid::<L0, L1>))
                 as Box<dyn Iterator<Item = langspec::langspec::SortIdOf<Self>>>,

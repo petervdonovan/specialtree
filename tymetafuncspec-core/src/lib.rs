@@ -1,9 +1,9 @@
 use derivative::Derivative;
 use langspec::{
     langspec::{Name, ToLiteral},
-    tymetafunc::{IdentifiedBy, RustTyMap, TyMetaFuncData, TyMetaFuncSpec},
+    tymetafunc::{IdentifiedBy, RustTyMap, Transparency, TyMetaFuncData, TyMetaFuncSpec},
 };
-use parse::Parse;
+use parse::{miette::SourceSpan, Parse};
 use serde::{Deserialize, Serialize};
 use term::{CanonicallyConstructibleFrom, Heaped, SuperHeap, TyFingerprint};
 use term_unspecialized::{FromTermError, MaybeOpaqueTerm, Term, TermRoundTrip};
@@ -35,9 +35,10 @@ pub const SEQ: CoreTmfId = CoreTmfId(2);
 pub const IDXBOX: CoreTmfId = CoreTmfId(3);
 pub const EITHER: CoreTmfId = CoreTmfId(4);
 pub const MAYBE: CoreTmfId = CoreTmfId(5);
+pub const PAIR: CoreTmfId = CoreTmfId(6);
 
 thread_local! {
-    static CORE_BAK: once_cell::sync::Lazy<[TyMetaFuncData; 6]> =
+    static CORE_BAK: once_cell::sync::Lazy<[TyMetaFuncData; 7]> =
     once_cell::sync::Lazy::new(|| {
         [TyMetaFuncData {
             name: Name {
@@ -48,14 +49,14 @@ thread_local! {
             imp: RustTyMap {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::BoundedNat),
             },
-            args: vec![]
-            .into_boxed_slice(),
+            args: Box::new([]),
             idby: IdentifiedBy::Tmf,
+            transparency: Transparency::Visible,
             heapbak: RustTyMap {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::BoundedNatHeapBak),
             },
-            maybe_conversions: vec![].into_boxed_slice(),
-            canonical_froms: vec![].into_boxed_slice(),
+            maybe_conversions: Box::new([]),
+            canonical_froms: Box::new([]),
         },
         TyMetaFuncData {
             name: Name {
@@ -66,20 +67,20 @@ thread_local! {
             imp: RustTyMap {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::Set),
             },
-            args: vec![
+            args: Box::new([
                 Name {
                     human: "elem".into(),
                     camel: "Elem".into(),
                     snake: "elem".into(),
                 }
-            ]
-            .into_boxed_slice(),
+            ]),
             idby: IdentifiedBy::Tmf,
+            transparency: Transparency::Visible,
             heapbak: RustTyMap {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::SetHeapBak),
             },
-            maybe_conversions: vec![].into_boxed_slice(),
-            canonical_froms: vec![].into_boxed_slice(),
+            maybe_conversions: Box::new([]),
+            canonical_froms: Box::new([]),
         },
         TyMetaFuncData {
             name: Name {
@@ -90,20 +91,20 @@ thread_local! {
             imp: RustTyMap {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::Seq),
             },
-            args: vec![
+            args: Box::new([
                 Name {
                     human: "elem".into(),
                     camel: "Elem".into(),
                     snake: "elem".into(),
                 }
-            ]
-            .into_boxed_slice(),
+            ]),
             idby: IdentifiedBy::Tmf,
+            transparency: Transparency::Visible,
             heapbak: RustTyMap {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::SeqHeapBak),
             },
-            maybe_conversions: vec![].into_boxed_slice(),
-            canonical_froms: vec![].into_boxed_slice(),
+            maybe_conversions: Box::new([]),
+            canonical_froms: Box::new([]),
         },
         TyMetaFuncData {
             name: Name {
@@ -123,11 +124,12 @@ thread_local! {
             ]
             .into_boxed_slice(),
             idby: IdentifiedBy::FirstTmfArg,
+            transparency: Transparency::Visible,
             heapbak: RustTyMap {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::IdxBoxHeapBak),
             },
-            maybe_conversions: vec![].into_boxed_slice(),
-            canonical_froms: vec![].into_boxed_slice(),
+            maybe_conversions: Box::new([]),
+            canonical_froms: Box::new([]),
         },
         TyMetaFuncData {
             name: Name {
@@ -135,15 +137,16 @@ thread_local! {
                 camel: "Either".into(),
                 snake: "either".into()
             },
-            args: vec![
+            args: Box::new([
                 Name {human: "l".into(), camel: "L".into(), snake: "l".into()},
                 Name {human: "r".into(), camel: "R".into(), snake: "r".into()},
-            ].into_boxed_slice(),
+            ]),
             imp: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::Either) },
             idby: IdentifiedBy::FirstTmfArg,
+            transparency: Transparency::Transparent,
             heapbak: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::EitherHeapBak) },
-            maybe_conversions: vec![].into_boxed_slice(),
-            canonical_froms: vec![].into_boxed_slice()
+            maybe_conversions: Box::new([]),
+            canonical_froms: Box::new([])
         },
         TyMetaFuncData {
             name: Name {
@@ -151,15 +154,33 @@ thread_local! {
                 camel: "Maybe".into(),
                 snake: "maybe".into()
             },
-            args: vec![
+            args: Box::new([
                 Name {human: "t".into(), camel: "T".into(), snake: "t".into()},
-            ].into_boxed_slice(),
+            ]),
             imp: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::Maybe) },
             idby: IdentifiedBy::FirstTmfArg,
+            transparency: Transparency::Transparent,
             heapbak: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::MaybeHeapBak) },
-            maybe_conversions: vec![].into_boxed_slice(),
-            canonical_froms: vec![].into_boxed_slice()
+            maybe_conversions: Box::new([]),
+            canonical_froms: Box::new([])
         },
+        TyMetaFuncData {
+            name: Name {
+                human: "pair".into(),
+                camel: "Pair".into(),
+                snake: "pair".into()
+            },
+            args: Box::new([
+                Name {human: "l".into(), camel: "L".into(), snake: "l".into()},
+                Name {human: "r".into(), camel: "R".into(), snake: "r".into()},
+            ]),
+            imp: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::Pair) },
+            idby: IdentifiedBy::FirstTmfArg,
+            transparency: Transparency::Visible,
+            heapbak: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::PairHeapBak) },
+            maybe_conversions: Box::new([]),
+            canonical_froms: Box::new([]),
+        }
         ]
     });
 }
@@ -175,6 +196,50 @@ impl TyMetaFuncSpec for Core {
     fn my_type() -> syn::Type {
         syn::parse_quote!(tymetafuncspec_core::Core)
     }
+}
+pub type Cstfy<Heap, T> =
+    CstfyTransparent<Heap, Pair<Heap, T, Maybe<Heap, std_parse_metadata::ParseMetadata<Heap>>>>;
+pub type CstfyTransparent<Heap, T> = Either<Heap, T, std_parse_error::ParseError<Heap>>;
+pub fn cstfy_ok<Heap, T>(
+    t: T,
+    starting_offset: parse::miette::SourceOffset,
+    ending_offset: parse::miette::SourceOffset,
+) -> Cstfy<Heap, T> {
+    Either::Left(
+        Pair {
+            l: t,
+            r: Maybe::Just(
+                std_parse_metadata::ParseMetadata::new(parse::ParseMetadata {
+                    location: SourceSpan::new(
+                        starting_offset,
+                        ending_offset.offset() - starting_offset.offset(),
+                    ),
+                }),
+                std::marker::PhantomData,
+            ),
+            heap: std::marker::PhantomData,
+        },
+        std::marker::PhantomData,
+    )
+}
+pub fn cstfy_transparent_ok<Heap, T>(t: T) -> CstfyTransparent<Heap, T> {
+    Either::Left(t, std::marker::PhantomData)
+}
+macro_rules! return_if_err {
+    ($result:ident, $offset:expr) => {
+        let $result = match $result {
+            Ok(ok) => ok,
+            Err(e) => {
+                return (
+                    Either::Right(
+                        std_parse_error::ParseError::new(e),
+                        std::marker::PhantomData,
+                    ),
+                    $offset,
+                )
+            }
+        };
+    };
 }
 pub struct BoundedNat<Heap> {
     heap: std::marker::PhantomData<Heap>,
@@ -201,33 +266,39 @@ impl<Heap: SuperHeap<BoundedNatHeapBak<Heap>>> TermRoundTrip<0, Core> for Bounde
         })
     }
 }
-impl<Heap> parse::Parse for BoundedNat<Heap>
+impl<Heap> parse::Parse<Heap> for Cstfy<Heap, BoundedNat<Heap>>
 where
     Heap: SuperHeap<BoundedNatHeapBak<Heap>>,
 {
     fn parse(
         source: &str,
         offset: parse::miette::SourceOffset,
-        _heap: &mut Self::Heap,
+        _heap: &mut Heap,
         _errors: &mut Vec<parse::ParseError>,
-    ) -> Result<(Self, parse::miette::SourceOffset), parse::ParseError> {
+    ) -> (Self, parse::miette::SourceOffset) {
         let next_unicode_word = parse::unicode_segmentation::UnicodeSegmentation::unicode_words(
             &source[offset.offset()..],
         )
         .next()
-        .ok_or(parse::ParseError::UnexpectedEndOfInput(offset.into()))?;
+        .ok_or(parse::ParseError::UnexpectedEndOfInput(offset.into()));
+        return_if_err!(next_unicode_word, offset);
         let n = next_unicode_word
             .parse::<usize>()
-            .map_err(|_| parse::ParseError::TmfsParseFailure(offset.into()))?;
+            .map_err(|_| parse::ParseError::TmfsParseFailure(offset.into()));
+        return_if_err!(n, offset);
         let new_offset =
             parse::miette::SourceOffset::from(offset.offset() + next_unicode_word.len());
-        Ok((
-            Self {
-                heap: std::marker::PhantomData,
-                n,
-            },
+        (
+            cstfy_ok(
+                BoundedNat {
+                    heap: std::marker::PhantomData,
+                    n,
+                },
+                offset,
+                new_offset,
+            ),
             new_offset,
-        ))
+        )
     }
 }
 
@@ -284,34 +355,46 @@ macro_rules! collection_term_round_trip_impl {
     };
 }
 collection_term_round_trip_impl!(Set<Heap, Elem>, tymetafuncspec_core::Set);
-impl<Heap, Elem> parse::Parse for Set<Heap, Elem>
+impl<Heap, Elem> parse::Parse<Heap> for Cstfy<Heap, Set<Heap, Elem>>
 where
     Heap: SuperHeap<SetHeapBak<Heap, Elem>>,
-    Elem: parse::Parse + Heaped<Heap = Heap>,
+    Elem: parse::Parse<Heap>,
 {
     fn parse(
         source: &str,
-        offset: parse::miette::SourceOffset,
+        initial_offset: parse::miette::SourceOffset,
         heap: &mut Self::Heap,
         errors: &mut Vec<parse::ParseError>,
-    ) -> Result<(Self, parse::miette::SourceOffset), parse::ParseError> {
+    ) -> (
+        Either<
+            Heap,
+            Pair<Heap, Set<Heap, Elem>, Maybe<Heap, std_parse_metadata::ParseMetadata<Heap>>>,
+            std_parse_error::ParseError<Heap>,
+        >,
+        parse::miette::SourceOffset,
+    ) {
         let mut items = Vec::new();
-        let mut offset = offset;
+        let mut offset = initial_offset;
         while !source[offset.offset()..].starts_with('}') {
-            let (item, new_offset) = <Elem as parse::Parse>::parse(source, offset, heap, errors)?;
+            let (item, new_offset) =
+                <Elem as parse::Parse<Heap>>::parse(source, offset, heap, errors);
             items.push(item);
             offset = new_offset;
             if source[offset.offset()..].starts_with(',') {
                 offset = parse::miette::SourceOffset::from(offset.offset() + 1);
             }
         }
-        Ok((
-            Self {
-                items,
-                heap: std::marker::PhantomData,
-            },
+        (
+            cstfy_ok(
+                Set {
+                    items,
+                    heap: std::marker::PhantomData,
+                },
+                initial_offset,
+                offset,
+            ),
             offset,
-        ))
+        )
     }
 }
 
@@ -324,34 +407,34 @@ impl<Heap, Elem> Heaped for Seq<Heap, Elem> {
 }
 empty_heap_bak!(SeqHeapBak, Elem);
 collection_term_round_trip_impl!(Seq<Heap, Elem>, tymetafuncspec_core::Seq);
-impl<Heap, T> parse::Parse for Seq<Heap, T>
+impl<Heap, T> parse::Parse<Heap> for Seq<Heap, T>
 where
     Heap: SuperHeap<SeqHeapBak<Heap, T>>,
-    T: parse::Parse + Heaped<Heap = Heap>,
+    T: parse::Parse<Heap> + Heaped<Heap = Heap>,
 {
     fn parse(
         source: &str,
         offset: parse::miette::SourceOffset,
         heap: &mut Self::Heap,
         errors: &mut Vec<parse::ParseError>,
-    ) -> Result<(Self, parse::miette::SourceOffset), parse::ParseError> {
+    ) -> (Seq<Heap, T>, parse::miette::SourceOffset) {
         let mut items = Vec::new();
         let mut offset = offset;
         while !source[offset.offset()..].starts_with(']') {
-            let (item, new_offset) = <T as parse::Parse>::parse(source, offset, heap, errors)?;
+            let (item, new_offset) = <T as parse::Parse<Heap>>::parse(source, offset, heap, errors);
             items.push(item);
             offset = new_offset;
             if source[offset.offset()..].starts_with(',') {
                 offset = parse::miette::SourceOffset::from(offset.offset() + 1);
             }
         }
-        Ok((
+        (
             Self {
                 items,
                 heap: std::marker::PhantomData,
             },
             offset,
-        ))
+        )
     }
 }
 
@@ -410,7 +493,7 @@ pub struct IdxBoxHeapBak<Heap: ?Sized, Elem> {
     phantom: std::marker::PhantomData<(Elem, Heap)>,
     elems: std::vec::Vec<Option<Elem>>, // None is a tombstone
 }
-impl<Heap, T: Parse + Heaped<Heap = Heap>> Parse for IdxBox<Heap, T>
+impl<Heap, T: Parse<Heap>> Parse<Heap> for CstfyTransparent<Heap, IdxBox<Heap, T>>
 where
     Heap: SuperHeap<IdxBoxHeapBak<Heap, T>>,
 {
@@ -419,9 +502,15 @@ where
         offset: parse::miette::SourceOffset,
         heap: &mut Self::Heap,
         errors: &mut Vec<parse::ParseError>,
-    ) -> Result<(Self, parse::miette::SourceOffset), parse::ParseError> {
-        <T as Parse>::parse(source, offset, heap, errors)
-            .map(|(t, offset)| (IdxBox::construct(heap, t), offset))
+    ) -> (
+        Either<Heap, IdxBox<Heap, T>, std_parse_error::ParseError<Heap>>,
+        parse::miette::SourceOffset,
+    ) {
+        let (it, new_offset) = <T as Parse<Heap>>::parse(source, offset, heap, errors);
+        (
+            cstfy_transparent_ok(IdxBox::construct(heap, it)),
+            new_offset,
+        )
     }
 }
 
@@ -466,29 +555,56 @@ impl<
         }
     }
 }
-impl<Heap, L: parse::Parse + Heaped<Heap = Heap>, R: parse::Parse + Heaped<Heap = Heap>>
-    parse::Parse for Either<Heap, L, R>
+impl<Heap, L, R> parse::Parse<Heap>
+    for CstfyTransparent<Heap, Either<Heap, CstfyTransparent<Heap, L>, CstfyTransparent<Heap, R>>>
+where
+    CstfyTransparent<Heap, L>: parse::Parse<Heap>,
+    CstfyTransparent<Heap, R>: parse::Parse<Heap>,
 {
     fn parse(
         source: &str,
         offset: parse::miette::SourceOffset,
         heap: &mut Self::Heap,
         errors: &mut Vec<parse::ParseError>,
-    ) -> Result<(Self, parse::miette::SourceOffset), parse::ParseError> {
-        let mut ute = match L::parse(source, offset, heap, errors) {
-            Ok(ok) => return Ok((Either::Left(ok.0, std::marker::PhantomData), ok.1)),
-            Err(e) => Some(e),
-        };
-        match R::parse(source, offset, heap, errors) {
-            Ok(ok) => return Ok((Either::Right(ok.0, std::marker::PhantomData), ok.1)),
-            Err(e) => {
-                if ute.is_none() {
-                    ute = Some(e);
+    ) -> (
+        CstfyTransparent<Heap, Either<Heap, CstfyTransparent<Heap, L>, CstfyTransparent<Heap, R>>>,
+        parse::miette::SourceOffset,
+    ) {
+        let mut maybe_errors = vec![];
+        let mut ute =
+            match CstfyTransparent::<Heap, L>::parse(source, offset, heap, &mut maybe_errors) {
+                (Either::Left(ok, _), new_offset) => {
+                    return (
+                        cstfy_transparent_ok(Either::Left(
+                            Either::Left(ok, std::marker::PhantomData),
+                            std::marker::PhantomData,
+                        )),
+                        new_offset,
+                    )
                 }
-                (None::<R>, offset)
+                (Either::Right(err, _), _) => Some(err),
+            };
+        match CstfyTransparent::<Heap, R>::parse(source, offset, heap, &mut maybe_errors) {
+            (Either::Left(ok, _), new_offset) => {
+                return (
+                    cstfy_transparent_ok(Either::Right(
+                        Either::Left(ok, std::marker::PhantomData),
+                        std::marker::PhantomData,
+                    )),
+                    new_offset,
+                )
+            }
+            (Either::Right(err, _), _) => {
+                if ute.is_none() {
+                    ute = Some(err);
+                }
             }
         };
-        Err(ute.unwrap())
+        errors.append(&mut maybe_errors);
+        (
+            Either::Right(ute.unwrap(), std::marker::PhantomData),
+            offset,
+        )
     }
 }
 
@@ -528,22 +644,47 @@ impl<Heap, T: TermRoundTrip<0, Core> + Heaped<Heap = Heap>> TermRoundTrip<0, Cor
         }
     }
 }
-impl<Heap, T: parse::Parse + Heaped<Heap = Heap>> parse::Parse for Maybe<Heap, T> {
+impl<Heap, T> parse::Parse<Heap> for Cstfy<Heap, Maybe<Heap, Cstfy<Heap, T>>>
+where
+    Cstfy<Heap, T>: parse::Parse<Heap>,
+{
     fn parse(
         source: &str,
         offset: parse::miette::SourceOffset,
         heap: &mut Self::Heap,
         errors: &mut Vec<parse::ParseError>,
-    ) -> Result<(Self, parse::miette::SourceOffset), parse::ParseError> {
+    ) -> (
+        Cstfy<Heap, Maybe<Heap, Cstfy<Heap, T>>>,
+        parse::miette::SourceOffset,
+    ) {
         if source[offset.offset()..].starts_with("nothing") {
-            return Ok((
-                Maybe::Nothing,
+            return (
+                cstfy_ok(
+                    Maybe::Nothing,
+                    offset,
+                    parse::miette::SourceOffset::from(offset.offset() + 7),
+                ),
                 parse::miette::SourceOffset::from(offset.offset() + 7),
-            ));
+            );
         }
-        match T::parse(source, offset, heap, errors) {
-            Ok(ok) => Ok((Maybe::Just(ok.0, std::marker::PhantomData), ok.1)),
-            Err(e) => Err(e),
-        }
+        let (it, new_offset) =
+            <Cstfy<Heap, T> as parse::Parse<Heap>>::parse(source, offset, heap, errors);
+        (
+            cstfy_ok(
+                Maybe::Just(it, std::marker::PhantomData),
+                offset,
+                new_offset,
+            ),
+            new_offset,
+        )
     }
 }
+pub struct Pair<Heap, L, R> {
+    l: L,
+    r: R,
+    heap: std::marker::PhantomData<Heap>,
+}
+impl<Heap, L, R> Heaped for Pair<Heap, L, R> {
+    type Heap = Heap;
+}
+empty_heap_bak!(PairHeapBak, L, R);

@@ -1,5 +1,5 @@
 use langspec::langspec::Name;
-use langspec::tymetafunc::{IdentifiedBy, RustTyMap, TyMetaFuncSpec};
+use langspec::tymetafunc::{IdentifiedBy, RustTyMap, Transparency, TyMetaFuncSpec};
 use langspec::{
     langspec::{AlgebraicSortId, LangSpec, MappedType, SortId, SortIdOf},
     tymetafunc::TyMetaFuncData,
@@ -55,6 +55,7 @@ pub struct TyGenData<'a, L: LangSpec> {
     pub camel_ident: syn::Ident,
     pub cmt: CanonicallyMaybeToGenData<'a>,
     pub ccf: CanonicallyConstructibleFromGenData<'a>,
+    pub transparency: Transparency,
 }
 pub struct HeapbakGenData<'a> {
     pub identifiers: Vec<syn::Ident>,
@@ -87,6 +88,7 @@ pub struct CanonicallyConstructibleFromGenData<'a> {
     pub ccf_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
     pub heap_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<HstData> + 'a>,
     pub ccf_sort_tyses: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<Vec<syn::Type>> + 'a>,
+    pub ccf_sort_transparencies: Box<dyn Fn() -> Vec<Vec<Transparency>> + 'a>,
     pub ccf_sort_camel_idents: Box<dyn Fn() -> Vec<Vec<syn::Ident>> + 'a>,
     pub ccf_sort_snake_idents: Box<dyn Fn() -> Vec<Vec<syn::Ident>> + 'a>,
 }
@@ -159,6 +161,16 @@ impl<L: LangSpec> LsGen<'_, L> {
                             }]
                         }
                     }),
+                    ccf_sort_transparencies: {
+                        let pid = pid.clone();
+                        Box::new(move || {
+                            vec![self
+                                .bak
+                                .product_sorts(pid.clone())
+                                .map(|sort| self.sort2transparency(sort))
+                                .collect()]
+                        })
+                    },
                     heap_sort_tys: Box::new({
                         let pid = pid.clone();
                         move |ht, abp| {
@@ -197,6 +209,7 @@ impl<L: LangSpec> LsGen<'_, L> {
                         vec![self.product_heap_sort_snake_idents(&pid)]
                     }),
                 },
+                transparency: Transparency::Visible,
             })
             .chain(self.bak.sums().map(move |sid| TyGenData {
                 id: Some(AlgebraicSortId::Sum(sid.clone())),
@@ -259,6 +272,15 @@ impl<L: LangSpec> LsGen<'_, L> {
                                 .collect()
                         }
                     }),
+                    ccf_sort_transparencies: {
+                        let sid = sid.clone();
+                        Box::new(move || {
+                            self.bak
+                                .sum_sorts(sid.clone())
+                                .map(|it| vec![self.sort2transparency(it)])
+                                .collect()
+                        })
+                    },
                     ccf_sort_tyses: Box::new({
                         let sid = sid.clone();
                         move |ht, abp| {
@@ -284,40 +306,34 @@ impl<L: LangSpec> LsGen<'_, L> {
                             .collect()
                     }),
                 },
+                transparency: Transparency::Transparent,
             }))
     }
     pub fn heapbak_gen_datas(&self) -> Vec<HeapbakGenData> {
         let mut found: std::collections::HashSet<TyFingerprint> = std::collections::HashSet::new();
         let mut ret: Vec<HeapbakGenData> = vec![];
-        for sort in self
-            .bak
-            .products()
-            .flat_map(|pid| self.bak.product_sorts(pid))
-            .chain(self.bak.sums().flat_map(|sid| self.bak.sum_sorts(sid)))
-        {
+        fn process_tmf<'a: 'b, 'b, L: LangSpec>(
+            lg: &'a LsGen<L>,
+            ret: &'b mut Vec<HeapbakGenData<'a>>,
+            found: &mut std::collections::HashSet<TyFingerprint>,
+            sort: SortIdOf<L>,
+        ) {
             match sort.clone() {
-                SortId::Algebraic(_) => continue,
+                SortId::Algebraic(_) => (),
                 SortId::TyMetaFunc(MappedType { f, a }) => {
-                    let fingerprint = sortid_fingerprint(self.bak, &sort);
+                    let fingerprint = sortid_fingerprint(lg.bak, &sort);
                     if found.contains(&fingerprint) {
-                        continue;
+                        return;
                     }
                     found.insert(fingerprint);
-                    let ty_arg_camels = a
+                    let polish_name = sortid_polish_name(lg.bak, &sort);
+                    let ty_arg_camels = polish_name
                         .iter()
-                        .map(|arg| {
-                            syn::Ident::new(
-                                &sortid_name(self.bak, arg).camel,
-                                proc_macro2::Span::call_site(),
-                            )
-                        })
+                        .map(|name| syn::Ident::new(&name.camel, proc_macro2::Span::call_site()))
                         .collect();
-                    let ty_arg_snakes = a.iter().map(|arg| {
-                        syn::Ident::new(
-                            &sortid_name(self.bak, arg).snake,
-                            proc_macro2::Span::call_site(),
-                        )
-                    });
+                    let ty_arg_snakes = polish_name
+                        .iter()
+                        .map(|name| syn::Ident::new(&name.snake, proc_macro2::Span::call_site()));
                     let ty_func = <L::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(&f).heapbak;
                     let snake_ident = syn::Ident::new(
                         &<L::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(&f)
@@ -329,14 +345,28 @@ impl<L: LangSpec> LsGen<'_, L> {
                         identifiers: std::iter::once(snake_ident).chain(ty_arg_snakes).collect(),
                         ty_func,
                         ty_arg_camels,
-                        ty_args: Box::new(move |ht, abp| {
-                            a.iter()
-                                .map(|arg| self.sort2rs_ty(arg.clone(), &ht, &abp))
-                                .collect()
+                        ty_args: Box::new({
+                            let a = a.clone();
+                            move |ht, abp| {
+                                a.iter()
+                                    .map(|arg| lg.sort2rs_ty(arg.clone(), &ht, &abp))
+                                    .collect()
+                            }
                         }),
                     });
+                    for arg in a {
+                        process_tmf::<L>(lg, ret, found, arg);
+                    }
                 }
             }
+        }
+        for sort in self
+            .bak
+            .products()
+            .flat_map(|pid| self.bak.product_sorts(pid))
+            .chain(self.bak.sums().flat_map(|sid| self.bak.sum_sorts(sid)))
+        {
+            process_tmf::<L>(self, &mut ret, &mut found, sort);
         }
         ret
     }
@@ -380,6 +410,15 @@ impl<L: LangSpec> LsGen<'_, L> {
                 let args = a.iter().map(|arg| self.sort2rs_ty(arg.clone(), ht, abp));
                 let ht = &ht.0;
                 Some(syn::parse_quote! { #ty_func<#ht, #( #args, )* > })
+            }
+        }
+    }
+    pub fn sort2transparency(&self, sort: SortIdOf<L>) -> Transparency {
+        match sort {
+            SortId::Algebraic(AlgebraicSortId::Sum(_)) => Transparency::Transparent,
+            SortId::Algebraic(AlgebraicSortId::Product(_)) => Transparency::Visible,
+            SortId::TyMetaFunc(MappedType { f, a: _ }) => {
+                L::Tmfs::ty_meta_func_data(&f).transparency
             }
         }
     }
@@ -616,14 +655,12 @@ fn sortid_fingerprint<L: LangSpec>(ls: &L, sort: &SortIdOf<L>) -> TyFingerprint 
     match sort {
         SortId::Algebraic(asi) => asi_fingerprint(ls, asi),
         SortId::TyMetaFunc(MappedType { f, a }) => {
-            let TyMetaFuncData { name, idby, .. } = L::Tmfs::ty_meta_func_data(f);
-            match idby {
-                IdentifiedBy::Tmf => TyFingerprint::from(name.camel.as_str()),
-                IdentifiedBy::FirstTmfArg => {
-                    let arg = a.first().unwrap();
-                    sortid_fingerprint(ls, arg)
-                }
+            let mut fingerprint =
+                TyFingerprint::from(L::Tmfs::ty_meta_func_data(f).name.camel.as_str());
+            for arg in a {
+                fingerprint = fingerprint.combine(&sortid_fingerprint(ls, arg));
             }
+            fingerprint
         }
     }
 }
@@ -636,6 +673,19 @@ fn sortid_name<L: LangSpec>(ls: &L, sort: &SortIdOf<L>) -> Name {
                 IdentifiedBy::Tmf => name,
                 IdentifiedBy::FirstTmfArg => sortid_name(ls, a.first().unwrap()),
             }
+        }
+    }
+}
+fn sortid_polish_name<L: LangSpec>(ls: &L, sort: &SortIdOf<L>) -> Vec<Name> {
+    match sort {
+        SortId::Algebraic(asi) => vec![ls.algebraic_sort_name(asi.clone()).clone()],
+        SortId::TyMetaFunc(MappedType { f, a, .. }) => {
+            let TyMetaFuncData { name, idby: _, .. } = L::Tmfs::ty_meta_func_data(f);
+            let mut ret = vec![name.clone()];
+            for arg in a {
+                ret.extend(sortid_polish_name(ls, arg));
+            }
+            ret
         }
     }
 }

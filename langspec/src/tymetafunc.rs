@@ -23,6 +23,12 @@ pub struct TyMetaFuncData {
     pub heapbak: RustTyMap,
     pub maybe_conversions: Box<[RustGenericTrait]>,
     pub canonical_froms: Box<[RustGenericTrait]>,
+    pub transparency: Transparency,
+}
+#[derive(Clone)]
+pub enum Transparency {
+    Transparent,
+    Visible,
 }
 
 pub trait TyMetaFuncSpec: Sized {
