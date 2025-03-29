@@ -3,9 +3,9 @@ use langspec::{
     langspec::{Name, ToLiteral},
     tymetafunc::{IdentifiedBy, RustTyMap, Transparency, TyMetaFuncData, TyMetaFuncSpec},
 };
-use parse::{miette::SourceSpan, Parse};
+use parse::{miette::SourceSpan, Parse, Unparse};
 use serde::{Deserialize, Serialize};
-use term::{CanonicallyConstructibleFrom, Heaped, SuperHeap, TyFingerprint};
+use term::{CanonicallyConstructibleFrom, Heaped, SuperHeap, TyFingerprint, UnsafeHeapDrop};
 use term_unspecialized::{FromTermError, MaybeOpaqueTerm, Term, TermRoundTrip};
 
 pub struct Core;
@@ -225,6 +225,18 @@ pub fn cstfy_ok<Heap, T>(
 pub fn cstfy_transparent_ok<Heap, T>(t: T) -> CstfyTransparent<Heap, T> {
     Either::Left(t, std::marker::PhantomData)
 }
+pub fn uncstfy<Heap, T>(c: &Cstfy<Heap, T>) -> Option<&T> {
+    match c {
+        Either::Left(p, _) => Some(&p.l),
+        Either::Right(_, _) => None,
+    }
+}
+pub fn uncstfy_transparent<Heap, T>(c: &CstfyTransparent<Heap, T>) -> Option<&T> {
+    match c {
+        Either::Left(t, _) => Some(t),
+        Either::Right(_, _) => None,
+    }
+}
 macro_rules! return_if_err {
     ($result:ident, $offset:expr) => {
         let $result = match $result {
@@ -241,6 +253,7 @@ macro_rules! return_if_err {
         };
     };
 }
+#[derive(Debug)]
 pub struct BoundedNat<Heap> {
     heap: std::marker::PhantomData<Heap>,
     pub n: usize,
@@ -300,8 +313,12 @@ where
             new_offset,
         )
     }
-}
 
+    fn unparse(&self, _: &Self::Heap) -> parse::Unparse {
+        uncstfy(self).map_or(Unparse::new("err"), |n| Unparse::new(&n.n.to_string()))
+    }
+}
+#[derive(Debug)]
 pub struct Set<Heap, Elem> {
     heap: std::marker::PhantomData<Heap>,
     pub items: std::vec::Vec<Elem>,
@@ -396,8 +413,19 @@ where
             offset,
         )
     }
+    fn unparse(&self, heap: &Self::Heap) -> Unparse {
+        uncstfy(self).map_or(Unparse::new("err"), |s| {
+            let mut unparse = Unparse::new("{");
+            unparse.indent();
+            for item in &s.items {
+                unparse.vstack(item.unparse(heap));
+            }
+            unparse.hstack(Unparse::new("}"));
+            unparse
+        })
+    }
 }
-
+#[derive(Debug)]
 pub struct Seq<Heap, Elem> {
     heap: std::marker::PhantomData<Heap>,
     pub items: std::vec::Vec<Elem>,
@@ -407,19 +435,19 @@ impl<Heap, Elem> Heaped for Seq<Heap, Elem> {
 }
 empty_heap_bak!(SeqHeapBak, Elem);
 collection_term_round_trip_impl!(Seq<Heap, Elem>, tymetafuncspec_core::Seq);
-impl<Heap, T> parse::Parse<Heap> for Seq<Heap, T>
+impl<Heap, T> parse::Parse<Heap> for Cstfy<Heap, Seq<Heap, T>>
 where
     Heap: SuperHeap<SeqHeapBak<Heap, T>>,
     T: parse::Parse<Heap> + Heaped<Heap = Heap>,
 {
     fn parse(
         source: &str,
-        offset: parse::miette::SourceOffset,
+        initial_offset: parse::miette::SourceOffset,
         heap: &mut Self::Heap,
         errors: &mut Vec<parse::ParseError>,
-    ) -> (Seq<Heap, T>, parse::miette::SourceOffset) {
+    ) -> (Cstfy<Heap, Seq<Heap, T>>, parse::miette::SourceOffset) {
         let mut items = Vec::new();
-        let mut offset = offset;
+        let mut offset = initial_offset;
         while !source[offset.offset()..].starts_with(']') {
             let (item, new_offset) = <T as parse::Parse<Heap>>::parse(source, offset, heap, errors);
             items.push(item);
@@ -429,21 +457,46 @@ where
             }
         }
         (
-            Self {
-                items,
-                heap: std::marker::PhantomData,
-            },
+            cstfy_ok(
+                Seq {
+                    items,
+                    heap: std::marker::PhantomData,
+                },
+                initial_offset,
+                offset,
+            ),
             offset,
         )
     }
-}
 
+    fn unparse(&self, heap: &Self::Heap) -> Unparse {
+        uncstfy(self).map_or(Unparse::new("err"), |s| {
+            let mut unparse = Unparse::new("[");
+            unparse.indent();
+            for item in &s.items {
+                unparse.vstack(item.unparse(heap));
+            }
+            unparse.hstack(Unparse::new("]"));
+            unparse
+        })
+    }
+}
+#[derive(Debug)]
 pub struct IdxBox<Heap, Elem> {
     phantom: std::marker::PhantomData<(Heap, Elem)>,
     pub idx: u32,
 }
 impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem> Heaped for IdxBox<Heap, Elem> {
     type Heap = Heap;
+}
+impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem> UnsafeHeapDrop for IdxBox<Heap, Elem> {
+    unsafe fn unsafe_heap_drop(self, heap: &mut Self::Heap) {
+        heap.subheap_mut::<IdxBoxHeapBak<Heap, Elem>>()
+            .elems
+            .get_mut(self.idx as usize)
+            .unwrap()
+            .take();
+    }
 }
 impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem> CanonicallyConstructibleFrom<Elem>
     for IdxBox<Heap, Elem>
@@ -452,7 +505,11 @@ impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem> CanonicallyConstructibleF
         todo!()
     }
 
-    fn deconstruct(self, heap: &mut Self::Heap) -> Elem {
+    fn deconstruct_succeeds(&self, heap: &Self::Heap) -> bool {
+        todo!()
+    }
+
+    fn deconstruct(self, heap: &Self::Heap) -> Elem {
         todo!()
     }
 }
@@ -512,8 +569,16 @@ where
             new_offset,
         )
     }
-}
 
+    fn unparse(&self, heap: &Self::Heap) -> Unparse {
+        let item = uncstfy_transparent(self).unwrap();
+        heap.subheap::<IdxBoxHeapBak<Heap, T>>().elems[item.idx as usize]
+            .as_ref()
+            .unwrap()
+            .unparse(heap)
+    }
+}
+#[derive(Debug)]
 pub enum Either<Heap, L, R> {
     Left(L, std::marker::PhantomData<Heap>),
     Right(R, std::marker::PhantomData<Heap>),
@@ -606,8 +671,16 @@ where
             offset,
         )
     }
-}
 
+    fn unparse(&self, heap: &Self::Heap) -> Unparse {
+        match uncstfy_transparent(self) {
+            Some(Either::Left(l, _)) => l.unparse(heap),
+            Some(Either::Right(r, _)) => r.unparse(heap),
+            _ => Unparse::new("err"),
+        }
+    }
+}
+#[derive(Debug)]
 pub enum Maybe<Heap, T> {
     Just(T, std::marker::PhantomData<Heap>),
     Nothing,
@@ -678,7 +751,16 @@ where
             new_offset,
         )
     }
+
+    fn unparse(&self, heap: &Self::Heap) -> Unparse {
+        match uncstfy(self) {
+            Some(Maybe::Just(t, _)) => t.unparse(heap),
+            Some(Maybe::Nothing) => Unparse::new("nothing"),
+            _ => Unparse::new("err"),
+        }
+    }
 }
+#[derive(Debug)]
 pub struct Pair<Heap, L, R> {
     l: L,
     r: R,

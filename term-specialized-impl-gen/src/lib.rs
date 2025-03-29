@@ -143,9 +143,16 @@ pub(crate) fn gen_ccf_impl_prod(
                 }
             }
 
+            fn deconstruct_succeeds(
+                &self,
+                heap: &Self::Heap,
+            ) -> bool {
+                true
+            }
+
             fn deconstruct(
                 self,
-                heap: &mut Self::Heap,
+                heap: &Self::Heap,
             ) -> #ccf_ty {
                 (#(
                     self.#ccf_ty_snakes,
@@ -177,9 +184,19 @@ pub(crate) fn gen_ccf_impl_sum(
                 #data_structure::data_structure::#camel::#ccf_ty_camel(t.0)
             }
 
+            fn deconstruct_succeeds(
+                &self,
+                heap: &Self::Heap,
+            ) -> bool {
+                match self {
+                    #data_structure::data_structure::#camel::#ccf_ty_camel(_) => true,
+                    _ => false,
+                }
+            }
+
             fn deconstruct(
                 self,
-                heap: &mut Self::Heap,
+                heap: &Self::Heap,
             ) -> #ccf_ty {
                 match self {
                     #data_structure::data_structure::#camel::#ccf_ty_camel(t) => (t,),

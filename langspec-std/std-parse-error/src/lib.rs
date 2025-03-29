@@ -4,7 +4,6 @@ use langspec::{
     langspec::{Name, TerminalLangSpec, ToLiteral},
     tymetafunc::{IdentifiedBy, RustTyMap, TyMetaFuncSpec},
 };
-use parse::Parse;
 use serde::{Deserialize, Serialize};
 use term::Heaped;
 

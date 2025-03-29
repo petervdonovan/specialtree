@@ -1,7 +1,7 @@
 use core::panic;
 
 use langspec::tymetafunc::TyMetaFuncSpec;
-use term::{CanonicallyConstructibleFrom, Heaped, SuperHeap, TyFingerprint};
+use term::{Heaped, SuperHeap, TyFingerprint, UnsafeHeapDrop};
 
 #[derive(derivative::Derivative)]
 #[derivative(Clone(bound = ""))]
@@ -17,6 +17,19 @@ pub struct Term<const TOP_FINGERPRINT: u128, Tmfs: TyMetaFuncSpec, Heap> {
     pub args: Vec<MaybeOpaqueTerm<Tmfs, Heap>>,
     phantom: std::marker::PhantomData<(Tmfs, Heap)>,
 }
+// impl<const TOP_FINGERPRINT: u128, Tmfs: TyMetaFuncSpec, Heap> Term<TOP_FINGERPRINT, Tmfs, Heap> {
+//     fn transmute_from_unit_heap(other: Term<TOP_FINGERPRINT, Tmfs, ()>) -> Self {
+//         Term::<TOP_FINGERPRINT, Tmfs, Heap> {
+//             tyfingerprint: other.tyfingerprint,
+//             args: other
+//                 .args
+//                 .into_iter()
+//                 .map(MaybeOpaqueTerm::transmute_from_unit_heap)
+//                 .collect(),
+//             phantom: std::marker::PhantomData,
+//         }
+//     }
+// }
 #[derive(derivative::Derivative)]
 #[derivative(Clone(bound = ""))]
 pub enum MaybeOpaqueTerm<Tmfs: TyMetaFuncSpec, Heap> {
@@ -30,6 +43,14 @@ impl<Tmfs: TyMetaFuncSpec, Heap> MaybeOpaqueTerm<Tmfs, Heap> {
             MaybeOpaqueTerm::Term(t) => t,
         }
     }
+    // fn transmute_from_unit_heap(other: MaybeOpaqueTerm<Tmfs, ()>) -> Self {
+    //     match other {
+    //         MaybeOpaqueTerm::Opaque(o) => MaybeOpaqueTerm::Opaque(o),
+    //         MaybeOpaqueTerm::Term(t) => {
+    //             MaybeOpaqueTerm::Term(Term::<0, Tmfs, Heap>::transmute_from_unit_heap(t))
+    //         }
+    //     }
+    // }
 }
 #[derive(Default)]
 pub struct TermHeap {}
@@ -134,58 +155,102 @@ impl<const FROM_FINGERPRINT: u128, const TO_FINGERPRINT: u128, Tmfs: TyMetaFuncS
 // impl<const TOP_FINGERPRINT: u128, Tmfs: TyMetaFuncSpec> Heaped for Term<TOP_FINGERPRINT, Tmfs> {
 //     type Heap = TermHeap;
 // }
+impl<const FROM_FINGERPRINT: u128, Tmfs: TyMetaFuncSpec, Heap> UnsafeHeapDrop
+    for Term<FROM_FINGERPRINT, Tmfs, Heap>
+{
+    unsafe fn unsafe_heap_drop(self, _: &mut Self::Heap) {
+        drop(self);
+    }
+}
 impl<const TOP_FINGERPRINT: u128, Tmfs: TyMetaFuncSpec, Heap> Heaped
     for Term<TOP_FINGERPRINT, Tmfs, Heap>
 {
     type Heap = Heap;
 }
-macro_rules! replace_expr {
-    ($_t:tt $sub:tt) => {
-        $sub
-    };
-    ($_t:tt $sub:ty) => {
-        $sub
-    };
-}
-macro_rules! ccf {
-    ($($indices:expr),*) => {
-        paste::paste! {
-            impl<const TOP_FINGERPRINT: u128, Heap, $([< To0Term $indices >]: TermRoundTrip<0, Tmfs> + Heaped<Heap=Heap>,)* Tmfs: TyMetaFuncSpec>
-                CanonicallyConstructibleFrom<($(replace_expr!($indices [< To0Term $indices >]),)*)> for Term<TOP_FINGERPRINT, Tmfs, Heap>
-            {
-                fn construct(heap: &mut Heap, t: ($(replace_expr!($indices [< To0Term $indices >]),)*)) -> Self {
-                    Term {
-                        tyfingerprint: TyFingerprint::from(TOP_FINGERPRINT),
-                        args: vec![$(MaybeOpaqueTerm::Term(t.$indices.to_term(heap))),*],
-                        phantom: std::marker::PhantomData,
-                    }
-                }
+// macro_rules! replace_expr {
+//     ($_t:tt $sub:tt) => {
+//         $sub
+//     };
+//     ($_t:tt $sub:ty) => {
+//         $sub
+//     };
+// }
+// macro_rules! ccf {
+//     ($($indices:expr),*) => {
+//         paste::paste! {
+//             impl<const TOP_FINGERPRINT: u128, Heap, $([< To0Term $indices >]: TermRoundTrip<0, Tmfs> + Heaped<Heap=Heap>,)* Tmfs: TyMetaFuncSpec>
+//                 CanonicallyConstructibleFrom<($(replace_expr!($indices [< To0Term $indices >]),)*)> for Term<TOP_FINGERPRINT, Tmfs, Heap>
+//             {
+//                 fn construct(heap: &mut Heap, t: ($(replace_expr!($indices [< To0Term $indices >]),)*)) -> Self {
+//                     Term {
+//                         tyfingerprint: TyFingerprint::from(TOP_FINGERPRINT),
+//                         args: vec![$(MaybeOpaqueTerm::Term(t.$indices.to_term(heap))),*],
+//                         phantom: std::marker::PhantomData,
+//                     }
+//                 }
 
-                fn deconstruct(self, heap: &mut Self::Heap) -> ($(replace_expr!($indices [< To0Term $indices >]),)*) {
-                    let mut args = self.args;
-                    args.reverse();
-                    ($({
-                        replace_expr!($indices ([< To0Term $indices >]::from_term(heap, args.pop().unwrap().to_term()).unwrap()))
-                    },)*)
-                }
-            }
-        }
-    };
-}
-ccf!(0);
-ccf!(0, 1);
-ccf!(0, 1, 2);
-ccf!(0, 1, 2, 3);
-ccf!(0, 1, 2, 3, 4);
-ccf!(0, 1, 2, 3, 4, 5);
-ccf!(0, 1, 2, 3, 4, 5, 6);
-ccf!(0, 1, 2, 3, 4, 5, 6, 7);
-ccf!(0, 1, 2, 3, 4, 5, 6, 7, 8);
-ccf!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-ccf!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
-ccf!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);
-ccf!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
-ccf!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
-ccf!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
-ccf!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
-ccf!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+//                 fn deconstruct_succeeds(
+//                     &self,
+//                     heap: &Self::Heap,
+//                 ) -> bool {
+//                     let mut args = self.args.clone();
+//                     $({
+//                         if (replace_expr!($indices ([< To0Term $indices >]::from_term(heap, args.pop().unwrap().to_term()).is_err()))) {
+//                             return false;
+//                         }
+//                     })*
+//                     true
+//                 }
+
+//                 fn deconstruct(self, heap: &Self::Heap) -> ($(replace_expr!($indices [< To0Term $indices >]),)*) {
+//                     let mut args = self.args;
+//                     args.reverse();
+//                     ($({
+//                         replace_expr!($indices ([< To0Term $indices >]::from_term(heap, args.pop().unwrap().to_term()).unwrap()))
+//                     },)*)
+//                 }
+//             }
+//         }
+//     };
+// }
+// ccf!(0);
+// ccf!(0, 1);
+// ccf!(0, 1, 2);
+// ccf!(0, 1, 2, 3);
+// ccf!(0, 1, 2, 3, 4);
+// ccf!(0, 1, 2, 3, 4, 5);
+// ccf!(0, 1, 2, 3, 4, 5, 6);
+// ccf!(0, 1, 2, 3, 4, 5, 6, 7);
+// ccf!(0, 1, 2, 3, 4, 5, 6, 7, 8);
+// ccf!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+// ccf!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+// ccf!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);
+// ccf!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+// ccf!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
+// ccf!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
+// ccf!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
+// ccf!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+
+// impl<
+//         const TOP_FINGERPRINT: u128,
+//         Heap,
+//         To0Term0: TermRoundTrip<0, Tmfs> + Heaped<Heap = Heap>,
+//         Tmfs: TyMetaFuncSpec,
+//     > CanonicallyConstructibleFrom<(To0Term0,)> for Term<TOP_FINGERPRINT, Tmfs, Heap>
+// {
+//     fn construct(heap: &mut Heap, t: (To0Term0,)) -> Self {
+//         Term {
+//             tyfingerprint: TyFingerprint::from(TOP_FINGERPRINT),
+//             args: <[_]>::into_vec(
+//                 #[rustc_box]
+//                 alloc::boxed::Box::new([(MaybeOpaqueTerm::Term(t.0.to_term(heap)))]),
+//             ),
+//             phantom: std::marker::PhantomData,
+//         }
+//     }
+//     fn deconstruct(self, heap: &mut Self::Heap) -> (To0Term0,) {
+//         let mut args = self.args;
+//         args.reverse();
+//         ({ (To0Term0::from_term(heap, args.pop().unwrap().to_term()).unwrap()) },)
+//     }
+// }

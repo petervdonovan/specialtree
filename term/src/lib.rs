@@ -2,19 +2,86 @@
 
 pub use type_equals;
 
-pub trait CanonicallyConstructibleFrom<T>: Sized
+pub trait CanonicallyConstructibleFrom<T>: Sized + UnsafeHeapDrop
 where
     Self: Heaped,
 {
     fn construct(heap: &mut Self::Heap, t: T) -> Self;
-    fn deconstruct(self, heap: &mut Self::Heap) -> T;
-    fn reconstruct<F: Fn(T) -> T>(&mut self, heap: &mut Self::Heap, f: F) {
-        take_mut::take(self, |s| {
-            let t = Self::deconstruct(s, heap);
-            Self::construct(heap, f(t))
-        })
+    fn deconstruct_succeeds(&self, heap: &Self::Heap) -> bool;
+    fn deconstruct(self, heap: &Self::Heap) -> T;
+    // unsafe fn drop(self, heap: &mut Self::Heap);
+    // fn shallow_drop(self, heap: &mut Self::Heap);
+    // fn reconstruct<F: Fn(T) -> T>(&mut self, heap: &mut Self::Heap, f: F) {
+    //     take_mut::take(self, |s| {
+    //         let t = Self::deconstruct(s, heap);
+    //         Self::construct(heap, f(t))
+    //     })
+    // }
+}
+pub trait UnsafeHeapDrop: Heaped {
+    /// # Safety
+    /// Self cannot be shared; if it is, there is a potential use-after-free.
+    unsafe fn unsafe_heap_drop(self, heap: &mut Self::Heap);
+}
+#[repr(transparent)]
+pub struct Owned<T>(std::mem::ManuallyDrop<T>);
+impl<T> Heaped for Owned<T>
+where
+    T: Heaped,
+{
+    type Heap = T::Heap;
+}
+impl<T> UnsafeHeapDrop for Owned<T>
+where
+    T: Heaped + UnsafeHeapDrop,
+{
+    unsafe fn unsafe_heap_drop(self, heap: &mut Self::Heap) {
+        unsafe {
+            std::mem::ManuallyDrop::<T>::into_inner(self.0).unsafe_heap_drop(heap);
+        }
     }
 }
+impl<TOwned: AllOwned, U: CanonicallyConstructibleFrom<TOwned::Bak>>
+    CanonicallyConstructibleFrom<TOwned> for Owned<U>
+{
+    fn construct(heap: &mut Self::Heap, t: TOwned) -> Self {
+        // safe because bak and construct are inverse to each other wrt freeing
+        unsafe {
+            let bak = t.bak();
+            let u = U::construct(heap, bak);
+            Owned(std::mem::ManuallyDrop::new(u))
+        }
+    }
+
+    fn deconstruct_succeeds(&self, heap: &Self::Heap) -> bool {
+        self.0.deconstruct_succeeds(heap)
+    }
+
+    fn deconstruct(self, heap: &Self::Heap) -> TOwned {
+        // safe because .0 and new are inverse to each other wrt freeing
+        unsafe {
+            let bak = std::mem::ManuallyDrop::<U>::into_inner(self.0).deconstruct(heap);
+            TOwned::new(bak)
+        }
+    }
+}
+pub struct OwnedWithHeapMutRef<'heap, T: Heaped + UnsafeHeapDrop> {
+    pub heap: &'heap mut T::Heap,
+    pub t: Option<Owned<T>>,
+}
+impl<'heap, T: Heaped + UnsafeHeapDrop> OwnedWithHeapMutRef<'heap, T> {
+    pub fn new(heap: &'heap mut T::Heap, t: Owned<T>) -> Self {
+        OwnedWithHeapMutRef { heap, t: Some(t) }
+    }
+}
+impl<T: Heaped + UnsafeHeapDrop> Drop for OwnedWithHeapMutRef<'_, T> {
+    fn drop(&mut self) {
+        unsafe {
+            self.t.take().unwrap().unsafe_heap_drop(self.heap);
+        }
+    }
+}
+
 pub trait Heaped {
     type Heap;
 }
@@ -26,6 +93,20 @@ pub trait SuperHeap<SubHeap> {
     where
         T: type_equals::TypeEquals<Other = SubHeap>;
 }
+// impl<SubHeap> SuperHeap<SubHeap> for std::cell::Cell<SubHeap> {
+//     fn subheap<T>(&self) -> &SubHeap
+//     where
+//         T: type_equals::TypeEquals<Other = SubHeap>,
+//     {
+//         self
+//     }
+//     fn subheap_mut<T>(&mut self) -> &mut SubHeap
+//     where
+//         T: type_equals::TypeEquals<Other = SubHeap>,
+//     {
+//         self.get_mut()
+//     }
+// }
 #[macro_export]
 macro_rules! impl_superheap {
     ($heapty:ty ; $subheapty:ty ; $($field_names:ident)*) => {
@@ -187,3 +268,53 @@ where
 }
 pub type IsoClassExpansionMaybeConversionFallibility = !; // cannot fail
 pub type ExpansionMaybeConversionFallibility = (); // failure is inhabited
+
+pub trait AllOwned {
+    type Bak;
+    /// # Safety
+    /// Leaks if result is not converted back to Owned and then dropped
+    unsafe fn bak(self) -> Self::Bak;
+    /// # Safety
+    /// Use-after-free if `bak` involves a shared reference
+    unsafe fn new(bak: Self::Bak) -> Self;
+}
+macro_rules! impl_to_refs {
+    ($arg:ident $(,)? $($args:ident),*) => {
+        #[allow(non_snake_case)]
+        impl<T, $($args),*> AllOwned for (Owned<T>, $($args),*) {
+            type Bak = (T, $($args),*);
+            unsafe fn bak(self) -> Self::Bak {
+                let (Owned(t), $($args),*) = self;
+                (std::mem::ManuallyDrop::<T>::into_inner(t), $($args),*)
+            }
+            unsafe fn new(bak: Self::Bak) -> Self {
+                let (t, $($args),*) = bak;
+                (Owned(std::mem::ManuallyDrop::new(t)), $($args),*)
+            }
+        }
+        impl_to_refs!($($args),*);
+    };
+    () => {};
+}
+impl_to_refs!(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11);
+// impl<T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> ToRefs
+//     for (T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
+// {
+//     type Refs<'a>
+//         = (
+//         &'a T,
+//         &'a T1,
+//         &'a T2,
+//         &'a T3,
+//         &'a T4,
+//         &'a T5,
+//         &'a T6,
+//         &'a T7,
+//         &'a T8,
+//         &'a T9,
+//         &'a T10,
+//         &'a T11,
+//     )
+//     where
+//         Self: 'a;
+// }

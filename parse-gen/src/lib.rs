@@ -26,7 +26,7 @@ pub fn generate<L: LangSpec>(bps: &BasePaths, lg: &LsGen<L>) -> syn::ItemMod {
                 &tgd,
                 cst_tgds
                     .iter()
-                    .find(|cst_tgd| cst_tgd.snake_ident.to_string() == tgd.snake_ident.to_string()) // FIXME: comparing idents
+                    .find(|cst_tgd| cst_tgd.snake_ident == tgd.snake_ident) // FIXME: comparing idents
                     .unwrap(),
             )
         })
@@ -106,6 +106,15 @@ pub fn generate_parse<L: LangSpec, LCst: LangSpec>(
         }
     });
     let cstfication = transparency2cstfication(&tgd.transparency);
+    // let unparse = gen_unparse(
+    //     snake_ident,
+    //     &tgd.transparency,
+    //     &cst_bp,
+    //     &my_ty,
+    //     &my_cst_ty,
+    //     (cst_tgd.ccf.ccf_sort_tys)().as_slice(),
+    //     (cst_tgd.ccf.ccf_sort_camel_idents)().as_slice(),
+    // );
     syn::parse_quote! {
         #byline
         impl parse::Parse<#cst_bp::Heap> for tymetafuncspec_core::#cstfication<#cst_bp::Heap, #my_cst_ty> {
@@ -125,6 +134,7 @@ pub fn generate_parse<L: LangSpec, LCst: LangSpec>(
                 )*
                 parse_directly(source, offset, heap, errors, ute.unwrap())
             }
+            // #unparse
         }
     }
 }
@@ -192,6 +202,44 @@ pub fn gen_parse_current(
                     initial_offset,
                 ),
             }
+        }
+    }
+}
+
+pub fn gen_unparse(
+    snake_ident: &syn::Ident,
+    transparency: &Transparency,
+    cst_bp: &syn::Path,
+    my_ty: &syn::Type,
+    my_cst_ty: &syn::Type,
+    ccftys: &[syn::Type],
+    ccf_idxses: &[Vec<usize>],
+) -> syn::ItemFn {
+    let byline = byline!();
+    let uncstfication: syn::Ident = match transparency {
+        Transparency::Transparent => syn::parse_quote! { uncstfy_transparent },
+        Transparency::Visible => syn::parse_quote! { uncstfy },
+    };
+    syn::parse_quote! {
+        #byline
+        fn unparse(&self, heap: &mut #cst_bp::Heap) -> parse::Unparse {
+            tymetafuncspec_core::#uncstfication(self).map_or(
+                parse::Unparse::new("err"),
+                |node| {
+                    let mut ret = parse::Unparse::new(stringify!(#snake_ident));
+                    #({
+                        match <#my_ty as term::CanonicallyConstructibleFrom<#ccftys>>::deconstruct_ref(heap, node) {
+                            Some(tup) => {
+                                #(
+                                    ret.vstack(tup.#ccf_idxses.unparse(heap));
+                                )*
+                            }
+                            None => ()  // move on to next variant
+                        }
+                    })*
+                    ret
+                }
+            )
         }
     }
 }
