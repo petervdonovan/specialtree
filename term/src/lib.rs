@@ -117,7 +117,7 @@ pub trait DirectlyConstructibleFromAnyOf<CcfConsList> {
     type Guarantees;
 }
 mod foc_guarantees {
-    pub struct None;
+    pub struct NoGuarantees;
     // pub struct Exclusive;
     pub struct ExclusiveExhaustive;
 }
@@ -137,6 +137,9 @@ pub trait Callable<T> {
 //     type Guarantees = FocGuarantees::Exclusive;
 // }
 // pub trait CanVisitAnyOf<Cl: ConsList>: Visitor<Cl::Car> + CanVisitAnyOf<Cl::Cdr> {}
+// pub trait TraversalStrategy {
+//     type CcfConsList: ConsList;
+// }
 impl<F, CcfConsList, T>
     PatternMatchable<F, <T as DirectlyConstructibleFromAnyOf<CcfConsList>>::Guarantees, CcfConsList>
     for T
@@ -144,17 +147,12 @@ where
     // F: Callable<T>,
     F: Callable<CcfConsList::Car>,
     T: DirectlyConstructibleFromAnyOf<CcfConsList>,
-    T: DirectlyConstructibleFromAnyOf<CcfConsList::Cdr>,
     T: CanonicallyConstructibleFrom<CcfConsList::Car>,
-    T: PatternMatchable<
-            F,
-            <T as DirectlyConstructibleFromAnyOf<CcfConsList::Cdr>>::Guarantees,
-            CcfConsList::Cdr,
-        >,
+    T: PatternMatchable<F, foc_guarantees::NoGuarantees, CcfConsList::Cdr>,
     T: Copy,
     CcfConsList: ConsList,
-    CcfConsList::Car: Heaped<Heap = <Self as Heaped>::Heap>,
-    CcfConsList::Car: PatternMatchable<F, foc_guarantees::ExclusiveExhaustive, ()>,
+    // CcfConsList::Car: Heaped<Heap = <Self as Heaped>::Heap>,
+    // CcfConsList::Car: PatternMatchable<F, foc_guarantees::ExclusiveExhaustive, ()>,
 {
     fn do_match(&self, callable: &mut F, heap: &<Self as Heaped>::Heap) {
         if <Self as CanonicallyConstructibleFrom<CcfConsList::Car>>::deconstruct_succeeds(
@@ -164,11 +162,9 @@ where
                 <Self as CanonicallyConstructibleFrom<CcfConsList::Car>>::deconstruct(*self, heap);
             callable.call(&t);
         } else {
-            <Self as PatternMatchable<
-                F,
-                <T as DirectlyConstructibleFromAnyOf<CcfConsList::Cdr>>::Guarantees,
-                CcfConsList::Cdr,
-            >>::do_match(self, callable, heap);
+            <Self as PatternMatchable<F, foc_guarantees::NoGuarantees, CcfConsList::Cdr>>::do_match(
+                self, callable, heap,
+            );
         }
     }
     // fn traverse(&self, callable: &mut F, heap: &<Self as Heaped>::Heap) {
