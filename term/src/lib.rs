@@ -116,77 +116,79 @@ impl<T, Cdr> ConsList for (T, Cdr) {
 pub trait DirectlyConstructibleFromAnyOf<CcfConsList> {
     type Guarantees;
 }
-mod foc_guarantees {
-    pub struct NoGuarantees;
-    // pub struct Exclusive;
-    pub struct ExclusiveExhaustive;
-}
-pub trait PatternMatchable<V, Guarantees, CcfConsList>: Sized + Heaped {
-    // fn traverse(&self, callable: &mut V, heap: &<Self as Heaped>::Heap);
-    // fn proceed(&self, callable: &mut V, heap: &<Self as Heaped>::Heap);
-    fn do_match(&self, callable: &mut V, heap: &<Self as Heaped>::Heap);
+// mod foc_guarantees {
+//     pub struct NoGuarantees;
+//     // pub struct Exclusive;
+//     pub struct ExclusiveExhaustive;
+// }
+pub trait CaseSplittable<F, CcfConsList>: Sized + Heaped {
+    fn case_split(&self, callable: &mut F, heap: &<Self as Heaped>::Heap);
 }
 pub trait Callable<T> {
     fn call(&mut self, t: &T);
 }
-// impl<T, Car, Cdr> DirectlyConstructibleFromAnyOf<Cdr> for T
-// where
-//     Cdr: ConsList,
-//     T: DirectlyConstructibleFromAnyOf<(Car, Cdr)>,
-// {
-//     type Guarantees = FocGuarantees::Exclusive;
-// }
-// pub trait CanVisitAnyOf<Cl: ConsList>: Visitor<Cl::Car> + CanVisitAnyOf<Cl::Cdr> {}
-// pub trait TraversalStrategy {
-//     type CcfConsList: ConsList;
-// }
-impl<F, CcfConsList, T>
-    PatternMatchable<F, <T as DirectlyConstructibleFromAnyOf<CcfConsList>>::Guarantees, CcfConsList>
-    for T
+impl<F, T: Heaped> CaseSplittable<F, ()> for T {
+    fn case_split(&self, _callable: &mut F, _heap: &<Self as Heaped>::Heap) {
+        panic!("no matching case");
+    }
+}
+impl<F, T: Heaped, Car, Cdr> CaseSplittable<F, (Car, Cdr)> for T
 where
-    // F: Callable<T>,
-    F: Callable<CcfConsList::Car>,
-    T: DirectlyConstructibleFromAnyOf<CcfConsList>,
-    T: CanonicallyConstructibleFrom<CcfConsList::Car>,
-    T: PatternMatchable<F, foc_guarantees::NoGuarantees, CcfConsList::Cdr>,
+    F: Callable<Car>,
+    T: CanonicallyConstructibleFrom<Car>,
+    T: CaseSplittable<F, Cdr>,
     T: Copy,
-    CcfConsList: ConsList,
-    // CcfConsList::Car: Heaped<Heap = <Self as Heaped>::Heap>,
-    // CcfConsList::Car: PatternMatchable<F, foc_guarantees::ExclusiveExhaustive, ()>,
 {
-    fn do_match(&self, callable: &mut F, heap: &<Self as Heaped>::Heap) {
-        if <Self as CanonicallyConstructibleFrom<CcfConsList::Car>>::deconstruct_succeeds(
-            self, heap,
-        ) {
-            let t =
-                <Self as CanonicallyConstructibleFrom<CcfConsList::Car>>::deconstruct(*self, heap);
+    fn case_split(&self, callable: &mut F, heap: &<Self as Heaped>::Heap) {
+        if <Self as CanonicallyConstructibleFrom<Car>>::deconstruct_succeeds(self, heap) {
+            let t = <Self as CanonicallyConstructibleFrom<Car>>::deconstruct(*self, heap);
             callable.call(&t);
         } else {
-            <Self as PatternMatchable<F, foc_guarantees::NoGuarantees, CcfConsList::Cdr>>::do_match(
-                self, callable, heap,
-            );
+            <Self as CaseSplittable<F, Cdr>>::case_split(self, callable, heap);
         }
     }
-    // fn traverse(&self, callable: &mut F, heap: &<Self as Heaped>::Heap) {
-    //     callable.call(self);
-    //     <Self as PatternMatchable<
-    //         F,
-    //         <T as DirectlyConstructibleFromAnyOf<CcfConsList::Cdr>>::Guarantees,
-    //         CcfConsList::Cdr,
-    //     >>::proceed(self, callable, heap);
-    // }
-    // fn proceed(&self, callable: &mut F, heap: &<Self as Heaped>::Heap) {
-    //     if <Self as CanonicallyConstructibleFrom<CcfConsList::Car>>::deconstruct_succeeds(
-    //         self, heap,
-    //     ) {
-    //         let t =
-    //             <Self as CanonicallyConstructibleFrom<CcfConsList::Car>>::deconstruct(*self, heap);
-    //         t.traverse(callable, heap);
-    //     } else {
-    //         self.proceed(callable, heap);
-    //     }
-    // }
 }
+pub trait HasPatternMatchStrategyFor<T: Heaped> {
+    type Strategy: ConsList;
+}
+pub trait PatternMatchable<F, Strategies>: Heaped {
+    fn do_match(&self, callable: &mut F, heap: &<Self as Heaped>::Heap);
+}
+impl<F, T, StrategyProvider> PatternMatchable<F, StrategyProvider> for T
+where
+    StrategyProvider: HasPatternMatchStrategyFor<T>,
+    T: CaseSplittable<F, StrategyProvider::Strategy>,
+{
+    fn do_match(&self, callable: &mut F, heap: &<Self as Heaped>::Heap) {
+        <Self as CaseSplittable<F, StrategyProvider::Strategy>>::case_split(self, callable, heap);
+    }
+}
+// impl<F, CcfConsList, T>
+//     PatternMatchable<F, <T as DirectlyConstructibleFromAnyOf<CcfConsList>>::Guarantees, CcfConsList>
+//     for T
+// where
+//     // F: Callable<T>,
+//     F: Callable<CcfConsList::Car>,
+//     T: DirectlyConstructibleFromAnyOf<CcfConsList>,
+//     T: CanonicallyConstructibleFrom<CcfConsList::Car>,
+//     T: PatternMatchable<F, foc_guarantees::NoGuarantees, CcfConsList::Cdr>,
+//     T: Copy,
+//     CcfConsList: ConsList,
+// {
+//     fn do_match(&self, callable: &mut F, heap: &<Self as Heaped>::Heap) {
+//         if <Self as CanonicallyConstructibleFrom<CcfConsList::Car>>::deconstruct_succeeds(
+//             self, heap,
+//         ) {
+//             let t =
+//                 <Self as CanonicallyConstructibleFrom<CcfConsList::Car>>::deconstruct(*self, heap);
+//             callable.call(&t);
+//         } else {
+//             <Self as PatternMatchable<F, foc_guarantees::NoGuarantees, CcfConsList::Cdr>>::do_match(
+//                 self, callable, heap,
+//             );
+//         }
+//     }
+// }
 pub trait Heaped {
     type Heap;
 }
@@ -198,20 +200,6 @@ pub trait SuperHeap<SubHeap> {
     where
         T: type_equals::TypeEquals<Other = SubHeap>;
 }
-// impl<SubHeap> SuperHeap<SubHeap> for std::cell::Cell<SubHeap> {
-//     fn subheap<T>(&self) -> &SubHeap
-//     where
-//         T: type_equals::TypeEquals<Other = SubHeap>,
-//     {
-//         self
-//     }
-//     fn subheap_mut<T>(&mut self) -> &mut SubHeap
-//     where
-//         T: type_equals::TypeEquals<Other = SubHeap>,
-//     {
-//         self.get_mut()
-//     }
-// }
 #[macro_export]
 macro_rules! impl_superheap {
     ($heapty:ty ; $subheapty:ty ; $($field_names:ident)*) => {
