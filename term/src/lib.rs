@@ -116,17 +116,18 @@ impl<T, Cdr> ConsList for (T, Cdr) {
 pub trait DirectlyConstructibleFromAnyOf<CcfConsList> {
     type Guarantees;
 }
-mod FocGuarantees {
+mod foc_guarantees {
     pub struct None;
     // pub struct Exclusive;
     pub struct ExclusiveExhaustive;
 }
-pub trait Visitable<V: Visitor<Self>, Guarantees, CcfConsList>: Sized + Heaped {
-    fn traverse(&self, visitor: &mut V, heap: &<Self as Heaped>::Heap);
-    fn proceed(&self, visitor: &mut V, heap: &<Self as Heaped>::Heap);
+pub trait PatternMatchable<V, Guarantees, CcfConsList>: Sized + Heaped {
+    // fn traverse(&self, callable: &mut V, heap: &<Self as Heaped>::Heap);
+    // fn proceed(&self, callable: &mut V, heap: &<Self as Heaped>::Heap);
+    fn do_match(&self, callable: &mut V, heap: &<Self as Heaped>::Heap);
 }
-pub trait Visitor<T> {
-    fn visit(&mut self, t: &T);
+pub trait Callable<T> {
+    fn call(&mut self, t: &T);
 }
 // impl<T, Car, Cdr> DirectlyConstructibleFromAnyOf<Cdr> for T
 // where
@@ -136,43 +137,59 @@ pub trait Visitor<T> {
 //     type Guarantees = FocGuarantees::Exclusive;
 // }
 // pub trait CanVisitAnyOf<Cl: ConsList>: Visitor<Cl::Car> + CanVisitAnyOf<Cl::Cdr> {}
-impl<V, CcfConsList, T>
-    Visitable<V, <T as DirectlyConstructibleFromAnyOf<CcfConsList>>::Guarantees, CcfConsList> for T
+impl<F, CcfConsList, T>
+    PatternMatchable<F, <T as DirectlyConstructibleFromAnyOf<CcfConsList>>::Guarantees, CcfConsList>
+    for T
 where
-    V: Visitor<T>,
-    V: Visitor<CcfConsList::Car>,
+    // F: Callable<T>,
+    F: Callable<CcfConsList::Car>,
     T: DirectlyConstructibleFromAnyOf<CcfConsList>,
     T: DirectlyConstructibleFromAnyOf<CcfConsList::Cdr>,
     T: CanonicallyConstructibleFrom<CcfConsList::Car>,
-    T: Visitable<
-            V,
+    T: PatternMatchable<
+            F,
             <T as DirectlyConstructibleFromAnyOf<CcfConsList::Cdr>>::Guarantees,
             CcfConsList::Cdr,
         >,
     T: Copy,
     CcfConsList: ConsList,
     CcfConsList::Car: Heaped<Heap = <Self as Heaped>::Heap>,
-    CcfConsList::Car: Visitable<V, FocGuarantees::ExclusiveExhaustive, ()>,
+    CcfConsList::Car: PatternMatchable<F, foc_guarantees::ExclusiveExhaustive, ()>,
 {
-    fn traverse(&self, visitor: &mut V, heap: &<Self as Heaped>::Heap) {
-        visitor.visit(self);
-        <Self as Visitable<
-            V,
-            <T as DirectlyConstructibleFromAnyOf<CcfConsList::Cdr>>::Guarantees,
-            CcfConsList::Cdr,
-        >>::proceed(self, visitor, heap);
-    }
-    fn proceed(&self, visitor: &mut V, heap: &<Self as Heaped>::Heap) {
+    fn do_match(&self, callable: &mut F, heap: &<Self as Heaped>::Heap) {
         if <Self as CanonicallyConstructibleFrom<CcfConsList::Car>>::deconstruct_succeeds(
             self, heap,
         ) {
             let t =
                 <Self as CanonicallyConstructibleFrom<CcfConsList::Car>>::deconstruct(*self, heap);
-            t.traverse(visitor, heap);
+            callable.call(&t);
         } else {
-            self.proceed(visitor, heap);
+            <Self as PatternMatchable<
+                F,
+                <T as DirectlyConstructibleFromAnyOf<CcfConsList::Cdr>>::Guarantees,
+                CcfConsList::Cdr,
+            >>::do_match(self, callable, heap);
         }
     }
+    // fn traverse(&self, callable: &mut F, heap: &<Self as Heaped>::Heap) {
+    //     callable.call(self);
+    //     <Self as PatternMatchable<
+    //         F,
+    //         <T as DirectlyConstructibleFromAnyOf<CcfConsList::Cdr>>::Guarantees,
+    //         CcfConsList::Cdr,
+    //     >>::proceed(self, callable, heap);
+    // }
+    // fn proceed(&self, callable: &mut F, heap: &<Self as Heaped>::Heap) {
+    //     if <Self as CanonicallyConstructibleFrom<CcfConsList::Car>>::deconstruct_succeeds(
+    //         self, heap,
+    //     ) {
+    //         let t =
+    //             <Self as CanonicallyConstructibleFrom<CcfConsList::Car>>::deconstruct(*self, heap);
+    //         t.traverse(callable, heap);
+    //     } else {
+    //         self.proceed(callable, heap);
+    //     }
+    // }
 }
 pub trait Heaped {
     type Heap;
