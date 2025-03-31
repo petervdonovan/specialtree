@@ -81,7 +81,99 @@ impl<T: Heaped + UnsafeHeapDrop> Drop for OwnedWithHeapMutRef<'_, T> {
         }
     }
 }
-
+// pub struct FactOfConstructibility<T, Guarantees, CcfConsList> {
+//     phantom: std::marker::PhantomData<(T, Guarantees, CcfConsList)>,
+// }
+// pub trait VisitationStrategy {
+//     type Tyo: TypeOntology;
+//     type PossibleVisitor: CanVisit<Self::Ontology>;
+//     type OtherPossibleVisitors: VisitationStrategy;
+// }
+// pub trait TypeOntology {
+//     type PossibleType;
+//     type OtherPossibleTypes: TypeOntology;
+// }
+// pub trait CanVisit<T> {}
+// pub trait CanVisitAnyOf<Tyo: TypeOntology>:
+//     CanVisit<Tyo::PossibleType> + CanVisitAnyOf<Tyo::OtherPossibleTypes>
+// {
+//     // fn visit(&mut self, t: &Tyo::PossibleType);
+// }
+// pub trait CanVisitAnyOf<Vs: VisitationStrategy> {}
+// impl<Vs: VisitationStrategy>
+pub trait ConsList {
+    type Car;
+    type Cdr;
+}
+impl ConsList for () {
+    type Car = ();
+    type Cdr = ();
+}
+impl<T, Cdr> ConsList for (T, Cdr) {
+    type Car = T;
+    type Cdr = Cdr;
+}
+pub trait DirectlyConstructibleFromAnyOf<CcfConsList> {
+    type Guarantees;
+}
+mod FocGuarantees {
+    pub struct None;
+    // pub struct Exclusive;
+    pub struct ExclusiveExhaustive;
+}
+pub trait Visitable<V: Visitor<Self>, Guarantees, CcfConsList>: Sized + Heaped {
+    fn traverse(&self, visitor: &mut V, heap: &<Self as Heaped>::Heap);
+    fn proceed(&self, visitor: &mut V, heap: &<Self as Heaped>::Heap);
+}
+pub trait Visitor<T> {
+    fn visit(&mut self, t: &T);
+}
+// impl<T, Car, Cdr> DirectlyConstructibleFromAnyOf<Cdr> for T
+// where
+//     Cdr: ConsList,
+//     T: DirectlyConstructibleFromAnyOf<(Car, Cdr)>,
+// {
+//     type Guarantees = FocGuarantees::Exclusive;
+// }
+// pub trait CanVisitAnyOf<Cl: ConsList>: Visitor<Cl::Car> + CanVisitAnyOf<Cl::Cdr> {}
+impl<V, CcfConsList, T>
+    Visitable<V, <T as DirectlyConstructibleFromAnyOf<CcfConsList>>::Guarantees, CcfConsList> for T
+where
+    V: Visitor<T>,
+    V: Visitor<CcfConsList::Car>,
+    T: DirectlyConstructibleFromAnyOf<CcfConsList>,
+    T: DirectlyConstructibleFromAnyOf<CcfConsList::Cdr>,
+    T: CanonicallyConstructibleFrom<CcfConsList::Car>,
+    T: Visitable<
+            V,
+            <T as DirectlyConstructibleFromAnyOf<CcfConsList::Cdr>>::Guarantees,
+            CcfConsList::Cdr,
+        >,
+    T: Copy,
+    CcfConsList: ConsList,
+    CcfConsList::Car: Heaped<Heap = <Self as Heaped>::Heap>,
+    CcfConsList::Car: Visitable<V, FocGuarantees::ExclusiveExhaustive, ()>,
+{
+    fn traverse(&self, visitor: &mut V, heap: &<Self as Heaped>::Heap) {
+        visitor.visit(self);
+        <Self as Visitable<
+            V,
+            <T as DirectlyConstructibleFromAnyOf<CcfConsList::Cdr>>::Guarantees,
+            CcfConsList::Cdr,
+        >>::proceed(self, visitor, heap);
+    }
+    fn proceed(&self, visitor: &mut V, heap: &<Self as Heaped>::Heap) {
+        if <Self as CanonicallyConstructibleFrom<CcfConsList::Car>>::deconstruct_succeeds(
+            self, heap,
+        ) {
+            let t =
+                <Self as CanonicallyConstructibleFrom<CcfConsList::Car>>::deconstruct(*self, heap);
+            t.traverse(visitor, heap);
+        } else {
+            self.proceed(visitor, heap);
+        }
+    }
+}
 pub trait Heaped {
     type Heap;
 }
