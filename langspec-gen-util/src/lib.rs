@@ -335,14 +335,8 @@ impl<L: LangSpec> LsGen<'_, L> {
                         .iter()
                         .map(|name| syn::Ident::new(&name.snake, proc_macro2::Span::call_site()));
                     let ty_func = <L::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(&f).heapbak;
-                    let snake_ident = syn::Ident::new(
-                        &<L::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(&f)
-                            .name
-                            .snake,
-                        proc_macro2::Span::call_site(),
-                    );
                     ret.push(HeapbakGenData {
-                        identifiers: std::iter::once(snake_ident).chain(ty_arg_snakes).collect(),
+                        identifiers: ty_arg_snakes.collect(),
                         ty_func,
                         ty_arg_camels,
                         ty_args: Box::new({
