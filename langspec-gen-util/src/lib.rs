@@ -111,6 +111,13 @@ impl<'a, L: LangSpec> From<&'a L> for LsGen<'a, L> {
         }
     }
 }
+pub fn cons_list(it: impl Iterator<Item = syn::Type>) -> syn::Type {
+    let mut ret = syn::parse_quote! { () };
+    for item in it.collect::<Vec<_>>().into_iter().rev() {
+        ret = syn::parse_quote! { (#item, #ret) };
+    }
+    ret
+}
 impl<L: LangSpec> LsGen<'_, L> {
     pub fn bak(&self) -> &L {
         self.bak

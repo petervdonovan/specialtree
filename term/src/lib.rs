@@ -113,9 +113,9 @@ impl<T, Cdr> ConsList for (T, Cdr) {
     type Car = T;
     type Cdr = Cdr;
 }
-pub trait DirectlyConstructibleFromAnyOf<CcfConsList> {
-    type Guarantees;
-}
+// pub trait DirectlyConstructibleFromAnyOf<CcfConsList> {
+//     type Guarantees;
+// }
 // mod foc_guarantees {
 //     pub struct NoGuarantees;
 //     // pub struct Exclusive;

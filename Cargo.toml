@@ -26,7 +26,7 @@ members = [
     "join-boilerplate",
     "langspec-std/std-parse-error",
     "langspec-std/std-parse-metadata",
-    "generate-tests",
+    "generate-tests", "term-pattern-match-strategy-provider-impl-gen",
     # "bounded-slice",
     # "idxbased-related-gen",
     # "langserde",

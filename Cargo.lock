@@ -632,6 +632,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "term-pattern-match-strategy-provider-impl-gen"
+version = "0.1.0"
+dependencies = [
+ "langspec",
+ "langspec-examples",
+ "langspec-gen-util",
+ "prettyplease",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.98",
+ "term",
+ "term-trait-gen",
+ "tymetafuncspec-core",
+]
+
+[[package]]
 name = "term-specialized-gen"
 version = "0.1.0"
 dependencies = [
