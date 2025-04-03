@@ -52,7 +52,7 @@ pub(crate) fn heap_trait<L: LangSpec>(base_path: &syn::Path, ls: &LsGen<L>) -> s
         #byline
         pub trait Heap #bounds + Sized {
             #(
-                type #camel_ident: #base_path::extension_of::owned::#camel_ident<Heap = Self>;
+                type #camel_ident: #base_path::owned::#camel_ident<Heap = Self>;
             )*
         }
     }
@@ -69,7 +69,7 @@ mod owned {
              }|
              -> syn::ItemTrait {
                 let path = quote::quote! {
-                    <<Self as term::Heaped>::Heap as #base_path::extension_of::Heap>
+                    <<Self as term::Heaped>::Heap as #base_path::Heap>
                 };
                 let ccf_sort_tys = ccf_sort_tys(
                     HeapType(syn::parse_quote! {<Self as term::Heaped>::Heap}),
@@ -82,7 +82,7 @@ mod owned {
                 });
                 parse_quote! {
                     pub trait #camel_ident: term::Heaped #(+ #ccf_bounds )*
-                    where <Self as term::Heaped>::Heap: #base_path::extension_of::Heap,
+                    where <Self as term::Heaped>::Heap: #base_path::Heap,
                     {
                     }
                 }
@@ -124,7 +124,7 @@ mod reference {
                     AlgebraicsBasePath::new(syn::parse_quote! { })
                 );
                 let ret = quote::quote! {
-                    pub trait #camel_ident<'a, 'heap: 'a, Heap: #base_path::extension_of::Heap>: term::Heaped<Heap = Heap> #( + #trait_bounds )* {
+                    pub trait #camel_ident<'a, 'heap: 'a, Heap: #base_path::Heap>: term::Heaped<Heap = Heap> #( + #trait_bounds )* {
                         #(
                             type #cst: term::Heaped<Heap = Heap>;
                         )*
@@ -153,7 +153,6 @@ mod reference {
 }
 
 pub fn formatted(
-    base_path: &syn::Path,
     lsh: &langspec::humanreadable::LangSpecHuman<tymetafuncspec_core::Core>,
 ) -> String {
     let lsf: langspec::flat::LangSpecFlat<tymetafuncspec_core::Core> = <langspec::flat::LangSpecFlat<
@@ -161,7 +160,7 @@ pub fn formatted(
     > as langspec::langspec::TerminalLangSpec>::canonical_from(
         lsh
     );
-    let gen_result = generate(base_path, &lsf);
+    let gen_result = generate(&syn::parse_quote!(crate::extension_of), &lsf);
     prettyplease::unparse(&syn::parse_quote! {
         #gen_result
     })

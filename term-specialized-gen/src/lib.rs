@@ -8,16 +8,15 @@ use langspec_gen_util::{byline, AlgebraicsBasePath, HeapType, HeapbakGenData, Ls
 use syn::parse_quote;
 
 pub fn generate<L: LangSpec>(base_path: &syn::Path, lg: &LsGen<L>, serde: bool) -> syn::ItemMod {
-    let base_path = parse_quote! { #base_path::data_structure };
     let algebraics = lg
         .ty_gen_datas()
         .filter(|it| it.id.is_some())
-        .map(|tgd| alg_dt(serde, &base_path, tgd));
-    let heaped_impls = gen_heaped_impls(&base_path, &lg);
+        .map(|tgd| alg_dt(serde, base_path, tgd));
+    let heaped_impls = gen_heaped_impls(base_path, lg);
     let heap = gen_heap(
-        &base_path,
+        base_path,
         &AlgebraicsBasePath::new(quote::quote! {#base_path ::}),
-        &lg,
+        lg,
     );
     let byline = byline!();
     parse_quote! {
@@ -263,7 +262,7 @@ pub(crate) fn gen_heaped_impls<L: LangSpec>(base_path: &syn::Path, lg: &LsGen<L>
 pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
     let lsf: LangSpecFlat<Tmfs> = LangSpecFlat::canonical_from(lsh);
     let lg = LsGen::from(&lsf);
-    let m = generate(&parse_quote!(crate), &lg, false);
+    let m = generate(&parse_quote!(crate::data_structure), &lg, false);
     prettyplease::unparse(&syn::parse_quote! {
         #m
     })

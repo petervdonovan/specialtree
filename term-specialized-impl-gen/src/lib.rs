@@ -46,7 +46,7 @@ pub(crate) fn gen_owned_mod<L: LangSpec>(
     syn::parse_quote! {
         #byline
         pub mod owned_impls {
-            #(impl #term_trait::extension_of::owned::#camels for #data_structure::data_structure::#camels {})*
+            #(impl #term_trait::owned::#camels for #data_structure::#camels {})*
         }
     }
 }
@@ -75,11 +75,11 @@ pub(crate) fn gen_ccf_impls<L: LangSpec>(bps: &BasePaths, tgd: &TyGenData<L>) ->
     let data_structure = &bps.data_structure;
     let ccf_tys = (tgd.ccf.ccf_sort_tys)(
         HeapType(syn::parse_quote!(<Self as term::Heaped>::Heap)),
-        AlgebraicsBasePath::new(syn::parse_quote!(#data_structure::data_structure::)),
+        AlgebraicsBasePath::new(syn::parse_quote!(#data_structure::)),
     );
     let ccf_tys_flattened = (tgd.ccf.ccf_sort_tyses)(
         HeapType(syn::parse_quote!(<Self as term::Heaped>::Heap)),
-        AlgebraicsBasePath::new(syn::parse_quote!(#data_structure::data_structure::)),
+        AlgebraicsBasePath::new(syn::parse_quote!(#data_structure::)),
     )
     .into_iter()
     .flatten()
@@ -130,13 +130,13 @@ pub(crate) fn gen_ccf_impl_prod(
     let ret = quote::quote! {
         #byline
         impl
-            term::CanonicallyConstructibleFrom<#ccf_ty> for #data_structure::data_structure::#camel
+            term::CanonicallyConstructibleFrom<#ccf_ty> for #data_structure::#camel
         {
             fn construct(
                 heap: &mut Self::Heap,
                 t: #ccf_ty,
             ) -> Self {
-                #data_structure::data_structure::#camel {
+                #data_structure::#camel {
                     #(
                         #ccf_ty_snakes: t.#number_range,
                     )*
@@ -175,13 +175,13 @@ pub(crate) fn gen_ccf_impl_sum(
     syn::parse_quote! {
         #byline
         impl
-            term::CanonicallyConstructibleFrom<#ccf_ty> for #data_structure::data_structure::#camel
+            term::CanonicallyConstructibleFrom<#ccf_ty> for #data_structure::#camel
         {
             fn construct(
                 heap: &mut Self::Heap,
                 t: #ccf_ty,
             ) -> Self {
-                #data_structure::data_structure::#camel::#ccf_ty_camel(t.0)
+                #data_structure::#camel::#ccf_ty_camel(t.0)
             }
 
             fn deconstruct_succeeds(
@@ -189,7 +189,7 @@ pub(crate) fn gen_ccf_impl_sum(
                 heap: &Self::Heap,
             ) -> bool {
                 match self {
-                    #data_structure::data_structure::#camel::#ccf_ty_camel(_) => true,
+                    #data_structure::#camel::#ccf_ty_camel(_) => true,
                     _ => false,
                 }
             }
@@ -199,7 +199,7 @@ pub(crate) fn gen_ccf_impl_sum(
                 heap: &Self::Heap,
             ) -> #ccf_ty {
                 match self {
-                    #data_structure::data_structure::#camel::#ccf_ty_camel(t) => (t,),
+                    #data_structure::#camel::#ccf_ty_camel(t) => (t,),
                     _ => panic!("conversion failure"),
                 }
             }
@@ -233,8 +233,8 @@ pub(crate) fn gen_heap_impl<L: LangSpec>(
         .map(|td| td.camel_ident.clone());
     syn::parse_quote! {
         #byline
-        impl #term_trait::extension_of::Heap for #data_structure::data_structure::Heap {
-            #(type #camels = #data_structure::data_structure::#camels;)*
+        impl #term_trait::Heap for #data_structure::Heap {
+            #(type #camels = #data_structure::#camels;)*
         }
     }
 }
@@ -243,8 +243,8 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
     let lsf: LangSpecFlat<Tmfs> = LangSpecFlat::canonical_from(lsh);
     let lsg = LsGen::from(&lsf);
     let bps = BasePaths {
-        data_structure: syn::parse_quote!(crate),
-        term_trait: syn::parse_quote!(crate),
+        data_structure: syn::parse_quote!(crate::data_structure),
+        term_trait: syn::parse_quote!(crate::extension_of),
     };
     let m = generate(&bps, &lsg, &lsg);
     let ds = term_specialized_gen::generate(&bps.data_structure, &lsg, false);

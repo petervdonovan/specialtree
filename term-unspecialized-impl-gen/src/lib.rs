@@ -49,7 +49,7 @@ pub(crate) fn gen_owned_mod<L: LangSpec>(
     syn::parse_quote! {
         #byline
         pub mod owned_impls {
-            #(impl #term_trait::extension_of::owned::#camels for <term_unspecialized::TermHeap as #term_trait::extension_of::Heap>::#camels {})*
+            #(impl #term_trait::owned::#camels for <term_unspecialized::TermHeap as #term_trait::Heap>::#camels {})*
         }
     }
 }
@@ -79,12 +79,12 @@ pub(crate) fn gen_ccf_impls<L: LangSpec>(bps: &BasePaths, tgd: &TyGenData<L>) ->
     let ccf_tys = (tgd.ccf.ccf_sort_tys)(
         HeapType(syn::parse_quote!(<Self as term::Heaped>::Heap)),
         AlgebraicsBasePath::new(
-            syn::parse_quote!(<term_unspecialized::TermHeap as #term_trait::extension_of::Heap>::),
+            syn::parse_quote!(<term_unspecialized::TermHeap as #term_trait::Heap>::),
         ),
     );
     let ccf_tys_flattened = (tgd.ccf.ccf_sort_tyses)(
         HeapType(syn::parse_quote!(<Self as term::Heaped>::Heap)),
-        AlgebraicsBasePath::new(syn::parse_quote!(#data_structure::data_structure::)),
+        AlgebraicsBasePath::new(syn::parse_quote!(#data_structure::)),
     )
     .into_iter()
     .flatten()
@@ -143,7 +143,7 @@ pub(crate) fn gen_ccf_impl_prod<L: LangSpec>(
                 heap: &mut Self::Heap,
                 t: #ccf_ty,
             ) -> Self {
-                #data_structure::data_structure::#camel {
+                #data_structure::#camel {
                     #(
                         #ccf_ty_snakes: t.#number_range,
                     )*
@@ -182,14 +182,14 @@ pub(crate) fn gen_ccf_impl_sum<L: LangSpec>(
                 heap: &mut Self::Heap,
                 t: #ccf_ty,
             ) -> Self {
-                #data_structure::data_structure::#camel::#ccf_ty_camel(t.0)
+                #data_structure::#camel::#ccf_ty_camel(t.0)
             }
 
             fn deconstruct(
                 self,
             ) -> #ccf_ty {
                 match self {
-                    #data_structure::data_structure::#camel::#ccf_ty_camel(t) => (t,),
+                    #data_structure::#camel::#ccf_ty_camel(t) => (t,),
                     _ => panic!("conversion failure"),
                 }
             }
@@ -228,7 +228,7 @@ pub(crate) fn gen_heap_impl<L: LangSpec>(
         .map(|td| td.fingerprint.lit_int());
     syn::parse_quote! {
         #byline
-        impl #term_trait::extension_of::Heap for term_unspecialized::TermHeap {
+        impl #term_trait::Heap for term_unspecialized::TermHeap {
             #(type #camels = term_unspecialized::Term<#lit_fingerprints, #tmfs, Self>;)*
         }
     }
@@ -238,8 +238,8 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
     let lsf: LangSpecFlat<Tmfs> = LangSpecFlat::canonical_from(lsh);
     let lsg = LsGen::from(&lsf);
     let bps = BasePaths {
-        data_structure: syn::parse_quote!(crate),
-        term_trait: syn::parse_quote!(crate),
+        data_structure: syn::parse_quote!(crate::data_structure),
+        term_trait: syn::parse_quote!(crate::extension_of),
         term_unspecialized: syn::parse_quote!(crate),
     };
     let m = generate(&bps, &lsg, &lsg);
