@@ -643,6 +643,7 @@ dependencies = [
  "quote",
  "syn 2.0.98",
  "term",
+ "term-specialized-gen",
  "term-trait-gen",
  "tymetafuncspec-core",
 ]

@@ -4,10 +4,13 @@ use langspec::{
     langspec::{LangSpec, TerminalLangSpec},
     tymetafunc::TyMetaFuncSpec,
 };
-use langspec_gen_util::{cons_list, CanonicallyConstructibleFromGenData, LsGen};
+use langspec_gen_util::{
+    cons_list, AlgebraicsBasePath, CanonicallyConstructibleFromGenData, HeapType, LsGen,
+};
 
 pub struct BasePaths {
     pub term_trait: syn::Path,
+    pub data_structure: syn::Path,
     pub strategy_provider: syn::Path,
 }
 
@@ -23,7 +26,7 @@ pub fn generate<L: LangSpec>(base_paths: &BasePaths, ls: &LsGen<L>) -> syn::Item
     syn::parse_quote! {
         #byline
         pub mod pattern_match_strategy {
-            struct PatternMatchStrategyProvider<H>(std::marker::PhantomData<H>);
+            struct PatternMatchStrategyProvider;
             #(#impls)*
         }
     }
@@ -31,7 +34,8 @@ pub fn generate<L: LangSpec>(base_paths: &BasePaths, ls: &LsGen<L>) -> syn::Item
 
 pub(crate) fn impl_has_pattern_match_strategy_for(
     BasePaths {
-        term_trait,
+        term_trait: _,
+        data_structure,
         strategy_provider: _,
     }: &BasePaths,
     camel_ident: &syn::Ident,
@@ -39,13 +43,16 @@ pub(crate) fn impl_has_pattern_match_strategy_for(
 ) -> syn::ItemImpl {
     let byline = langspec_gen_util::byline!();
     let strategy = cons_list(
-        (ccf.ccf_sort_camel_idents)()
-            .into_iter()
-            .map(|it| syn::parse_quote! {(#(H::#it,)*)}),
+        (ccf.ccf_sort_tyses)(
+            HeapType(syn::parse_quote! {#data_structure::Heap}),
+            AlgebraicsBasePath::new(quote::quote! {#data_structure::}),
+        )
+        .into_iter()
+        .map(|it| syn::parse_quote! {(#(#it,)*)}),
     );
     syn::parse_quote! {
         #byline
-        impl<H: #term_trait::extension_of::Heap> term::HasPatternMatchStrategyFor<H::#camel_ident> for PatternMatchStrategyProvider<H> {
+        impl term::HasPatternMatchStrategyFor<#data_structure::#camel_ident> for PatternMatchStrategyProvider {
             type Strategy = #strategy;
         }
     }
@@ -55,13 +62,16 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
     let lsf: LangSpecFlat<Tmfs> = LangSpecFlat::canonical_from(lsh);
     let lsg = LsGen::from(&lsf);
     let bps = BasePaths {
-        strategy_provider: syn::parse_quote!(crate),
-        term_trait: syn::parse_quote!(crate),
+        strategy_provider: syn::parse_quote!(crate::pattern_match_strategy),
+        data_structure: syn::parse_quote!(crate::data_structure),
+        term_trait: syn::parse_quote!(crate::extension_of),
     };
     let m = generate(&bps, &lsg);
     let tt = term_trait_gen::generate(&bps.term_trait, &lsf);
+    let ds = term_specialized_gen::generate(&bps.data_structure, &lsg, false);
     prettyplease::unparse(&syn::parse_quote! {
         #m
         #tt
+        #ds
     })
 }

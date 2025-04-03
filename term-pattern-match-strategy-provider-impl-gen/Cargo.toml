@@ -11,6 +11,7 @@ proc-macro2 = "1.0.89"
 quote = "1.0.37"
 syn = "2.0.82"
 term-trait-gen = { version = "0.1.0", path = "../term-trait-gen" }
+term-specialized-gen = { version = "0.1.0", path = "../term-specialized-gen" }
 
 [dev-dependencies]
 langspec-examples = { path = "../langspec-examples" }

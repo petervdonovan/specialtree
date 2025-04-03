@@ -148,7 +148,7 @@ where
         }
     }
 }
-pub trait HasPatternMatchStrategyFor<T: Heaped> {
+pub trait HasPatternMatchStrategyFor<T> {
     type Strategy: ConsList;
 }
 pub trait PatternMatchable<F, Strategies>: Heaped {
