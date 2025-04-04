@@ -2,7 +2,7 @@
 
 pub use type_equals;
 
-pub trait CanonicallyConstructibleFrom<T>: Sized + UnsafeHeapDrop
+pub trait CanonicallyConstructibleFrom<T>: Sized + UnsafeHeapDrop<Self::Heap>
 where
     Self: Heaped,
 {
@@ -18,10 +18,10 @@ where
     //     })
     // }
 }
-pub trait UnsafeHeapDrop: Heaped {
+pub trait UnsafeHeapDrop<Heap> {
     /// # Safety
     /// Self cannot be shared; if it is, there is a potential use-after-free.
-    unsafe fn unsafe_heap_drop<H: SuperHeap<Self::Heap>>(self, heap: &mut H);
+    unsafe fn unsafe_heap_drop<H: SuperHeap<Heap>>(self, heap: &mut H);
 }
 #[repr(transparent)]
 pub struct Owned<T>(std::mem::ManuallyDrop<T>);
@@ -53,41 +53,62 @@ impl<H> HasBorrowedHeapRef for Dropper<H> {
         f(heap)
     }
 }
-impl<T: UnsafeHeapDrop> Callable<T> for Dropper<T::Heap> {
-    fn call(&mut self, t: T, heap: Self::Borrowed<'_, <T as Heaped>::Heap>) {
+impl<Heap, T: UnsafeHeapDrop<Heap>> Callable<T> for Dropper<Heap> {
+    fn call(&mut self, t: T, heap: Self::Borrowed<'_, Heap>) {
         // safe if the safety guarantees described for construction of the Dropper are satisfied
         unsafe {
             t.unsafe_heap_drop(heap);
         }
     }
 }
-impl UnsafeHeapDrop for () {
-    unsafe fn unsafe_heap_drop<H>(self, _heap: &mut H) {}
+// impl UnsafeHeapDrop for () {
+//     unsafe fn unsafe_heap_drop<H>(self, _heap: &mut H) {}
+// }
+// impl<Car: Heaped, Cdr: Heaped<Heap = Car::Heap>> Heaped for (Car, Cdr) {
+//     type Heap = Car::Heap;
+// }
+impl<Heap> UnsafeHeapDrop<Heap> for () {
+    unsafe fn unsafe_heap_drop<H: SuperHeap<Heap>>(self, _heap: &mut H) {}
+}
+impl<Heap, Car, Cdr> UnsafeHeapDrop<Heap> for (Car, Cdr)
+where
+    Car: UnsafeHeapDrop<Heap>,
+    Cdr: UnsafeHeapDrop<Heap>,
+{
+    unsafe fn unsafe_heap_drop<H: SuperHeap<Heap>>(self, heap: &mut H) {
+        unsafe {
+            self.0.unsafe_heap_drop(heap);
+            self.1.unsafe_heap_drop(heap);
+        }
+    }
 }
 pub trait Adt: Sized {
     type PatternMatchStrategyProvider: HasPatternMatchStrategyFor<Self>;
 }
 impl<
+    Heap: SuperHeap<T::Heap>,
     T: Heaped
         + PatternMatchable<Dropper<<T as Heaped>::Heap>, <T as Adt>::PatternMatchStrategyProvider>
         + Adt,
-> UnsafeHeapDrop for T
+> UnsafeHeapDrop<Heap> for T
 {
-    unsafe fn unsafe_heap_drop<H: SuperHeap<Self::Heap>>(self, heap: &mut H) {
+    unsafe fn unsafe_heap_drop<H: SuperHeap<Heap>>(self, heap: &mut H) {
         self.do_match(
             // propagate responsibility for safety upward
             &mut unsafe { Dropper::assert_dropped_types_shall_be_safe_to_drop() },
-            heap.subheap_mut::<Self::Heap>(),
+            heap.subheap_mut::<Heap>().subheap_mut::<T::Heap>(),
         );
     }
 }
-impl<T> UnsafeHeapDrop for Owned<T>
+impl<Heap, T> UnsafeHeapDrop<Heap> for Owned<T>
 where
-    T: Heaped + UnsafeHeapDrop,
+    T: Heaped + UnsafeHeapDrop<T::Heap>,
+    Heap: SuperHeap<T::Heap>,
 {
-    unsafe fn unsafe_heap_drop<H: SuperHeap<Self::Heap>>(self, heap: &mut H) {
+    unsafe fn unsafe_heap_drop<H: SuperHeap<Heap>>(self, heap: &mut H) {
         unsafe {
-            std::mem::ManuallyDrop::<T>::into_inner(self.0).unsafe_heap_drop(heap);
+            std::mem::ManuallyDrop::<T>::into_inner(self.0)
+                .unsafe_heap_drop(heap.subheap_mut::<Heap>().subheap_mut::<T::Heap>());
         }
     }
 }
@@ -115,16 +136,16 @@ impl<TOwned: AllOwned, U: CanonicallyConstructibleFrom<TOwned::Bak>>
         }
     }
 }
-pub struct OwnedWithHeapMutRef<'heap, T: Heaped + UnsafeHeapDrop> {
+pub struct OwnedWithHeapMutRef<'heap, T: Heaped + UnsafeHeapDrop<T::Heap>> {
     pub heap: &'heap mut T::Heap,
     pub t: Option<Owned<T>>,
 }
-impl<'heap, T: Heaped + UnsafeHeapDrop> OwnedWithHeapMutRef<'heap, T> {
+impl<'heap, T: Heaped + UnsafeHeapDrop<T::Heap>> OwnedWithHeapMutRef<'heap, T> {
     pub fn new(heap: &'heap mut T::Heap, t: Owned<T>) -> Self {
         OwnedWithHeapMutRef { heap, t: Some(t) }
     }
 }
-impl<T: Heaped + UnsafeHeapDrop> Drop for OwnedWithHeapMutRef<'_, T> {
+impl<T: Heaped + UnsafeHeapDrop<T::Heap>> Drop for OwnedWithHeapMutRef<'_, T> {
     fn drop(&mut self) {
         unsafe {
             self.t.take().unwrap().unsafe_heap_drop(self.heap);
@@ -192,7 +213,7 @@ impl<F: Callable<()> + Heaped<Heap = T::Heap>, T: Heaped> CaseSplittable<F, ()> 
         panic!("no matching case");
     }
 }
-impl<F, T: Heaped, Car: Heaped<Heap = T::Heap>, Cdr: ConsList> CaseSplittable<F, (Car, Cdr)> for T
+impl<F, T: Heaped, Car, Cdr: ConsList> CaseSplittable<F, (Car, Cdr)> for T
 where
     F: Callable<Car> + HasBorrowedHeapRef + Heaped<Heap = T::Heap>,
     T: CanonicallyConstructibleFrom<Car>,
@@ -262,9 +283,9 @@ where
 pub trait Heaped {
     type Heap;
 }
-impl Heaped for () {
-    type Heap = ();
-}
+// impl Heaped for () {
+//     type Heap = ();
+// }
 pub trait SuperHeap<SubHeap> {
     fn subheap<T>(&self) -> &SubHeap
     where

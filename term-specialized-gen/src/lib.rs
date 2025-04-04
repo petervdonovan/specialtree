@@ -55,6 +55,7 @@ pub(crate) fn alg_dt<L: LangSpec>(
             let sort_rs_snake_idents = (ccf.ccf_sort_snake_idents)().into_iter().flatten();
             quote::quote! {
                 #serde
+                #[derive(Clone, Copy)]
                 pub struct #camel_ident {
                     #(pub #sort_rs_snake_idents: #sort_rs_types),*
                 }
@@ -64,6 +65,7 @@ pub(crate) fn alg_dt<L: LangSpec>(
             let sort_rs_camel_idents = (ccf.ccf_sort_camel_idents)().into_iter().flatten();
             quote::quote! {
                 #serde
+                #[derive(Clone, Copy)]
                 pub enum #camel_ident {
                     #(#sort_rs_camel_idents(#sort_rs_types)),*
                 }

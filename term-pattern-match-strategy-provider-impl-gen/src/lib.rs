@@ -22,6 +22,10 @@ pub fn generate<L: LangSpec>(base_paths: &BasePaths, ls: &LsGen<L>) -> syn::Item
             let camel_ident = tgd.camel_ident;
             impl_has_pattern_match_strategy_for(base_paths, &camel_ident, tgd.ccf)
         })
+        .chain(ls.ty_gen_datas().map(|tgd| {
+            let camel_ident = tgd.camel_ident;
+            impl_adt_for(base_paths, &camel_ident)
+        }))
         .collect::<Vec<_>>();
     syn::parse_quote! {
         #byline
@@ -42,18 +46,35 @@ pub(crate) fn impl_has_pattern_match_strategy_for(
     ccf: CanonicallyConstructibleFromGenData<'_>,
 ) -> syn::ItemImpl {
     let byline = langspec_gen_util::byline!();
-    let strategy = cons_list(
+    let strategy: syn::Type = cons_list(
         (ccf.ccf_sort_tyses)(
             HeapType(syn::parse_quote! {#data_structure::Heap}),
             AlgebraicsBasePath::new(quote::quote! {#data_structure::}),
         )
         .into_iter()
-        .map(|it| syn::parse_quote! {(#(#it,)*)}),
+        .map(|it| cons_list(it.into_iter())),
     );
     syn::parse_quote! {
         #byline
         impl term::HasPatternMatchStrategyFor<#data_structure::#camel_ident> for PatternMatchStrategyProvider {
             type Strategy = #strategy;
+        }
+    }
+}
+
+pub(crate) fn impl_adt_for(
+    BasePaths {
+        term_trait: _,
+        data_structure,
+        strategy_provider,
+    }: &BasePaths,
+    camel_ident: &syn::Ident,
+) -> syn::ItemImpl {
+    let byline = langspec_gen_util::byline!();
+    syn::parse_quote! {
+        #byline
+        impl term::Adt for #data_structure::#camel_ident {
+            type PatternMatchStrategyProvider = #strategy_provider::PatternMatchStrategyProvider;
         }
     }
 }

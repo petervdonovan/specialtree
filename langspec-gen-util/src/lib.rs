@@ -111,7 +111,7 @@ impl<'a, L: LangSpec> From<&'a L> for LsGen<'a, L> {
         }
     }
 }
-pub fn cons_list(it: impl Iterator<Item = syn::Type>) -> syn::Type {
+pub fn cons_list<T: quote::ToTokens + syn::parse::Parse>(it: impl Iterator<Item = T>) -> T {
     let mut ret = syn::parse_quote! { () };
     for item in it.collect::<Vec<_>>().into_iter().rev() {
         ret = syn::parse_quote! { (#item, #ret) };
@@ -163,9 +163,7 @@ impl<L: LangSpec> LsGen<'_, L> {
                                 .bak
                                 .product_sorts(pid.clone())
                                 .map(|sort| self.sort2rs_ty(sort.clone(), &ht, &abp));
-                            vec![syn::parse_quote! {
-                                (#( #fields_tys, )*)
-                            }]
+                            vec![cons_list(fields_tys)]
                         }
                     }),
                     ccf_sort_transparencies: {
@@ -255,7 +253,7 @@ impl<L: LangSpec> LsGen<'_, L> {
                             self.bak
                                 .sum_sorts(sid.clone())
                                 .map(|sort| self.sort2rs_ty(sort.clone(), &ht, &abp))
-                                .map(|ty| syn::parse_quote! { (#ty,) })
+                                .map(|ty| syn::parse_quote! { (#ty,()) })
                                 .collect()
                         }
                     }),
@@ -619,6 +617,14 @@ fn sort_ident<L: LangSpec>(
 
 pub fn number_range(n: usize) -> impl Iterator<Item = syn::LitInt> {
     (0..n).map(|i| syn::LitInt::new(&i.to_string(), proc_macro2::Span::call_site()))
+}
+pub fn cons_list_index_range(n: usize, expr: syn::Expr) -> impl Iterator<Item = syn::Expr> {
+    (0..n).map(move |i| {
+        let ones = (0..i).map(|_| quote::quote! {1});
+        syn::parse_quote! {
+            #expr #(. #ones)*.0
+        }
+    })
 }
 
 fn algebraics<

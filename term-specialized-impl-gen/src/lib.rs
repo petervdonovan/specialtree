@@ -4,7 +4,9 @@ use langspec::{
     langspec::{AlgebraicSortId, LangSpec, TerminalLangSpec as _},
     tymetafunc::TyMetaFuncSpec,
 };
-use langspec_gen_util::{byline, number_range, AlgebraicsBasePath, HeapType, LsGen, TyGenData};
+use langspec_gen_util::{
+    byline, cons_list_index_range, number_range, AlgebraicsBasePath, HeapType, LsGen, TyGenData,
+};
 
 pub struct BasePaths {
     pub data_structure: syn::Path,
@@ -125,8 +127,10 @@ pub(crate) fn gen_ccf_impl_prod(
     ccf_tys_flattened: &[syn::Type],
     ccf_ty_snakes: &[syn::Ident],
 ) -> syn::ItemImpl {
-    let number_range = number_range(ccf_tys_flattened.len());
+    let idxs = cons_list_index_range(ccf_tys_flattened.len(), syn::parse_quote! {t});
     let byline = byline!();
+    let deconstruct: syn::Expr =
+        langspec_gen_util::cons_list(ccf_ty_snakes.iter().map(|it| syn::parse_quote! {self.#it}));
     let ret = quote::quote! {
         #byline
         impl
@@ -138,7 +142,7 @@ pub(crate) fn gen_ccf_impl_prod(
             ) -> Self {
                 #data_structure::#camel {
                     #(
-                        #ccf_ty_snakes: t.#number_range,
+                        #ccf_ty_snakes: #idxs,
                     )*
                 }
             }
@@ -154,9 +158,7 @@ pub(crate) fn gen_ccf_impl_prod(
                 self,
                 heap: &Self::Heap,
             ) -> #ccf_ty {
-                (#(
-                    self.#ccf_ty_snakes,
-                )*)
+                #deconstruct
             }
         }
     };
@@ -199,7 +201,7 @@ pub(crate) fn gen_ccf_impl_sum(
                 heap: &Self::Heap,
             ) -> #ccf_ty {
                 match self {
-                    #data_structure::#camel::#ccf_ty_camel(t) => (t,),
+                    #data_structure::#camel::#ccf_ty_camel(t) => (t,()),
                     _ => panic!("conversion failure"),
                 }
             }
