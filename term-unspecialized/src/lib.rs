@@ -54,21 +54,21 @@ impl<Tmfs: TyMetaFuncSpec, Heap> MaybeOpaqueTerm<Tmfs, Heap> {
 }
 #[derive(Default)]
 pub struct TermHeap {}
-impl<SubHeap> SuperHeap<SubHeap> for TermHeap {
-    fn subheap<T>(&self) -> &SubHeap
-    where
-        T: term::type_equals::TypeEquals<Other = SubHeap>,
-    {
-        panic!("Subheaps of TermHeap should not be needed")
-    }
+// impl<SubHeap> SuperHeap<SubHeap> for TermHeap {
+//     fn subheap<T>(&self) -> &SubHeap
+//     where
+//         T: term::type_equals::TypeEquals<Other = SubHeap>,
+//     {
+//         panic!("Subheaps of TermHeap should not be needed")
+//     }
 
-    fn subheap_mut<T>(&mut self) -> &mut SubHeap
-    where
-        T: term::type_equals::TypeEquals<Other = SubHeap>,
-    {
-        panic!("Subheaps of TermHeap should not be needed")
-    }
-}
+//     fn subheap_mut<T>(&mut self) -> &mut SubHeap
+//     where
+//         T: term::type_equals::TypeEquals<Other = SubHeap>,
+//     {
+//         panic!("Subheaps of TermHeap should not be needed")
+//     }
+// }
 impl<const TOP_FINGERPRINT: u128, Tmfs: TyMetaFuncSpec, Heap> Term<TOP_FINGERPRINT, Tmfs, Heap> {
     pub fn new(sortid: TyFingerprint, args: Vec<MaybeOpaqueTerm<Tmfs, Heap>>) -> Self {
         (Term::<0, Tmfs, Heap> {
@@ -155,13 +155,13 @@ impl<const FROM_FINGERPRINT: u128, const TO_FINGERPRINT: u128, Tmfs: TyMetaFuncS
 // impl<const TOP_FINGERPRINT: u128, Tmfs: TyMetaFuncSpec> Heaped for Term<TOP_FINGERPRINT, Tmfs> {
 //     type Heap = TermHeap;
 // }
-impl<const FROM_FINGERPRINT: u128, Tmfs: TyMetaFuncSpec, Heap> UnsafeHeapDrop
-    for Term<FROM_FINGERPRINT, Tmfs, Heap>
-{
-    unsafe fn unsafe_heap_drop(self, _: &mut Self::Heap) {
-        drop(self);
-    }
-}
+// impl<const FROM_FINGERPRINT: u128, Tmfs: TyMetaFuncSpec, Heap> UnsafeHeapDrop
+//     for Term<FROM_FINGERPRINT, Tmfs, Heap>
+// {
+//     unsafe fn unsafe_heap_drop(self, _: &mut Self::Heap) {
+//         drop(self);
+//     }
+// }
 impl<const TOP_FINGERPRINT: u128, Tmfs: TyMetaFuncSpec, Heap> Heaped
     for Term<TOP_FINGERPRINT, Tmfs, Heap>
 {

@@ -21,7 +21,7 @@ where
 pub trait UnsafeHeapDrop: Heaped {
     /// # Safety
     /// Self cannot be shared; if it is, there is a potential use-after-free.
-    unsafe fn unsafe_heap_drop(self, heap: &mut Self::Heap);
+    unsafe fn unsafe_heap_drop<H: SuperHeap<Self::Heap>>(self, heap: &mut H);
 }
 #[repr(transparent)]
 pub struct Owned<T>(std::mem::ManuallyDrop<T>);
@@ -31,11 +31,44 @@ where
 {
     type Heap = T::Heap;
 }
+pub struct Dropper<Heap>(std::marker::PhantomData<Heap>);
+impl<Heap> Dropper<Heap> {
+    /// # Safety
+    /// This is only safe if the calling code that uses this dropper as a callable
+    /// is guaranteed to not drop any types that are not safe to drop.
+    pub unsafe fn assert_dropped_types_shall_be_safe_to_drop() -> Self {
+        Dropper(std::marker::PhantomData)
+    }
+}
+impl<Heap> Heaped for Dropper<Heap> {
+    type Heap = Heap;
+}
+impl<H> HasBorrowedHeapRef for Dropper<H> {
+    type Borrowed<'a, Heap: 'a> = &'a mut Heap;
+
+    fn with_decayed_heapref<Heap, T, F: Fn(&Heap) -> T>(
+        heap: &mut Self::Borrowed<'_, Heap>,
+        f: F,
+    ) -> T {
+        f(heap)
+    }
+}
+impl<T: UnsafeHeapDrop> Callable<T> for Dropper<T::Heap> {
+    fn call(&mut self, t: T, heap: Self::Borrowed<'_, <T as Heaped>::Heap>) {
+        // safe if the safety guarantees described for construction of the Dropper are satisfied
+        unsafe {
+            t.unsafe_heap_drop(heap);
+        }
+    }
+}
+impl UnsafeHeapDrop for () {
+    unsafe fn unsafe_heap_drop<H>(self, _heap: &mut H) {}
+}
 impl<T> UnsafeHeapDrop for Owned<T>
 where
     T: Heaped + UnsafeHeapDrop,
 {
-    unsafe fn unsafe_heap_drop(self, heap: &mut Self::Heap) {
+    unsafe fn unsafe_heap_drop<H: SuperHeap<Self::Heap>>(self, heap: &mut H) {
         unsafe {
             std::mem::ManuallyDrop::<T>::into_inner(self.0).unsafe_heap_drop(heap);
         }
@@ -121,28 +154,47 @@ impl<T, Cdr> ConsList for (T, Cdr) {
 //     // pub struct Exclusive;
 //     pub struct ExclusiveExhaustive;
 // }
-pub trait CaseSplittable<F, CcfConsList>: Sized + Heaped {
-    fn case_split(&self, callable: &mut F, heap: &<Self as Heaped>::Heap);
+pub trait CaseSplittable<F: HasBorrowedHeapRef, CcfConsList: ConsList>: Sized + Heaped
+where
+    F: Heaped<Heap = <Self as Heaped>::Heap>,
+{
+    fn case_split(&self, callable: &mut F, heap: F::Borrowed<'_, Self::Heap>);
 }
-pub trait Callable<T> {
-    fn call(&mut self, t: &T);
+pub trait HasBorrowedHeapRef {
+    type Borrowed<'a, Heap: 'a>: 'a;
+    fn with_decayed_heapref<Heap, T, F: Fn(&Heap) -> T>(
+        heap: &mut Self::Borrowed<'_, Heap>,
+        f: F,
+    ) -> T;
 }
-impl<F, T: Heaped> CaseSplittable<F, ()> for T {
-    fn case_split(&self, _callable: &mut F, _heap: &<Self as Heaped>::Heap) {
+pub trait Callable<T>: Heaped + HasBorrowedHeapRef {
+    fn call(&mut self, t: T, heap: Self::Borrowed<'_, Self::Heap>);
+}
+impl<F: Callable<()> + Heaped<Heap = T::Heap>, T: Heaped> CaseSplittable<F, ()> for T {
+    fn case_split(&self, _callable: &mut F, _heap: F::Borrowed<'_, Self::Heap>) {
         panic!("no matching case");
     }
 }
-impl<F, T: Heaped, Car, Cdr> CaseSplittable<F, (Car, Cdr)> for T
+impl<F, T: Heaped, Car: Heaped<Heap = T::Heap>, Cdr: ConsList> CaseSplittable<F, (Car, Cdr)> for T
 where
-    F: Callable<Car>,
+    F: Callable<Car> + HasBorrowedHeapRef + Heaped<Heap = T::Heap>,
     T: CanonicallyConstructibleFrom<Car>,
     T: CaseSplittable<F, Cdr>,
     T: Copy,
 {
-    fn case_split(&self, callable: &mut F, heap: &<Self as Heaped>::Heap) {
-        if <Self as CanonicallyConstructibleFrom<Car>>::deconstruct_succeeds(self, heap) {
-            let t = <Self as CanonicallyConstructibleFrom<Car>>::deconstruct(*self, heap);
-            callable.call(&t);
+    fn case_split(
+        &self,
+        callable: &mut F,
+        heap: <F as HasBorrowedHeapRef>::Borrowed<'_, Self::Heap>,
+    ) {
+        let mut heap = heap;
+        if <F as HasBorrowedHeapRef>::with_decayed_heapref(&mut heap, |hr| {
+            <Self as CanonicallyConstructibleFrom<Car>>::deconstruct_succeeds(self, hr)
+        }) {
+            let t = <F as HasBorrowedHeapRef>::with_decayed_heapref(&mut heap, |hr| {
+                <Self as CanonicallyConstructibleFrom<Car>>::deconstruct(*self, hr)
+            });
+            callable.call(t, heap);
         } else {
             <Self as CaseSplittable<F, Cdr>>::case_split(self, callable, heap);
         }
@@ -151,15 +203,16 @@ where
 pub trait HasPatternMatchStrategyFor<T> {
     type Strategy: ConsList;
 }
-pub trait PatternMatchable<F, Strategies>: Heaped {
-    fn do_match(&self, callable: &mut F, heap: &<Self as Heaped>::Heap);
+pub trait PatternMatchable<F: HasBorrowedHeapRef, Strategies>: Heaped {
+    fn do_match(&self, callable: &mut F, heap: F::Borrowed<'_, <Self as Heaped>::Heap>);
 }
 impl<F, T, StrategyProvider> PatternMatchable<F, StrategyProvider> for T
 where
     StrategyProvider: HasPatternMatchStrategyFor<T>,
+    F: HasBorrowedHeapRef + Heaped<Heap = T::Heap>,
     T: CaseSplittable<F, StrategyProvider::Strategy>,
 {
-    fn do_match(&self, callable: &mut F, heap: &<Self as Heaped>::Heap) {
+    fn do_match(&self, callable: &mut F, heap: F::Borrowed<'_, <Self as Heaped>::Heap>) {
         <Self as CaseSplittable<F, StrategyProvider::Strategy>>::case_split(self, callable, heap);
     }
 }
@@ -192,6 +245,9 @@ where
 pub trait Heaped {
     type Heap;
 }
+impl Heaped for () {
+    type Heap = ();
+}
 pub trait SuperHeap<SubHeap> {
     fn subheap<T>(&self) -> &SubHeap
     where
@@ -199,6 +255,20 @@ pub trait SuperHeap<SubHeap> {
     fn subheap_mut<T>(&mut self) -> &mut SubHeap
     where
         T: type_equals::TypeEquals<Other = SubHeap>;
+}
+impl<T> SuperHeap<T> for T {
+    fn subheap<U>(&self) -> &T
+    where
+        U: type_equals::TypeEquals<Other = T>,
+    {
+        self
+    }
+    fn subheap_mut<U>(&mut self) -> &mut T
+    where
+        U: type_equals::TypeEquals<Other = T>,
+    {
+        self
+    }
 }
 #[macro_export]
 macro_rules! impl_superheap {

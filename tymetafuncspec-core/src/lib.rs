@@ -490,8 +490,9 @@ impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem> Heaped for IdxBox<Heap, E
     type Heap = Heap;
 }
 impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem> UnsafeHeapDrop for IdxBox<Heap, Elem> {
-    unsafe fn unsafe_heap_drop(self, heap: &mut Self::Heap) {
-        heap.subheap_mut::<IdxBoxHeapBak<Heap, Elem>>()
+    unsafe fn unsafe_heap_drop<H: SuperHeap<Self::Heap>>(self, heap: &mut H) {
+        heap.subheap_mut::<Heap>()
+            .subheap_mut::<IdxBoxHeapBak<Heap, Elem>>()
             .elems
             .get_mut(self.idx as usize)
             .unwrap()
@@ -534,7 +535,11 @@ impl<
 
     fn from_term(heap: &mut Heap, t: Term<0, Core, Heap>) -> Result<Self, FromTermError> {
         let item = Elem::from_term(heap, t.args[0].clone().to_term())?;
-        let idx = heap.subheap::<IdxBoxHeapBak<Heap, Elem>>().elems.len();
+        let idx = <Heap as SuperHeap<IdxBoxHeapBak<Heap, Elem>>>::subheap::<
+            IdxBoxHeapBak<Heap, Elem>,
+        >(heap)
+        .elems
+        .len();
         heap.subheap_mut::<IdxBoxHeapBak<Heap, Elem>>()
             .elems
             .push(Some(item));
