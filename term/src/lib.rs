@@ -64,6 +64,23 @@ impl<T: UnsafeHeapDrop> Callable<T> for Dropper<T::Heap> {
 impl UnsafeHeapDrop for () {
     unsafe fn unsafe_heap_drop<H>(self, _heap: &mut H) {}
 }
+pub trait Adt: Sized {
+    type PatternMatchStrategyProvider: HasPatternMatchStrategyFor<Self>;
+}
+impl<
+    T: Heaped
+        + PatternMatchable<Dropper<<T as Heaped>::Heap>, <T as Adt>::PatternMatchStrategyProvider>
+        + Adt,
+> UnsafeHeapDrop for T
+{
+    unsafe fn unsafe_heap_drop<H: SuperHeap<Self::Heap>>(self, heap: &mut H) {
+        self.do_match(
+            // propagate responsibility for safety upward
+            &mut unsafe { Dropper::assert_dropped_types_shall_be_safe_to_drop() },
+            heap.subheap_mut::<Self::Heap>(),
+        );
+    }
+}
 impl<T> UnsafeHeapDrop for Owned<T>
 where
     T: Heaped + UnsafeHeapDrop,
