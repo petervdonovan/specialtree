@@ -19,22 +19,22 @@ pub enum TokenKind {
     Literal,
     SanityCheck,
 }
-#[derive(Debug, Diagnostic, Error, Clone, Serialize, Deserialize)]
+#[derive(Debug, Diagnostic, Error, Clone, Copy, Serialize, Deserialize)]
 pub enum ParseError {
     #[diagnostic(transparent)]
     UnexpectedToken(UnexpectedTokenError),
     UnexpectedEndOfInput(#[label("here")] SourceSpan),
     TmfsParseFailure(#[label("here")] SourceSpan),
 }
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct ParseMetadata {
     pub location: SourceSpan,
     // todo: sourcespans of parts?
 }
 
-#[derive(Debug, Diagnostic, Error, Clone, Serialize, Deserialize)]
+#[derive(Debug, Diagnostic, Error, Clone, Copy, Serialize, Deserialize)]
 pub struct UnexpectedTokenError {
-    pub expected_any_of: Vec<Keyword>,
+    // pub expected_any_of: Vec<Keyword>,
     #[label("here")]
     pub at: SourceSpan,
 }
@@ -47,11 +47,11 @@ impl UnexpectedTokenError {
         match previous {
             None => Some(self),
             Some(mut previous) => {
-                for kw in self.expected_any_of {
-                    if !previous.expected_any_of.iter().any(|it| it.0 == kw.0) {
-                        previous.expected_any_of.push(kw);
-                    }
-                }
+                // for kw in self.expected_any_of {
+                //     if !previous.expected_any_of.iter().any(|it| it.0 == kw.0) {
+                //         previous.expected_any_of.push(kw);
+                //     }
+                // }
                 Some(previous)
             }
         }
@@ -76,12 +76,12 @@ impl ParseError {
 impl std::fmt::Display for UnexpectedTokenError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "expected one of ")?;
-        for (i, keyword) in self.expected_any_of.iter().enumerate() {
-            if i > 0 {
-                write!(f, ", ")?;
-            }
-            write!(f, "{}", keyword)?;
-        }
+        // for (i, keyword) in self.expected_any_of.iter().enumerate() {
+        //     if i > 0 {
+        //         write!(f, ", ")?;
+        //     }
+        //     write!(f, "{}", keyword)?;
+        // }
         Ok(())
     }
 }
@@ -99,7 +99,7 @@ impl std::fmt::Display for ParseError {
         }
     }
 }
-
+#[derive(Debug)]
 pub struct Unparse {
     lines: Vec<String>,
 }
@@ -146,6 +146,12 @@ impl Unparse {
     }
     pub fn height(&self) -> usize {
         self.lines.len()
+    }
+}
+
+impl std::fmt::Display for Unparse {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.render())
     }
 }
 

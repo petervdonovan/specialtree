@@ -2,26 +2,16 @@
 
 pub use type_equals;
 
-pub trait CanonicallyConstructibleFrom<T>: Sized + UnsafeHeapDrop<Self::Heap>
+pub mod case_split;
+pub mod drop;
+
+pub trait CanonicallyConstructibleFrom<T>: Sized
 where
     Self: Heaped,
 {
     fn construct(heap: &mut Self::Heap, t: T) -> Self;
     fn deconstruct_succeeds(&self, heap: &Self::Heap) -> bool;
     fn deconstruct(self, heap: &Self::Heap) -> T;
-    // unsafe fn drop(self, heap: &mut Self::Heap);
-    // fn shallow_drop(self, heap: &mut Self::Heap);
-    // fn reconstruct<F: Fn(T) -> T>(&mut self, heap: &mut Self::Heap, f: F) {
-    //     take_mut::take(self, |s| {
-    //         let t = Self::deconstruct(s, heap);
-    //         Self::construct(heap, f(t))
-    //     })
-    // }
-}
-pub trait UnsafeHeapDrop<Heap> {
-    /// # Safety
-    /// Self cannot be shared; if it is, there is a potential use-after-free.
-    unsafe fn unsafe_heap_drop<H: SuperHeap<Heap>>(self, heap: &mut H);
 }
 #[repr(transparent)]
 pub struct Owned<T>(std::mem::ManuallyDrop<T>);
@@ -30,87 +20,6 @@ where
     T: Heaped,
 {
     type Heap = T::Heap;
-}
-pub struct Dropper<Heap>(std::marker::PhantomData<Heap>);
-impl<Heap> Dropper<Heap> {
-    /// # Safety
-    /// This is only safe if the calling code that uses this dropper as a callable
-    /// is guaranteed to not drop any types that are not safe to drop.
-    pub unsafe fn assert_dropped_types_shall_be_safe_to_drop() -> Self {
-        Dropper(std::marker::PhantomData)
-    }
-}
-impl<Heap> Heaped for Dropper<Heap> {
-    type Heap = Heap;
-}
-impl<H> HasBorrowedHeapRef for Dropper<H> {
-    type Borrowed<'a, Heap: 'a> = &'a mut Heap;
-
-    fn with_decayed_heapref<Heap, T, F: Fn(&Heap) -> T>(
-        heap: &mut Self::Borrowed<'_, Heap>,
-        f: F,
-    ) -> T {
-        f(heap)
-    }
-}
-impl<Heap, T: UnsafeHeapDrop<Heap>> Callable<T> for Dropper<Heap> {
-    fn call(&mut self, t: T, heap: Self::Borrowed<'_, Heap>) {
-        // safe if the safety guarantees described for construction of the Dropper are satisfied
-        unsafe {
-            t.unsafe_heap_drop(heap);
-        }
-    }
-}
-// impl UnsafeHeapDrop for () {
-//     unsafe fn unsafe_heap_drop<H>(self, _heap: &mut H) {}
-// }
-// impl<Car: Heaped, Cdr: Heaped<Heap = Car::Heap>> Heaped for (Car, Cdr) {
-//     type Heap = Car::Heap;
-// }
-impl<Heap> UnsafeHeapDrop<Heap> for () {
-    unsafe fn unsafe_heap_drop<H: SuperHeap<Heap>>(self, _heap: &mut H) {}
-}
-impl<Heap, Car, Cdr> UnsafeHeapDrop<Heap> for (Car, Cdr)
-where
-    Car: UnsafeHeapDrop<Heap>,
-    Cdr: UnsafeHeapDrop<Heap>,
-{
-    unsafe fn unsafe_heap_drop<H: SuperHeap<Heap>>(self, heap: &mut H) {
-        unsafe {
-            self.0.unsafe_heap_drop(heap);
-            self.1.unsafe_heap_drop(heap);
-        }
-    }
-}
-pub trait Adt: Sized {
-    type PatternMatchStrategyProvider: HasPatternMatchStrategyFor<Self>;
-}
-impl<
-    Heap: SuperHeap<T::Heap>,
-    T: Heaped
-        + PatternMatchable<Dropper<<T as Heaped>::Heap>, <T as Adt>::PatternMatchStrategyProvider>
-        + Adt,
-> UnsafeHeapDrop<Heap> for T
-{
-    unsafe fn unsafe_heap_drop<H: SuperHeap<Heap>>(self, heap: &mut H) {
-        self.do_match(
-            // propagate responsibility for safety upward
-            &mut unsafe { Dropper::assert_dropped_types_shall_be_safe_to_drop() },
-            heap.subheap_mut::<Heap>().subheap_mut::<T::Heap>(),
-        );
-    }
-}
-impl<Heap, T> UnsafeHeapDrop<Heap> for Owned<T>
-where
-    T: Heaped + UnsafeHeapDrop<T::Heap>,
-    Heap: SuperHeap<T::Heap>,
-{
-    unsafe fn unsafe_heap_drop<H: SuperHeap<Heap>>(self, heap: &mut H) {
-        unsafe {
-            std::mem::ManuallyDrop::<T>::into_inner(self.0)
-                .unsafe_heap_drop(heap.subheap_mut::<Heap>().subheap_mut::<T::Heap>());
-        }
-    }
 }
 impl<TOwned: AllOwned, U: CanonicallyConstructibleFrom<TOwned::Bak>>
     CanonicallyConstructibleFrom<TOwned> for Owned<U>
@@ -136,156 +45,10 @@ impl<TOwned: AllOwned, U: CanonicallyConstructibleFrom<TOwned::Bak>>
         }
     }
 }
-pub struct OwnedWithHeapMutRef<'heap, T: Heaped + UnsafeHeapDrop<T::Heap>> {
-    pub heap: &'heap mut T::Heap,
-    pub t: Option<Owned<T>>,
-}
-impl<'heap, T: Heaped + UnsafeHeapDrop<T::Heap>> OwnedWithHeapMutRef<'heap, T> {
-    pub fn new(heap: &'heap mut T::Heap, t: Owned<T>) -> Self {
-        OwnedWithHeapMutRef { heap, t: Some(t) }
-    }
-}
-impl<T: Heaped + UnsafeHeapDrop<T::Heap>> Drop for OwnedWithHeapMutRef<'_, T> {
-    fn drop(&mut self) {
-        unsafe {
-            self.t.take().unwrap().unsafe_heap_drop(self.heap);
-        }
-    }
-}
-// pub struct FactOfConstructibility<T, Guarantees, CcfConsList> {
-//     phantom: std::marker::PhantomData<(T, Guarantees, CcfConsList)>,
-// }
-// pub trait VisitationStrategy {
-//     type Tyo: TypeOntology;
-//     type PossibleVisitor: CanVisit<Self::Ontology>;
-//     type OtherPossibleVisitors: VisitationStrategy;
-// }
-// pub trait TypeOntology {
-//     type PossibleType;
-//     type OtherPossibleTypes: TypeOntology;
-// }
-// pub trait CanVisit<T> {}
-// pub trait CanVisitAnyOf<Tyo: TypeOntology>:
-//     CanVisit<Tyo::PossibleType> + CanVisitAnyOf<Tyo::OtherPossibleTypes>
-// {
-//     // fn visit(&mut self, t: &Tyo::PossibleType);
-// }
-// pub trait CanVisitAnyOf<Vs: VisitationStrategy> {}
-// impl<Vs: VisitationStrategy>
-pub trait ConsList {
-    type Car;
-    type Cdr;
-}
-impl ConsList for () {
-    type Car = ();
-    type Cdr = ();
-}
-impl<T, Cdr> ConsList for (T, Cdr) {
-    type Car = T;
-    type Cdr = Cdr;
-}
-// pub trait DirectlyConstructibleFromAnyOf<CcfConsList> {
-//     type Guarantees;
-// }
-// mod foc_guarantees {
-//     pub struct NoGuarantees;
-//     // pub struct Exclusive;
-//     pub struct ExclusiveExhaustive;
-// }
-pub trait CaseSplittable<F: HasBorrowedHeapRef, CcfConsList: ConsList>: Sized + Heaped
-where
-    F: Heaped<Heap = <Self as Heaped>::Heap>,
-{
-    fn case_split(&self, callable: &mut F, heap: F::Borrowed<'_, Self::Heap>);
-}
-pub trait HasBorrowedHeapRef {
-    type Borrowed<'a, Heap: 'a>: 'a;
-    fn with_decayed_heapref<Heap, T, F: Fn(&Heap) -> T>(
-        heap: &mut Self::Borrowed<'_, Heap>,
-        f: F,
-    ) -> T;
-}
-pub trait Callable<T>: Heaped + HasBorrowedHeapRef {
-    fn call(&mut self, t: T, heap: Self::Borrowed<'_, Self::Heap>);
-}
-impl<F: Callable<()> + Heaped<Heap = T::Heap>, T: Heaped> CaseSplittable<F, ()> for T {
-    fn case_split(&self, _callable: &mut F, _heap: F::Borrowed<'_, Self::Heap>) {
-        panic!("no matching case");
-    }
-}
-impl<F, T: Heaped, Car, Cdr: ConsList> CaseSplittable<F, (Car, Cdr)> for T
-where
-    F: Callable<Car> + HasBorrowedHeapRef + Heaped<Heap = T::Heap>,
-    T: CanonicallyConstructibleFrom<Car>,
-    T: CaseSplittable<F, Cdr>,
-    T: Copy,
-{
-    fn case_split(
-        &self,
-        callable: &mut F,
-        heap: <F as HasBorrowedHeapRef>::Borrowed<'_, Self::Heap>,
-    ) {
-        let mut heap = heap;
-        if <F as HasBorrowedHeapRef>::with_decayed_heapref(&mut heap, |hr| {
-            <Self as CanonicallyConstructibleFrom<Car>>::deconstruct_succeeds(self, hr)
-        }) {
-            let t = <F as HasBorrowedHeapRef>::with_decayed_heapref(&mut heap, |hr| {
-                <Self as CanonicallyConstructibleFrom<Car>>::deconstruct(*self, hr)
-            });
-            callable.call(t, heap);
-        } else {
-            <Self as CaseSplittable<F, Cdr>>::case_split(self, callable, heap);
-        }
-    }
-}
-pub trait HasPatternMatchStrategyFor<T> {
-    type Strategy: ConsList;
-}
-pub trait PatternMatchable<F: HasBorrowedHeapRef, Strategies>: Heaped {
-    fn do_match(&self, callable: &mut F, heap: F::Borrowed<'_, <Self as Heaped>::Heap>);
-}
-impl<F, T, StrategyProvider> PatternMatchable<F, StrategyProvider> for T
-where
-    StrategyProvider: HasPatternMatchStrategyFor<T>,
-    F: HasBorrowedHeapRef + Heaped<Heap = T::Heap>,
-    T: CaseSplittable<F, StrategyProvider::Strategy>,
-{
-    fn do_match(&self, callable: &mut F, heap: F::Borrowed<'_, <Self as Heaped>::Heap>) {
-        <Self as CaseSplittable<F, StrategyProvider::Strategy>>::case_split(self, callable, heap);
-    }
-}
-// impl<F, CcfConsList, T>
-//     PatternMatchable<F, <T as DirectlyConstructibleFromAnyOf<CcfConsList>>::Guarantees, CcfConsList>
-//     for T
-// where
-//     // F: Callable<T>,
-//     F: Callable<CcfConsList::Car>,
-//     T: DirectlyConstructibleFromAnyOf<CcfConsList>,
-//     T: CanonicallyConstructibleFrom<CcfConsList::Car>,
-//     T: PatternMatchable<F, foc_guarantees::NoGuarantees, CcfConsList::Cdr>,
-//     T: Copy,
-//     CcfConsList: ConsList,
-// {
-//     fn do_match(&self, callable: &mut F, heap: &<Self as Heaped>::Heap) {
-//         if <Self as CanonicallyConstructibleFrom<CcfConsList::Car>>::deconstruct_succeeds(
-//             self, heap,
-//         ) {
-//             let t =
-//                 <Self as CanonicallyConstructibleFrom<CcfConsList::Car>>::deconstruct(*self, heap);
-//             callable.call(&t);
-//         } else {
-//             <Self as PatternMatchable<F, foc_guarantees::NoGuarantees, CcfConsList::Cdr>>::do_match(
-//                 self, callable, heap,
-//             );
-//         }
-//     }
-// }
+
 pub trait Heaped {
     type Heap;
 }
-// impl Heaped for () {
-//     type Heap = ();
-// }
 pub trait SuperHeap<SubHeap> {
     fn subheap<T>(&self) -> &SubHeap
     where

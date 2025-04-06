@@ -72,6 +72,9 @@ impl TyMetaFuncSpec for ParseMetadataTmfs {
     }
 }
 
+#[derive(derivative::Derivative)]
+#[derivative(Clone(bound = ""))]
+#[derivative(Copy(bound = ""))]
 pub struct ParseMetadata<Heap>(pub parse::ParseMetadata, std::marker::PhantomData<Heap>);
 #[derive(Default)]
 pub struct ParseMetadataBak<Heap: ?Sized>(std::marker::PhantomData<Heap>);

@@ -10,7 +10,8 @@ use syn::parse_quote;
 pub struct BasePaths {
     pub data_structure: syn::Path,
     pub term_trait: syn::Path,
-    pub cst: syn::Path,
+    pub cst_data_structure: syn::Path,
+    pub cst_term_trait: syn::Path,
 }
 
 pub fn generate<L: LangSpec>(bps: &BasePaths, lg: &LsGen<L>) -> syn::ItemMod {
@@ -48,28 +49,29 @@ pub fn generate_parse<L: LangSpec, LCst: LangSpec>(
     let camel_ident = &cst_tgd.camel_ident;
     let byline = byline!();
     let ast_bp = &bps.data_structure;
-    let cst_bp = &bps.cst;
-    let cst_bp: syn::Path = parse_quote! { #cst_bp::cst::data_structure };
+    let cst_data_structure_bp = &bps.cst_data_structure;
+    let cst_term_trait_bp = &bps.cst_term_trait;
+    // let cst_bp: syn::Path = parse_quote! { #cst_bp::cst::data_structure };
     let my_ty: syn::Type = syn::parse_quote! { #ast_bp::#camel_ident };
-    let my_cst_ty: syn::Type = syn::parse_quote! { #cst_bp::#camel_ident };
-    let my_cst_path: syn::Path = parse_quote! { #cst_bp::#camel_ident };
+    let my_cst_ty: syn::Type = syn::parse_quote! { #cst_data_structure_bp::#camel_ident };
+    let my_cst_path: syn::Path = parse_quote! { #cst_data_structure_bp::#camel_ident };
     let cst_ccf_sort_snakes = (cst_tgd.ccf.ccf_sort_snake_idents)();
     let cst_ccf_sort_tys = (cst_tgd.ccf.ccf_sort_tys)(
-        HeapType(syn::parse_quote! { #cst_bp::Heap }),
-        AlgebraicsBasePath::new(quote::quote!(#cst_bp::)),
+        HeapType(syn::parse_quote! { #cst_data_structure_bp::Heap }),
+        AlgebraicsBasePath::new(quote::quote!(#cst_data_structure_bp::)),
     );
     let maybe_parse_this = if cst_ccf_sort_tys.len() == 1 {
         let cst_ccf = cst_ccf_sort_tys.first().unwrap().clone();
         let cst_ccf_tys = (cst_tgd.ccf.ccf_sort_tyses)(
-            HeapType(syn::parse_quote! { #cst_bp::Heap }),
-            AlgebraicsBasePath::new(quote::quote!(#cst_bp::)),
+            HeapType(syn::parse_quote! { #cst_data_structure_bp::Heap }),
+            AlgebraicsBasePath::new(quote::quote!(#cst_data_structure_bp::)),
         )
         .into_iter()
         .next()
         .unwrap();
         let ast_ccf_tys = (tgd.ccf.ccf_sort_tyses)(
-            HeapType(syn::parse_quote! { #cst_bp::Heap }),
-            AlgebraicsBasePath::new(quote::quote!(#cst_bp::)),
+            HeapType(syn::parse_quote! { #cst_data_structure_bp::Heap }),
+            AlgebraicsBasePath::new(quote::quote!(#cst_data_structure_bp::)),
         )
         .into_iter()
         .next()
@@ -79,7 +81,7 @@ pub fn generate_parse<L: LangSpec, LCst: LangSpec>(
             &tgd.transparency,
             ((tgd.ccf.ccf_sort_transparencies)()[0]).as_slice(),
             &cst_ccf_tys,
-            &cst_bp,
+            &cst_data_structure_bp,
             &cst_ccf,
             &my_cst_path,
         );
@@ -92,14 +94,17 @@ pub fn generate_parse<L: LangSpec, LCst: LangSpec>(
     let ccf_tys_size1 = cst_ccf_sort_tys
         .into_iter()
         .zip(cst_ccf_sort_snakes.iter())
-        .filter_map(|(it, snake)| if snake.len() == 1 + 1 { Some(it) } else { None });
+        .filter_map(|(it, snake)| if snake.len() == 1 { Some(it) } else { None });
+    dbg!(quote::quote!(#camel_ident).to_string());
     let untupled_ccf_tys_size1 = (cst_tgd.ccf.ccf_sort_tyses)(
-        HeapType(syn::parse_quote! { #cst_bp::Heap }),
-        AlgebraicsBasePath::new(quote::quote!(#cst_bp::)),
+        HeapType(syn::parse_quote! { #cst_data_structure_bp::Heap }),
+        AlgebraicsBasePath::new(quote::quote!(#cst_data_structure_bp::)),
     )
     .into_iter()
     .filter_map(|it| {
+        dbg!(quote::quote!(#(#it ,,,,,,,,,,,,,,,,,,,,)*).to_string());
         if it.len() == 1 {
+            dbg!("len is 1");
             Some(it.into_iter().next().unwrap())
         } else {
             None
@@ -117,8 +122,8 @@ pub fn generate_parse<L: LangSpec, LCst: LangSpec>(
     // );
     syn::parse_quote! {
         #byline
-        impl parse::Parse<#cst_bp::Heap> for tymetafuncspec_core::#cstfication<#cst_bp::Heap, #my_cst_ty> {
-            fn parse(source: &str, offset: parse::miette::SourceOffset, heap: &mut #cst_bp::Heap, errors: &mut Vec<parse::ParseError>) -> (tymetafuncspec_core::#cstfication<#cst_bp::Heap, #my_cst_ty>, parse::miette::SourceOffset) {
+        impl parse::Parse<#cst_data_structure_bp::Heap> for tymetafuncspec_core::#cstfication<#cst_data_structure_bp::Heap, #my_cst_ty> {
+            fn parse(source: &str, offset: parse::miette::SourceOffset, heap: &mut #cst_data_structure_bp::Heap, errors: &mut Vec<parse::ParseError>) -> (tymetafuncspec_core::#cstfication<#cst_data_structure_bp::Heap, #my_cst_ty>, parse::miette::SourceOffset) {
                 let mut ute = None;
                 #maybe_parse_this ;
                 #(
@@ -133,6 +138,9 @@ pub fn generate_parse<L: LangSpec, LCst: LangSpec>(
                     }
                 )*
                 parse_directly(source, offset, heap, errors, ute.unwrap())
+            }
+            fn unparse(&self, heap: &#cst_data_structure_bp::Heap) -> parse::Unparse {
+                todo!()
             }
             // #unparse
         }
@@ -162,6 +170,14 @@ pub fn gen_parse_current(
             syn::parse_quote! { |x| tymetafuncspec_core::cstfy_transparent_ok(x) }
         }
     };
+    let argses = ast_ccf_tys.iter().map(|ty| {
+        syn::parse_quote! {{
+            let (res, new_offset) = <#ty as parse::Parse<_>>::parse(source, offset, heap, errors);
+            offset = new_offset;
+            res
+        }}
+    });
+    let args: syn::Expr = langspec_gen_util::cons_list(argses);
     syn::parse_quote! {
         #byline
         fn parse_directly(
@@ -174,13 +190,7 @@ pub fn gen_parse_current(
             match parse::unicode_segmentation::UnicodeSegmentation::unicode_words(&source[initial_offset.offset()..]).next() {
                 Some(stringify!(#snake_ident)) => {
                     let mut offset = initial_offset;
-                    let args = (
-                        #({
-                            let (res, new_offset) = <#ast_ccf_tys as parse::Parse<_>>::parse(source, offset, heap, errors);
-                            offset = new_offset;
-                            res
-                        },)*
-                    );
+                    let args = #args;
                     ((#ok_expr)(<#cst as term::CanonicallyConstructibleFrom<#cst_ccf>>::construct(heap, args)), offset)
                 }
                 None => (
@@ -330,22 +340,26 @@ pub(crate) fn cst<'a, 'b: 'a, L: LangSpec>(
 pub fn formatted<L: LangSpec>(l: &L) -> String {
     let lg = LsGen::from(l);
     let bps = BasePaths {
-        data_structure: parse_quote! { crate },
-        term_trait: parse_quote! { crate },
-        cst: parse_quote! { crate },
+        data_structure: parse_quote! { crate::data_structure },
+        term_trait: parse_quote! { crate::term_trait },
+        cst_data_structure: parse_quote! { crate::cst::data_structure },
+        cst_term_trait: parse_quote! { crate::cst::extension_of },
     };
     let m = generate(&bps, &lg);
     let (cst_mod, cst_tt, cst_tt_impl) = {
         let arena = bumpalo::Bump::new();
         let cst = cst(&arena, l);
         let lg = LsGen::from(&cst);
-        let bp = parse_quote! { crate::cst };
-        let cst_mod = term_specialized_gen::generate(&bp, &lg, false);
-        let cst_tt = term_trait_gen::generate(&bp, &cst);
+        let cst_mod = term_specialized_gen::generate(
+            &parse_quote! { crate::cst::data_structure },
+            &lg,
+            false,
+        );
+        let cst_tt = term_trait_gen::generate(&parse_quote! { crate::cst::extension_of }, &cst);
         let cst_tt_impl = term_specialized_impl_gen::generate(
             &term_specialized_impl_gen::BasePaths {
-                data_structure: bp.clone(),
-                term_trait: bp.clone(),
+                data_structure: parse_quote! { crate::cst::data_structure },
+                term_trait: parse_quote! { crate::cst::extension_of },
             },
             &lg,
             &lg,

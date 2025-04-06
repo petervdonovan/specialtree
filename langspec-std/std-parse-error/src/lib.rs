@@ -72,6 +72,9 @@ impl TyMetaFuncSpec for ParseErrorTmfs {
     }
 }
 
+#[derive(derivative::Derivative)]
+#[derivative(Clone(bound = ""))]
+#[derivative(Copy(bound = ""))]
 pub struct ParseError<Heap>(pub parse::ParseError, std::marker::PhantomData<Heap>);
 #[derive(Default)]
 pub struct ParseErrorBak<Heap: ?Sized>(std::marker::PhantomData<Heap>);

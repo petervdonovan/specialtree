@@ -56,7 +56,7 @@ pub(crate) fn impl_has_pattern_match_strategy_for(
     );
     syn::parse_quote! {
         #byline
-        impl term::HasPatternMatchStrategyFor<#data_structure::#camel_ident> for PatternMatchStrategyProvider {
+        impl term::case_split::HasPatternMatchStrategyFor<#data_structure::#camel_ident> for PatternMatchStrategyProvider {
             type Strategy = #strategy;
         }
     }

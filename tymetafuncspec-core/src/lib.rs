@@ -265,7 +265,7 @@ impl<Heap> Heaped for BoundedNat<Heap> {
     type Heap = Heap;
 }
 impl<Heap> UnsafeHeapDrop<Heap> for BoundedNat<Heap> {
-    unsafe fn unsafe_heap_drop<H: SuperHeap<Heap>>(self, _: &mut H) {}
+    unsafe fn unsafe_heap_drop(self, _: &mut Heap) {}
 }
 empty_heap_bak!(BoundedNatHeapBak);
 impl<Heap: SuperHeap<BoundedNatHeapBak<Heap>>> TermRoundTrip<0, Core> for BoundedNat<Heap> {
@@ -339,13 +339,11 @@ impl<Heap, Elem: Heaped<Heap = Heap>> Heaped for Set<Heap, Elem> {
 #[derivative(Default(bound = ""))]
 pub struct SetHeapBak<Heap: ?Sized, Elem> {
     phantom: std::marker::PhantomData<Heap>,
-    vecs: std::vec::Vec<std::vec::Vec<Elem>>,
+    vecs: slab::Slab<std::vec::Vec<Elem>>,
 }
 impl<Heap: SuperHeap<SetHeapBak<Heap, Elem>>, Elem> UnsafeHeapDrop<Heap> for Set<Heap, Elem> {
-    unsafe fn unsafe_heap_drop<H: SuperHeap<Heap>>(self, heap: &mut H) {
-        let mut subheap = heap
-            .subheap_mut::<Heap>()
-            .subheap_mut::<SetHeapBak<Heap, Elem>>();
+    unsafe fn unsafe_heap_drop(self, heap: &mut Heap) {
+        let mut subheap = heap.subheap_mut::<SetHeapBak<Heap, Elem>>();
         todo!()
     }
 }
@@ -394,59 +392,60 @@ impl<Heap: SuperHeap<SetHeapBak<Heap, Elem>>, Elem> UnsafeHeapDrop<Heap> for Set
 //     };
 // }
 // collection_term_round_trip_impl!(Set<Heap, Elem>, tymetafuncspec_core::Set);
-// impl<Heap, Elem> parse::Parse<Heap> for Cstfy<Heap, Set<Heap, Elem>>
-// where
-//     Heap: SuperHeap<SetHeapBak<Heap, Elem>>,
-//     Elem: parse::Parse<Heap>,
-// {
-//     fn parse(
-//         source: &str,
-//         initial_offset: parse::miette::SourceOffset,
-//         heap: &mut Self::Heap,
-//         errors: &mut Vec<parse::ParseError>,
-//     ) -> (
-//         Either<
-//             Heap,
-//             Pair<Heap, Set<Heap, Elem>, Maybe<Heap, std_parse_metadata::ParseMetadata<Heap>>>,
-//             std_parse_error::ParseError<Heap>,
-//         >,
-//         parse::miette::SourceOffset,
-//     ) {
-//         let mut items = Vec::new();
-//         let mut offset = initial_offset;
-//         while !source[offset.offset()..].starts_with('}') {
-//             let (item, new_offset) =
-//                 <Elem as parse::Parse<Heap>>::parse(source, offset, heap, errors);
-//             items.push(item);
-//             offset = new_offset;
-//             if source[offset.offset()..].starts_with(',') {
-//                 offset = parse::miette::SourceOffset::from(offset.offset() + 1);
-//             }
-//         }
-//         (
-//             cstfy_ok(
-//                 Set {
-//                     items,
-//                     heap: std::marker::PhantomData,
-//                 },
-//                 initial_offset,
-//                 offset,
-//             ),
-//             offset,
-//         )
-//     }
-//     fn unparse(&self, heap: &Self::Heap) -> Unparse {
-//         uncstfy(self).map_or(Unparse::new("err"), |s| {
-//             let mut unparse = Unparse::new("{");
-//             unparse.indent();
-//             for item in &s.items {
-//                 unparse.vstack(item.unparse(heap));
-//             }
-//             unparse.hstack(Unparse::new("}"));
-//             unparse
-//         })
-//     }
-// }
+impl<Heap, Elem> parse::Parse<Heap> for Cstfy<Heap, Set<Heap, Elem>>
+where
+    Heap: SuperHeap<SetHeapBak<Heap, Elem>>,
+    Elem: parse::Parse<Heap>,
+{
+    fn parse(
+        source: &str,
+        initial_offset: parse::miette::SourceOffset,
+        heap: &mut Self::Heap,
+        errors: &mut Vec<parse::ParseError>,
+    ) -> (
+        Either<
+            Heap,
+            Pair<Heap, Set<Heap, Elem>, Maybe<Heap, std_parse_metadata::ParseMetadata<Heap>>>,
+            std_parse_error::ParseError<Heap>,
+        >,
+        parse::miette::SourceOffset,
+    ) {
+        let mut items = Vec::new();
+        let mut offset = initial_offset;
+        while !source[offset.offset()..].starts_with('}') {
+            let (item, new_offset) =
+                <Elem as parse::Parse<Heap>>::parse(source, offset, heap, errors);
+            items.push(item);
+            offset = new_offset;
+            if source[offset.offset()..].starts_with(',') {
+                offset = parse::miette::SourceOffset::from(offset.offset() + 1);
+            }
+        }
+        (
+            cstfy_ok(
+                Set {
+                    items: todo!(),
+                    heap: std::marker::PhantomData,
+                },
+                initial_offset,
+                offset,
+            ),
+            offset,
+        )
+    }
+    fn unparse(&self, heap: &Self::Heap) -> Unparse {
+        uncstfy(self).map_or(Unparse::new("err"), |s| {
+            let mut unparse = Unparse::new("{");
+            unparse.indent();
+            todo!();
+            // for item in &s.items {
+            //     unparse.vstack(item.unparse(heap));
+            // }
+            // unparse.hstack(Unparse::new("}"));
+            unparse
+        })
+    }
+}
 #[derive(Debug)]
 pub struct Seq<Heap, Elem> {
     heap: std::marker::PhantomData<Heap>,
@@ -514,17 +513,14 @@ pub struct IdxBox<Heap, Elem> {
 impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem> Heaped for IdxBox<Heap, Elem> {
     type Heap = Heap;
 }
-impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem> UnsafeHeapDrop<Heap> for IdxBox<Heap, Elem> {
-    unsafe fn unsafe_heap_drop<H: SuperHeap<Heap>>(self, heap: &mut H) {
-        heap.subheap_mut::<Heap>()
-            .subheap_mut::<IdxBoxHeapBak<Heap, Elem>>()
-            .elems
-            .get_mut(self.idx as usize)
-            .unwrap()
-            .take();
+impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem: Copy> UnsafeHeapDrop<Heap>
+    for IdxBox<Heap, Elem>
+{
+    unsafe fn unsafe_heap_drop(self, heap: &mut Heap) {
+        heap.subheap_mut::<IdxBoxHeapBak<Heap, Elem>>().elems[self.idx as usize];
     }
 }
-impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem> CanonicallyConstructibleFrom<Elem>
+impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem: Copy> CanonicallyConstructibleFrom<Elem>
     for IdxBox<Heap, Elem>
 {
     fn construct(heap: &mut Self::Heap, t: Elem) -> Self {
@@ -539,48 +535,48 @@ impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem> CanonicallyConstructibleF
         todo!()
     }
 }
-impl<
-        Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>,
-        Elem: TermRoundTrip<0, Core> + Heaped<Heap = Heap>,
-    > TermRoundTrip<0, Core> for IdxBox<Heap, Elem>
-{
-    fn to_term(self, heap: &mut Heap) -> Term<0, Core, Heap> {
-        let item_term = heap
-            .subheap_mut::<IdxBoxHeapBak<Heap, Elem>>()
-            .elems
-            .get_mut(self.idx as usize)
-            .unwrap()
-            .take()
-            .unwrap()
-            .to_term(heap);
-        let mut fingerprint = TyFingerprint::from(stringify!(tymetafuncspec_core::IdxBox));
-        fingerprint = fingerprint.combine(&item_term.tyfingerprint);
-        Term::new(fingerprint, vec![MaybeOpaqueTerm::Term(item_term)])
-    }
+// impl<
+//         Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>,
+//         Elem: TermRoundTrip<0, Core> + Heaped<Heap = Heap>,
+//     > TermRoundTrip<0, Core> for IdxBox<Heap, Elem>
+// {
+//     fn to_term(self, heap: &mut Heap) -> Term<0, Core, Heap> {
+//         let item_term = heap
+//             .subheap_mut::<IdxBoxHeapBak<Heap, Elem>>()
+//             .elems
+//             .get_mut(self.idx as usize)
+//             .unwrap()
+//             .take()
+//             .unwrap()
+//             .to_term(heap);
+//         let mut fingerprint = TyFingerprint::from(stringify!(tymetafuncspec_core::IdxBox));
+//         fingerprint = fingerprint.combine(&item_term.tyfingerprint);
+//         Term::new(fingerprint, vec![MaybeOpaqueTerm::Term(item_term)])
+//     }
 
-    fn from_term(heap: &mut Heap, t: Term<0, Core, Heap>) -> Result<Self, FromTermError> {
-        let item = Elem::from_term(heap, t.args[0].clone().to_term())?;
-        let idx = <Heap as SuperHeap<IdxBoxHeapBak<Heap, Elem>>>::subheap::<
-            IdxBoxHeapBak<Heap, Elem>,
-        >(heap)
-        .elems
-        .len();
-        heap.subheap_mut::<IdxBoxHeapBak<Heap, Elem>>()
-            .elems
-            .push(Some(item));
-        Ok(Self {
-            phantom: std::marker::PhantomData,
-            idx: idx as u32,
-        })
-    }
-}
+//     fn from_term(heap: &mut Heap, t: Term<0, Core, Heap>) -> Result<Self, FromTermError> {
+//         let item = Elem::from_term(heap, t.args[0].clone().to_term())?;
+//         let idx = <Heap as SuperHeap<IdxBoxHeapBak<Heap, Elem>>>::subheap::<
+//             IdxBoxHeapBak<Heap, Elem>,
+//         >(heap)
+//         .elems
+//         .len();
+//         heap.subheap_mut::<IdxBoxHeapBak<Heap, Elem>>()
+//             .elems
+//             .push(Some(item));
+//         Ok(Self {
+//             phantom: std::marker::PhantomData,
+//             idx: idx as u32,
+//         })
+//     }
+// }
 #[derive(Derivative)]
 #[derivative(Default(bound = ""))]
 pub struct IdxBoxHeapBak<Heap: ?Sized, Elem> {
     phantom: std::marker::PhantomData<(Elem, Heap)>,
-    elems: std::vec::Vec<Option<Elem>>, // None is a tombstone
+    elems: slab::Slab<Elem>, // None is a tombstone
 }
-impl<Heap, T: Parse<Heap>> Parse<Heap> for CstfyTransparent<Heap, IdxBox<Heap, T>>
+impl<Heap, T: Parse<Heap> + Copy> Parse<Heap> for CstfyTransparent<Heap, IdxBox<Heap, T>>
 where
     Heap: SuperHeap<IdxBoxHeapBak<Heap, T>>,
 {
@@ -602,13 +598,12 @@ where
 
     fn unparse(&self, heap: &Self::Heap) -> Unparse {
         let item = uncstfy_transparent(self).unwrap();
-        heap.subheap::<IdxBoxHeapBak<Heap, T>>().elems[item.idx as usize]
-            .as_ref()
-            .unwrap()
-            .unparse(heap)
+        heap.subheap::<IdxBoxHeapBak<Heap, T>>().elems[item.idx as usize].unparse(heap)
     }
 }
-#[derive(Debug)]
+#[derive(derivative::Derivative)]
+#[derivative(Clone(bound = "L: Clone, R: Clone"))]
+#[derivative(Copy(bound = "L: Copy, R: Copy"))]
 pub enum Either<Heap, L, R> {
     Left(L, std::marker::PhantomData<Heap>),
     Right(R, std::marker::PhantomData<Heap>),
@@ -710,7 +705,10 @@ where
         }
     }
 }
-#[derive(Debug)]
+
+#[derive(derivative::Derivative)]
+#[derivative(Clone(bound = "T: Clone"))]
+#[derivative(Copy(bound = "T: Copy"))]
 pub enum Maybe<Heap, T> {
     Just(T, std::marker::PhantomData<Heap>),
     Nothing,
@@ -790,7 +788,9 @@ where
         }
     }
 }
-#[derive(Debug)]
+#[derive(derivative::Derivative)]
+#[derivative(Clone(bound = "L: Clone, R: Clone"))]
+#[derivative(Copy(bound = "L: Copy, R: Copy"))]
 pub struct Pair<Heap, L, R> {
     l: L,
     r: R,
