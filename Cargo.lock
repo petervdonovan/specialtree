@@ -717,32 +717,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "term-unspecialized"
-version = "0.1.0"
-dependencies = [
- "derivative",
- "langspec",
- "paste",
- "term",
-]
-
-[[package]]
-name = "term-unspecialized-impl-gen"
-version = "0.1.0"
-dependencies = [
- "langspec",
- "langspec-examples",
- "langspec-gen-util",
- "prettyplease",
- "quote",
- "syn 2.0.98",
- "term",
- "term-trait-gen",
- "term-unspecialized",
- "tymetafuncspec-core",
-]
-
-[[package]]
 name = "termcolor"
 version = "1.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -872,7 +846,6 @@ dependencies = [
  "std-parse-metadata",
  "syn 2.0.98",
  "term",
- "term-unspecialized",
 ]
 
 [[package]]

@@ -1,6 +1,6 @@
 use crate::{
     Heaped, Owned, SuperHeap,
-    case_split::{Adt, Callable, HasBorrowedHeapRef, PatternMatchable},
+    case_split::{AdmitNoMatchingCase, Adt, Callable, HasBorrowedHeapRef, PatternMatchable},
 };
 
 pub trait UnsafeHeapDrop<Heap> {
@@ -59,17 +59,25 @@ impl<H> HasBorrowedHeapRef for Dropper<H> {
         f(heap)
     }
 }
-impl<Heap, T: UnsafeHeapDrop<Heap>> Callable<T> for Dropper<Heap> {
-    fn call(&mut self, t: T, heap: Self::Borrowed<'_, Heap>) {
+impl<Heap, Case: UnsafeHeapDrop<Heap>> Callable<Case> for Dropper<Heap> {
+    fn call(&mut self, t: Case, heap: &mut Self::Borrowed<'_, Heap>) {
         // safe if the safety guarantees described for construction of the Dropper are satisfied
         unsafe {
             t.unsafe_heap_drop(heap);
         }
     }
+    fn do_not_call(&mut self) {
+        // try next case
+    }
 }
-impl<Heap> UnsafeHeapDrop<Heap> for () {
-    unsafe fn unsafe_heap_drop(self, _heap: &mut Heap) {}
+impl<Heap, T> AdmitNoMatchingCase<T> for Dropper<Heap> {
+    fn no_matching_case(&self, _t: &T, _heap: &mut Self::Borrowed<'_, Heap>) {
+        panic!("no matching case");
+    }
 }
+// impl<Heap> UnsafeHeapDrop<Heap> for () {
+//     unsafe fn unsafe_heap_drop(self, _heap: &mut Heap) {}
+// }
 impl<Heap, Car, Cdr> UnsafeHeapDrop<Heap> for (Car, Cdr)
 where
     Car: UnsafeHeapDrop<Heap>,
@@ -93,7 +101,7 @@ impl<
         self.do_match(
             // propagate responsibility for safety upward
             &mut unsafe { Dropper::assert_dropped_types_shall_be_safe_to_drop() },
-            heap.subheap_mut::<T::Heap>(),
+            &mut heap.subheap_mut::<T::Heap>(),
         );
     }
 }

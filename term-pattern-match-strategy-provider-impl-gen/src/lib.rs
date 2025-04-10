@@ -73,7 +73,7 @@ pub(crate) fn impl_adt_for(
     let byline = langspec_gen_util::byline!();
     syn::parse_quote! {
         #byline
-        impl term::Adt for #data_structure::#camel_ident {
+        impl term::case_split::Adt for #data_structure::#camel_ident {
             type PatternMatchStrategyProvider = #strategy_provider::PatternMatchStrategyProvider;
         }
     }

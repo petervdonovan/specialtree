@@ -5,8 +5,7 @@ use langspec::{
 };
 use parse::{miette::SourceSpan, Parse, Unparse};
 use serde::{Deserialize, Serialize};
-use term::{CanonicallyConstructibleFrom, Heaped, SuperHeap, TyFingerprint, UnsafeHeapDrop};
-use term_unspecialized::{FromTermError, MaybeOpaqueTerm, Term, TermRoundTrip};
+use term::{drop::UnsafeHeapDrop, CanonicallyConstructibleFrom, Heaped, SuperHeap};
 
 pub struct Core;
 #[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize)]
@@ -268,23 +267,6 @@ impl<Heap> UnsafeHeapDrop<Heap> for BoundedNat<Heap> {
     unsafe fn unsafe_heap_drop(self, _: &mut Heap) {}
 }
 empty_heap_bak!(BoundedNatHeapBak);
-impl<Heap: SuperHeap<BoundedNatHeapBak<Heap>>> TermRoundTrip<0, Core> for BoundedNat<Heap> {
-    fn to_term(self, _: &mut Heap) -> Term<0, Core, Heap> {
-        let fingerprint = TyFingerprint::from(stringify!(tymetafuncspec_core::BoundedNat));
-        Term::new(fingerprint, vec![MaybeOpaqueTerm::Opaque(self.n)])
-    }
-
-    fn from_term(_: &mut Heap, t: Term<0, Core, Heap>) -> Result<Self, FromTermError> {
-        let n = match t.args[0] {
-            MaybeOpaqueTerm::Opaque(n) => n,
-            _ => Err(FromTermError::Invalid)?,
-        };
-        Ok(Self {
-            heap: std::marker::PhantomData,
-            n,
-        })
-    }
-}
 impl<Heap> parse::Parse<Heap> for Cstfy<Heap, BoundedNat<Heap>>
 where
     Heap: SuperHeap<BoundedNatHeapBak<Heap>>,
@@ -347,51 +329,6 @@ impl<Heap: SuperHeap<SetHeapBak<Heap, Elem>>, Elem> UnsafeHeapDrop<Heap> for Set
         todo!()
     }
 }
-// macro_rules! collection_term_round_trip_impl {
-//     ($collection:ty, $globally_unique_name:path) => {
-//         impl<Heap, Elem: TermRoundTrip<0, Core> + Heaped<Heap = Heap>> TermRoundTrip<0, Core>
-//             for $collection
-//         {
-//             fn to_term(self, heap: &mut Self::Heap) -> Term<0, Core, Heap> {
-//                 let items_terms: Vec<Term<0, Core, Heap>> = self
-//                     .items
-//                     .into_iter()
-//                     .map(|item| item.to_term(heap))
-//                     .collect();
-//                 let mut fingerprint = TyFingerprint::from(stringify!($globally_unique_name));
-//                 for item in &items_terms {
-//                     fingerprint = fingerprint.combine(&item.tyfingerprint);
-//                 }
-//                 Term::new(
-//                     fingerprint,
-//                     items_terms.into_iter().map(MaybeOpaqueTerm::Term).collect(),
-//                 )
-//             }
-//             fn from_term(
-//                 heap: &mut Self::Heap,
-//                 t: Term<0, Core, Heap>,
-//             ) -> Result<Self, FromTermError> {
-//                 let mut items = Vec::new();
-//                 let mut fingerprint = TyFingerprint::from(stringify!($globally_unique_name));
-//                 for item in t.args.into_iter().filter_map(|arg| match arg {
-//                     MaybeOpaqueTerm::Term(t) => Some(t),
-//                     _ => None,
-//                 }) {
-//                     fingerprint = fingerprint.combine(&item.tyfingerprint);
-//                     items.push(Elem::from_term(heap, item)?);
-//                 }
-//                 if fingerprint != t.tyfingerprint {
-//                     panic!("Dynamic cast failed");
-//                 }
-//                 Ok(Self {
-//                     items,
-//                     heap: std::marker::PhantomData,
-//                 })
-//             }
-//         }
-//     };
-// }
-// collection_term_round_trip_impl!(Set<Heap, Elem>, tymetafuncspec_core::Set);
 impl<Heap, Elem> parse::Parse<Heap> for Cstfy<Heap, Set<Heap, Elem>>
 where
     Heap: SuperHeap<SetHeapBak<Heap, Elem>>,
@@ -535,41 +472,6 @@ impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem: Copy> CanonicallyConstruc
         todo!()
     }
 }
-// impl<
-//         Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>,
-//         Elem: TermRoundTrip<0, Core> + Heaped<Heap = Heap>,
-//     > TermRoundTrip<0, Core> for IdxBox<Heap, Elem>
-// {
-//     fn to_term(self, heap: &mut Heap) -> Term<0, Core, Heap> {
-//         let item_term = heap
-//             .subheap_mut::<IdxBoxHeapBak<Heap, Elem>>()
-//             .elems
-//             .get_mut(self.idx as usize)
-//             .unwrap()
-//             .take()
-//             .unwrap()
-//             .to_term(heap);
-//         let mut fingerprint = TyFingerprint::from(stringify!(tymetafuncspec_core::IdxBox));
-//         fingerprint = fingerprint.combine(&item_term.tyfingerprint);
-//         Term::new(fingerprint, vec![MaybeOpaqueTerm::Term(item_term)])
-//     }
-
-//     fn from_term(heap: &mut Heap, t: Term<0, Core, Heap>) -> Result<Self, FromTermError> {
-//         let item = Elem::from_term(heap, t.args[0].clone().to_term())?;
-//         let idx = <Heap as SuperHeap<IdxBoxHeapBak<Heap, Elem>>>::subheap::<
-//             IdxBoxHeapBak<Heap, Elem>,
-//         >(heap)
-//         .elems
-//         .len();
-//         heap.subheap_mut::<IdxBoxHeapBak<Heap, Elem>>()
-//             .elems
-//             .push(Some(item));
-//         Ok(Self {
-//             phantom: std::marker::PhantomData,
-//             idx: idx as u32,
-//         })
-//     }
-// }
 #[derive(Derivative)]
 #[derivative(Default(bound = ""))]
 pub struct IdxBoxHeapBak<Heap: ?Sized, Elem> {
@@ -612,39 +514,6 @@ impl<Heap, L, R> Heaped for Either<Heap, L, R> {
     type Heap = Heap;
 }
 empty_heap_bak!(EitherHeapBak, L, R);
-impl<
-        Heap,
-        L: TermRoundTrip<0, Core> + Heaped<Heap = Heap>,
-        R: TermRoundTrip<0, Core> + Heaped<Heap = Heap>,
-    > TermRoundTrip<0, Core> for Either<Heap, L, R>
-{
-    fn to_term(self, heap: &mut Heap) -> Term<0, Core, Heap> {
-        match self {
-            Either::Left(l, _) => {
-                let l_term = l.to_term(heap);
-                let fingerprint = TyFingerprint::from(stringify!(tymetafuncspec_core::Either));
-                Term::new(fingerprint, vec![MaybeOpaqueTerm::Term(l_term)])
-            }
-            Either::Right(r, _) => {
-                let r_term = r.to_term(heap);
-                let fingerprint = TyFingerprint::from(stringify!(tymetafuncspec_core::Either));
-                Term::new(fingerprint, vec![MaybeOpaqueTerm::Term(r_term)])
-            }
-        }
-    }
-
-    fn from_term(heap: &mut Heap, t: Term<0, Core, Heap>) -> Result<Self, FromTermError> {
-        match &t.args[0] {
-            MaybeOpaqueTerm::Term(t) => Ok(L::from_term(heap, t.clone())
-                .map(|ok| Either::Left(ok, std::marker::PhantomData))
-                .or_else(|_| {
-                    R::from_term(heap, t.clone())
-                        .map(|ok| Either::Right(ok, std::marker::PhantomData))
-                })?),
-            _ => Err(FromTermError::Invalid),
-        }
-    }
-}
 impl<Heap, L, R> parse::Parse<Heap>
     for CstfyTransparent<Heap, Either<Heap, CstfyTransparent<Heap, L>, CstfyTransparent<Heap, R>>>
 where
@@ -717,34 +586,6 @@ impl<Heap, T> Heaped for Maybe<Heap, T> {
     type Heap = Heap;
 }
 empty_heap_bak!(MaybeHeapBak, T);
-impl<Heap, T: TermRoundTrip<0, Core> + Heaped<Heap = Heap>> TermRoundTrip<0, Core>
-    for Maybe<Heap, T>
-{
-    fn to_term(self, heap: &mut Heap) -> Term<0, Core, Heap> {
-        match self {
-            Maybe::Just(t, _) => {
-                let t_term = t.to_term(heap);
-                let fingerprint = TyFingerprint::from(stringify!(tymetafuncspec_core::Maybe));
-                Term::new(fingerprint, vec![MaybeOpaqueTerm::Term(t_term)])
-            }
-            Maybe::Nothing => {
-                let fingerprint = TyFingerprint::from(stringify!(tymetafuncspec_core::Maybe));
-                Term::new(fingerprint, vec![])
-            }
-        }
-    }
-
-    fn from_term(heap: &mut Heap, t: Term<0, Core, Heap>) -> Result<Self, FromTermError> {
-        match t.args.len() {
-            0 => Ok(Maybe::Nothing),
-            1 => Ok(Maybe::Just(
-                T::from_term(heap, t.args[0].clone().to_term())?,
-                std::marker::PhantomData,
-            )),
-            _ => Err(FromTermError::Invalid),
-        }
-    }
-}
 impl<Heap, T> parse::Parse<Heap> for Cstfy<Heap, Maybe<Heap, Cstfy<Heap, T>>>
 where
     Cstfy<Heap, T>: parse::Parse<Heap>,

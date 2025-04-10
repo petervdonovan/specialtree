@@ -3,7 +3,10 @@
 pub use type_equals;
 
 pub mod case_split;
+pub mod co_case_split;
+pub mod co_visit;
 pub mod drop;
+pub mod visit;
 
 pub trait CanonicallyConstructibleFrom<T>: Sized
 where
