@@ -66,9 +66,9 @@ impl<Heap, Case: UnsafeHeapDrop<Heap>> Callable<Case> for Dropper<Heap> {
             t.unsafe_heap_drop(heap);
         }
     }
-    fn do_not_call(&mut self) {
-        // try next case
-    }
+    // fn do_not_call(&mut self) {
+    //     // try next case
+    // }
 }
 impl<Heap, T> AdmitNoMatchingCase<T> for Dropper<Heap> {
     fn no_matching_case(&self, _t: &T, _heap: &mut Self::Borrowed<'_, Heap>) {

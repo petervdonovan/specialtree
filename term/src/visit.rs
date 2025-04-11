@@ -2,7 +2,6 @@ use crate::{
     Heaped,
     case_split::{
         Callable, CaseSplittable, ConsList, HasBorrowedHeapRef, HasPatternMatchStrategyFor,
-        PatternMatchable,
     },
 };
 
@@ -28,7 +27,7 @@ pub trait AllVisitable<V: HasBorrowedHeapRef, Ctx, PatternMatchStrategyProvider>
 where
     V: Heaped,
 {
-    fn all_visit(&self, visitor: &mut V, ctx: Ctx, heap: V::Borrowed<'_, V::Heap>);
+    fn all_visit(&self, visitor: &mut V, ctx: Ctx, heap: &mut V::Borrowed<'_, V::Heap>);
 }
 
 impl<V, Ctx, StrategyProvider, FieldsCar, FieldsCdrCar, FieldsCdrCdr>
@@ -41,12 +40,12 @@ where
     V: Heaped<Heap = FieldsCar::Heap> + HasBorrowedHeapRef,
     StrategyProvider: HasPatternMatchStrategyFor<FieldsCar>,
     (FieldsCdrCar, FieldsCdrCdr): AllVisitable<V, Ctx, StrategyProvider>,
+    FieldsCdrCdr: ConsList,
 {
-    fn all_visit(&self, visitor: &mut V, ctx: Ctx, heap: V::Borrowed<'_, V::Heap>) {
-        let mut heap = heap;
+    fn all_visit(&self, visitor: &mut V, ctx: Ctx, heap: &mut V::Borrowed<'_, V::Heap>) {
         let (car, cdr) = self.deconstruct();
-        car.visit(visitor, &mut heap);
-        visitor.proceed(ctx, &mut heap);
+        car.visit(visitor, heap);
+        visitor.proceed(ctx, heap);
         cdr.all_visit(visitor, ctx, heap);
     }
 }
@@ -59,10 +58,9 @@ where
     V: Heaped<Heap = FieldsCar::Heap> + HasBorrowedHeapRef,
     StrategyProvider: HasPatternMatchStrategyFor<FieldsCar>,
 {
-    fn all_visit(&self, visitor: &mut V, ctx: Ctx, heap: V::Borrowed<'_, V::Heap>) {
-        let mut heap = heap;
-        let (car, ()) = self.deconstruct();
-        car.visit(visitor, &mut heap);
+    fn all_visit(&self, visitor: &mut V, _: Ctx, heap: &mut V::Borrowed<'_, V::Heap>) {
+        let (car, _) = self.deconstruct();
+        car.visit(visitor, heap);
     }
 }
 
@@ -72,32 +70,32 @@ struct CallablefyVisitor<V, MatchedType, StrategyProvider> {
     phantom: std::marker::PhantomData<StrategyProvider>,
 }
 
-impl<V, MatchedType, StrategyProvider> CallablefyVisitor<V, MatchedType, StrategyProvider> {
-    fn descend<Ctx, F: FnMut(&mut CallablefyVisitor<V, Ctx, StrategyProvider>)>(
-        &mut self,
-        ctx: Ctx,
-        mut f: F,
-    ) {
-        take_mut::take(self, |this| {
-            let CallablefyVisitor {
-                visitor,
-                ctx: outer_ctx,
-                ..
-            } = this;
-            let mut descended = CallablefyVisitor {
-                visitor,
-                ctx,
-                phantom: std::marker::PhantomData,
-            };
-            f(&mut descended);
-            Self {
-                visitor: descended.visitor,
-                ctx: outer_ctx,
-                phantom: std::marker::PhantomData,
-            }
-        });
-    }
-}
+// impl<V, MatchedType, StrategyProvider> CallablefyVisitor<V, MatchedType, StrategyProvider> {
+//     fn descend<Ctx, F: FnMut(&mut CallablefyVisitor<V, Ctx, StrategyProvider>)>(
+//         &mut self,
+//         ctx: Ctx,
+//         mut f: F,
+//     ) {
+//         take_mut::take(self, |this| {
+//             let CallablefyVisitor {
+//                 visitor,
+//                 ctx: outer_ctx,
+//                 ..
+//             } = this;
+//             let mut descended = CallablefyVisitor {
+//                 visitor,
+//                 ctx,
+//                 phantom: std::marker::PhantomData,
+//             };
+//             f(&mut descended);
+//             Self {
+//                 visitor: descended.visitor,
+//                 ctx: outer_ctx,
+//                 phantom: std::marker::PhantomData,
+//             }
+//         });
+//     }
+// }
 
 impl<V: HasBorrowedHeapRef, MatchedType, StrategyProvider> HasBorrowedHeapRef
     for CallablefyVisitor<V, MatchedType, StrategyProvider>
@@ -117,25 +115,6 @@ impl<V: Heaped, MatchedType, StrategyProvider> Heaped
     type Heap = V::Heap;
 }
 
-// impl<V, StrategyProvider> Callable<()> for CallablefyVisitor<V, (), StrategyProvider>
-// where
-//     V: VisitorDfs<()>
-//         + Heaped<Heap = Self::Heap>
-//         + for<'a> HasBorrowedHeapRef<Borrowed<'a, Self::Heap> = Self::Borrowed<'a, Self::Heap>>,
-// {
-//     fn call(&mut self, _: (), mut heap: Self::Borrowed<'_, Self::Heap>) {
-//         if let MaybeAbortThisSubtree::Abort = self.0.push((), &mut heap) {
-//             return;
-//         }
-//         self.0.proceed((), &mut heap);
-//         self.0.pop((), &mut heap);
-//     }
-
-//     fn do_not_call(&mut self) {
-//         // do nothing
-//     }
-// }
-
 impl<V, MatchedType, StrategyProvider> Callable<()>
     for CallablefyVisitor<V, MatchedType, StrategyProvider>
 where
@@ -145,54 +124,18 @@ where
     fn call(&mut self, _: (), heap: &mut Self::Borrowed<'_, Self::Heap>) {
         self.visitor.pop(self.ctx, heap);
     }
-
-    // fn do_not_call(&mut self) {
-    //     panic!("should be unreachable because this is the nil case");
-    // }
 }
 
-impl<V, MatchedType, Case, StrategyProvider> Callable<Case>
+impl<V, MatchedType, CaseCar, CaseCdr, StrategyProvider> Callable<(CaseCar, CaseCdr)>
     for CallablefyVisitor<V, MatchedType, StrategyProvider>
 where
     MatchedType: Copy,
-    V: VisitorDfs<MatchedType>
-        + VisitorDfs<Case::Car>
-        + Heaped<Heap = Self::Heap>
-        + for<'a> HasBorrowedHeapRef<Borrowed<'a, Self::Heap> = Self::Borrowed<'a, Self::Heap>>,
-    Self::Heap: 'static, // a technically unnecessary way to work around implied bounds for the HRTB not seeming to work
-    Case: Copy + ConsList,
-    StrategyProvider: HasPatternMatchStrategyFor<Case::Car>,
-    Case::Car: AllVisitable<
-            CallablefyVisitor<V, Case::Car, StrategyProvider>,
-            MatchedType,
-            StrategyProvider,
-        > + Heaped<Heap = Self::Heap>
-        + Copy,
-    Self: Callable<Case::Cdr>,
+    V: VisitorDfs<MatchedType> + VisitorDfs<CaseCar>,
+    (CaseCar, CaseCdr): Copy + AllVisitable<V, MatchedType, StrategyProvider>,
 {
-    fn call(&mut self, case: Case, heap: &mut Self::Borrowed<'_, Self::Heap>) {
-        // let heapref: &mut Self::Borrowed<'_, Self::Heap> = &mut heap;
-        // let heapref: &mut Self::Borrowed<'_, V::Heap> = heapref;
-        // the following would be safe because we defined Self::Borrowed to be the same as V::Borrowed
-        // ... but rustc does not seem to deduce this
-        // let heapref: &mut V::Borrowed<'_, V::Heap> = unsafe { std::mem::transmute(heapref) };
-        let (car, cdr) = case.deconstruct();
-        if let MaybeAbortThisSubtree::Proceed = self.visitor.push(car, heap) {
-            // car.do_match(self.descend(car), heap);
-            self.descend(car, |this| {
-                // <Case::Car as PatternMatchable<
-                //     CallablefyVisitor<V, Case::Car, StrategyProvider>,
-                //     StrategyProvider,
-                // >>::do_match(&car, this, heap);
-            });
-        }
-        self.visitor.proceed(self.ctx, heap);
-        self.call(cdr, heap);
+    fn call(&mut self, case: (CaseCar, CaseCdr), heap: &mut Self::Borrowed<'_, Self::Heap>) {
+        case.all_visit(&mut self.visitor, self.ctx, heap);
     }
-
-    // fn do_not_call(&mut self) {
-    //     // do nothing
-    // }
 }
 
 impl<V, PatternMatchStrategyProvider, T> Visitable<V, PatternMatchStrategyProvider> for T
@@ -211,15 +154,18 @@ where
         heap: &mut <V as HasBorrowedHeapRef>::Borrowed<'_, Self::Heap>,
     ) {
         let mut heap = heap;
-        take_mut::take(visitor, |visitor| {
-            let mut callable = CallablefyVisitor {
-                visitor,
-                ctx: *self,
-                phantom: std::marker::PhantomData,
-            };
-            <T as CaseSplittable<_, _>>::case_split(self, &mut callable, &mut heap);
-            callable.visitor
-        });
+        if let MaybeAbortThisSubtree::Proceed = visitor.push(*self, &mut heap) {
+            take_mut::take(visitor, |visitor| {
+                let mut callable = CallablefyVisitor {
+                    visitor,
+                    ctx: *self,
+                    phantom: std::marker::PhantomData,
+                };
+                <T as CaseSplittable<_, _>>::case_split(self, &mut callable, &mut heap);
+                callable.visitor
+            });
+        }
+        visitor.pop(*self, heap);
     }
 }
 // The following demonstrates that mutually recursive trait implementations work Just Fine if you use a trait bound

@@ -1,4 +1,4 @@
-#![feature(never_type)]
+// #![feature(never_type)]
 
 pub use type_equals;
 
@@ -6,6 +6,7 @@ pub mod case_split;
 pub mod co_case_split;
 pub mod co_visit;
 pub mod drop;
+pub mod select;
 pub mod visit;
 
 pub trait CanonicallyConstructibleFrom<T>: Sized
@@ -233,8 +234,8 @@ where
             .and_then(|intermediary| intermediary.maybe_convert(heap))
     }
 }
-pub type IsoClassExpansionMaybeConversionFallibility = !; // cannot fail
-pub type ExpansionMaybeConversionFallibility = (); // failure is inhabited
+// pub type IsoClassExpansionMaybeConversionFallibility = !; // cannot fail
+// pub type ExpansionMaybeConversionFallibility = (); // failure is inhabited
 
 pub trait AllOwned {
     type Bak;

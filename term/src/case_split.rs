@@ -6,7 +6,7 @@ pub trait Adt: Sized {
 
 pub trait ConsList {
     type Car;
-    type Cdr;
+    type Cdr: ConsList;
     fn deconstruct(self) -> (Self::Car, Self::Cdr);
 }
 impl ConsList for () {
@@ -16,7 +16,10 @@ impl ConsList for () {
         ((), ())
     }
 }
-impl<T, Cdr> ConsList for (T, Cdr) {
+impl<T, Cdr> ConsList for (T, Cdr)
+where
+    Cdr: ConsList,
+{
     type Car = T;
     type Cdr = Cdr;
     fn deconstruct(self) -> (Self::Car, Self::Cdr) {
