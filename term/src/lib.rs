@@ -17,6 +17,83 @@ where
     fn deconstruct_succeeds(&self, heap: &Self::Heap) -> bool;
     fn deconstruct(self, heap: &Self::Heap) -> T;
 }
+
+pub trait HasDagEmbedding
+where
+    Self: CanonicallyConstructibleFrom<(Self::Domain,)>,
+{
+    type Domain;
+}
+
+impl<T, U> CanonicallyConstructibleFrom<(T,)> for U
+where
+    U: Copy,
+    U: HasDagEmbedding,
+    U::Domain: CanonicallyConstructibleFrom<(T,)>,
+    U::Domain: Heaped<Heap = U::Heap>,
+{
+    fn construct(heap: &mut Self::Heap, t: (T,)) -> Self {
+        let u = U::Domain::construct(heap, t);
+        Self::construct(heap, (u,))
+    }
+
+    fn deconstruct_succeeds(&self, heap: &Self::Heap) -> bool {
+        self.deconstruct_succeeds(heap) && self.deconstruct(heap).0.deconstruct_succeeds(heap)
+    }
+
+    fn deconstruct(self, heap: &Self::Heap) -> (T,) {
+        self.deconstruct(heap).0.deconstruct(heap)
+    }
+}
+
+// pub trait AllCcf<Heap, FromConsList> {
+//     fn construct(heap: &mut Heap, t: FromConsList) -> Self;
+//     fn deconstruct_succeeds(&self, heap: &Heap) -> bool;
+//     fn deconstruct(self, heap: &Heap) -> FromConsList;
+// }
+
+// impl<Heap, TCar, TCdr, UCar, UCdr> AllCcf<Heap, (TCar, TCdr)> for (UCar, UCdr)
+// where
+//     UCar: CanonicallyConstructibleFrom<TCar>,
+//     UCar: Heaped<Heap = Heap>,
+//     UCdr: AllCcf<Heap, TCdr>,
+// {
+//     fn construct(heap: &mut Heap, t: (TCar, TCdr)) -> Self {
+//         let (car, cdr) = t;
+//         let ucar = UCar::construct(heap, car);
+//         let ucdr = UCdr::construct(heap, cdr);
+//         (ucar, ucdr)
+//     }
+
+//     fn deconstruct_succeeds(&self, heap: &Heap) -> bool {
+//         self.0.deconstruct_succeeds(heap) && self.1.deconstruct_succeeds(heap)
+//     }
+
+//     fn deconstruct(self, heap: &Heap) -> (TCar, TCdr) {
+//         let (car, cdr) = self;
+//         let tcar = car.deconstruct(heap);
+//         let tcdr = cdr.deconstruct(heap);
+//         (tcar, tcdr)
+//     }
+// }
+
+// impl<TCar, TCdr, U> CanonicallyConstructibleFrom<(TCar, TCdr)> for U
+// where
+//     U: Heaped,
+// {
+//     fn construct(heap: &mut Self::Heap, t: (TCar, TCdr)) -> Self {
+//         todo!()
+//     }
+
+//     fn deconstruct_succeeds(&self, heap: &Self::Heap) -> bool {
+//         todo!()
+//     }
+
+//     fn deconstruct(self, heap: &Self::Heap) -> (TCar, TCdr) {
+//         todo!()
+//     }
+// }
+
 #[repr(transparent)]
 pub struct Owned<T>(std::mem::ManuallyDrop<T>);
 impl<T> Heaped for Owned<T>
@@ -26,12 +103,12 @@ where
     type Heap = T::Heap;
 }
 impl<TOwned: AllOwned, U: CanonicallyConstructibleFrom<TOwned::Bak>>
-    CanonicallyConstructibleFrom<TOwned> for Owned<U>
+    CanonicallyConstructibleFrom<(TOwned,)> for Owned<U>
 {
-    fn construct(heap: &mut Self::Heap, t: TOwned) -> Self {
+    fn construct(heap: &mut Self::Heap, t: (TOwned,)) -> Self {
         // safe because bak and construct are inverse to each other wrt freeing
         unsafe {
-            let bak = t.bak();
+            let bak = t.0.bak();
             let u = U::construct(heap, bak);
             Owned(std::mem::ManuallyDrop::new(u))
         }
@@ -41,11 +118,11 @@ impl<TOwned: AllOwned, U: CanonicallyConstructibleFrom<TOwned::Bak>>
         self.0.deconstruct_succeeds(heap)
     }
 
-    fn deconstruct(self, heap: &Self::Heap) -> TOwned {
+    fn deconstruct(self, heap: &Self::Heap) -> (TOwned,) {
         // safe because .0 and new are inverse to each other wrt freeing
         unsafe {
             let bak = std::mem::ManuallyDrop::<U>::into_inner(self.0).deconstruct(heap);
-            TOwned::new(bak)
+            (TOwned::new(bak),)
         }
     }
 }
@@ -204,36 +281,36 @@ pub trait MutableCollection<'a, 'heap: 'a>:
 //         MutableSet(ret)
 //     }
 // }
-pub struct UsingIntermediary<T, Intermediary> {
-    t: T,
-    _intermediary: std::marker::PhantomData<Intermediary>,
-}
-impl<T, I> Heaped for UsingIntermediary<T, I>
-where
-    T: Heaped,
-{
-    type Heap = T::Heap;
-}
-impl<T, Intermediary> UsingIntermediary<T, Intermediary> {
-    pub fn new(t: T) -> Self {
-        UsingIntermediary {
-            t,
-            _intermediary: std::marker::PhantomData,
-        }
-    }
-}
-impl<'heap, T: Heaped, Intermediary: Heaped, U: Heaped, Fallibility>
-    CanonicallyMaybeConvertibleTo<'heap, U, Fallibility> for UsingIntermediary<T, Intermediary>
-where
-    T: CanonicallyMaybeConvertibleTo<'heap, Intermediary, Fallibility>,
-    Intermediary: CanonicallyMaybeConvertibleTo<'heap, U, Fallibility>,
-{
-    fn maybe_convert(self, heap: &'heap Self::Heap) -> Result<U, Fallibility> {
-        self.t
-            .maybe_convert(heap)
-            .and_then(|intermediary| intermediary.maybe_convert(heap))
-    }
-}
+// pub struct UsingIntermediary<T, Intermediary> {
+//     t: T,
+//     _intermediary: std::marker::PhantomData<Intermediary>,
+// }
+// impl<T, I> Heaped for UsingIntermediary<T, I>
+// where
+//     T: Heaped,
+// {
+//     type Heap = T::Heap;
+// }
+// impl<T, Intermediary> UsingIntermediary<T, Intermediary> {
+//     pub fn new(t: T) -> Self {
+//         UsingIntermediary {
+//             t,
+//             _intermediary: std::marker::PhantomData,
+//         }
+//     }
+// }
+// impl<'heap, T: Heaped, Intermediary: Heaped, U: Heaped, Fallibility>
+//     CanonicallyMaybeConvertibleTo<'heap, U, Fallibility> for UsingIntermediary<T, Intermediary>
+// where
+//     T: CanonicallyMaybeConvertibleTo<'heap, Intermediary, Fallibility>,
+//     Intermediary: CanonicallyMaybeConvertibleTo<'heap, U, Fallibility>,
+// {
+//     fn maybe_convert(self, heap: &'heap Self::Heap) -> Result<U, Fallibility> {
+//         self.t
+//             .maybe_convert(heap)
+//             .and_then(|intermediary| intermediary.maybe_convert(heap))
+//     }
+// }
 // pub type IsoClassExpansionMaybeConversionFallibility = !; // cannot fail
 // pub type ExpansionMaybeConversionFallibility = (); // failure is inhabited
 
@@ -265,6 +342,7 @@ macro_rules! impl_to_refs {
     () => {};
 }
 impl_to_refs!(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11);
+
 // impl<T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> ToRefs
 //     for (T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
 // {

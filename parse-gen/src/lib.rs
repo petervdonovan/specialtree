@@ -20,18 +20,19 @@ pub fn generate<L: LangSpec>(bps: &BasePaths, lg: &LsGen<L>) -> syn::ItemMod {
     let cst = cst(&arena, lg.bak());
     let lg_cst = LsGen::from(&cst);
     let cst_tgds = lg_cst.ty_gen_datas().collect::<Vec<_>>();
-    let parses = lg.ty_gen_datas().filter_map(|tgd| {
-        tgd.id.as_ref().map(|sid| {
-            generate_parse(
-                bps,
-                &tgd,
-                cst_tgds
-                    .iter()
-                    .find(|cst_tgd| cst_tgd.snake_ident == tgd.snake_ident) // FIXME: comparing idents
-                    .unwrap(),
-            )
-        })
-    });
+    // let parses = lg.ty_gen_datas().filter_map(|tgd| {
+    //     tgd.id.as_ref().map(|sid| {
+    //         generate_parse(
+    //             bps,
+    //             &tgd,
+    //             cst_tgds
+    //                 .iter()
+    //                 .find(|cst_tgd| cst_tgd.snake_ident == tgd.snake_ident) // FIXME: comparing idents
+    //                 .unwrap(),
+    //         )
+    //     })
+    // });
+    let parses: Vec<syn::ItemImpl> = vec![];
     parse_quote! {
         #byline
         pub mod parse {
@@ -45,173 +46,20 @@ pub fn generate_parse<L: LangSpec, LCst: LangSpec>(
     tgd: &TyGenData<L>,
     cst_tgd: &TyGenData<LCst>,
 ) -> syn::Item {
-    let snake_ident = &cst_tgd.snake_ident;
     let camel_ident = &cst_tgd.camel_ident;
-    let byline = byline!();
-    let ast_bp = &bps.data_structure;
-    let cst_data_structure_bp = &bps.cst_data_structure;
-    let cst_term_trait_bp = &bps.cst_term_trait;
-    // let cst_bp: syn::Path = parse_quote! { #cst_bp::cst::data_structure };
-    let my_ty: syn::Type = syn::parse_quote! { #ast_bp::#camel_ident };
-    let my_cst_ty: syn::Type = syn::parse_quote! { #cst_data_structure_bp::#camel_ident };
-    let my_cst_path: syn::Path = parse_quote! { #cst_data_structure_bp::#camel_ident };
-    let cst_ccf_sort_snakes = (cst_tgd.ccf.ccf_sort_snake_idents)();
-    let cst_ccf_sort_tys = (cst_tgd.ccf.ccf_sort_tys)(
-        HeapType(syn::parse_quote! { #cst_data_structure_bp::Heap }),
-        AlgebraicsBasePath::new(quote::quote!(#cst_data_structure_bp::)),
-    );
-    let maybe_parse_this = if cst_ccf_sort_tys.len() == 1 {
-        let cst_ccf = cst_ccf_sort_tys.first().unwrap().clone();
-        let cst_ccf_tys = (cst_tgd.ccf.ccf_sort_tyses)(
-            HeapType(syn::parse_quote! { #cst_data_structure_bp::Heap }),
-            AlgebraicsBasePath::new(quote::quote!(#cst_data_structure_bp::)),
-        )
-        .into_iter()
-        .next()
-        .unwrap();
-        let ast_ccf_tys = (tgd.ccf.ccf_sort_tyses)(
-            HeapType(syn::parse_quote! { #cst_data_structure_bp::Heap }),
-            AlgebraicsBasePath::new(quote::quote!(#cst_data_structure_bp::)),
-        )
-        .into_iter()
-        .next()
-        .unwrap();
-        let parse_directly = gen_parse_current(
-            snake_ident,
-            &tgd.transparency,
-            ((tgd.ccf.ccf_sort_transparencies)()[0]).as_slice(),
-            &cst_ccf_tys,
-            &cst_data_structure_bp,
-            &cst_ccf,
-            &my_cst_path,
-        );
-        quote::quote! {
-            #parse_directly
-        }
-    } else {
-        quote::quote! {let parse_directly = |_,_,_,_, ret| ret}
-    };
-    let ccf_tys_size1 = cst_ccf_sort_tys
-        .into_iter()
-        .zip(cst_ccf_sort_snakes.iter())
-        .filter_map(|(it, snake)| if snake.len() == 1 { Some(it) } else { None });
-    dbg!(quote::quote!(#camel_ident).to_string());
-    let untupled_ccf_tys_size1 = (cst_tgd.ccf.ccf_sort_tyses)(
-        HeapType(syn::parse_quote! { #cst_data_structure_bp::Heap }),
-        AlgebraicsBasePath::new(quote::quote!(#cst_data_structure_bp::)),
-    )
-    .into_iter()
-    .filter_map(|it| {
-        dbg!(quote::quote!(#(#it ,,,,,,,,,,,,,,,,,,,,)*).to_string());
-        if it.len() == 1 {
-            dbg!("len is 1");
-            Some(it.into_iter().next().unwrap())
-        } else {
-            None
-        }
-    });
+    let snake_ident = &cst_tgd.snake_ident;
     let cstfication = transparency2cstfication(&tgd.transparency);
-    // let unparse = gen_unparse(
-    //     snake_ident,
-    //     &tgd.transparency,
-    //     &cst_bp,
-    //     &my_ty,
-    //     &my_cst_ty,
-    //     (cst_tgd.ccf.ccf_sort_tys)().as_slice(),
-    //     (cst_tgd.ccf.ccf_sort_camel_idents)().as_slice(),
-    // );
+    let cst_data_structure_bp = &bps.cst_data_structure;
+    let my_cst_ty: syn::Type = syn::parse_quote! { #cst_data_structure_bp::#camel_ident };
     syn::parse_quote! {
-        #byline
-        impl parse::Parse<#cst_data_structure_bp::Heap> for tymetafuncspec_core::#cstfication<#cst_data_structure_bp::Heap, #my_cst_ty> {
-            fn parse(source: &str, offset: parse::miette::SourceOffset, heap: &mut #cst_data_structure_bp::Heap, errors: &mut Vec<parse::ParseError>) -> (tymetafuncspec_core::#cstfication<#cst_data_structure_bp::Heap, #my_cst_ty>, parse::miette::SourceOffset) {
-                let mut ute = None;
-                #maybe_parse_this ;
-                #(
-                    match <#untupled_ccf_tys_size1 as parse::Parse>::parse(source, offset, heap, errors) {
-                        Ok((cst, offset)) => return Ok((
-                            <#my_cst_ty as term::CanonicallyConstructibleFrom<#ccf_tys_size1>>::construct(heap, (tymetafuncspec_core::Either::Left(cst, std::marker::PhantomData), tymetafuncspec_core::Maybe::Nothing)),
-                            offset
-                        )),
-                        Err(e) => {
-                            ute = parse::ParseError::merge_over(e, ute);
-                        }
-                    }
-                )*
-                parse_directly(source, offset, heap, errors, ute.unwrap())
-            }
-            fn unparse(&self, heap: &#cst_data_structure_bp::Heap) -> parse::Unparse {
-                todo!()
-            }
-            // #unparse
-        }
-    }
-}
-
-pub fn gen_parse_current(
-    snake_ident: &syn::Ident,
-    transparency: &Transparency,
-    ccf_tys_transparencies: &[Transparency],
-    ast_ccf_tys: &[syn::Type],
-    cst_bp: &syn::Path,
-    cst_ccf: &syn::Type,
-    cst: &syn::Path,
-) -> syn::ItemFn {
-    let byline = byline!();
-    let cstfy_or_cstfytransparent = ccf_tys_transparencies
-        .iter()
-        .map(transparency2cstfication)
-        .collect::<Vec<_>>();
-    let top_level_cstfication = transparency2cstfication(transparency);
-    let ok_expr: syn::Expr = match transparency {
-        Transparency::Visible => {
-            syn::parse_quote! { |x| tymetafuncspec_core::cstfy_ok(x, initial_offset, offset) }
-        }
-        Transparency::Transparent => {
-            syn::parse_quote! { |x| tymetafuncspec_core::cstfy_transparent_ok(x) }
-        }
-    };
-    let argses = ast_ccf_tys.iter().map(|ty| {
-        syn::parse_quote! {{
-            let (res, new_offset) = <#ty as parse::Parse<_>>::parse(source, offset, heap, errors);
-            offset = new_offset;
-            res
-        }}
-    });
-    let args: syn::Expr = langspec_gen_util::cons_list(argses);
-    syn::parse_quote! {
-        #byline
-        fn parse_directly(
-            source: &str,
-            initial_offset: parse::miette::SourceOffset,
-            heap: &mut #cst_bp::Heap,
-            errors: &mut Vec<parse::ParseError>,
-            default_ret: parse::ParseError,
-        ) -> (tymetafuncspec_core::#top_level_cstfication<#cst_bp::Heap, #cst>, parse::miette::SourceOffset) {
-            match parse::unicode_segmentation::UnicodeSegmentation::unicode_words(&source[initial_offset.offset()..]).next() {
-                Some(stringify!(#snake_ident)) => {
-                    let mut offset = initial_offset;
-                    let args = #args;
-                    ((#ok_expr)(<#cst as term::CanonicallyConstructibleFrom<#cst_ccf>>::construct(heap, args)), offset)
-                }
-                None => (
-                    tymetafuncspec_core::Either::Right(
-                        std_parse_error::ParseError::new(
-                            parse::ParseError::UnexpectedEndOfInput(initial_offset.into()),
-                        ),
-                        std::marker::PhantomData,
-                    ),
-                    initial_offset,
-                ),
-                _ => (
-                    tymetafuncspec_core::Either::Right(
-                        std_parse_error::ParseError::new(
-                            default_ret,
-                        ),
-                        std::marker::PhantomData,
-                    ),
-                    initial_offset,
-                ),
-            }
+        impl parse_adt::ParseLL for parse_adt::cstfy::#cstfication<#cst_data_structure_bp::Heap, #my_cst_ty> {
+            const START: parse_adt::KeywordSequence = parse_adt::KeywordSequence(
+                &[parse_adt::Keyword::new("#snake_ident")],
+            );
+            const PROCEED: &'static [parse_adt::KeywordSequence] = &[];
+            const END: parse_adt::KeywordSequence = parse_adt::KeywordSequence {
+                keywords: &[parse_adt::Keyword::#snake_ident],
+            };
         }
     }
 }
@@ -225,33 +73,7 @@ pub fn gen_unparse(
     ccftys: &[syn::Type],
     ccf_idxses: &[Vec<usize>],
 ) -> syn::ItemFn {
-    let byline = byline!();
-    let uncstfication: syn::Ident = match transparency {
-        Transparency::Transparent => syn::parse_quote! { uncstfy_transparent },
-        Transparency::Visible => syn::parse_quote! { uncstfy },
-    };
-    syn::parse_quote! {
-        #byline
-        fn unparse(&self, heap: &mut #cst_bp::Heap) -> parse::Unparse {
-            tymetafuncspec_core::#uncstfication(self).map_or(
-                parse::Unparse::new("err"),
-                |node| {
-                    let mut ret = parse::Unparse::new(stringify!(#snake_ident));
-                    #({
-                        match <#my_ty as term::CanonicallyConstructibleFrom<#ccftys>>::deconstruct_ref(heap, node) {
-                            Some(tup) => {
-                                #(
-                                    ret.vstack(tup.#ccf_idxses.unparse(heap));
-                                )*
-                            }
-                            None => ()  // move on to next variant
-                        }
-                    })*
-                    ret
-                }
-            )
-        }
-    }
+    todo!()
 }
 
 fn transparency2cstfication(transparency: &Transparency) -> syn::Ident {
@@ -260,23 +82,6 @@ fn transparency2cstfication(transparency: &Transparency) -> syn::Ident {
         Transparency::Visible => syn::parse_quote! { Cstfy },
     }
 }
-
-// pub fn generate_cst_mod<L: LangSpec>(bps: &BasePaths, lg: &LsGen<L>) -> syn::ItemMod {
-//     let byline = byline!();
-//     let base_path = &bps.cst;
-//     let base_path = parse_quote! { #base_path::cst };
-//     let bak = lg.bak();
-//     let arena = bumpalo::Bump::new();
-//     let cst = cst(&arena, bak);
-//     let lg = LsGen::from(&cst);
-//     let cst = term_specialized_gen::generate(&base_path, &lg, false);
-//     parse_quote! {
-//         #byline
-//         pub mod cst {
-//             #cst
-//         }
-//     }
-// }
 
 pub(crate) fn cst<'a, 'b: 'a, L: LangSpec>(
     arena: &'a bumpalo::Bump,
@@ -310,43 +115,18 @@ pub(crate) fn cst<'a, 'b: 'a, L: LangSpec>(
             a: vec![],
         }),
     }
-    // EverywhereAlternative {
-    //     name: Name {
-    //         human: "Cst".into(),
-    //         camel: "Cst".into(),
-    //         snake: "cst".into(),
-    //     },
-    //     l0: arena.alloc(EverywhereMaybeMore {
-    //         name: Name {
-    //             human: "MetadataAst".into(),
-    //             camel: "MetadataAst".into(),
-    //             snake: "metadata_ast".into(),
-    //         },
-    //         l0: l,
-    //         l1: parse_metadata,
-    //         l1_root: SortId::TyMetaFunc(MappedType {
-    //             f: std_parse_metadata::ParseMetadataTmfId(),
-    //             a: vec![],
-    //         }),
-    //     }),
-    //     l1: errlang,
-    //     l1_root: SortId::TyMetaFunc(MappedType {
-    //         f: std_parse_error::ParseErrorTmfId(),
-    //         a: vec![],
-    //     }),
-    // }
 }
 
 pub fn formatted<L: LangSpec>(l: &L) -> String {
     let lg = LsGen::from(l);
     let bps = BasePaths {
         data_structure: parse_quote! { crate::data_structure },
-        term_trait: parse_quote! { crate::term_trait },
+        term_trait: parse_quote! { crate::extension_of },
         cst_data_structure: parse_quote! { crate::cst::data_structure },
         cst_term_trait: parse_quote! { crate::cst::extension_of },
     };
     let m = generate(&bps, &lg);
-    let (cst_mod, cst_tt, cst_tt_impl) = {
+    let (cst_mod, cst_tt, cst_tpmspi, cst_tt_impl) = {
         let arena = bumpalo::Bump::new();
         let cst = cst(&arena, l);
         let lg = LsGen::from(&cst);
@@ -364,19 +144,73 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
             &lg,
             &lg,
         );
-        (cst_mod, cst_tt, cst_tt_impl)
+        let cst_tpmspi = term_pattern_match_strategy_provider_impl_gen::generate(
+            &term_pattern_match_strategy_provider_impl_gen::BasePaths {
+                term_trait: syn::parse_quote!(crate::cst::extension_of),
+                data_structure: syn::parse_quote!(crate::cst::data_structure),
+                strategy_provider: syn::parse_quote!(crate::cst::pattern_match_strategy),
+            },
+            &lg,
+        );
+        (cst_mod, cst_tt, cst_tpmspi, cst_tt_impl)
     };
-    // let ds = term_specialized_gen::generate(&bps.data_structure, &lg, false);
-    // let tt = term_trait_gen::generate(&bps.term_trait, lg.bak());
+    let ds = term_specialized_gen::generate(&bps.data_structure, &lg, false);
+    let tt = term_trait_gen::generate(&bps.term_trait, lg.bak());
+    let tpmspi = term_pattern_match_strategy_provider_impl_gen::generate(
+        &term_pattern_match_strategy_provider_impl_gen::BasePaths {
+            term_trait: syn::parse_quote!(crate::extension_of),
+            data_structure: syn::parse_quote!(crate::data_structure),
+            strategy_provider: syn::parse_quote!(crate::pattern_match_strategy),
+        },
+        &lg,
+    );
     prettyplease::unparse(&syn::parse_quote! {
+        fn test() {
+            impl<'a>
+                term::co_visit::CoVisitable<
+                    parse_adt::Parser<'_>,
+                    cst::pattern_match_strategy::PatternMatchStrategyProvider,
+                    cst::data_structure::Heap,
+                > for parse_adt::cstfy::CstfyTransparent<cst::data_structure::Heap, cst::data_structure::Nat>
+            {
+                fn co_visit(
+                    visitor: &mut parse_adt::Parser<'_>,
+                    heap: &mut cst::data_structure::Heap,
+                ) -> Self {
+                    todo!()
+                }
+            }
+
+            let mut parser = parse_adt::Parser::new("test");
+            let mut heap = cst::data_structure::Heap::default();
+            <parse_adt::cstfy::CstfyTransparent<cst::data_structure::Heap, cst::data_structure::Nat> as term::co_visit::CoVisitable<
+                parse_adt::Parser<'_>,
+                cst::pattern_match_strategy::PatternMatchStrategyProvider,
+                cst::data_structure::Heap,
+            >>::co_visit(&mut parser, &mut heap);
+
+            <parse_adt::cstfy::Cstfy<cst::data_structure::Heap, cst::data_structure::F> as term::co_visit::CoVisitable<
+                parse_adt::Parser<'_>,
+                cst::pattern_match_strategy::PatternMatchStrategyProvider,
+                cst::data_structure::Heap,
+            >>::co_visit(&mut parser, &mut heap);
+
+            <parse_adt::cstfy::Cstfy<cst::data_structure::Heap, cst::data_structure::Plus> as term::co_visit::CoVisitable<
+                parse_adt::Parser<'_>,
+                cst::pattern_match_strategy::PatternMatchStrategyProvider,
+                cst::data_structure::Heap,
+            >>::co_visit(&mut parser, &mut heap);
+        }
         #m
         pub mod cst {
             #cst_mod
             #cst_tt
+            // #cst_tpmspi
             #cst_tt_impl
         }
-        // #ds
-        // #tt
+        #ds
+        #tt
+        #tpmspi
         // #tt_impl
     })
 }

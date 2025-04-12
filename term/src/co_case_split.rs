@@ -4,34 +4,52 @@ pub trait CoCaseSplittable<F, CcfConsList>: Sized + Heaped {
     fn co_case_split(callable: &mut F, heap: &mut Self::Heap) -> Self;
 }
 
-pub trait CoCallable<Case>: Heaped {
-    fn call(&mut self, heap: &mut Self::Heap) -> Case;
+pub trait CoCallable<Heap, Case> {
+    fn call(&mut self, heap: &mut Heap) -> Case;
 }
-pub trait AdmitNoMatchingCase<T>: Heaped {
-    fn no_matching_case(&self, heap: &mut Self::Heap) -> T;
+pub trait AdmitNoMatchingCase<T>
+where
+    T: Heaped,
+{
+    fn no_matching_case(&self, heap: &mut T::Heap) -> T;
 }
 impl<F, T> CoCaseSplittable<F, ()> for T
 where
-    F: AdmitNoMatchingCase<T> + AcceptingCases<()> + Heaped<Heap = T::Heap>,
+    F: AdmitNoMatchingCase<T>,
     T: Heaped,
 {
     fn co_case_split(callable: &mut F, heap: &mut Self::Heap) -> Self {
         callable.no_matching_case(heap)
     }
 }
+
+// pub trait CoCallableForStrategy<Heap, Strategy>:
+//     AcceptingCases<Strategy, ShortCircuitsTo: CoCallable<Heap, Strategy::Car>>
+// where
+//     Strategy: ConsList,
+// {
+// }
+// impl<Heap, Strategy, T> CoCallableForStrategy<Heap, Strategy> for T
+// where
+//     Self: AcceptingCases<Strategy, ShortCircuitsTo: CoCallable<Heap, Strategy::Car>>,
+//     Strategy: ConsList,
+// {
+// }
+
 impl<F, T, CasesCar, CasesCdr> CoCaseSplittable<F, (CasesCar, CasesCdr)> for T
 where
     CasesCdr: ConsList,
+    T: Copy,
+    T: Heaped,
     T: CanonicallyConstructibleFrom<CasesCar>,
-    <F as AcceptingCases<(CasesCar, CasesCdr)>>::ShortCircuitsTo:
-        CoCallable<CasesCar> + AcceptingCases<(CasesCar, CasesCdr)> + Heaped<Heap = T::Heap>,
+    F: AdmitNoMatchingCase<T>,
     F: AcceptingCases<(CasesCar, CasesCdr)>,
+    <F as AcceptingCases<(CasesCar, CasesCdr)>>::ShortCircuitsTo:
+        CoCallable<T::Heap, CasesCar> + AcceptingCases<(CasesCar, CasesCdr)>,
     T: CoCaseSplittable<
             <F as AcceptingCases<(CasesCar, CasesCdr)>>::AcceptingRemainingCases,
             CasesCdr,
         >,
-    T: Copy,
-    T: Heaped,
 {
     fn co_case_split(callable: &mut F, heap: &mut Self::Heap) -> Self {
         match <F as AcceptingCases<(CasesCar, CasesCdr)>>::try_case(callable) {

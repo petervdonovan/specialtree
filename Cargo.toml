@@ -23,5 +23,5 @@ members = [
     "langspec-std/std-parse-error",
     "langspec-std/std-parse-metadata",
     "generate-tests",
-    "term-pattern-match-strategy-provider-impl-gen",
+    "term-pattern-match-strategy-provider-impl-gen", "parse-adt",
 ]

@@ -1,60 +1,53 @@
 use crate::{
     Heaped,
     case_split::ConsList,
-    co_case_split::{CoCallable, CoCaseSplittable},
+    co_case_split::{AdmitNoMatchingCase, CoCallable, CoCaseSplittable},
     select::AcceptingCases,
 };
 
-pub trait CoVisitor<T>: Heaped {
-    fn co_push(&mut self, heap: &mut Self::Heap);
-    fn co_proceed(&mut self, heap: &mut Self::Heap);
-    fn co_pop(&mut self, heap: &mut Self::Heap);
+pub trait CoVisitor<T> {
+    fn co_push(&mut self);
+    fn co_proceed(&mut self);
+    fn co_pop(&mut self);
 }
 
-pub trait CoVisitable<CV, PatternMatchStrategyProvider>: Sized + Heaped
-where
-    CV: Heaped<Heap = <Self as Heaped>::Heap>,
-{
-    fn co_visit(visitor: &mut CV, heap: &mut Self::Heap) -> Self;
+pub trait CoVisitable<CV, PatternMatchStrategyProvider, Heap>: Sized {
+    fn co_visit(visitor: &mut CV, heap: &mut Heap) -> Self;
 }
 
-pub trait AllCoVisitable<CV: Heaped, Ctx, PatternMatchStrategyProvider>: Sized
-where
-    CV: Heaped,
-{
-    fn all_co_visit(visitor: &mut CV, heap: &mut CV::Heap) -> Self;
+pub trait AllCoVisitable<Heap, CV, Ctx, PatternMatchStrategyProvider>: Sized {
+    fn all_co_visit(visitor: &mut CV, heap: &mut Heap) -> Self;
 }
 
-impl<CV, Ctx, StrategyProvider, FieldsCar, FieldsCdrCar, FieldsCdrCdr>
-    AllCoVisitable<CV, Ctx, StrategyProvider> for (FieldsCar, (FieldsCdrCar, FieldsCdrCdr))
+impl<CV, Ctx, Heap, StrategyProvider, FieldsCar, FieldsCdrCar, FieldsCdrCdr>
+    AllCoVisitable<Heap, CV, Ctx, StrategyProvider> for (FieldsCar, (FieldsCdrCar, FieldsCdrCdr))
 where
     Self: Copy,
     Ctx: Copy,
     CV: CoVisitor<Ctx>,
-    FieldsCar: CoVisitable<CV, StrategyProvider>,
-    CV: Heaped<Heap = FieldsCar::Heap>,
+    FieldsCar: CoVisitable<CV, StrategyProvider, Heap>,
+    // CV: Heaped<Heap = FieldsCar::Heap>,
     StrategyProvider: crate::case_split::HasPatternMatchStrategyFor<FieldsCar>,
-    (FieldsCdrCar, FieldsCdrCdr): AllCoVisitable<CV, Ctx, StrategyProvider>,
+    (FieldsCdrCar, FieldsCdrCdr): AllCoVisitable<Heap, CV, Ctx, StrategyProvider>,
 {
-    fn all_co_visit(visitor: &mut CV, heap: &mut CV::Heap) -> Self {
+    fn all_co_visit(visitor: &mut CV, heap: &mut Heap) -> Self {
         let car = FieldsCar::co_visit(visitor, heap);
-        visitor.co_proceed(heap);
+        visitor.co_proceed();
         let cdr = <(FieldsCdrCar, FieldsCdrCdr)>::all_co_visit(visitor, heap);
         (car, cdr)
     }
 }
 
-impl<CV, Ctx, StrategyProvider, FieldsCar> AllCoVisitable<CV, Ctx, StrategyProvider>
+impl<CV, Ctx, Heap, StrategyProvider, FieldsCar> AllCoVisitable<Heap, CV, Ctx, StrategyProvider>
     for (FieldsCar, ())
 where
     Self: Copy,
     Ctx: Copy,
     CV: CoVisitor<Ctx>,
-    FieldsCar: CoVisitable<CV, StrategyProvider>,
-    CV: Heaped<Heap = FieldsCar::Heap>,
+    FieldsCar: CoVisitable<CV, StrategyProvider, Heap>,
     StrategyProvider: crate::case_split::HasPatternMatchStrategyFor<FieldsCar>,
 {
-    fn all_co_visit(visitor: &mut CV, heap: &mut CV::Heap) -> Self {
+    fn all_co_visit(visitor: &mut CV, heap: &mut Heap) -> Self {
         let car = FieldsCar::co_visit(visitor, heap);
         (car, ())
     }
@@ -96,15 +89,25 @@ impl<V: Heaped, MatchedType, StrategyProvider> Heaped
     type Heap = V::Heap;
 }
 
-impl<V, MatchedType, CaseCar, CaseCdr, StrategyProvider> CoCallable<(CaseCar, CaseCdr)>
+impl<V, MatchedType, Heap, CaseCar, CaseCdr, StrategyProvider> CoCallable<Heap, (CaseCar, CaseCdr)>
     for CoCallablefyCoVisitor<V, MatchedType, StrategyProvider>
 where
     MatchedType: Copy,
     V: CoVisitor<MatchedType> + CoVisitor<CaseCar>,
-    (CaseCar, CaseCdr): Copy + AllCoVisitable<V, MatchedType, StrategyProvider>,
+    (CaseCar, CaseCdr): Copy + AllCoVisitable<Heap, V, MatchedType, StrategyProvider>,
 {
-    fn call(&mut self, heap: &mut Self::Heap) -> (CaseCar, CaseCdr) {
+    fn call(&mut self, heap: &mut Heap) -> (CaseCar, CaseCdr) {
         <(CaseCar, CaseCdr)>::all_co_visit(&mut self.cv, heap)
+    }
+}
+
+impl<T, V, M, S> AdmitNoMatchingCase<T> for CoCallablefyCoVisitor<V, M, S>
+where
+    V: AdmitNoMatchingCase<T>,
+    T: Heaped,
+{
+    fn no_matching_case(&self, heap: &mut <T as Heaped>::Heap) -> T {
+        self.cv.no_matching_case(heap)
     }
 }
 // impl<V, PatternMatchStrategyProvider, T> Visitable<V, PatternMatchStrategyProvider> for T
@@ -163,24 +166,25 @@ where
         }
     }
 
-    fn stop_with_external_success(self, proof_of_success: Cases::Car) -> Self::ShortCircuitsTo {
-        self.cv.stop_with_external_success(proof_of_success)
-    }
+    // fn stop_with_external_success(self, proof_of_success: Cases::Car) -> Self::ShortCircuitsTo {
+    //     self.cv.stop_with_external_success(proof_of_success)
+    // }
 }
 
-impl<CV, PatternMatchStrategyProvider, T> CoVisitable<CV, PatternMatchStrategyProvider> for T
+impl<Heap, CV, PatternMatchStrategyProvider, T> CoVisitable<CV, PatternMatchStrategyProvider, Heap>
+    for T
 where
-    T: Heaped<Heap = CV::Heap>
+    T: Heaped<Heap = Heap>
         + CoCaseSplittable<
             CoCallablefyCoVisitor<CV, T, PatternMatchStrategyProvider>,
             PatternMatchStrategyProvider::Strategy,
         > + Copy,
-    CV: CoVisitor<T> + AcceptingCases<PatternMatchStrategyProvider::Strategy>,
+    CV: CoVisitor<T> + AdmitNoMatchingCase<T>, //  + AcceptingCases<PatternMatchStrategyProvider::Strategy>
     PatternMatchStrategyProvider: crate::case_split::HasPatternMatchStrategyFor<T>,
 {
-    fn co_visit(visitor: &mut CV, heap: &mut <CV as Heaped>::Heap) -> Self {
+    fn co_visit(visitor: &mut CV, heap: &mut Heap) -> Self {
         let mut ret: Option<Self> = None;
-        visitor.co_push(heap);
+        visitor.co_push();
         take_mut::take(visitor, |visitor| {
             let mut callable = CoCallablefyCoVisitor {
                 cv: visitor,
@@ -192,7 +196,7 @@ where
             ));
             callable.cv
         });
-        visitor.co_pop(heap);
+        visitor.co_pop();
         ret.unwrap()
     }
 }

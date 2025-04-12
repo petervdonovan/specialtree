@@ -27,10 +27,21 @@ pub fn generate<L: LangSpec>(base_paths: &BasePaths, ls: &LsGen<L>) -> syn::Item
             impl_adt_for(base_paths, &camel_ident)
         }))
         .collect::<Vec<_>>();
+    let term_trait = &base_paths.term_trait;
+    let data_structure = &base_paths.data_structure;
     syn::parse_quote! {
         #byline
         pub mod pattern_match_strategy {
-            pub struct PatternMatchStrategyProvider;
+            impl<Heap: #term_trait::Heap, T> term::case_split::HasPatternMatchStrategyFor<T> for term::case_split::PatternMatchStrategyProviderForExtension<Heap>
+            where
+                T: CodomainOfEmbedding<#data_structure::Heap>,
+                PatternMatchStrategyProviderForHeap<Heap>: term::case_split::HasPatternMatchStrategyFor<T::DomainOfEmbedding>
+            {
+                type Strategy = PatternMatchStrategyProviderForHeap<Heap>::Strategy;
+            }
+            pub type PatternMatchStrategyProvider = term::case_split::PatternMatchStrategyProviderForHeap<#data_structure::Heap>;
+            pub struct PatternMatchStrategyProviderForHeap<Heap>(std::marker::PhantomData<Heap>);
+            pub struct PatternMatchStrategyProviderForExtension<Heap>(std::marker::PhantomData<Heap>);
             #(#impls)*
         }
     }
@@ -38,7 +49,7 @@ pub fn generate<L: LangSpec>(base_paths: &BasePaths, ls: &LsGen<L>) -> syn::Item
 
 pub(crate) fn impl_has_pattern_match_strategy_for(
     BasePaths {
-        term_trait: _,
+        term_trait,
         data_structure,
         strategy_provider: _,
     }: &BasePaths,
@@ -48,15 +59,15 @@ pub(crate) fn impl_has_pattern_match_strategy_for(
     let byline = langspec_gen_util::byline!();
     let strategy: syn::Type = cons_list(
         (ccf.ccf_sort_tyses)(
-            HeapType(syn::parse_quote! {#data_structure::Heap}),
-            AlgebraicsBasePath::new(quote::quote! {#data_structure::}),
+            HeapType(syn::parse_quote! {Heap}),
+            AlgebraicsBasePath::new(quote::quote! {Heap::}),
         )
         .into_iter()
         .map(|it| cons_list(it.into_iter())),
     );
     syn::parse_quote! {
         #byline
-        impl term::case_split::HasPatternMatchStrategyFor<#data_structure::#camel_ident> for PatternMatchStrategyProvider {
+        impl<Heap: #term_trait::Heap> term::case_split::HasPatternMatchStrategyFor<#data_structure::#camel_ident> for PatternMatchStrategyProviderForHeap<Heap> {
             type Strategy = #strategy;
         }
     }
@@ -74,7 +85,7 @@ pub(crate) fn impl_adt_for(
     syn::parse_quote! {
         #byline
         impl term::case_split::Adt for #data_structure::#camel_ident {
-            type PatternMatchStrategyProvider = #strategy_provider::PatternMatchStrategyProvider;
+            type PatternMatchStrategyProvider = #strategy_provider::PatternMatchStrategyProvider<#data_structure::Heap>;
         }
     }
 }

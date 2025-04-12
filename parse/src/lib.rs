@@ -6,11 +6,71 @@ pub use miette;
 pub use unicode_segmentation;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Keyword(std::borrow::Cow<'static, str>);
+pub struct Keyword(&'static str);
+// pub struct Keyword(std::borrow::Cow<'static, str>);
 
 impl std::fmt::Display for Keyword {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "`{}`", self.0)
+    }
+}
+
+impl Keyword {
+    pub const fn new(s: &'static str) -> Self {
+        // validate on read instead of on construction so that constructor is const
+        Keyword(s)
+    }
+    fn get(&self) -> &'static str {
+        if self.0.is_empty() {
+            panic!("Keyword cannot be empty");
+        }
+        if self.0.chars().any(|it| it.is_whitespace()) {
+            panic!("Keyword cannot start with whitespace");
+        }
+        self.0
+    }
+    pub fn find(
+        &self,
+        source: &str,
+        offset: miette::SourceOffset,
+    ) -> Option<(miette::SourceOffset, miette::SourceOffset)> {
+        match unicode_segmentation::UnicodeSegmentation::unicode_words(&source[offset.offset()..])
+            .next()
+        {
+            Some(token) => {
+                if token == self.get() {
+                    let start = offset.offset() + source[offset.offset()..].find(token).unwrap();
+                    let end = start + token.len();
+                    Some((start.into(), end.into()))
+                } else {
+                    None
+                }
+            }
+            None => None,
+        }
+    }
+}
+
+pub struct KeywordSequence(pub &'static [Keyword]);
+impl KeywordSequence {
+    pub fn find(
+        &self,
+        source: &str,
+        offset: miette::SourceOffset,
+    ) -> Option<(miette::SourceOffset, miette::SourceOffset)> {
+        let mut start = None;
+        let mut end = None;
+        for kw in self.0.iter() {
+            if let Some((kw_start, kw_end)) = kw.find(source, offset) {
+                if start.is_none() {
+                    start = Some(kw_start);
+                }
+                end = Some(kw_end);
+            } else {
+                return None;
+            }
+        }
+        Some((start.unwrap(), end.unwrap()))
     }
 }
 

@@ -15,8 +15,8 @@ where
     type ShortCircuitsTo;
     type AcceptingRemainingCases: AcceptingCases<CasesConsList::Cdr, ShortCircuitsTo = Self::ShortCircuitsTo>;
     fn try_case(&mut self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases>;
-    fn stop_with_external_success(
-        self,
-        proof_of_success: CasesConsList::Car,
-    ) -> Self::ShortCircuitsTo;
+    // fn stop_with_external_success(
+    //     self,
+    //     proof_of_success: CasesConsList::Car,
+    // ) -> Self::ShortCircuitsTo;
 }

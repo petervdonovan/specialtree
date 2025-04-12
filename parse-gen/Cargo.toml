@@ -9,11 +9,13 @@ extension-everywhere-alternative = { version = "0.1.0", path = "../extension-eve
 extension-everywhere-maybemore = { version = "0.1.0", path = "../extension-everywhere-maybemore" }
 langspec = { version = "0.1.0", path = "../langspec" }
 langspec-gen-util = { version = "0.1.0", path = "../langspec-gen-util" }
+parse-adt = { version = "0.1.0", path = "../parse-adt" }
 prettyplease = "0.2.29"
 quote = "1.0.38"
 std-parse-error = { version = "0.1.0", path = "../langspec-std/std-parse-error" }
 std-parse-metadata = { version = "0.1.0", path = "../langspec-std/std-parse-metadata" }
 syn = { version = "2.0.96", features = ["full"] }
+term-pattern-match-strategy-provider-impl-gen = { version = "0.1.0", path = "../term-pattern-match-strategy-provider-impl-gen" }
 term-specialized-gen = { version = "0.1.0", path = "../term-specialized-gen" }
 term-specialized-impl-gen = { version = "0.1.0", path = "../term-specialized-impl-gen" }
 term-trait-gen = { version = "0.1.0", path = "../term-trait-gen" }

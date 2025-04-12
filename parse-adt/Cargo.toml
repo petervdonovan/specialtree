@@ -1,0 +1,12 @@
+[package]
+name = "parse-adt"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+miette = "7.5.0"
+parse = { version = "0.1.0", path = "../parse" }
+std-parse-error = { version = "0.1.0", path = "../langspec-std/std-parse-error" }
+std-parse-metadata = { version = "0.1.0", path = "../langspec-std/std-parse-metadata" }
+term = { version = "0.1.0", path = "../term" }
+tymetafuncspec-core = { version = "0.1.0", path = "../tymetafuncspec-core" }
