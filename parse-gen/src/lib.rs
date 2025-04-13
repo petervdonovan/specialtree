@@ -10,8 +10,10 @@ use syn::parse_quote;
 pub struct BasePaths {
     pub data_structure: syn::Path,
     pub term_trait: syn::Path,
+    pub words: syn::Path,
     pub cst_data_structure: syn::Path,
     pub cst_term_trait: syn::Path,
+    pub cst_words: syn::Path,
 }
 
 pub fn generate<L: LangSpec>(bps: &BasePaths, lg: &LsGen<L>) -> syn::ItemMod {
@@ -122,11 +124,13 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
     let bps = BasePaths {
         data_structure: parse_quote! { crate::data_structure },
         term_trait: parse_quote! { crate::extension_of },
+        words: parse_quote! { crate::words },
         cst_data_structure: parse_quote! { crate::cst::data_structure },
         cst_term_trait: parse_quote! { crate::cst::extension_of },
+        cst_words: parse_quote! { crate::cst::words },
     };
     let m = generate(&bps, &lg);
-    let (cst_mod, cst_tt, cst_tpmspi, cst_tt_impl) = {
+    let (cst_mod, cst_tt, cst_tpmspi, cst_tt_impl, cst_words) = {
         let arena = bumpalo::Bump::new();
         let cst = cst(&arena, l);
         let lg = LsGen::from(&cst);
@@ -147,12 +151,14 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
         let cst_tpmspi = term_pattern_match_strategy_provider_impl_gen::generate(
             &term_pattern_match_strategy_provider_impl_gen::BasePaths {
                 term_trait: syn::parse_quote!(crate::cst::extension_of),
+                words: syn::parse_quote!(crate::cst::words),
                 data_structure: syn::parse_quote!(crate::cst::data_structure),
                 strategy_provider: syn::parse_quote!(crate::cst::pattern_match_strategy),
             },
             &lg,
         );
-        (cst_mod, cst_tt, cst_tpmspi, cst_tt_impl)
+        let cst_words = words::words_mod(&lg);
+        (cst_mod, cst_tt, cst_tpmspi, cst_tt_impl, cst_words)
     };
     let ds = term_specialized_gen::generate(&bps.data_structure, &lg, false);
     let tt = term_trait_gen::generate(&bps.term_trait, lg.bak());
@@ -160,10 +166,21 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
         &term_pattern_match_strategy_provider_impl_gen::BasePaths {
             term_trait: syn::parse_quote!(crate::extension_of),
             data_structure: syn::parse_quote!(crate::data_structure),
+            words: syn::parse_quote!(crate::words),
             strategy_provider: syn::parse_quote!(crate::pattern_match_strategy),
         },
         &lg,
     );
+    let tt_impl = term_specialized_impl_gen::generate(
+        &term_specialized_impl_gen::BasePaths {
+            data_structure: parse_quote! { crate::data_structure },
+            term_trait: parse_quote! { crate::extension_of },
+        },
+        &lg,
+        &lg,
+    );
+    let tt_words = words::words_mod(&lg);
+    let tt_words_impl = words::words_impls(&bps.words, &bps.data_structure, &lg, &lg);
     prettyplease::unparse(&syn::parse_quote! {
         fn test() {
             impl<'a>
@@ -207,10 +224,13 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
             #cst_tt
             // #cst_tpmspi
             #cst_tt_impl
+            #cst_words
         }
         #ds
         #tt
         #tpmspi
-        // #tt_impl
+        #tt_words
+        #tt_words_impl
+        #tt_impl  // needed for tpimspi ADT impls
     })
 }

@@ -11,6 +11,7 @@ use langspec_gen_util::{
 pub struct BasePaths {
     pub term_trait: syn::Path,
     pub data_structure: syn::Path,
+    pub words: syn::Path,
     pub strategy_provider: syn::Path,
 }
 
@@ -29,19 +30,21 @@ pub fn generate<L: LangSpec>(base_paths: &BasePaths, ls: &LsGen<L>) -> syn::Item
         .collect::<Vec<_>>();
     let term_trait = &base_paths.term_trait;
     let data_structure = &base_paths.data_structure;
+    let words = &base_paths.words;
     syn::parse_quote! {
         #byline
         pub mod pattern_match_strategy {
-            impl<Heap: #term_trait::Heap, T> term::case_split::HasPatternMatchStrategyFor<T> for term::case_split::PatternMatchStrategyProviderForExtension<Heap>
+            impl<Heap: #term_trait::Heap, T> term::case_split::HasPatternMatchStrategyFor<T> for PatternMatchStrategyProvider<Heap>
             where
-                T: CodomainOfEmbedding<#data_structure::Heap>,
-                PatternMatchStrategyProviderForHeap<Heap>: term::case_split::HasPatternMatchStrategyFor<T::DomainOfEmbedding>
+                T: words::Implements<#words::L>,
+                PatternMatchStrategyProvider<Heap>: term::case_split::HasPatternMatchStrategyFor<T::LWord>
             {
-                type Strategy = PatternMatchStrategyProviderForHeap<Heap>::Strategy;
+                type Strategy = <
+                    PatternMatchStrategyProvider<Heap> as term::case_split::HasPatternMatchStrategyFor<
+                        T::LWord,
+                    >>::Strategy;
             }
-            pub type PatternMatchStrategyProvider = term::case_split::PatternMatchStrategyProviderForHeap<#data_structure::Heap>;
-            pub struct PatternMatchStrategyProviderForHeap<Heap>(std::marker::PhantomData<Heap>);
-            pub struct PatternMatchStrategyProviderForExtension<Heap>(std::marker::PhantomData<Heap>);
+            pub struct PatternMatchStrategyProvider<Heap>(std::marker::PhantomData<Heap>);
             #(#impls)*
         }
     }
@@ -51,6 +54,7 @@ pub(crate) fn impl_has_pattern_match_strategy_for(
     BasePaths {
         term_trait,
         data_structure,
+        words,
         strategy_provider: _,
     }: &BasePaths,
     camel_ident: &syn::Ident,
@@ -67,7 +71,7 @@ pub(crate) fn impl_has_pattern_match_strategy_for(
     );
     syn::parse_quote! {
         #byline
-        impl<Heap: #term_trait::Heap> term::case_split::HasPatternMatchStrategyFor<#data_structure::#camel_ident> for PatternMatchStrategyProviderForHeap<Heap> {
+        impl<Heap: #term_trait::Heap> term::case_split::HasPatternMatchStrategyFor<#words::sorts::#camel_ident> for PatternMatchStrategyProvider<Heap> {
             type Strategy = #strategy;
         }
     }
@@ -77,6 +81,7 @@ pub(crate) fn impl_adt_for(
     BasePaths {
         term_trait: _,
         data_structure,
+        words: _,
         strategy_provider,
     }: &BasePaths,
     camel_ident: &syn::Ident,
@@ -96,14 +101,19 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
     let bps = BasePaths {
         strategy_provider: syn::parse_quote!(crate::pattern_match_strategy),
         data_structure: syn::parse_quote!(crate::data_structure),
+        words: syn::parse_quote!(crate::words),
         term_trait: syn::parse_quote!(crate::extension_of),
     };
     let m = generate(&bps, &lsg);
     let tt = term_trait_gen::generate(&bps.term_trait, &lsf);
     let ds = term_specialized_gen::generate(&bps.data_structure, &lsg, false);
+    let words = words::words_mod(&lsg);
+    let words_impls = words::words_impls(&bps.words, &bps.data_structure, &lsg, &lsg);
     prettyplease::unparse(&syn::parse_quote! {
         #m
         #tt
         #ds
+        #words
+        #words_impls
     })
 }

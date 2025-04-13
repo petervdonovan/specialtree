@@ -255,6 +255,7 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
             term_trait: syn::parse_quote!(crate::extension_of),
             data_structure: syn::parse_quote!(crate::data_structure),
             strategy_provider: syn::parse_quote!(crate::pattern_match_strategy),
+            words: syn::parse_quote!(crate::words),
         },
         &lsg,
     );

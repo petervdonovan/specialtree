@@ -91,7 +91,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "rustc_version",
- "syn 2.0.98",
+ "syn 2.0.100",
 ]
 
 [[package]]
@@ -113,7 +113,7 @@ dependencies = [
  "functor_derive",
  "langspec",
  "serde",
- "syn 2.0.98",
+ "syn 2.0.100",
 ]
 
 [[package]]
@@ -174,7 +174,7 @@ dependencies = [
  "proc-macro-error",
  "proc-macro2",
  "quote",
- "syn 2.0.98",
+ "syn 2.0.100",
 ]
 
 [[package]]
@@ -249,7 +249,7 @@ dependencies = [
  "quote",
  "serde",
  "serde_yml",
- "syn 2.0.98",
+ "syn 2.0.100",
  "typed-index-collections",
 ]
 
@@ -271,7 +271,7 @@ dependencies = [
  "langspec",
  "proc-macro2",
  "quote",
- "syn 2.0.98",
+ "syn 2.0.100",
  "term",
 ]
 
@@ -339,7 +339,7 @@ checksum = "bf45bf44ab49be92fd1227a3be6fc6f617f1a337c06af54981048574d8783147"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.98",
+ "syn 2.0.100",
 ]
 
 [[package]]
@@ -388,13 +388,14 @@ dependencies = [
  "quote",
  "std-parse-error",
  "std-parse-metadata",
- "syn 2.0.98",
+ "syn 2.0.100",
  "term",
  "term-pattern-match-strategy-provider-impl-gen",
  "term-specialized-gen",
  "term-specialized-impl-gen",
  "term-trait-gen",
  "tymetafuncspec-core",
+ "words",
 ]
 
 [[package]]
@@ -419,7 +420,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6924ced06e1f7dfe3fa48d57b9f74f55d8915f5036121bef647ef4b204895fac"
 dependencies = [
  "proc-macro2",
- "syn 2.0.98",
+ "syn 2.0.100",
 ]
 
 [[package]]
@@ -535,7 +536,7 @@ checksum = "5a9bf7cf98d04a2b28aead066b7496853d4779c9cc183c440dbac457641e19a0"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.98",
+ "syn 2.0.100",
 ]
 
 [[package]]
@@ -600,7 +601,7 @@ dependencies = [
  "parse",
  "serde",
  "serde_json",
- "syn 2.0.98",
+ "syn 2.0.100",
  "term",
 ]
 
@@ -613,7 +614,7 @@ dependencies = [
  "parse",
  "serde",
  "serde_json",
- "syn 2.0.98",
+ "syn 2.0.100",
  "term",
 ]
 
@@ -630,9 +631,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "2.0.98"
+version = "2.0.100"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "36147f1a48ae0ec2b5b3bc5b537d267457555a10dc06f3dbc8cb11ba3006d3b1"
+checksum = "b09a44accad81e1ba1cd74a32461ba89dee89095ba17b32f5d03683b1b1fc2a0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -657,7 +658,7 @@ version = "0.1.0"
 dependencies = [
  "langspec",
  "proc-macro2",
- "syn 2.0.98",
+ "syn 2.0.100",
  "take_mut",
  "twox-hash",
  "type-equals",
@@ -673,11 +674,12 @@ dependencies = [
  "prettyplease",
  "proc-macro2",
  "quote",
- "syn 2.0.98",
+ "syn 2.0.100",
  "term",
  "term-specialized-gen",
  "term-trait-gen",
  "tymetafuncspec-core",
+ "words",
 ]
 
 [[package]]
@@ -691,7 +693,7 @@ dependencies = [
  "prettyplease",
  "proc-macro2",
  "quote",
- "syn 2.0.98",
+ "syn 2.0.100",
  "term",
  "trybuild",
  "tymetafuncspec-core",
@@ -706,7 +708,7 @@ dependencies = [
  "langspec-gen-util",
  "prettyplease",
  "quote",
- "syn 2.0.98",
+ "syn 2.0.100",
  "term",
  "term-pattern-match-strategy-provider-impl-gen",
  "term-specialized-gen",
@@ -725,7 +727,7 @@ dependencies = [
  "prettyplease",
  "proc-macro2",
  "quote",
- "syn 2.0.98",
+ "syn 2.0.100",
  "term",
  "tymetafuncspec-core",
 ]
@@ -765,7 +767,7 @@ checksum = "4fee6c4efc90059e10f81e6d42c60a18f76588c3d74cb83a0b242a2b6c7504c1"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.98",
+ "syn 2.0.100",
 ]
 
 [[package]]
@@ -776,7 +778,7 @@ checksum = "26afc1baea8a989337eeb52b6e72a039780ce45c3edfcc9c5b9d112feeb173c2"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.98",
+ "syn 2.0.100",
 ]
 
 [[package]]
@@ -785,7 +787,7 @@ version = "0.1.0"
 dependencies = [
  "either-id",
  "langspec",
- "syn 2.0.98",
+ "syn 2.0.100",
 ]
 
 [[package]]
@@ -858,7 +860,7 @@ dependencies = [
  "slab",
  "std-parse-error",
  "std-parse-metadata",
- "syn 2.0.98",
+ "syn 2.0.100",
  "term",
 ]
 
@@ -999,6 +1001,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "words"
+version = "0.1.0"
+dependencies = [
+ "langspec",
+ "langspec-gen-util",
+ "syn 2.0.100",
+]
+
+[[package]]
 name = "zerocopy"
 version = "0.7.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1016,5 +1027,5 @@ checksum = "fa4f8080344d4671fb4e831a13ad1e68092748387dfc4f55e356242fae12ce3e"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.98",
+ "syn 2.0.100",
 ]
