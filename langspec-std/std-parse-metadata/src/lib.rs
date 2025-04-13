@@ -59,7 +59,7 @@ impl TyMetaFuncSpec for ParseMetadataTmfs {
                 heapbak: RustTyMap {
                     ty_func: syn::parse_quote! {std_parse_metadata::ParseMetadataBak},
                 },
-                maybe_conversions: Box::new([]),
+                // maybe_conversions: Box::new([]),
                 canonical_froms: Box::new([]),
             },
         }

@@ -18,23 +18,20 @@ where
     fn deconstruct(self, heap: &Self::Heap) -> T;
 }
 
-pub trait HasDagEmbedding
-where
-    Self: CanonicallyConstructibleFrom<(Self::Domain,)>,
-{
-    type Domain;
+pub trait TransitivelyCcf<T> {
+    type Intermediary;
 }
 
 impl<T, U> CanonicallyConstructibleFrom<(T,)> for U
 where
     U: Copy,
-    U: HasDagEmbedding,
-    U::Domain: CanonicallyConstructibleFrom<(T,)>,
-    U::Domain: Heaped<Heap = U::Heap>,
+    U: TransitivelyCcf<(T,)> + Heaped<Heap = <U::Intermediary as Heaped>::Heap>,
+    U: CanonicallyConstructibleFrom<(U::Intermediary,)>,
+    U::Intermediary: CanonicallyConstructibleFrom<(T,)>,
 {
     fn construct(heap: &mut Self::Heap, t: (T,)) -> Self {
-        let u = U::Domain::construct(heap, t);
-        Self::construct(heap, (u,))
+        let intermediary = U::Intermediary::construct(heap, t);
+        Self::construct(heap, (intermediary,))
     }
 
     fn deconstruct_succeeds(&self, heap: &Self::Heap) -> bool {
@@ -45,6 +42,34 @@ where
         self.deconstruct(heap).0.deconstruct(heap)
     }
 }
+
+// pub trait HasDagEmbedding
+// where
+//     Self: CanonicallyConstructibleFrom<(Self::Domain,)>,
+// {
+//     type Domain;
+// }
+
+// impl<T, U> CanonicallyConstructibleFrom<(T,)> for U
+// where
+//     U: Copy,
+//     U: HasDagEmbedding,
+//     U::Domain: CanonicallyConstructibleFrom<(T,)>,
+//     U::Domain: Heaped<Heap = U::Heap>,
+// {
+//     fn construct(heap: &mut Self::Heap, t: (T,)) -> Self {
+//         let u = U::Domain::construct(heap, t);
+//         Self::construct(heap, (u,))
+//     }
+
+//     fn deconstruct_succeeds(&self, heap: &Self::Heap) -> bool {
+//         self.deconstruct_succeeds(heap) && self.deconstruct(heap).0.deconstruct_succeeds(heap)
+//     }
+
+//     fn deconstruct(self, heap: &Self::Heap) -> (T,) {
+//         self.deconstruct(heap).0.deconstruct(heap)
+//     }
+// }
 
 // pub trait AllCcf<Heap, FromConsList> {
 //     fn construct(heap: &mut Heap, t: FromConsList) -> Self;

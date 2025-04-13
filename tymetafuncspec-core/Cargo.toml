@@ -11,6 +11,4 @@ term = { version = "0.1.0", path = "../term" }
 syn = "2.0.90"
 derivative = "2.2.0"
 parse = { version = "0.1.0", path = "../parse" }
-std-parse-error = { version = "0.1.0", path = "../langspec-std/std-parse-error" }
-std-parse-metadata = { version = "0.1.0", path = "../langspec-std/std-parse-metadata" }
 slab = "0.4.9"

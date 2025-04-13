@@ -47,7 +47,7 @@ macro_rules! return_if_err {
             Ok(ok) => ok,
             Err(e) => {
                 return tymetafuncspec_core::Either::Right(
-                    tymetafuncspec_core::std_parse_error::ParseError::new(e),
+                    std_parse_error::ParseError::new(e),
                     std::marker::PhantomData,
                 )
             }

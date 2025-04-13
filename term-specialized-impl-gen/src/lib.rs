@@ -13,15 +13,11 @@ pub struct BasePaths {
     pub term_trait: syn::Path,
 }
 
-pub fn generate<L: LangSpec>(
-    bps: &BasePaths,
-    data_structure_lsg: &LsGen<L>,
-    term_trait_lsg: &LsGen<L>,
-) -> syn::ItemMod {
-    let owned_mod = gen_owned_mod(bps, data_structure_lsg);
-    let ccf_mod = gen_ccf_mod(bps, data_structure_lsg, term_trait_lsg);
-    let mct_mod = gen_mct_mod(bps, data_structure_lsg, term_trait_lsg);
-    let heap_impl = gen_heap_impl(bps, data_structure_lsg, term_trait_lsg);
+pub fn generate<L: LangSpec>(bps: &BasePaths, lsg: &LsGen<L>) -> syn::ItemMod {
+    let owned_mod = gen_owned_mod(bps, lsg);
+    let ccf_mod = gen_ccf_mod(bps, lsg, lsg);
+    let mct_mod = gen_mct_mod(bps, lsg, lsg);
+    let heap_impl = gen_heap_impl(bps, lsg, lsg);
     let byline = byline!();
     syn::parse_quote! {
         #byline
@@ -30,6 +26,23 @@ pub fn generate<L: LangSpec>(
             #owned_mod
             #ccf_mod
             #mct_mod
+        }
+    }
+}
+
+pub fn generate_bridge<L: LangSpec>(
+    bps: &BasePaths,
+    data_structure_lsg: &LsGen<L>,
+    term_trait_lsg: &LsGen<L>,
+) -> syn::ItemMod {
+    let owned_mod = gen_owned_mod(bps, data_structure_lsg);
+    let heap_impl = gen_heap_impl(bps, data_structure_lsg, term_trait_lsg);
+    let byline = byline!();
+    syn::parse_quote! {
+        #byline
+        pub mod term_impls {
+            #heap_impl
+            #owned_mod
         }
     }
 }
@@ -248,7 +261,7 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
         data_structure: syn::parse_quote!(crate::data_structure),
         term_trait: syn::parse_quote!(crate::extension_of),
     };
-    let m = generate(&bps, &lsg, &lsg);
+    let m = generate(&bps, &lsg);
     let ds = term_specialized_gen::generate(&bps.data_structure, &lsg, false);
     let tpmspi = term_pattern_match_strategy_provider_impl_gen::generate(
         &term_pattern_match_strategy_provider_impl_gen::BasePaths {

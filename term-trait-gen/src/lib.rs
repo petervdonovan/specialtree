@@ -48,9 +48,10 @@ pub(crate) fn heap_trait<L: LangSpec>(base_path: &syn::Path, ls: &LsGen<L>) -> s
             : #(term::SuperHeap<#baks>)+*
         }
     };
+    // todo: bounds not needed?
     parse_quote! {
         #byline
-        pub trait Heap #bounds + Sized {
+        pub trait Heap: Sized {
             #(
                 type #camel_ident: #base_path::owned::#camel_ident<Heap = Self>;
             )*

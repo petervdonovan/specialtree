@@ -4,7 +4,7 @@ use langspec::{
     langspec::{LangSpec, MappedType, Name, SortId},
     tymetafunc::Transparency,
 };
-use langspec_gen_util::{byline, AlgebraicsBasePath, HeapType, LsGen, TyGenData};
+use langspec_gen_util::{byline, proc_macro2, AlgebraicsBasePath, HeapType, LsGen, TyGenData};
 use syn::parse_quote;
 
 pub struct BasePaths {
@@ -119,6 +119,94 @@ pub(crate) fn cst<'a, 'b: 'a, L: LangSpec>(
     }
 }
 
+pub fn gen_impls<L: LangSpec>(base_path: &syn::Path, lsg: &LsGen<L>) -> proc_macro2::TokenStream {
+    let ds =
+        term_specialized_gen::generate(&syn::parse_quote!(#base_path::data_structure), lsg, false);
+    let tt = term_trait_gen::generate(&syn::parse_quote!(#base_path::extension_of), lsg.bak());
+    let tpmspi = term_pattern_match_strategy_provider_impl_gen::generate(
+        &term_pattern_match_strategy_provider_impl_gen::BasePaths {
+            term_trait: syn::parse_quote!(#base_path::extension_of),
+            data_structure: syn::parse_quote!(#base_path::data_structure),
+            words: syn::parse_quote!(#base_path::words),
+            strategy_provider: syn::parse_quote!(#base_path::pattern_match_strategy),
+        },
+        lsg,
+    );
+    let tt_impl = term_specialized_impl_gen::generate(
+        &term_specialized_impl_gen::BasePaths {
+            data_structure: syn::parse_quote!(#base_path::data_structure),
+            term_trait: syn::parse_quote!(#base_path::extension_of),
+        },
+        lsg,
+    );
+    let tt_words = words::words_mod(lsg);
+    let tt_words_impl = words::words_impls(
+        &syn::parse_quote! { #base_path::words },
+        &syn::parse_quote! { #base_path::data_structure },
+        lsg,
+        lsg,
+    );
+    quote::quote! {
+        #ds
+        #tt
+        #tpmspi
+        #tt_words
+        #tt_words_impl
+        #tt_impl
+    }
+}
+
+pub fn bridge_words_impls<L: LangSpec>(
+    extension_ds_base_path: &syn::Path,
+    og_words_base_path: &syn::Path,
+    elsg: &LsGen<L>,
+) -> syn::ItemMod {
+    let impls = elsg.ty_gen_datas().map(|tgd| -> syn::ItemImpl {
+        let camel_ident = &tgd.camel_ident;
+        let cstfication = transparency2cstfication(&tgd.transparency);
+        let ty: syn::Type = syn::parse_quote! {
+            parse_adt::cstfy::#cstfication<#extension_ds_base_path::Heap, #extension_ds_base_path::#camel_ident>
+        };
+        syn::parse_quote! {
+            impl words::Implements<#og_words_base_path::L> for #ty {
+                type LWord = #og_words_base_path::sorts::#camel_ident;
+            }
+        }
+    });
+    let byline = byline!();
+    syn::parse_quote! {
+        #byline
+        pub mod words_impls {
+            #(#impls)*
+        }
+    }
+}
+
+pub fn gen_bridge<L: LangSpec>(
+    extension_base_path: &syn::Path,
+    og_base_path: &syn::Path,
+    elsg: &LsGen<L>,
+    oglsg: &LsGen<L>,
+) -> proc_macro2::TokenStream {
+    let words_impls = bridge_words_impls(
+        &syn::parse_quote! { #extension_base_path::data_structure },
+        &syn::parse_quote! { #og_base_path::words },
+        elsg,
+    );
+    let bridge_tt_impl = term_specialized_impl_gen::generate_bridge(
+        &term_specialized_impl_gen::BasePaths {
+            data_structure: syn::parse_quote!(#extension_base_path::data_structure),
+            term_trait: syn::parse_quote!(#og_base_path::extension_of),
+        },
+        elsg,
+        oglsg,
+    );
+    quote::quote! {
+        #words_impls
+        #bridge_tt_impl
+    }
+}
+
 pub fn formatted<L: LangSpec>(l: &L) -> String {
     let lg = LsGen::from(l);
     let bps = BasePaths {
@@ -130,63 +218,27 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
         cst_words: parse_quote! { crate::cst::words },
     };
     let m = generate(&bps, &lg);
-    let (cst_mod, cst_tt, cst_tpmspi, cst_tt_impl, cst_words) = {
+    let cst_impls = {
         let arena = bumpalo::Bump::new();
         let cst = cst(&arena, l);
         let lg = LsGen::from(&cst);
-        let cst_mod = term_specialized_gen::generate(
-            &parse_quote! { crate::cst::data_structure },
-            &lg,
-            false,
-        );
-        let cst_tt = term_trait_gen::generate(&parse_quote! { crate::cst::extension_of }, &cst);
-        let cst_tt_impl = term_specialized_impl_gen::generate(
-            &term_specialized_impl_gen::BasePaths {
-                data_structure: parse_quote! { crate::cst::data_structure },
-                term_trait: parse_quote! { crate::cst::extension_of },
-            },
-            &lg,
-            &lg,
-        );
-        let cst_tpmspi = term_pattern_match_strategy_provider_impl_gen::generate(
-            &term_pattern_match_strategy_provider_impl_gen::BasePaths {
-                term_trait: syn::parse_quote!(crate::cst::extension_of),
-                words: syn::parse_quote!(crate::cst::words),
-                data_structure: syn::parse_quote!(crate::cst::data_structure),
-                strategy_provider: syn::parse_quote!(crate::cst::pattern_match_strategy),
-            },
-            &lg,
-        );
-        let cst_words = words::words_mod(&lg);
-        (cst_mod, cst_tt, cst_tpmspi, cst_tt_impl, cst_words)
+        gen_impls(&syn::parse_quote! { crate::cst }, &lg)
     };
-    let ds = term_specialized_gen::generate(&bps.data_structure, &lg, false);
-    let tt = term_trait_gen::generate(&bps.term_trait, lg.bak());
-    let tpmspi = term_pattern_match_strategy_provider_impl_gen::generate(
-        &term_pattern_match_strategy_provider_impl_gen::BasePaths {
-            term_trait: syn::parse_quote!(crate::extension_of),
-            data_structure: syn::parse_quote!(crate::data_structure),
-            words: syn::parse_quote!(crate::words),
-            strategy_provider: syn::parse_quote!(crate::pattern_match_strategy),
-        },
-        &lg,
-    );
-    let tt_impl = term_specialized_impl_gen::generate(
-        &term_specialized_impl_gen::BasePaths {
-            data_structure: parse_quote! { crate::data_structure },
-            term_trait: parse_quote! { crate::extension_of },
-        },
+    let bridge = gen_bridge(
+        &syn::parse_quote! { crate::cst },
+        &syn::parse_quote! { crate },
         &lg,
         &lg,
     );
-    let tt_words = words::words_mod(&lg);
-    let tt_words_impl = words::words_impls(&bps.words, &bps.data_structure, &lg, &lg);
+    let root_impls = gen_impls(&syn::parse_quote! { crate }, &lg);
+    let byline = byline!();
     prettyplease::unparse(&syn::parse_quote! {
+        #byline
         fn test() {
             impl<'a>
                 term::co_visit::CoVisitable<
                     parse_adt::Parser<'_>,
-                    cst::pattern_match_strategy::PatternMatchStrategyProvider,
+                    crate::pattern_match_strategy::PatternMatchStrategyProvider<cst::data_structure::Heap>,
                     cst::data_structure::Heap,
                 > for parse_adt::cstfy::CstfyTransparent<cst::data_structure::Heap, cst::data_structure::Nat>
             {
@@ -202,35 +254,29 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
             let mut heap = cst::data_structure::Heap::default();
             <parse_adt::cstfy::CstfyTransparent<cst::data_structure::Heap, cst::data_structure::Nat> as term::co_visit::CoVisitable<
                 parse_adt::Parser<'_>,
-                cst::pattern_match_strategy::PatternMatchStrategyProvider,
+                crate::pattern_match_strategy::PatternMatchStrategyProvider<cst::data_structure::Heap>,
                 cst::data_structure::Heap,
             >>::co_visit(&mut parser, &mut heap);
 
             <parse_adt::cstfy::Cstfy<cst::data_structure::Heap, cst::data_structure::F> as term::co_visit::CoVisitable<
                 parse_adt::Parser<'_>,
-                cst::pattern_match_strategy::PatternMatchStrategyProvider,
+                crate::pattern_match_strategy::PatternMatchStrategyProvider<cst::data_structure::Heap>,
                 cst::data_structure::Heap,
             >>::co_visit(&mut parser, &mut heap);
 
             <parse_adt::cstfy::Cstfy<cst::data_structure::Heap, cst::data_structure::Plus> as term::co_visit::CoVisitable<
                 parse_adt::Parser<'_>,
-                cst::pattern_match_strategy::PatternMatchStrategyProvider,
+                crate::pattern_match_strategy::PatternMatchStrategyProvider<cst::data_structure::Heap>,
                 cst::data_structure::Heap,
             >>::co_visit(&mut parser, &mut heap);
         }
         #m
         pub mod cst {
-            #cst_mod
-            #cst_tt
-            // #cst_tpmspi
-            #cst_tt_impl
-            #cst_words
+            #cst_impls
         }
-        #ds
-        #tt
-        #tpmspi
-        #tt_words
-        #tt_words_impl
-        #tt_impl  // needed for tpimspi ADT impls
+        pub mod bridge {
+            #bridge
+        }
+        #root_impls
     })
 }

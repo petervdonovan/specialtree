@@ -1,14 +1,11 @@
 use derivative::Derivative;
 use langspec::{
     langspec::{Name, ToLiteral},
-    tymetafunc::{IdentifiedBy, RustTyMap, Transparency, TyMetaFuncData, TyMetaFuncSpec},
+    tymetafunc::{ArgId, IdentifiedBy, RustTyMap, Transparency, TyMetaFuncData, TyMetaFuncSpec},
 };
 use parse::{miette::SourceSpan, Parse, Unparse};
 use serde::{Deserialize, Serialize};
 use term::{drop::UnsafeHeapDrop, CanonicallyConstructibleFrom, Heaped, SuperHeap};
-
-pub use std_parse_error;
-pub use std_parse_metadata;
 
 pub struct Core;
 #[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize)]
@@ -57,7 +54,7 @@ thread_local! {
             heapbak: RustTyMap {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::BoundedNatHeapBak),
             },
-            maybe_conversions: Box::new([]),
+            // maybe_conversions: Box::new([]),
             canonical_froms: Box::new([]),
         },
         TyMetaFuncData {
@@ -81,7 +78,7 @@ thread_local! {
             heapbak: RustTyMap {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::SetHeapBak),
             },
-            maybe_conversions: Box::new([]),
+            // maybe_conversions: Box::new([]),
             canonical_froms: Box::new([]),
         },
         TyMetaFuncData {
@@ -105,7 +102,7 @@ thread_local! {
             heapbak: RustTyMap {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::SeqHeapBak),
             },
-            maybe_conversions: Box::new([]),
+            // maybe_conversions: Box::new([]),
             canonical_froms: Box::new([]),
         },
         TyMetaFuncData {
@@ -130,7 +127,7 @@ thread_local! {
             heapbak: RustTyMap {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::IdxBoxHeapBak),
             },
-            maybe_conversions: Box::new([]),
+            // maybe_conversions: Box::new([]),
             canonical_froms: Box::new([]),
         },
         TyMetaFuncData {
@@ -147,7 +144,7 @@ thread_local! {
             idby: IdentifiedBy::FirstTmfArg,
             transparency: Transparency::Transparent,
             heapbak: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::EitherHeapBak) },
-            maybe_conversions: Box::new([]),
+            // maybe_conversions: Box::new([]),
             canonical_froms: Box::new([])
         },
         TyMetaFuncData {
@@ -163,8 +160,8 @@ thread_local! {
             idby: IdentifiedBy::FirstTmfArg,
             transparency: Transparency::Transparent,
             heapbak: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::MaybeHeapBak) },
-            maybe_conversions: Box::new([]),
-            canonical_froms: Box::new([])
+            // maybe_conversions: Box::new([]),
+            canonical_froms: Box::new([Box::new([ArgId(0)])])
         },
         TyMetaFuncData {
             name: Name {
@@ -180,8 +177,8 @@ thread_local! {
             idby: IdentifiedBy::FirstTmfArg,
             transparency: Transparency::Visible,
             heapbak: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::PairHeapBak) },
-            maybe_conversions: Box::new([]),
-            canonical_froms: Box::new([]),
+            // maybe_conversions: Box::new([]),
+            canonical_froms: Box::new([Box::new([ArgId(0)])]),
         }
         ]
     });
@@ -503,6 +500,25 @@ pub enum Either<Heap, L, R> {
 impl<Heap, L, R> Heaped for Either<Heap, L, R> {
     type Heap = Heap;
 }
+impl<Heap, L, R> CanonicallyConstructibleFrom<(L,)> for Either<Heap, L, R> {
+    fn construct(_: &mut Self::Heap, t: (L,)) -> Self {
+        Either::Left(t.0, std::marker::PhantomData)
+    }
+
+    fn deconstruct_succeeds(&self, _: &Self::Heap) -> bool {
+        match self {
+            Either::Left(_, _) => true,
+            Either::Right(_, _) => false,
+        }
+    }
+
+    fn deconstruct(self, _: &Self::Heap) -> (L,) {
+        match self {
+            Either::Left(l, _) => (l,),
+            Either::Right(_, _) => panic!("deconstruct failed"),
+        }
+    }
+}
 empty_heap_bak!(EitherHeapBak, L, R);
 // impl<Heap, L, R> parse::Parse<Heap>
 //     for CstfyTransparent<Heap, Either<Heap, CstfyTransparent<Heap, L>, CstfyTransparent<Heap, R>>>
@@ -568,8 +584,10 @@ empty_heap_bak!(EitherHeapBak, L, R);
 #[derive(derivative::Derivative)]
 #[derivative(Clone(bound = "T: Clone"))]
 #[derivative(Copy(bound = "T: Copy"))]
+#[derive(Default)]
 pub enum Maybe<Heap, T> {
     Just(T, std::marker::PhantomData<Heap>),
+    #[default]
     Nothing,
 }
 impl<Heap, T> Heaped for Maybe<Heap, T> {
@@ -638,5 +656,26 @@ impl<Heap, L, R> Pair<Heap, L, R> {
 }
 impl<Heap, L, R> Heaped for Pair<Heap, L, R> {
     type Heap = Heap;
+}
+impl<Heap, L, R> CanonicallyConstructibleFrom<(L,)> for Pair<Heap, L, R>
+where
+    L: Heaped<Heap = Heap>,
+    R: Heaped<Heap = Heap> + Default,
+{
+    fn construct(_: &mut Self::Heap, t: (L,)) -> Self {
+        Pair {
+            l: t.0,
+            r: Default::default(),
+            heap: std::marker::PhantomData,
+        }
+    }
+
+    fn deconstruct_succeeds(&self, _: &Self::Heap) -> bool {
+        true
+    }
+
+    fn deconstruct(self, _: &Self::Heap) -> (L,) {
+        (self.l,)
+    }
 }
 empty_heap_bak!(PairHeapBak, L, R);
