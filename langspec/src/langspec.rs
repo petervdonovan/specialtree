@@ -21,20 +21,20 @@ pub struct Name {
 pub type SortIdOf<L: LangSpec + ?Sized> =
     SortId<L::ProductId, L::SumId, <L::Tmfs as TyMetaFuncSpec>::TyMetaFuncId>;
 
-#[derive(Debug, Serialize, Deserialize, Clone, Functor)]
+#[derive(Debug, Serialize, Deserialize, Clone, Functor, PartialEq, Eq, Hash)]
 #[functor(ProductId as p, SumId as s, TyMetaFuncId as f)]
 pub enum SortId<ProductId, SumId, TyMetaFuncId> {
     Algebraic(AlgebraicSortId<ProductId, SumId>),
     TyMetaFunc(MappedType<ProductId, SumId, TyMetaFuncId>),
 }
-#[derive(Debug, Serialize, Deserialize, Clone, Functor)]
+#[derive(Debug, Serialize, Deserialize, Clone, Functor, PartialEq, Eq, Hash)]
 // #[functor(AlgebraicSortId as a, TyMetaFuncId as f)]
 pub struct MappedType<ProductId, SumId, TyMetaFuncId> {
     pub f: TyMetaFuncId,
     pub a: Vec<SortId<ProductId, SumId, TyMetaFuncId>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Functor)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash, Functor)]
 #[functor(ProductId as p, SumId as s)]
 pub enum AlgebraicSortId<ProductId, SumId> {
     Product(ProductId),
@@ -48,8 +48,8 @@ impl<P, S, F> SortId<P, S, F> {
 }
 
 pub trait LangSpec {
-    type ProductId: Clone + Eq + ToLiteral + 'static;
-    type SumId: Clone + Eq + ToLiteral + 'static;
+    type ProductId: std::fmt::Debug + Clone + Eq + ToLiteral + std::hash::Hash + 'static;
+    type SumId: std::fmt::Debug + Clone + Eq + ToLiteral + std::hash::Hash + 'static;
     type Tmfs: TyMetaFuncSpec;
 
     fn name(&self) -> &Name;

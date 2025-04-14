@@ -5,10 +5,13 @@ use langspec::{
 };
 use parse::{miette::SourceSpan, Parse, Unparse};
 use serde::{Deserialize, Serialize};
-use term::{drop::UnsafeHeapDrop, CanonicallyConstructibleFrom, Heaped, SuperHeap};
+use term::{
+    drop::UnsafeHeapDrop, generic_auto_impl_ccf, CanonicallyConstructibleFrom,
+    DirectlyCanonicallyConstructibleFrom, Heaped, SuperHeap, TransitivelyUnitCcf,
+};
 
 pub struct Core;
-#[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize, Hash)]
 pub struct CoreTmfId(usize);
 
 impl ToLiteral for CoreTmfId {
@@ -128,7 +131,7 @@ thread_local! {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::IdxBoxHeapBak),
             },
             // maybe_conversions: Box::new([]),
-            canonical_froms: Box::new([]),
+            canonical_froms: Box::new([Box::new([ArgId(0)])]),
         },
         TyMetaFuncData {
             name: Name {
@@ -145,7 +148,7 @@ thread_local! {
             transparency: Transparency::Transparent,
             heapbak: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::EitherHeapBak) },
             // maybe_conversions: Box::new([]),
-            canonical_froms: Box::new([])
+            canonical_froms: Box::new([Box::new([ArgId(0)]), Box::new([ArgId(1)])])
         },
         TyMetaFuncData {
             name: Name {
@@ -204,6 +207,7 @@ pub struct BoundedNat<Heap> {
     heap: std::marker::PhantomData<Heap>,
     pub n: usize,
 }
+term::generic_auto_impl_ccf!(BoundedNat<Heap>, Heap : (SuperHeap<BoundedNatHeapBak<Heap>>));
 impl<Heap> Heaped for BoundedNat<Heap> {
     type Heap = Heap;
 }
@@ -294,6 +298,7 @@ impl<Heap: SuperHeap<SetHeapBak<Heap, Elem>>, Elem> UnsafeHeapDrop<Heap> for Set
         todo!()
     }
 }
+term::generic_auto_impl_ccf!(Set<Heap, Elem>, Heap : (SuperHeap<SetHeapBak<Heap, Elem>>), Elem : (Heaped<Heap = Heap>));
 impl<Heap, Elem> Set<Heap, Elem>
 where
     Heap: SuperHeap<SetHeapBak<Heap, Elem>>,
@@ -436,10 +441,10 @@ impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem: Copy> UnsafeHeapDrop<Heap
         heap.subheap_mut::<IdxBoxHeapBak<Heap, Elem>>().elems[self.idx as usize];
     }
 }
-impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem> CanonicallyConstructibleFrom<Elem>
+impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem> CanonicallyConstructibleFrom<(Elem, ())>
     for IdxBox<Heap, Elem>
 {
-    fn construct(heap: &mut Self::Heap, t: Elem) -> Self {
+    fn construct(heap: &mut Self::Heap, t: (Elem, ())) -> Self {
         todo!()
     }
 
@@ -447,7 +452,7 @@ impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem> CanonicallyConstructibleF
         todo!()
     }
 
-    fn deconstruct(self, heap: &Self::Heap) -> Elem {
+    fn deconstruct(self, heap: &Self::Heap) -> (Elem, ()) {
         todo!()
     }
 }
@@ -462,9 +467,10 @@ where
     Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>,
 {
     pub fn new(heap: &mut Heap, t: Elem) -> Self {
-        Self::construct(heap, t)
+        Self::construct(heap, (t, ()))
     }
 }
+term::generic_auto_impl_ccf!(IdxBox<Heap, Elem>, Heap : (SuperHeap<IdxBoxHeapBak<Heap, Elem>>), Elem : (Heaped<Heap = Heap>));
 // impl<Heap, T: Parse<Heap> + Copy> Parse<Heap> for CstfyTransparent<Heap, IdxBox<Heap, T>>
 // where
 //     Heap: SuperHeap<IdxBoxHeapBak<Heap, T>>,
@@ -497,11 +503,19 @@ pub enum Either<Heap, L, R> {
     Left(L, std::marker::PhantomData<Heap>),
     Right(R, std::marker::PhantomData<Heap>),
 }
+generic_auto_impl_ccf!(Either<Heap, L, R>, Heap : (SuperHeap<EitherHeapBak<Heap, L, R>>), L : (Heaped<Heap = Heap>), R : (Heaped<Heap = Heap>));
 impl<Heap, L, R> Heaped for Either<Heap, L, R> {
     type Heap = Heap;
 }
-impl<Heap, L, R> CanonicallyConstructibleFrom<(L,)> for Either<Heap, L, R> {
-    fn construct(_: &mut Self::Heap, t: (L,)) -> Self {
+pub trait DefinedInTmfsCore {}
+impl<Heap, L, R> TransitivelyUnitCcf<L> for Either<Heap, L, R>
+// where
+//     L: DefinedInTmfsCore,
+{
+    type Intermediary = L;
+}
+impl<Heap, L, R> DirectlyCanonicallyConstructibleFrom<(L, ())> for Either<Heap, L, R> {
+    fn construct(_: &mut Self::Heap, t: (L, ())) -> Self {
         Either::Left(t.0, std::marker::PhantomData)
     }
 
@@ -512,13 +526,32 @@ impl<Heap, L, R> CanonicallyConstructibleFrom<(L,)> for Either<Heap, L, R> {
         }
     }
 
-    fn deconstruct(self, _: &Self::Heap) -> (L,) {
+    fn deconstruct(self, _: &Self::Heap) -> (L, ()) {
         match self {
-            Either::Left(l, _) => (l,),
+            Either::Left(l, _) => (l, ()),
             Either::Right(_, _) => panic!("deconstruct failed"),
         }
     }
 }
+// impl<Heap, L, R> CanonicallyConstructibleFrom<(R, ())> for Either<Heap, L, R> {
+//     fn construct(_: &mut Self::Heap, t: (R, ())) -> Self {
+//         Either::Right(t.0, std::marker::PhantomData)
+//     }
+
+//     fn deconstruct_succeeds(&self, _: &Self::Heap) -> bool {
+//         match self {
+//             Either::Left(_, _) => false,
+//             Either::Right(_, _) => true,
+//         }
+//     }
+
+//     fn deconstruct(self, _: &Self::Heap) -> (R, ()) {
+//         match self {
+//             Either::Left(_, _) => panic!("deconstruct failed"),
+//             Either::Right(r, _) => (r, ()),
+//         }
+//     }
+// }
 empty_heap_bak!(EitherHeapBak, L, R);
 // impl<Heap, L, R> parse::Parse<Heap>
 //     for CstfyTransparent<Heap, Either<Heap, CstfyTransparent<Heap, L>, CstfyTransparent<Heap, R>>>
@@ -593,6 +626,7 @@ pub enum Maybe<Heap, T> {
 impl<Heap, T> Heaped for Maybe<Heap, T> {
     type Heap = Heap;
 }
+generic_auto_impl_ccf!(Maybe<Heap, T>, Heap : (SuperHeap<MaybeHeapBak<Heap, T>>), T : (Heaped<Heap = Heap>));
 empty_heap_bak!(MaybeHeapBak, T);
 // impl<Heap, T> parse::Parse<Heap> for Cstfy<Heap, Maybe<Heap, Cstfy<Heap, T>>>
 // where
@@ -645,6 +679,7 @@ pub struct Pair<Heap, L, R> {
     pub r: R,
     heap: std::marker::PhantomData<Heap>,
 }
+generic_auto_impl_ccf!(Pair<Heap, L, R>, Heap : (SuperHeap<PairHeapBak<Heap, L, R>>), L : (Heaped<Heap = Heap>), R : (Heaped<Heap = Heap>));
 impl<Heap, L, R> Pair<Heap, L, R> {
     pub fn new(l: L, r: R) -> Self {
         Pair {
@@ -657,12 +692,12 @@ impl<Heap, L, R> Pair<Heap, L, R> {
 impl<Heap, L, R> Heaped for Pair<Heap, L, R> {
     type Heap = Heap;
 }
-impl<Heap, L, R> CanonicallyConstructibleFrom<(L,)> for Pair<Heap, L, R>
+impl<Heap, L, R> CanonicallyConstructibleFrom<(L, ())> for Pair<Heap, L, R>
 where
     L: Heaped<Heap = Heap>,
     R: Heaped<Heap = Heap> + Default,
 {
-    fn construct(_: &mut Self::Heap, t: (L,)) -> Self {
+    fn construct(_: &mut Self::Heap, t: (L, ())) -> Self {
         Pair {
             l: t.0,
             r: Default::default(),
@@ -674,8 +709,8 @@ where
         true
     }
 
-    fn deconstruct(self, _: &Self::Heap) -> (L,) {
-        (self.l,)
+    fn deconstruct(self, _: &Self::Heap) -> (L, ()) {
+        (self.l, ())
     }
 }
 empty_heap_bak!(PairHeapBak, L, R);

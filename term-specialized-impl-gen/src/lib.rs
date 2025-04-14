@@ -1,11 +1,11 @@
 use langspec::{
     flat::LangSpecFlat,
     humanreadable::LangSpecHuman,
-    langspec::{AlgebraicSortId, LangSpec, TerminalLangSpec as _},
+    langspec::{AlgebraicSortId, LangSpec, SortId, TerminalLangSpec as _},
     tymetafunc::TyMetaFuncSpec,
 };
 use langspec_gen_util::{
-    byline, cons_list_index_range, number_range, AlgebraicsBasePath, HeapType, LsGen, TyGenData,
+    byline, cons_list_index_range, AlgebraicsBasePath, HeapType, LsGen, TyGenData,
 };
 
 pub struct BasePaths {
@@ -16,6 +16,8 @@ pub struct BasePaths {
 pub fn generate<L: LangSpec>(bps: &BasePaths, lsg: &LsGen<L>) -> syn::ItemMod {
     let owned_mod = gen_owned_mod(bps, lsg);
     let ccf_mod = gen_ccf_mod(bps, lsg, lsg);
+    let transitive_ccf_mod = gen_transitive_ccf_mod(&bps.data_structure, lsg);
+    let ccf_auto_impls = gen_ccf_auto_impls(&bps.data_structure, lsg);
     let mct_mod = gen_mct_mod(bps, lsg, lsg);
     let heap_impl = gen_heap_impl(bps, lsg, lsg);
     let byline = byline!();
@@ -25,6 +27,8 @@ pub fn generate<L: LangSpec>(bps: &BasePaths, lsg: &LsGen<L>) -> syn::ItemMod {
             #heap_impl
             #owned_mod
             #ccf_mod
+            #transitive_ccf_mod
+            #ccf_auto_impls
             #mct_mod
         }
     }
@@ -83,6 +87,66 @@ pub(crate) fn gen_ccf_mod<L: LangSpec>(
     }
 }
 
+pub(crate) fn gen_ccf_auto_impls<L: LangSpec>(
+    ds_base_path: &syn::Path,
+    term_trait_lsg: &LsGen<L>,
+) -> syn::ItemMod {
+    let ccf_impls = term_trait_lsg.ty_gen_datas().map(|tgd| -> syn::ItemMacro {
+        let camel_ident = &tgd.camel_ident;
+        syn::parse_quote! {
+            term::auto_impl_ccf!(#ds_base_path::#camel_ident);
+        }
+    });
+    let byline = byline!();
+    syn::parse_quote! {
+        #byline
+        pub mod ccf_auto_impls {
+            #(#ccf_impls)*
+        }
+    }
+}
+
+pub(crate) fn gen_transitive_ccf_mod<L: LangSpec>(
+    ds_base_path: &syn::Path,
+    lsg: &LsGen<L>,
+) -> syn::ItemMod {
+    let unit_ccf_paths = lsg.unit_ccf_paths();
+    let tuc_impls = unit_ccf_paths
+        .iter()
+        .filter_map(|tuc| -> Option<syn::ItemImpl> {
+            if matches!(tuc.to, SortId::TyMetaFunc(_)) {
+                return None;
+            }
+            let tuc = tuc.clone();
+            let sort2rs_ty = |sid| {
+                lsg.sort2rs_ty(
+                    sid,
+                    &HeapType(syn::parse_quote! {#ds_base_path::Heap}),
+                    &AlgebraicsBasePath::new(quote::quote! { #ds_base_path:: }),
+                )
+            };
+            let from = sort2rs_ty(tuc.from);
+            let to = sort2rs_ty(tuc.to);
+            let intermediary = sort2rs_ty(tuc.intermediary);
+            let byline = byline!();
+            Some(syn::parse_quote! {
+                #byline
+                impl term::TransitivelyUnitCcf<#from> for #to {
+                    type Intermediary = #intermediary;
+                }
+            })
+        });
+    let byline = byline!();
+    syn::parse_quote! {
+        #byline
+        pub mod transitive_ccf {
+            #(
+                #tuc_impls
+            )*
+        }
+    }
+}
+
 pub(crate) fn gen_ccf_impls<L: LangSpec>(bps: &BasePaths, tgd: &TyGenData<L>) -> syn::ItemMod {
     let byline = byline!();
     let camel = &tgd.camel_ident;
@@ -109,13 +173,16 @@ pub(crate) fn gen_ccf_impls<L: LangSpec>(bps: &BasePaths, tgd: &TyGenData<L>) ->
         .collect::<Vec<_>>();
     let ccf_impls = match tgd.id {
         None => vec![],
-        Some(AlgebraicSortId::Product(_)) => vec![gen_ccf_impl_prod(
-            bps,
-            camel,
-            ccf_tys.first().unwrap(),
-            &ccf_tys_flattened,
-            &ccf_sort_snake_idents,
-        )],
+        Some(AlgebraicSortId::Product(_)) => {
+            // vec![]
+            vec![gen_ccf_impl_prod(
+                bps,
+                camel,
+                ccf_tys.first().unwrap(),
+                &ccf_tys_flattened,
+                &ccf_sort_snake_idents,
+            )]
+        }
         Some(AlgebraicSortId::Sum(_)) => ccf_tys
             .iter()
             .zip(ccf_sort_camel_idents.iter())
@@ -147,7 +214,7 @@ pub(crate) fn gen_ccf_impl_prod(
     let ret = quote::quote! {
         #byline
         impl
-            term::CanonicallyConstructibleFrom<#ccf_ty> for #data_structure::#camel
+            term::DirectlyCanonicallyConstructibleFrom<#ccf_ty> for #data_structure::#camel
         {
             fn construct(
                 heap: &mut Self::Heap,
@@ -190,7 +257,7 @@ pub(crate) fn gen_ccf_impl_sum(
     syn::parse_quote! {
         #byline
         impl
-            term::CanonicallyConstructibleFrom<#ccf_ty> for #data_structure::#camel
+            term::DirectlyCanonicallyConstructibleFrom<#ccf_ty> for #data_structure::#camel
         {
             fn construct(
                 heap: &mut Self::Heap,

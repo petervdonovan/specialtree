@@ -6,7 +6,7 @@ use langspec::{
 };
 
 pub use proc_macro2;
-use term::{CcfRelation, MctRelation, TyFingerprint};
+use term::{CcfRelation, TyFingerprint};
 
 #[macro_export]
 macro_rules! byline {
@@ -99,15 +99,15 @@ pub struct HstData {
 }
 pub struct LsGen<'a, L: LangSpec> {
     bak: &'a L,
-    pub direct_ccf_rels: Vec<CcfRelation>,
-    pub direct_mc_rels: Vec<MctRelation>,
+    pub direct_ccf_rels: Vec<CcfRelation<SortIdOf<L>>>,
+    // pub direct_mc_rels: Vec<MctRelation>,
 }
 impl<'a, L: LangSpec> From<&'a L> for LsGen<'a, L> {
     fn from(bak: &'a L) -> Self {
         Self {
             bak,
             direct_ccf_rels: get_direct_ccf_rels(bak),
-            direct_mc_rels: get_direct_mc_rels(bak),
+            // direct_mc_rels: get_direct_mc_rels(bak),
         }
     }
 }
@@ -121,6 +121,9 @@ pub fn cons_list<T: quote::ToTokens + syn::parse::Parse>(it: impl Iterator<Item 
 impl<L: LangSpec> LsGen<'_, L> {
     pub fn bak(&self) -> &L {
         self.bak
+    }
+    pub fn unit_ccf_paths(&self) -> Vec<TransitivelyUnitCcfRelation<SortIdOf<L>>> {
+        unit_ccf_paths_quadratically_large_closure::<L>(&self.direct_ccf_rels)
     }
     pub fn ty_gen_datas(&self) -> impl Iterator<Item = TyGenData<'_, L>> {
         self.bak
@@ -315,58 +318,31 @@ impl<L: LangSpec> LsGen<'_, L> {
             }))
     }
     pub fn heapbak_gen_datas(&self) -> Vec<HeapbakGenData> {
-        let mut found: std::collections::HashSet<TyFingerprint> = std::collections::HashSet::new();
         let mut ret: Vec<HeapbakGenData> = vec![];
-        fn process_tmf<'a: 'b, 'b, L: LangSpec>(
-            lg: &'a LsGen<L>,
-            ret: &'b mut Vec<HeapbakGenData<'a>>,
-            found: &mut std::collections::HashSet<TyFingerprint>,
-            sort: SortIdOf<L>,
-        ) {
-            match sort.clone() {
-                SortId::Algebraic(_) => (),
-                SortId::TyMetaFunc(MappedType { f, a }) => {
-                    let fingerprint = sortid_fingerprint(lg.bak, &sort);
-                    if found.contains(&fingerprint) {
-                        return;
+        call_on_all_tmf_monomorphizations(self.bak, &mut |mt| {
+            let polish_name = sortid_polish_name(self.bak, &SortId::TyMetaFunc(mt.clone()));
+            let ty_arg_camels = polish_name
+                .iter()
+                .map(|name| syn::Ident::new(&name.camel, proc_macro2::Span::call_site()))
+                .collect();
+            let ty_arg_snakes = polish_name
+                .iter()
+                .map(|name| syn::Ident::new(&name.snake, proc_macro2::Span::call_site()));
+            let ty_func = <L::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(&mt.f).heapbak;
+            ret.push(HeapbakGenData {
+                identifiers: ty_arg_snakes.collect(),
+                ty_func,
+                ty_arg_camels,
+                ty_args: Box::new({
+                    let a = mt.a.clone();
+                    move |ht, abp| {
+                        a.iter()
+                            .map(|arg| self.sort2rs_ty(arg.clone(), &ht, &abp))
+                            .collect()
                     }
-                    found.insert(fingerprint);
-                    let polish_name = sortid_polish_name(lg.bak, &sort);
-                    let ty_arg_camels = polish_name
-                        .iter()
-                        .map(|name| syn::Ident::new(&name.camel, proc_macro2::Span::call_site()))
-                        .collect();
-                    let ty_arg_snakes = polish_name
-                        .iter()
-                        .map(|name| syn::Ident::new(&name.snake, proc_macro2::Span::call_site()));
-                    let ty_func = <L::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(&f).heapbak;
-                    ret.push(HeapbakGenData {
-                        identifiers: ty_arg_snakes.collect(),
-                        ty_func,
-                        ty_arg_camels,
-                        ty_args: Box::new({
-                            let a = a.clone();
-                            move |ht, abp| {
-                                a.iter()
-                                    .map(|arg| lg.sort2rs_ty(arg.clone(), &ht, &abp))
-                                    .collect()
-                            }
-                        }),
-                    });
-                    for arg in a {
-                        process_tmf::<L>(lg, ret, found, arg);
-                    }
-                }
-            }
-        }
-        for sort in self
-            .bak
-            .products()
-            .flat_map(|pid| self.bak.product_sorts(pid))
-            .chain(self.bak.sums().flat_map(|sid| self.bak.sum_sorts(sid)))
-        {
-            process_tmf::<L>(self, &mut ret, &mut found, sort);
-        }
+                }),
+            });
+        });
         ret
     }
     pub fn sort2rs_ty(
@@ -445,147 +421,52 @@ impl<L: LangSpec> LsGen<'_, L> {
             .map(|sort| sort_ident(self, sort, |name| name.snake.clone()))
             .collect()
     }
-    pub fn find_transitive_mct_rel(&self, target: &MctRelation) -> Option<ConversionPath> {
-        // breadth-first search
-        // FIXME: handle non-uniqueness
-        struct FrontierEntry {
-            node: TyFingerprint,
-            path: ConversionPath,
-        }
-        let mut frontier = vec![FrontierEntry {
-            node: target.from,
-            path: ConversionPath(vec![]),
-        }];
-        let mut visited = std::collections::HashSet::new();
-        visited.insert(target.from);
-        while !frontier.is_empty() {
-            let mut new_frontier = vec![];
-            for FrontierEntry {
-                node: frontier,
-                path,
-            } in frontier.iter()
-            {
-                if *frontier == target.to {
-                    return Some(path.clone());
-                }
-                for rel in self.direct_mc_rels.iter() {
-                    if rel.from == *frontier && !visited.contains(&rel.to) {
-                        let mut new_path = path.clone();
-                        new_path.0.push(rel.from);
-                        new_frontier.push(FrontierEntry {
-                            node: rel.to,
-                            path: new_path,
-                        });
-                        visited.insert(rel.to);
-                    }
-                }
-            }
-            frontier = new_frontier;
-        }
-        None
-    }
-    pub fn find_transitive_ccf_rel(
-        &self,
-        target: &CcfRelation,
-    ) -> Option<TransitiveCcfConversionPaths> {
-        // breadth-first search
-        struct FrontierEntry {
-            node: TyFingerprint,
-            path: ConversionPath,
-        }
-        struct Frontier(Vec<FrontierEntry>);
-        struct FrontierSet {
-            multiway_rel: CcfRelation,
-            paths: Vec<Frontier>,
-        }
-        let mut frontierses = self
-            .direct_ccf_rels
-            .iter()
-            .filter_map(|rel| {
-                if rel.to == target.to && rel.from.len() == target.from.len() {
-                    Some(FrontierSet {
-                        multiway_rel: rel.clone(),
-                        paths: rel
-                            .from
-                            .iter()
-                            .map(|from| {
-                                Frontier(vec![FrontierEntry {
-                                    node: *from,
-                                    path: ConversionPath(vec![]),
-                                }])
-                            })
-                            .collect(),
-                    })
-                } else {
-                    None
-                }
-            })
-            .collect::<Vec<_>>();
-        while !frontierses.is_empty() {
-            for fs in frontierses.iter_mut() {
-                let mut new_frontiers = vec![];
-                for (target_from, Frontier(frontier)) in target.from.iter().zip(fs.paths.iter_mut())
-                {
-                    let mut new_frontier = vec![];
-                    for FrontierEntry { node, path } in frontier.iter() {
-                        if node == target_from {
-                            if frontier.len() > 1 {
-                                new_frontier = vec![FrontierEntry {
-                                    node: *node,
-                                    path: path.clone(),
-                                }];
-                            }
-                            continue;
-                        }
-                        for rel in self
-                            .direct_ccf_rels
-                            .iter()
-                            .filter(|rel| rel.from.len() == 1)
-                        {
-                            if rel.to == *node {
-                                let mut new_path = path.clone();
-                                new_path.0.push(*node);
-                                new_frontier.push(FrontierEntry {
-                                    node: *rel.from.first().unwrap(),
-                                    path: new_path,
-                                });
-                            }
-                        }
-                    }
-                    new_frontiers.push(Frontier(new_frontier));
-                }
-                fs.paths = new_frontiers;
-            }
-        }
-        frontierses.iter().find_map(|fs| {
-            let successful_paths = fs
-                .paths
-                .iter()
-                .zip(target.from.iter())
-                .filter_map(|(frontier, target)| {
-                    if frontier.0.len() == 1 && frontier.0.first().unwrap().node == *target {
-                        Some(frontier.0.first().unwrap().path.clone())
-                    } else {
-                        None
-                    }
-                })
-                .collect::<Vec<_>>();
-            if successful_paths.len() == target.from.len() {
-                Some(TransitiveCcfConversionPaths {
-                    multiway_rel: fs.multiway_rel.clone(),
-                    paths: successful_paths,
-                })
-            } else {
-                None
-            }
-        })
-    }
+    // pub fn find_transitive_mct_rel(&self, target: &MctRelation) -> Option<ConversionPath> {
+    //     // breadth-first search
+    //     // FIXME: handle non-uniqueness
+    //     struct FrontierEntry {
+    //         node: TyFingerprint,
+    //         path: ConversionPath,
+    //     }
+    //     let mut frontier = vec![FrontierEntry {
+    //         node: target.from,
+    //         path: ConversionPath(vec![]),
+    //     }];
+    //     let mut visited = std::collections::HashSet::new();
+    //     visited.insert(target.from);
+    //     while !frontier.is_empty() {
+    //         let mut new_frontier = vec![];
+    //         for FrontierEntry {
+    //             node: frontier,
+    //             path,
+    //         } in frontier.iter()
+    //         {
+    //             if *frontier == target.to {
+    //                 return Some(path.clone());
+    //             }
+    //             for rel in self.direct_mc_rels.iter() {
+    //                 if rel.from == *frontier && !visited.contains(&rel.to) {
+    //                     let mut new_path = path.clone();
+    //                     new_path.0.push(rel.from);
+    //                     new_frontier.push(FrontierEntry {
+    //                         node: rel.to,
+    //                         path: new_path,
+    //                     });
+    //                     visited.insert(rel.to);
+    //                 }
+    //             }
+    //         }
+    //         frontier = new_frontier;
+    //     }
+    //     None
+    // }
 }
-#[derive(Clone)]
-pub struct ConversionPath(pub Vec<TyFingerprint>);
-pub struct TransitiveCcfConversionPaths {
-    pub multiway_rel: CcfRelation,
-    pub paths: Vec<ConversionPath>,
+#[derive(Clone, Debug)]
+pub struct ConversionPath<SortId>(pub Vec<SortId>);
+#[derive(Debug)]
+pub struct TransitiveCcfConversionPaths<SortId> {
+    pub multiway_rel: CcfRelation<SortId>,
+    pub paths: Vec<ConversionPath<SortId>>,
 }
 fn sort_ident<L: LangSpec>(
     alg: &LsGen<L>,
@@ -612,6 +493,49 @@ fn sort_ident<L: LangSpec>(
                 proc_macro2::Span::call_site(),
             )
         }
+    }
+}
+
+fn call_on_all_tmf_monomorphizations<
+    L: LangSpec,
+    F: FnMut(&MappedType<L::ProductId, L::SumId, <L::Tmfs as TyMetaFuncSpec>::TyMetaFuncId>),
+>(
+    // &self,
+    l: &L,
+    f: &mut F,
+) {
+    let mut found: std::collections::HashSet<TyFingerprint> = std::collections::HashSet::new();
+    fn process_tmf<
+        L: LangSpec,
+        F: FnMut(&MappedType<L::ProductId, L::SumId, <L::Tmfs as TyMetaFuncSpec>::TyMetaFuncId>),
+    >(
+        l: &L,
+        found: &mut std::collections::HashSet<TyFingerprint>,
+        sort: SortIdOf<L>,
+        f: &mut F,
+    ) {
+        match sort.clone() {
+            SortId::Algebraic(_) => (),
+            SortId::TyMetaFunc(mt) => {
+                let fingerprint = sortid_fingerprint(l, &sort);
+                if found.contains(&fingerprint) {
+                    return;
+                }
+                dbg!(&sort);
+                found.insert(fingerprint);
+                f(&mt);
+                for arg in mt.a {
+                    process_tmf::<L, F>(l, found, arg, f);
+                }
+            }
+        }
+    }
+    for sort in l
+        .products()
+        .flat_map(|pid| l.product_sorts(pid))
+        .chain(l.sums().flat_map(|sid| l.sum_sorts(sid)))
+    {
+        process_tmf::<L, F>(l, &mut found, sort, f);
     }
 }
 
@@ -697,50 +621,292 @@ fn sortid_polish_name<L: LangSpec>(ls: &L, sort: &SortIdOf<L>) -> Vec<Name> {
     }
 }
 
-fn get_direct_ccf_rels<L>(ls: &L) -> Vec<CcfRelation>
+fn get_direct_ccf_rels<L>(ls: &L) -> Vec<CcfRelation<SortIdOf<L>>>
 where
     L: LangSpec,
 {
-    ls.products()
+    let mut ret: Vec<CcfRelation<SortIdOf<L>>> = ls
+        .products()
         .map(|pid| CcfRelation {
-            from: ls
-                .product_sorts(pid.clone())
-                .map(|sort| sortid_fingerprint(ls, &sort))
-                .collect(),
-            to: TyFingerprint::from(ls.product_name(pid).camel.as_str()),
+            from: ls.product_sorts(pid.clone()).collect(),
+            to: SortId::Algebraic(AlgebraicSortId::Product(pid)),
         })
-        .chain(ls.sums().map(|sid| {
-            CcfRelation {
-                from: ls
-                    .sum_sorts(sid.clone())
-                    .map(|sort| sortid_fingerprint(ls, &sort))
-                    .collect(),
-                to: TyFingerprint::from(ls.sum_name(sid).camel.as_str()),
-            }
+        .chain(ls.sums().flat_map(|sid| {
+            ls.sum_sorts(sid.clone()).map(move |argsid| CcfRelation {
+                from: vec![argsid.clone()],
+                to: SortId::Algebraic(AlgebraicSortId::Sum(sid.clone())),
+            })
         }))
+        .chain(ls.products().map(|sid| CcfRelation {
+            from: vec![SortId::Algebraic(AlgebraicSortId::Product(sid.clone()))],
+            to: SortId::Algebraic(AlgebraicSortId::Product(sid)),
+        }))
+        .chain(ls.sums().map(|sid| CcfRelation {
+            from: vec![SortId::Algebraic(AlgebraicSortId::Sum(sid.clone()))],
+            to: SortId::Algebraic(AlgebraicSortId::Sum(sid)),
+        }))
+        .collect();
+    call_on_all_tmf_monomorphizations(ls, &mut |mt| {
+        for argids in L::Tmfs::ty_meta_func_data(&mt.f).canonical_froms {
+            ret.push(CcfRelation {
+                from: argids.iter().map(|argid| mt.a[argid.0].clone()).collect(),
+                to: SortId::TyMetaFunc(mt.clone()),
+            });
+        }
+        ret.push(CcfRelation {
+            from: vec![SortId::TyMetaFunc(mt.clone())],
+            to: SortId::TyMetaFunc(mt.clone()),
+        });
+    });
+    ret
+}
+
+// pub fn find_transitive_ccf_rel<L: LangSpec>(
+//     direct_ccf_rels: &[CcfRelation<SortIdOf<L>>],
+//     target: &CcfRelation<SortIdOf<L>>,
+// ) -> Option<TransitiveCcfConversionPaths<SortIdOf<L>>> {
+//     // breadth-first search
+//     struct FrontierEntry<SortId> {
+//         node: SortId,
+//         path: ConversionPath<SortId>,
+//     }
+//     struct Frontier<SortId>(Vec<FrontierEntry<SortId>>);
+//     struct FrontierSet<SortId> {
+//         multiway_rel: CcfRelation<SortId>,
+//         paths: Vec<Frontier<SortId>>,
+//     }
+//     let mut frontierses = direct_ccf_rels
+//         .iter()
+//         .filter_map(|rel| {
+//             if rel.to == target.to && rel.from.len() == target.from.len() {
+//                 Some(FrontierSet {
+//                     multiway_rel: rel.clone(),
+//                     paths: rel
+//                         .from
+//                         .iter()
+//                         .map(|from| {
+//                             Frontier(vec![FrontierEntry {
+//                                 node: from.clone(),
+//                                 path: ConversionPath(vec![]),
+//                             }])
+//                         })
+//                         .collect(),
+//                 })
+//             } else {
+//                 None
+//             }
+//         })
+//         .collect::<Vec<_>>();
+//     while !frontierses.is_empty() {
+//         for fs in frontierses.iter_mut() {
+//             let mut new_frontiers = vec![];
+//             for (target_from, Frontier(frontier)) in target.from.iter().zip(fs.paths.iter_mut()) {
+//                 let mut new_frontier = vec![];
+//                 for FrontierEntry { node, path } in frontier.iter() {
+//                     if node == target_from {
+//                         if frontier.len() > 1 {
+//                             new_frontier = vec![FrontierEntry {
+//                                 node: node.clone(),
+//                                 path: path.clone(),
+//                             }];
+//                         }
+//                         continue;
+//                     }
+//                     for rel in direct_ccf_rels.iter().filter(|rel| rel.from.len() == 1) {
+//                         if rel.to == *node {
+//                             let mut new_path = path.clone();
+//                             new_path.0.push(node.clone());
+//                             new_frontier.push(FrontierEntry {
+//                                 node: rel.from.first().unwrap().clone(),
+//                                 path: new_path,
+//                             });
+//                         }
+//                     }
+//                 }
+//                 new_frontiers.push(Frontier(new_frontier));
+//             }
+//             fs.paths = new_frontiers;
+//         }
+//     }
+//     frontierses.iter().find_map(|fs| {
+//         let successful_paths = fs
+//             .paths
+//             .iter()
+//             .zip(target.from.iter())
+//             .filter_map(|(frontier, target)| {
+//                 if frontier.0.len() == 1 && frontier.0.first().unwrap().node == *target {
+//                     Some(frontier.0.first().unwrap().path.clone())
+//                 } else {
+//                     None
+//                 }
+//             })
+//             .collect::<Vec<_>>();
+//         if successful_paths.len() == target.from.len() {
+//             Some(TransitiveCcfConversionPaths {
+//                 multiway_rel: fs.multiway_rel.clone(),
+//                 paths: successful_paths,
+//             })
+//         } else {
+//             None
+//         }
+//     })
+// }
+
+#[derive(Clone, Debug)]
+pub struct TransitivelyUnitCcfRelation<SortId> {
+    pub to: SortId,
+    pub from: SortId,
+    pub intermediary: SortId,
+}
+
+fn unit_ccf_paths_quadratically_large_closure<L: LangSpec>(
+    direct_ccf_rels: &[CcfRelation<SortIdOf<L>>],
+) -> Vec<TransitivelyUnitCcfRelation<SortIdOf<L>>> {
+    use std::collections::HashSet;
+    #[derive(Clone, Debug, PartialEq, Eq, Hash)]
+    struct UnitCcfRel<SortId> {
+        from: SortId,
+        to: SortId,
+    }
+    let unit_ccf_rels: Vec<_> = direct_ccf_rels
+        .iter()
+        .filter(|rel| rel.from.len() == 1)
+        .map(|rel| UnitCcfRel {
+            from: rel.from.first().unwrap().clone(),
+            to: rel.to.clone(),
+        })
+        .collect();
+    let unit_ccf_tos: HashSet<_> = unit_ccf_rels.iter().map(|rel| rel.to.clone()).collect();
+    fn get_tucr_for_to<L: LangSpec>(
+        unit_ccf_rels: &[UnitCcfRel<SortIdOf<L>>],
+        to: SortIdOf<L>,
+    ) -> Vec<TransitivelyUnitCcfRelation<SortIdOf<L>>> {
+        let intermediaries = unit_ccf_rels
+            .iter()
+            .filter(|rel| rel.to == to && rel.from != to)
+            .map(|rel| rel.from.clone())
+            .collect::<HashSet<_>>();
+        fn get_tucr_for_to_and_intermediary<L: LangSpec>(
+            unit_ccf_rels: &[UnitCcfRel<SortIdOf<L>>],
+            to: SortIdOf<L>,
+            intermediary: SortIdOf<L>,
+        ) -> Vec<TransitivelyUnitCcfRelation<SortIdOf<L>>> {
+            fn find_all_reachable_from_intermediary<L: LangSpec>(
+                unit_ccf_rels: &[UnitCcfRel<SortIdOf<L>>],
+                intermediary: SortIdOf<L>,
+                forbidden_node: SortIdOf<L>,
+            ) -> HashSet<SortIdOf<L>> {
+                let mut reachable = HashSet::new();
+                let mut deltadb = unit_ccf_rels
+                    .iter()
+                    .filter(|rel| rel.to == intermediary)
+                    .map(|rel| rel.from.clone())
+                    .collect::<Vec<_>>();
+                while !deltadb.is_empty() {
+                    let mut new_deltadb = vec![];
+                    for sid in deltadb.iter() {
+                        if reachable.contains(sid) || sid == &forbidden_node {
+                            continue;
+                        }
+                        reachable.insert(sid.clone());
+                        new_deltadb.extend(
+                            unit_ccf_rels
+                                .iter()
+                                .filter(|rel| rel.to == *sid)
+                                .map(|rel| rel.from.clone()),
+                        );
+                    }
+                    deltadb = new_deltadb;
+                }
+                reachable
+            }
+            let reachable = find_all_reachable_from_intermediary::<L>(
+                unit_ccf_rels,
+                intermediary.clone(),
+                to.clone(),
+            );
+            reachable
+                .iter()
+                .map(move |from| TransitivelyUnitCcfRelation {
+                    from: from.clone(),
+                    to: to.clone(),
+                    intermediary: intermediary.clone(),
+                })
+                .collect()
+        }
+        intermediaries
+            .iter()
+            .flat_map(|intermediary| {
+                get_tucr_for_to_and_intermediary::<L>(
+                    unit_ccf_rels,
+                    to.clone(),
+                    intermediary.clone(),
+                )
+            })
+            .collect()
+    }
+    unit_ccf_tos
+        .iter()
+        .flat_map(|to| get_tucr_for_to::<L>(&unit_ccf_rels, to.clone()))
         .collect()
 }
 
-fn get_direct_mc_rels<L>(ls: &L) -> Vec<MctRelation>
-where
-    L: LangSpec,
-{
-    ls.products()
-        .flat_map(|pid| {
-            ls.product_sorts(pid.clone()).map(move |sort| MctRelation {
-                from: pid_fingerprint(ls, &pid),
-                to: sortid_fingerprint(ls, &sort),
-            })
-        })
-        .chain(
-            ls.sums()
-                .flat_map(|sid| {
-                    ls.sum_sorts(sid.clone()).map(move |sort| MctRelation {
-                        from: sid_fingerprint(ls, &sid),
-                        to: sortid_fingerprint(ls, &sort),
-                    })
-                })
-                .collect::<Vec<_>>(),
-        )
-        .collect()
+// fn get_direct_mc_rels<L>(ls: &L) -> Vec<MctRelation>
+// where
+//     L: LangSpec,
+// {
+//     ls.products()
+//         .flat_map(|pid| {
+//             ls.product_sorts(pid.clone()).map(move |sort| MctRelation {
+//                 from: pid_fingerprint(ls, &pid),
+//                 to: sortid_fingerprint(ls, &sort),
+//             })
+//         })
+//         .chain(
+//             ls.sums()
+//                 .flat_map(|sid| {
+//                     ls.sum_sorts(sid.clone()).map(move |sort| MctRelation {
+//                         from: sid_fingerprint(ls, &sid),
+//                         to: sortid_fingerprint(ls, &sort),
+//                     })
+//                 })
+//                 .collect::<Vec<_>>(),
+//         )
+//         .collect()
+// }
+#[cfg(test)]
+mod tests {
+    use langspec::humanreadable::LangSpecHuman;
+    use term::CcfRelation;
+
+    use crate::{get_direct_ccf_rels, unit_ccf_paths_quadratically_large_closure};
+
+    #[test]
+    fn test_gdcr() {
+        let ls = langspec_examples::fib();
+        type L = LangSpecHuman<tymetafuncspec_core::Core>;
+        let dcr = get_direct_ccf_rels(&ls);
+        for rel in dcr.iter() {
+            println!("{:?}\n", rel);
+        }
+        let n: langspec::langspec::SortIdOf<L> =
+            langspec::langspec::SortId::Algebraic(langspec::langspec::AlgebraicSortId::Sum(
+                langspec::langspec::LangSpec::sums(&ls).next().unwrap(),
+            ));
+        // let rel = find_transitive_ccf_rel::<L>(
+        //     &dcr,
+        //     &CcfRelation {
+        //         from: vec![n.clone()],
+        //         to: langspec::langspec::SortId::Algebraic(
+        //             langspec::langspec::AlgebraicSortId::Product(
+        //                 langspec::langspec::LangSpec::products(&ls).next().unwrap(),
+        //             ),
+        //         ),
+        //     },
+        // );
+        // dbg!(&rel);
+        for rel in unit_ccf_paths_quadratically_large_closure::<L>(&dcr) {
+            println!("{:?}\n", rel);
+        }
+    }
 }

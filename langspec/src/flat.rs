@@ -17,9 +17,9 @@ pub struct LangSpecFlat<Tmfs: TyMetaFuncSpec> {
     _phantom: std::marker::PhantomData<Tmfs>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, From, Into, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, From, Into, PartialEq, Eq, Hash)]
 pub struct ProductId(pub usize);
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, From, Into, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, From, Into, PartialEq, Eq, Hash)]
 pub struct SumId(pub usize);
 // #[derive(Debug, Serialize, Deserialize, Clone, Copy, From, Into, PartialEq, Eq)]
 // pub struct FlatTyMetaFuncId(pub usize);

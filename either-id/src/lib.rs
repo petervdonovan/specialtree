@@ -2,7 +2,7 @@ use functor_derive::Functor;
 use langspec::langspec::ToLiteral;
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Eq, PartialEq, Debug, Functor, Serialize, Deserialize)]
+#[derive(Clone, Eq, PartialEq, Debug, Functor, Serialize, Deserialize, Hash)]
 #[functor(L as l, R as r)]
 pub enum Either<L, R> {
     Left(L),

@@ -9,3 +9,7 @@ proc-macro2 = "1.0.92"
 quote = "1.0.40"
 syn = "2.0.90"
 term = { version = "0.1.0", path = "../term" }
+
+[dev-dependencies]
+langspec-examples = { path = "../langspec-examples" }
+tymetafuncspec-core = { path = "../tymetafuncspec-core" }

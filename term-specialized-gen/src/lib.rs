@@ -111,9 +111,11 @@ pub fn gen_heap<L: LangSpec>(
         pub struct Heap {
             #(#module_names: #base_path::heap::#module_names::Bak,)*
         }
+        #byline
         pub mod heap {
             #(#modules_resolved)*
         }
+        #byline
         pub mod superheap {
             #(#superheap_impls)*
         }

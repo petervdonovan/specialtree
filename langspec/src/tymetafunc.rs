@@ -39,6 +39,7 @@ pub trait TyMetaFuncSpec: Sized {
         + std::fmt::Debug
         + Clone
         + Eq
+        + std::hash::Hash
         + 'static
         + ToLiteral;
     type OpaqueTerm: Serialize + for<'a> Deserialize<'a> + std::fmt::Debug + Clone + 'static;
