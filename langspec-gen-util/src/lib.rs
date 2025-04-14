@@ -99,14 +99,14 @@ pub struct HstData {
 }
 pub struct LsGen<'a, L: LangSpec> {
     bak: &'a L,
-    pub direct_ccf_rels: Vec<CcfRelation<SortIdOf<L>>>,
+    // pub direct_ccf_rels: Vec<CcfRelation<SortIdOf<L>>>,
     // pub direct_mc_rels: Vec<MctRelation>,
 }
 impl<'a, L: LangSpec> From<&'a L> for LsGen<'a, L> {
     fn from(bak: &'a L) -> Self {
         Self {
             bak,
-            direct_ccf_rels: get_direct_ccf_rels(bak),
+            // direct_ccf_rels: get_direct_ccf_rels(bak),
             // direct_mc_rels: get_direct_mc_rels(bak),
         }
     }
@@ -118,11 +118,16 @@ pub fn cons_list<T: quote::ToTokens + syn::parse::Parse>(it: impl Iterator<Item 
     }
     ret
 }
+pub struct CcfPaths<SortId> {
+    pub units: Vec<TransitiveUnitCcfRelation<SortId>>,
+    pub non_units: Vec<TransitiveNonUnitCcfRelation<SortId>>,
+}
 impl<L: LangSpec> LsGen<'_, L> {
     pub fn bak(&self) -> &L {
         self.bak
     }
-    pub fn unit_ccf_paths(&self) -> Vec<TransitivelyUnitCcfRelation<SortIdOf<L>>> {
+    pub fn ccf_paths(&self) -> CcfPaths<SortIdOf<L>> {
+        let direct_ccf_rels = get_direct_ccf_rels(self.bak);
         let non_transparent_sorts = self
             .bak
             .products()
@@ -130,10 +135,19 @@ impl<L: LangSpec> LsGen<'_, L> {
             .chain(self.bak.sums().map(AlgebraicSortId::Sum))
             .map(SortId::Algebraic)
             .collect::<Vec<_>>();
-        unit_ccf_paths_quadratically_large_closure::<L>(
-            &self.direct_ccf_rels,
+        let ucp = unit_ccf_paths_quadratically_large_closure::<L>(
+            &direct_ccf_rels,
             &non_transparent_sorts,
-        )
+        );
+        let cebup = ccfs_exploded_by_unit_paths::<SortIdOf<L>>(
+            &direct_ccf_rels,
+            &ucp,
+            &non_transparent_sorts,
+        );
+        CcfPaths {
+            units: ucp,
+            non_units: cebup,
+        }
     }
     pub fn ty_gen_datas(&self) -> impl Iterator<Item = TyGenData<'_, L>> {
         self.bak
@@ -531,7 +545,6 @@ fn call_on_all_tmf_monomorphizations<
                 if found.contains(&fingerprint) {
                     return;
                 }
-                dbg!(&sort);
                 found.insert(fingerprint);
                 f(&mt);
                 for arg in mt.a {
@@ -763,7 +776,7 @@ where
 // }
 
 #[derive(Clone, Debug)]
-pub struct TransitivelyUnitCcfRelation<SortId> {
+pub struct TransitiveUnitCcfRelation<SortId> {
     pub to: SortId,
     pub from: SortId,
     pub intermediary: SortId,
@@ -772,7 +785,7 @@ pub struct TransitivelyUnitCcfRelation<SortId> {
 fn unit_ccf_paths_quadratically_large_closure<L: LangSpec>(
     direct_ccf_rels: &[CcfRelation<SortIdOf<L>>],
     non_transparent_sorts: &[SortIdOf<L>],
-) -> Vec<TransitivelyUnitCcfRelation<SortIdOf<L>>> {
+) -> Vec<TransitiveUnitCcfRelation<SortIdOf<L>>> {
     use std::collections::HashSet;
     #[derive(Clone, Debug, PartialEq, Eq, Hash)]
     struct UnitCcfRel<SortId> {
@@ -792,7 +805,7 @@ fn unit_ccf_paths_quadratically_large_closure<L: LangSpec>(
         unit_ccf_rels: &[UnitCcfRel<SortIdOf<L>>],
         to: SortIdOf<L>,
         non_transparent_sorts: &[SortIdOf<L>],
-    ) -> Vec<TransitivelyUnitCcfRelation<SortIdOf<L>>> {
+    ) -> Vec<TransitiveUnitCcfRelation<SortIdOf<L>>> {
         let intermediaries = unit_ccf_rels
             .iter()
             .filter(|rel| {
@@ -805,7 +818,7 @@ fn unit_ccf_paths_quadratically_large_closure<L: LangSpec>(
             to: SortIdOf<L>,
             intermediary: SortIdOf<L>,
             non_transparent_sorts: &[SortIdOf<L>],
-        ) -> Vec<TransitivelyUnitCcfRelation<SortIdOf<L>>> {
+        ) -> Vec<TransitiveUnitCcfRelation<SortIdOf<L>>> {
             fn find_all_reachable_from_intermediary<L: LangSpec>(
                 unit_ccf_rels: &[UnitCcfRel<SortIdOf<L>>],
                 intermediary: SortIdOf<L>,
@@ -847,7 +860,7 @@ fn unit_ccf_paths_quadratically_large_closure<L: LangSpec>(
             );
             reachable
                 .iter()
-                .map(move |from| TransitivelyUnitCcfRelation {
+                .map(move |from| TransitiveUnitCcfRelation {
                     from: from.clone(),
                     to: to.clone(),
                     intermediary: intermediary.clone(),
@@ -920,12 +933,12 @@ pub struct TransitiveNonUnitCcfRelation<SortId> {
 }
 fn ccfs_exploded_by_unit_paths<SortId: Clone + Eq>(
     direct_ccf_rels: &[CcfRelation<SortId>],
-    unit_ccf_rels: &[TransitivelyUnitCcfRelation<SortId>],
+    unit_ccf_rels: &[TransitiveUnitCcfRelation<SortId>],
     non_transparent_sorts: &[SortId],
 ) -> Vec<TransitiveNonUnitCcfRelation<SortId>> {
     fn from_sets<SortId: Eq + Clone>(
         froms: Vec<SortId>,
-        unit_ccf_rels: &[TransitivelyUnitCcfRelation<SortId>],
+        unit_ccf_rels: &[TransitiveUnitCcfRelation<SortId>],
     ) -> Vec<Vec<SortId>> {
         froms
             .iter()
@@ -971,12 +984,12 @@ fn ccfs_exploded_by_unit_paths<SortId: Clone + Eq>(
                         })
                 })
         })
-        .filter(|rel| {
-            !direct_ccf_rels.contains(&CcfRelation {
-                from: rel.from.clone(),
-                to: rel.to.clone(),
-            })
-        })
+        // .filter(|rel| {
+        //     !direct_ccf_rels.contains(&CcfRelation {
+        //         from: rel.from.clone(),
+        //         to: rel.to.clone(),
+        //     })
+        // })
         .collect()
 }
 

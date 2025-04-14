@@ -1,11 +1,11 @@
 use langspec::{
     flat::LangSpecFlat,
     humanreadable::LangSpecHuman,
-    langspec::{AlgebraicSortId, LangSpec, SortId, TerminalLangSpec as _},
+    langspec::{AlgebraicSortId, LangSpec, SortId, SortIdOf, TerminalLangSpec as _},
     tymetafunc::TyMetaFuncSpec,
 };
 use langspec_gen_util::{
-    byline, cons_list_index_range, AlgebraicsBasePath, HeapType, LsGen, TyGenData,
+    byline, cons_list_index_range, AlgebraicsBasePath, CcfPaths, HeapType, LsGen, TyGenData,
 };
 
 pub struct BasePaths {
@@ -110,41 +110,83 @@ pub(crate) fn gen_transitive_ccf_mod<L: LangSpec>(
     ds_base_path: &syn::Path,
     lsg: &LsGen<L>,
 ) -> syn::ItemMod {
-    let unit_ccf_paths = lsg.unit_ccf_paths();
-    let tuc_impls = unit_ccf_paths
-        .iter()
-        .filter_map(|tuc| -> Option<syn::ItemImpl> {
-            if matches!(tuc.to, SortId::TyMetaFunc(_)) {
-                return None;
-            }
-            let tuc = tuc.clone();
-            let sort2rs_ty = |sid| {
-                lsg.sort2rs_ty(
-                    sid,
-                    &HeapType(syn::parse_quote! {#ds_base_path::Heap}),
-                    &AlgebraicsBasePath::new(quote::quote! { #ds_base_path:: }),
-                )
-            };
-            let from = sort2rs_ty(tuc.from);
-            let to = sort2rs_ty(tuc.to);
-            let intermediary = sort2rs_ty(tuc.intermediary);
-            let byline = byline!();
-            Some(syn::parse_quote! {
-                #byline
-                impl term::TransitivelyUnitCcf<#from> for #to {
-                    type Intermediary = #intermediary;
-                }
-            })
-        });
+    let ccfp = lsg.ccf_paths();
+    let tucs = tuc_impls(ds_base_path, &ccfp, lsg);
+    let tacs = tac_impls(ds_base_path, &ccfp, lsg);
     let byline = byline!();
     syn::parse_quote! {
         #byline
         pub mod transitive_ccf {
             #(
-                #tuc_impls
+                #tucs
+            )*
+            #(
+                #tacs
             )*
         }
     }
+}
+
+pub(crate) fn tuc_impls<'a, 'b, 'c, L: LangSpec>(
+    ds_base_path: &'b syn::Path,
+    ccfp: &'a CcfPaths<SortIdOf<L>>,
+    lsg: &'c LsGen<L>,
+) -> impl Iterator<Item = syn::ItemImpl> + use<'a, 'b, 'c, L> {
+    ccfp.units.iter().map(move |tuc| -> syn::ItemImpl {
+        // if matches!(tuc.to, langspec::langspec::SortId::TyMetaFunc(_)) {
+        //     return None;
+        // }
+        let tuc = tuc.clone();
+        let sort2rs_ty = |sid| {
+            lsg.sort2rs_ty(
+                sid,
+                &HeapType(syn::parse_quote! {#ds_base_path::Heap}),
+                &AlgebraicsBasePath::new(quote::quote! { #ds_base_path:: }),
+            )
+        };
+        let from = sort2rs_ty(tuc.from);
+        let to = sort2rs_ty(tuc.to);
+        let intermediary = sort2rs_ty(tuc.intermediary);
+        let byline = byline!();
+        syn::parse_quote! {
+            #byline
+            impl term::TransitivelyUnitCcf<#from> for #to {
+                type Intermediary = #intermediary;
+            }
+        }
+    })
+}
+
+pub(crate) fn tac_impls<'a, 'b, 'c, L: LangSpec>(
+    ds_base_path: &'b syn::Path,
+    ccfp: &'a CcfPaths<SortIdOf<L>>,
+    lsg: &'c LsGen<L>,
+) -> impl Iterator<Item = syn::ItemImpl> + use<'a, 'b, 'c, L> {
+    ccfp.non_units.iter().map(move |tac| -> syn::ItemImpl {
+        // if matches!(tuc.to, langspec::langspec::SortId::TyMetaFunc(_)) {
+        //     return None;
+        // }
+        let tac = tac.clone();
+        let sort2rs_ty = |sid| {
+            lsg.sort2rs_ty(
+                sid,
+                &HeapType(syn::parse_quote! {#ds_base_path::Heap}),
+                &AlgebraicsBasePath::new(quote::quote! { #ds_base_path:: }),
+            )
+        };
+        let froms_cons_list =
+            langspec_gen_util::cons_list(tac.from.iter().cloned().map(&sort2rs_ty));
+        let to = sort2rs_ty(tac.to);
+        let intermediary_cons_list =
+            langspec_gen_util::cons_list(tac.intermediary.from.iter().cloned().map(sort2rs_ty));
+        let byline = byline!();
+        syn::parse_quote! {
+            #byline
+            impl term::TransitivelyUnitCcf<#froms_cons_list> for #to {
+                type Intermediary = #intermediary_cons_list;
+            }
+        }
+    })
 }
 
 pub(crate) fn gen_ccf_impls<L: LangSpec>(bps: &BasePaths, tgd: &TyGenData<L>) -> syn::ItemMod {

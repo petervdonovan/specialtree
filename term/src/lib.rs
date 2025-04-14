@@ -71,14 +71,14 @@ pub trait TransitivelyAllCcf<T> {
     type Intermediaries;
 }
 
-impl<U, T, TheOnlyPossibleOption> TransitivelyAllCcf<T> for U
-where
-    U: case_split::Adt,
-    U::PatternMatchStrategyProvider:
-        HasPatternMatchStrategyFor<U, Strategy = (TheOnlyPossibleOption, ())>,
-{
-    type Intermediaries = TheOnlyPossibleOption;
-}
+// impl<U, T, TheOnlyPossibleOption> TransitivelyAllCcf<T> for U
+// where
+//     U: case_split::Adt,
+//     U::PatternMatchStrategyProvider:
+//         HasPatternMatchStrategyFor<U, Strategy = (TheOnlyPossibleOption, ())>,
+// {
+//     type Intermediaries = TheOnlyPossibleOption;
+// }
 
 impl<T, U> CanonicallyConstructibleFrom<(T, ())> for U
 where
@@ -173,7 +173,7 @@ where
     U: Copy + Heaped,
     U: TransitivelyAllCcf<(TCar, (TCdrCar, TCdrCdr))>,
     U::Intermediaries: AllCcf<U::Heap, (TCar, (TCdrCar, TCdrCdr))>,
-    U: DirectlyCanonicallyConstructibleFrom<U::Intermediaries>,
+    U: CanonicallyConstructibleFrom<U::Intermediaries>,
 {
     fn construct(heap: &mut Self::Heap, t: (TCar, (TCdrCar, TCdrCdr))) -> Self {
         let (car, cdr) = t;
