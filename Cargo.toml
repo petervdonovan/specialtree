@@ -1,7 +1,6 @@
 [workspace]
 
 resolver = "2"
-cargo-features = ["edition2024"]
 
 members = [
     "langspec-gen-util",
@@ -23,5 +22,7 @@ members = [
     "langspec-std/std-parse-error",
     "langspec-std/std-parse-metadata",
     "generate-tests",
-    "term-pattern-match-strategy-provider-impl-gen", "parse-adt", "words",
+    "term-pattern-match-strategy-provider-impl-gen",
+    "parse-adt",
+    "words",
 ]
