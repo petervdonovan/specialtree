@@ -145,9 +145,23 @@ impl<L: LangSpec> LsGen<'_, L> {
             &non_transparent_sorts,
         );
         CcfPaths {
-            units: ucp,
+            units: ucp
+                .into_iter()
+                .chain(reflexive_tucrs::<L>(
+                    &direct_ccf_rels,
+                    &non_transparent_sorts,
+                ))
+                .collect(),
             non_units: cebup,
         }
+    }
+    pub fn tmfs_monomorphizations<
+        F: FnMut(&MappedType<L::ProductId, L::SumId, <L::Tmfs as TyMetaFuncSpec>::TyMetaFuncId>),
+    >(
+        &self,
+        f: &mut F,
+    ) {
+        call_on_all_tmf_monomorphizations(self.bak, f);
     }
     pub fn ty_gen_datas(&self) -> impl Iterator<Item = TyGenData<'_, L>> {
         self.bak
@@ -782,16 +796,16 @@ pub struct TransitiveUnitCcfRelation<SortId> {
     pub intermediary: SortId,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+struct UnitCcfRel<SortId> {
+    from: SortId,
+    to: SortId,
+}
 fn unit_ccf_paths_quadratically_large_closure<L: LangSpec>(
     direct_ccf_rels: &[CcfRelation<SortIdOf<L>>],
     non_transparent_sorts: &[SortIdOf<L>],
 ) -> Vec<TransitiveUnitCcfRelation<SortIdOf<L>>> {
     use std::collections::HashSet;
-    #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-    struct UnitCcfRel<SortId> {
-        from: SortId,
-        to: SortId,
-    }
     let unit_ccf_rels: Vec<_> = direct_ccf_rels
         .iter()
         .filter(|rel| rel.from.len() == 1)
@@ -883,6 +897,33 @@ fn unit_ccf_paths_quadratically_large_closure<L: LangSpec>(
         .iter()
         .flat_map(|to| get_tucr_for_to::<L>(&unit_ccf_rels, to.clone(), non_transparent_sorts))
         .collect()
+}
+
+fn reflexive_tucrs<'a, L: LangSpec>(
+    direct_ccf_rels: &'a [CcfRelation<SortIdOf<L>>],
+    non_transparent_sorts: &'a [SortIdOf<L>],
+) -> impl Iterator<Item = TransitiveUnitCcfRelation<SortIdOf<L>>> + use<'a, L> {
+    direct_ccf_rels
+        .iter()
+        .filter_map(|rel| {
+            if let Some(from) = rel.from.first() {
+                if rel.from.len() == 1 && from != &rel.to && non_transparent_sorts.contains(from) {
+                    Some(UnitCcfRel {
+                        from: from.clone(),
+                        to: rel.to.clone(),
+                    })
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        })
+        .map(|rel| TransitiveUnitCcfRelation {
+            from: rel.from.clone(),
+            to: rel.to.clone(),
+            intermediary: rel.from,
+        })
 }
 
 fn combinations<I: Clone + IntoIterator<Item: Clone>>(

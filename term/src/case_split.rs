@@ -54,7 +54,7 @@ impl<F: AdmitNoMatchingCase<T> + Heaped<Heap = T::Heap>, T: Heaped> CaseSplittab
 impl<F, T: Heaped, CasesCar, CasesCdr: ConsList> CaseSplittable<F, (CasesCar, CasesCdr)> for T
 where
     F: Callable<CasesCar> + Heaped<Heap = T::Heap>,
-    T: CanonicallyConstructibleFrom<CasesCar>,
+    T: CanonicallyConstructibleFrom<T::Heap, CasesCar>,
     T: CaseSplittable<F, CasesCdr>,
     T: Copy,
 {
@@ -64,10 +64,12 @@ where
         heap: &mut <F as HasBorrowedHeapRef>::Borrowed<'_, Self::Heap>,
     ) {
         if <F as HasBorrowedHeapRef>::with_decayed_heapref(heap, |hr| {
-            <Self as CanonicallyConstructibleFrom<CasesCar>>::deconstruct_succeeds(self, hr)
+            <Self as CanonicallyConstructibleFrom<T::Heap, CasesCar>>::deconstruct_succeeds(
+                self, hr,
+            )
         }) {
             let t = <F as HasBorrowedHeapRef>::with_decayed_heapref(heap, |hr| {
-                <Self as CanonicallyConstructibleFrom<CasesCar>>::deconstruct(*self, hr)
+                <Self as CanonicallyConstructibleFrom<T::Heap, CasesCar>>::deconstruct(*self, hr)
             });
             callable.call(t, heap);
         } else {

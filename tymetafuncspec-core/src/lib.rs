@@ -6,8 +6,8 @@ use langspec::{
 use parse::{miette::SourceSpan, Parse, Unparse};
 use serde::{Deserialize, Serialize};
 use term::{
-    drop::UnsafeHeapDrop, generic_auto_impl_ccf, CanonicallyConstructibleFrom,
-    DirectlyCanonicallyConstructibleFrom, Heaped, SuperHeap, TransitivelyUnitCcf,
+    drop::UnsafeHeapDrop, CanonicallyConstructibleFrom, DirectlyCanonicallyConstructibleFrom,
+    Heaped, SuperHeap, TransitivelyUnitCcf,
 };
 
 pub struct Core;
@@ -207,7 +207,7 @@ pub struct BoundedNat<Heap> {
     heap: std::marker::PhantomData<Heap>,
     pub n: usize,
 }
-term::generic_auto_impl_ccf!(BoundedNat<Heap>, Heap : (SuperHeap<BoundedNatHeapBak<Heap>>));
+// term::generic_auto_impl_ccf!(BoundedNat<Heap>, Heap : (SuperHeap<BoundedNatHeapBak<Heap>>));
 impl<Heap> Heaped for BoundedNat<Heap> {
     type Heap = Heap;
 }
@@ -222,16 +222,16 @@ impl<Heap> BoundedNat<Heap> {
         }
     }
 }
-impl<Heap> CanonicallyConstructibleFrom<BoundedNat<Heap>> for BoundedNat<Heap> {
-    fn construct(_: &mut Self::Heap, t: BoundedNat<Heap>) -> Self {
+impl<Heap> CanonicallyConstructibleFrom<Heap, BoundedNat<Heap>> for BoundedNat<Heap> {
+    fn construct(_: &mut Heap, t: BoundedNat<Heap>) -> Self {
         t
     }
 
-    fn deconstruct_succeeds(&self, _: &Self::Heap) -> bool {
+    fn deconstruct_succeeds(&self, _: &Heap) -> bool {
         true
     }
 
-    fn deconstruct(self, _: &Self::Heap) -> BoundedNat<Heap> {
+    fn deconstruct(self, _: &Heap) -> BoundedNat<Heap> {
         self
     }
 }
@@ -298,7 +298,7 @@ impl<Heap: SuperHeap<SetHeapBak<Heap, Elem>>, Elem> UnsafeHeapDrop<Heap> for Set
         todo!()
     }
 }
-term::generic_auto_impl_ccf!(Set<Heap, Elem>, Heap : (SuperHeap<SetHeapBak<Heap, Elem>>), Elem : (Heaped<Heap = Heap>));
+// term::generic_auto_impl_ccf!(Set<Heap, Elem>, Heap : (SuperHeap<SetHeapBak<Heap, Elem>>), Elem : (Heaped<Heap = Heap>));
 impl<Heap, Elem> Set<Heap, Elem>
 where
     Heap: SuperHeap<SetHeapBak<Heap, Elem>>,
@@ -441,36 +441,41 @@ impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem: Copy> UnsafeHeapDrop<Heap
         heap.subheap_mut::<IdxBoxHeapBak<Heap, Elem>>().elems[self.idx as usize];
     }
 }
-impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem> CanonicallyConstructibleFrom<(Elem, ())>
-    for IdxBox<Heap, Elem>
-{
-    fn construct(heap: &mut Self::Heap, t: (Elem, ())) -> Self {
-        todo!()
-    }
+// impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem>
+//     CanonicallyConstructibleFrom<Heap, (Elem, ())> for IdxBox<Heap, Elem>
+// {
+//     fn construct(heap: &mut Heap, t: (Elem, ())) -> Self {
+//         todo!()
+//     }
 
-    fn deconstruct_succeeds(&self, heap: &Self::Heap) -> bool {
-        todo!()
-    }
+//     fn deconstruct_succeeds(&self, heap: &Heap) -> bool {
+//         todo!()
+//     }
 
-    fn deconstruct(self, heap: &Self::Heap) -> (Elem, ()) {
-        todo!()
-    }
-}
+//     fn deconstruct(self, heap: &Heap) -> (Elem, ()) {
+//         todo!()
+//     }
+// }
 #[derive(Derivative)]
 #[derivative(Default(bound = ""))]
 pub struct IdxBoxHeapBak<Heap: ?Sized, Elem> {
     phantom: std::marker::PhantomData<(Elem, Heap)>,
-    elems: slab::Slab<Elem>, // None is a tombstone
+    elems: slab::Slab<Elem>,
 }
 impl<Heap, Elem> IdxBox<Heap, Elem>
 where
     Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>,
 {
     pub fn new(heap: &mut Heap, t: Elem) -> Self {
-        Self::construct(heap, (t, ()))
+        let subheap = heap.subheap_mut::<IdxBoxHeapBak<Heap, Elem>>();
+        let idx = subheap.elems.insert(t);
+        IdxBox {
+            phantom: std::marker::PhantomData,
+            idx: idx as u32,
+        }
     }
 }
-term::generic_auto_impl_ccf!(IdxBox<Heap, Elem>, Heap : (SuperHeap<IdxBoxHeapBak<Heap, Elem>>), Elem : (Heaped<Heap = Heap>));
+// term::generic_auto_impl_ccf!(IdxBox<Heap, Elem>, Heap : (SuperHeap<IdxBoxHeapBak<Heap, Elem>>), Elem : (Heaped<Heap = Heap>));
 // impl<Heap, T: Parse<Heap> + Copy> Parse<Heap> for CstfyTransparent<Heap, IdxBox<Heap, T>>
 // where
 //     Heap: SuperHeap<IdxBoxHeapBak<Heap, T>>,
@@ -503,36 +508,36 @@ pub enum Either<Heap, L, R> {
     Left(L, std::marker::PhantomData<Heap>),
     Right(R, std::marker::PhantomData<Heap>),
 }
-generic_auto_impl_ccf!(Either<Heap, L, R>, Heap : (SuperHeap<EitherHeapBak<Heap, L, R>>), L : (Heaped<Heap = Heap>), R : (Heaped<Heap = Heap>));
+// generic_auto_impl_ccf!(Either<Heap, L, R>, Heap : (SuperHeap<EitherHeapBak<Heap, L, R>>), L : (Heaped<Heap = Heap>), R : (Heaped<Heap = Heap>));
 impl<Heap, L, R> Heaped for Either<Heap, L, R> {
     type Heap = Heap;
 }
 pub trait DefinedInTmfsCore {}
-impl<Heap, L, R> TransitivelyUnitCcf<L> for Either<Heap, L, R>
-// where
-//     L: DefinedInTmfsCore,
-{
-    type Intermediary = L;
-}
-impl<Heap, L, R> DirectlyCanonicallyConstructibleFrom<(L, ())> for Either<Heap, L, R> {
-    fn construct(_: &mut Self::Heap, t: (L, ())) -> Self {
-        Either::Left(t.0, std::marker::PhantomData)
-    }
+// impl<Heap, L, R> TransitivelyUnitCcf<Heap, L> for Either<Heap, L, R>
+// // where
+// //     L: DefinedInTmfsCore,
+// {
+//     type Intermediary = L;
+// }
+// impl<Heap, L, R> DirectlyCanonicallyConstructibleFrom<(L, ())> for Either<Heap, L, R> {
+//     fn construct(_: &mut Self::Heap, t: (L, ())) -> Self {
+//         Either::Left(t.0, std::marker::PhantomData)
+//     }
 
-    fn deconstruct_succeeds(&self, _: &Self::Heap) -> bool {
-        match self {
-            Either::Left(_, _) => true,
-            Either::Right(_, _) => false,
-        }
-    }
+//     fn deconstruct_succeeds(&self, _: &Self::Heap) -> bool {
+//         match self {
+//             Either::Left(_, _) => true,
+//             Either::Right(_, _) => false,
+//         }
+//     }
 
-    fn deconstruct(self, _: &Self::Heap) -> (L, ()) {
-        match self {
-            Either::Left(l, _) => (l, ()),
-            Either::Right(_, _) => panic!("deconstruct failed"),
-        }
-    }
-}
+//     fn deconstruct(self, _: &Self::Heap) -> (L, ()) {
+//         match self {
+//             Either::Left(l, _) => (l, ()),
+//             Either::Right(_, _) => panic!("deconstruct failed"),
+//         }
+//     }
+// }
 // impl<Heap, L, R> CanonicallyConstructibleFrom<(R, ())> for Either<Heap, L, R> {
 //     fn construct(_: &mut Self::Heap, t: (R, ())) -> Self {
 //         Either::Right(t.0, std::marker::PhantomData)
@@ -626,7 +631,7 @@ pub enum Maybe<Heap, T> {
 impl<Heap, T> Heaped for Maybe<Heap, T> {
     type Heap = Heap;
 }
-generic_auto_impl_ccf!(Maybe<Heap, T>, Heap : (SuperHeap<MaybeHeapBak<Heap, T>>), T : (Heaped<Heap = Heap>));
+// generic_auto_impl_ccf!(Maybe<Heap, T>, Heap : (SuperHeap<MaybeHeapBak<Heap, T>>), T : (Heaped<Heap = Heap>));
 empty_heap_bak!(MaybeHeapBak, T);
 // impl<Heap, T> parse::Parse<Heap> for Cstfy<Heap, Maybe<Heap, Cstfy<Heap, T>>>
 // where
@@ -679,7 +684,7 @@ pub struct Pair<Heap, L, R> {
     pub r: R,
     heap: std::marker::PhantomData<Heap>,
 }
-generic_auto_impl_ccf!(Pair<Heap, L, R>, Heap : (SuperHeap<PairHeapBak<Heap, L, R>>), L : (Heaped<Heap = Heap>), R : (Heaped<Heap = Heap>));
+// generic_auto_impl_ccf!(Pair<Heap, L, R>, Heap : (SuperHeap<PairHeapBak<Heap, L, R>>), L : (Heaped<Heap = Heap>), R : (Heaped<Heap = Heap>));
 impl<Heap, L, R> Pair<Heap, L, R> {
     pub fn new(l: L, r: R) -> Self {
         Pair {
@@ -692,25 +697,25 @@ impl<Heap, L, R> Pair<Heap, L, R> {
 impl<Heap, L, R> Heaped for Pair<Heap, L, R> {
     type Heap = Heap;
 }
-impl<Heap, L, R> CanonicallyConstructibleFrom<(L, ())> for Pair<Heap, L, R>
-where
-    L: Heaped<Heap = Heap>,
-    R: Heaped<Heap = Heap> + Default,
-{
-    fn construct(_: &mut Self::Heap, t: (L, ())) -> Self {
-        Pair {
-            l: t.0,
-            r: Default::default(),
-            heap: std::marker::PhantomData,
-        }
-    }
+// impl<Heap, L, R> CanonicallyConstructibleFrom<Heap, (L, ())> for Pair<Heap, L, R>
+// where
+//     L: Heaped<Heap = Heap>,
+//     R: Heaped<Heap = Heap> + Default,
+// {
+//     fn construct(_: &mut Heap, t: (L, ())) -> Self {
+//         Pair {
+//             l: t.0,
+//             r: Default::default(),
+//             heap: std::marker::PhantomData,
+//         }
+//     }
 
-    fn deconstruct_succeeds(&self, _: &Self::Heap) -> bool {
-        true
-    }
+//     fn deconstruct_succeeds(&self, _: &Heap) -> bool {
+//         true
+//     }
 
-    fn deconstruct(self, _: &Self::Heap) -> (L, ()) {
-        (self.l, ())
-    }
-}
+//     fn deconstruct(self, _: &Heap) -> (L, ()) {
+//         (self.l, ())
+//     }
+// }
 empty_heap_bak!(PairHeapBak, L, R);

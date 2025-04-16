@@ -41,7 +41,7 @@ where
     CasesCdr: ConsList,
     T: Copy,
     T: Heaped,
-    T: CanonicallyConstructibleFrom<CasesCar>,
+    T: CanonicallyConstructibleFrom<T::Heap, CasesCar>,
     F: AdmitNoMatchingCase<T>,
     F: AcceptingCases<(CasesCar, CasesCdr)>,
     <F as AcceptingCases<(CasesCar, CasesCdr)>>::ShortCircuitsTo:

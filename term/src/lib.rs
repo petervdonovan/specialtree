@@ -10,64 +10,59 @@ pub mod drop;
 pub mod select;
 pub mod visit;
 
-pub trait CanonicallyConstructibleFrom<T>: Sized
-where
-    Self: Heaped,
-{
-    fn construct(heap: &mut Self::Heap, t: T) -> Self;
-    fn deconstruct_succeeds(&self, heap: &Self::Heap) -> bool;
-    fn deconstruct(self, heap: &Self::Heap) -> T;
+pub trait CanonicallyConstructibleFrom<Heap, T>: Sized {
+    fn construct(heap: &mut Heap, t: T) -> Self;
+    fn deconstruct_succeeds(&self, heap: &Heap) -> bool;
+    fn deconstruct(self, heap: &Heap) -> T;
 }
-pub trait DirectlyCanonicallyConstructibleFrom<T>: Sized
-where
-    Self: Heaped,
-{
-    fn construct(heap: &mut Self::Heap, t: T) -> Self;
-    fn deconstruct_succeeds(&self, heap: &Self::Heap) -> bool;
-    fn deconstruct(self, heap: &Self::Heap) -> T;
+pub trait DirectlyCanonicallyConstructibleFrom<Heap, T>: Sized {
+    fn construct(heap: &mut Heap, t: T) -> Self;
+    fn deconstruct_succeeds(&self, heap: &Heap) -> bool;
+    fn deconstruct(self, heap: &Heap) -> T;
 }
 #[macro_export]
 macro_rules! auto_impl_ccf {
-    ($ty:ty) => {
-        impl term::CanonicallyConstructibleFrom<($ty, ())> for $ty {
-            fn construct(heap: &mut Self::Heap, t: ($ty, ())) -> Self {
+    ($heapty:ty, $ty:ty) => {
+        impl term::CanonicallyConstructibleFrom<$heapty, ($ty, ())> for $ty {
+            fn construct(heap: &mut $heapty, t: ($ty, ())) -> Self {
                 t.0
             }
 
-            fn deconstruct_succeeds(&self, heap: &Self::Heap) -> bool {
+            fn deconstruct_succeeds(&self, heap: &$heapty) -> bool {
                 true
             }
 
-            fn deconstruct(self, heap: &Self::Heap) -> ($ty, ()) {
+            fn deconstruct(self, heap: &$heapty) -> ($ty, ()) {
                 (self, ())
             }
         }
     };
 }
-#[macro_export]
-macro_rules! generic_auto_impl_ccf {
-    ($ty:ty, $($generics:ident : $bounds:tt),*) => {
-        impl<$($generics : $bounds),*> term::CanonicallyConstructibleFrom<($ty, ())> for $ty {
-            fn construct(heap: &mut Self::Heap, t: ($ty, ())) -> Self {
-                t.0
-            }
+// #[macro_export]
+// macro_rules! generic_auto_impl_ccf {
+//     ($ty:ty, $($generics:ident : $bounds:tt),*) => {
+//         impl<$($generics : $bounds),*> term::CanonicallyConstructibleFrom<Heap, ($ty, ())> for $ty {
+//             fn construct(heap: &mut Heap, t: ($ty, ())) -> Self {
+//                 t.0
+//             }
 
-            fn deconstruct_succeeds(&self, heap: &Self::Heap) -> bool {
-                true
-            }
+//             fn deconstruct_succeeds(&self, heap: &Heap) -> bool {
+//                 true
+//             }
 
-            fn deconstruct(self, heap: &Self::Heap) -> ($ty, ()) {
-                (self, ())
-            }
-        }
-    };
-}
+//             fn deconstruct(self, heap: &Heap) -> ($ty, ()) {
+//                 (self, ())
+//             }
+//         }
+//     };
+// }
 
-pub trait TransitivelyUnitCcf<T> {
+pub trait TransitivelyUnitCcf<Heap, T> {
     type Intermediary;
 }
 
-pub trait TransitivelyAllCcf<T> {
+pub trait TransitivelyAllCcf<Heap, T> {
+    type Intermediary;
     type Intermediaries;
 }
 
@@ -80,23 +75,23 @@ pub trait TransitivelyAllCcf<T> {
 //     type Intermediaries = TheOnlyPossibleOption;
 // }
 
-impl<T, U> CanonicallyConstructibleFrom<(T, ())> for U
+impl<Heap, T, U> CanonicallyConstructibleFrom<Heap, (T, ())> for U
 where
     U: Copy,
-    U: TransitivelyUnitCcf<T> + Heaped<Heap = <U::Intermediary as Heaped>::Heap>,
-    U: DirectlyCanonicallyConstructibleFrom<(U::Intermediary, ())>,
-    U::Intermediary: CanonicallyConstructibleFrom<(T, ())>,
+    U: TransitivelyUnitCcf<Heap, T> + Heaped<Heap = Heap>,
+    U: DirectlyCanonicallyConstructibleFrom<Heap, (U::Intermediary, ())>,
+    U::Intermediary: CanonicallyConstructibleFrom<Heap, (T, ())>,
 {
-    fn construct(heap: &mut Self::Heap, t: (T, ())) -> Self {
+    fn construct(heap: &mut Heap, t: (T, ())) -> Self {
         let intermediary = U::Intermediary::construct(heap, t);
         Self::construct(heap, (intermediary, ()))
     }
 
-    fn deconstruct_succeeds(&self, heap: &Self::Heap) -> bool {
+    fn deconstruct_succeeds(&self, heap: &Heap) -> bool {
         self.deconstruct_succeeds(heap) && self.deconstruct(heap).0.deconstruct_succeeds(heap)
     }
 
-    fn deconstruct(self, heap: &Self::Heap) -> (T, ()) {
+    fn deconstruct(self, heap: &Heap) -> (T, ()) {
         self.deconstruct(heap).0.deconstruct(heap)
     }
 }
@@ -145,8 +140,7 @@ impl<Heap> AllCcf<Heap, ()> for () {
 }
 impl<Heap, TCar, TCdr, UCar, UCdr> AllCcf<Heap, (TCar, TCdr)> for (UCar, UCdr)
 where
-    UCar: CanonicallyConstructibleFrom<(TCar, ())>,
-    UCar: Heaped<Heap = Heap>,
+    UCar: CanonicallyConstructibleFrom<Heap, (TCar, ())>,
     UCdr: AllCcf<Heap, TCdr>,
 {
     fn construct(heap: &mut Heap, t: (TCar, TCdr)) -> Self {
@@ -168,25 +162,29 @@ where
     }
 }
 
-impl<TCar, TCdrCar, TCdrCdr, U> CanonicallyConstructibleFrom<(TCar, (TCdrCar, TCdrCdr))> for U
+impl<Heap, TCar, TCdrCar, TCdrCdr, U> CanonicallyConstructibleFrom<Heap, (TCar, (TCdrCar, TCdrCdr))>
+    for U
 where
-    U: Copy + Heaped,
-    U: TransitivelyAllCcf<(TCar, (TCdrCar, TCdrCdr))>,
-    U::Intermediaries: AllCcf<U::Heap, (TCar, (TCdrCar, TCdrCdr))>,
-    U: CanonicallyConstructibleFrom<U::Intermediaries>,
+    U: Copy,
+    U: TransitivelyAllCcf<Heap, (TCar, (TCdrCar, TCdrCdr))>,
+    U::Intermediaries: AllCcf<Heap, (TCar, (TCdrCar, TCdrCdr))>,
+    U: CanonicallyConstructibleFrom<Heap, (U::Intermediary, ())>,
+    U::Intermediary: DirectlyCanonicallyConstructibleFrom<Heap, U::Intermediaries>,
 {
-    fn construct(heap: &mut Self::Heap, t: (TCar, (TCdrCar, TCdrCdr))) -> Self {
+    fn construct(heap: &mut Heap, t: (TCar, (TCdrCar, TCdrCdr))) -> Self {
         let (car, cdr) = t;
         let intermediaries = U::Intermediaries::construct(heap, (car, cdr));
-        Self::construct(heap, intermediaries)
+        let intermediary = U::Intermediary::construct(heap, intermediaries);
+        Self::construct(heap, (intermediary, ()))
     }
 
-    fn deconstruct_succeeds(&self, heap: &Self::Heap) -> bool {
-        self.deconstruct_succeeds(heap) && self.deconstruct(heap).deconstruct_succeeds(heap)
+    fn deconstruct_succeeds(&self, heap: &Heap) -> bool {
+        self.deconstruct_succeeds(heap) && self.deconstruct(heap).0.deconstruct_succeeds(heap)
     }
 
-    fn deconstruct(self, heap: &Self::Heap) -> (TCar, (TCdrCar, TCdrCdr)) {
-        let intermediaries = self.deconstruct(heap);
+    fn deconstruct(self, heap: &Heap) -> (TCar, (TCdrCar, TCdrCdr)) {
+        let intermediary = self.deconstruct(heap);
+        let intermediaries = U::Intermediary::deconstruct(intermediary.0, heap);
         let (car, cdr) = intermediaries.deconstruct(heap);
         (car, cdr)
     }
@@ -200,10 +198,10 @@ where
 {
     type Heap = T::Heap;
 }
-impl<TOwned: AllOwned, U: CanonicallyConstructibleFrom<TOwned::Bak>>
-    CanonicallyConstructibleFrom<(TOwned,)> for Owned<U>
+impl<Heap, TOwned: AllOwned, U: CanonicallyConstructibleFrom<Heap, TOwned::Bak>>
+    CanonicallyConstructibleFrom<Heap, (TOwned,)> for Owned<U>
 {
-    fn construct(heap: &mut Self::Heap, t: (TOwned,)) -> Self {
+    fn construct(heap: &mut Heap, t: (TOwned,)) -> Self {
         // safe because bak and construct are inverse to each other wrt freeing
         unsafe {
             let bak = t.0.bak();
@@ -212,11 +210,11 @@ impl<TOwned: AllOwned, U: CanonicallyConstructibleFrom<TOwned::Bak>>
         }
     }
 
-    fn deconstruct_succeeds(&self, heap: &Self::Heap) -> bool {
+    fn deconstruct_succeeds(&self, heap: &Heap) -> bool {
         self.0.deconstruct_succeeds(heap)
     }
 
-    fn deconstruct(self, heap: &Self::Heap) -> (TOwned,) {
+    fn deconstruct(self, heap: &Heap) -> (TOwned,) {
         // safe because .0 and new are inverse to each other wrt freeing
         unsafe {
             let bak = std::mem::ManuallyDrop::<U>::into_inner(self.0).deconstruct(heap);

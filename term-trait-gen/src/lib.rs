@@ -78,7 +78,7 @@ mod owned {
                 );
                 let ccf_bounds = ccf_sort_tys.iter().map(|ccf| -> syn::TraitBound {
                     syn::parse_quote! {
-                        term::CanonicallyConstructibleFrom<#ccf>
+                        term::CanonicallyConstructibleFrom<<Self as term::Heaped>::Heap, #ccf>
                     }
                 });
                 parse_quote! {

@@ -94,14 +94,26 @@ pub(crate) fn gen_ccf_auto_impls<L: LangSpec>(
     let ccf_impls = term_trait_lsg.ty_gen_datas().map(|tgd| -> syn::ItemMacro {
         let camel_ident = &tgd.camel_ident;
         syn::parse_quote! {
-            term::auto_impl_ccf!(#ds_base_path::#camel_ident);
+            term::auto_impl_ccf!(#ds_base_path::Heap, #ds_base_path::#camel_ident);
         }
+    });
+    let mut tmf_ccf_impls: Vec<syn::ItemMacro> = Default::default();
+    term_trait_lsg.tmfs_monomorphizations(&mut |tmf| {
+        let ty = term_trait_lsg.sort2rs_ty(
+            SortId::TyMetaFunc(tmf.clone()),
+            &HeapType(syn::parse_quote! {#ds_base_path::Heap}),
+            &AlgebraicsBasePath::new(quote::quote! { #ds_base_path:: }),
+        );
+        tmf_ccf_impls.push(syn::parse_quote! {
+            term::auto_impl_ccf!(#ds_base_path::Heap, #ty);
+        });
     });
     let byline = byline!();
     syn::parse_quote! {
         #byline
         pub mod ccf_auto_impls {
             #(#ccf_impls)*
+            #(#tmf_ccf_impls)*
         }
     }
 }
@@ -150,7 +162,7 @@ pub(crate) fn tuc_impls<'a, 'b, 'c, L: LangSpec>(
         let byline = byline!();
         syn::parse_quote! {
             #byline
-            impl term::TransitivelyUnitCcf<#from> for #to {
+            impl term::TransitivelyUnitCcf<#ds_base_path::Heap, #from> for #to {
                 type Intermediary = #intermediary;
             }
         }
@@ -177,13 +189,15 @@ pub(crate) fn tac_impls<'a, 'b, 'c, L: LangSpec>(
         let froms_cons_list =
             langspec_gen_util::cons_list(tac.from.iter().cloned().map(&sort2rs_ty));
         let to = sort2rs_ty(tac.to);
+        let intermediary = sort2rs_ty(tac.intermediary.to);
         let intermediary_cons_list =
             langspec_gen_util::cons_list(tac.intermediary.from.iter().cloned().map(sort2rs_ty));
         let byline = byline!();
         syn::parse_quote! {
             #byline
-            impl term::TransitivelyUnitCcf<#froms_cons_list> for #to {
-                type Intermediary = #intermediary_cons_list;
+            impl term::TransitivelyAllCcf<#ds_base_path::Heap, #froms_cons_list> for #to {
+                type Intermediary = #intermediary;
+                type Intermediaries = #intermediary_cons_list;
             }
         }
     })
@@ -256,10 +270,10 @@ pub(crate) fn gen_ccf_impl_prod(
     let ret = quote::quote! {
         #byline
         impl
-            term::DirectlyCanonicallyConstructibleFrom<#ccf_ty> for #data_structure::#camel
+            term::DirectlyCanonicallyConstructibleFrom<<Self as term::Heaped>::Heap, #ccf_ty> for #data_structure::#camel
         {
             fn construct(
-                heap: &mut Self::Heap,
+                heap: &mut <Self as term::Heaped>::Heap,
                 t: #ccf_ty,
             ) -> Self {
                 #data_structure::#camel {
@@ -271,14 +285,14 @@ pub(crate) fn gen_ccf_impl_prod(
 
             fn deconstruct_succeeds(
                 &self,
-                heap: &Self::Heap,
+                heap: &<Self as term::Heaped>::Heap,
             ) -> bool {
                 true
             }
 
             fn deconstruct(
                 self,
-                heap: &Self::Heap,
+                heap: &<Self as term::Heaped>::Heap,
             ) -> #ccf_ty {
                 #deconstruct
             }
@@ -299,10 +313,10 @@ pub(crate) fn gen_ccf_impl_sum(
     syn::parse_quote! {
         #byline
         impl
-            term::DirectlyCanonicallyConstructibleFrom<#ccf_ty> for #data_structure::#camel
+            term::DirectlyCanonicallyConstructibleFrom<<Self as term::Heaped>::Heap, #ccf_ty> for #data_structure::#camel
         {
             fn construct(
-                heap: &mut Self::Heap,
+                heap: &mut <Self as term::Heaped>::Heap,
                 t: #ccf_ty,
             ) -> Self {
                 #data_structure::#camel::#ccf_ty_camel(t.0)
@@ -310,7 +324,7 @@ pub(crate) fn gen_ccf_impl_sum(
 
             fn deconstruct_succeeds(
                 &self,
-                heap: &Self::Heap,
+                heap: &<Self as term::Heaped>::Heap,
             ) -> bool {
                 match self {
                     #data_structure::#camel::#ccf_ty_camel(_) => true,
@@ -320,7 +334,7 @@ pub(crate) fn gen_ccf_impl_sum(
 
             fn deconstruct(
                 self,
-                heap: &Self::Heap,
+                heap: &<Self as term::Heaped>::Heap,
             ) -> #ccf_ty {
                 match self {
                     #data_structure::#camel::#ccf_ty_camel(t) => (t,()),
