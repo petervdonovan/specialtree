@@ -234,43 +234,43 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
     let root_impls = gen_impls(&syn::parse_quote! { crate }, &lg);
     let byline = byline!();
     let f: syn::File = syn::parse_quote! {
-        #byline
-        fn test() {
-            // impl<'a>
-            //     term::co_visit::CoVisitable<
-            //         parse_adt::Parser<'_>,
-            //         crate::pattern_match_strategy::PatternMatchStrategyProvider<cst::data_structure::Heap>,
-            //         cst::data_structure::Heap,
-            //     > for parse_adt::cstfy::CstfyTransparent<cst::data_structure::Heap, cst::data_structure::Nat>
-            // {
-            //     fn co_visit(
-            //         visitor: &mut parse_adt::Parser<'_>,
-            //         heap: &mut cst::data_structure::Heap,
-            //     ) -> Self {
-            //         todo!()
-            //     }
-            // }
+        // #byline
+        // fn test() {
+        //     // impl<'a>
+        //     //     term::co_visit::CoVisitable<
+        //     //         parse_adt::Parser<'_>,
+        //     //         crate::pattern_match_strategy::PatternMatchStrategyProvider<cst::data_structure::Heap>,
+        //     //         cst::data_structure::Heap,
+        //     //     > for parse_adt::cstfy::CstfyTransparent<cst::data_structure::Heap, cst::data_structure::Nat>
+        //     // {
+        //     //     fn co_visit(
+        //     //         visitor: &mut parse_adt::Parser<'_>,
+        //     //         heap: &mut cst::data_structure::Heap,
+        //     //     ) -> Self {
+        //     //         todo!()
+        //     //     }
+        //     // }
 
-            let mut parser = parse_adt::Parser::new("test");
-            let mut heap = cst::data_structure::Heap::default();
-            <parse_adt::cstfy::CstfyTransparent<cst::data_structure::Heap, cst::data_structure::Nat> as term::co_visit::CoVisitable<
-                parse_adt::Parser<'_>,
-                crate::pattern_match_strategy::PatternMatchStrategyProvider<cst::data_structure::Heap>,
-                cst::data_structure::Heap,
-            >>::co_visit(&mut parser, &mut heap);
+        //     let mut parser = parse_adt::Parser::new("test");
+        //     let mut heap = cst::data_structure::Heap::default();
+        //     <parse_adt::cstfy::CstfyTransparent<cst::data_structure::Heap, cst::data_structure::Nat> as term::co_visit::CoVisitable<
+        //         parse_adt::Parser<'_>,
+        //         crate::pattern_match_strategy::PatternMatchStrategyProvider<cst::data_structure::Heap>,
+        //         cst::data_structure::Heap,
+        //     >>::co_visit(&mut parser, &mut heap);
 
-            <parse_adt::cstfy::Cstfy<cst::data_structure::Heap, cst::data_structure::F> as term::co_visit::CoVisitable<
-                parse_adt::Parser<'_>,
-                crate::pattern_match_strategy::PatternMatchStrategyProvider<cst::data_structure::Heap>,
-                cst::data_structure::Heap,
-            >>::co_visit(&mut parser, &mut heap);
+        //     <parse_adt::cstfy::Cstfy<cst::data_structure::Heap, cst::data_structure::F> as term::co_visit::CoVisitable<
+        //         parse_adt::Parser<'_>,
+        //         crate::pattern_match_strategy::PatternMatchStrategyProvider<cst::data_structure::Heap>,
+        //         cst::data_structure::Heap,
+        //     >>::co_visit(&mut parser, &mut heap);
 
-            <parse_adt::cstfy::Cstfy<cst::data_structure::Heap, cst::data_structure::Plus> as term::co_visit::CoVisitable<
-                parse_adt::Parser<'_>,
-                crate::pattern_match_strategy::PatternMatchStrategyProvider<cst::data_structure::Heap>,
-                cst::data_structure::Heap,
-            >>::co_visit(&mut parser, &mut heap);
-        }
+        //     <parse_adt::cstfy::Cstfy<cst::data_structure::Heap, cst::data_structure::Plus> as term::co_visit::CoVisitable<
+        //         parse_adt::Parser<'_>,
+        //         crate::pattern_match_strategy::PatternMatchStrategyProvider<cst::data_structure::Heap>,
+        //         cst::data_structure::Heap,
+        //     >>::co_visit(&mut parser, &mut heap);
+        // }
         #m
         pub mod cst {
             #cst_impls

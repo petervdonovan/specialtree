@@ -854,7 +854,7 @@ fn unit_ccf_paths_quadratically_large_closure<L: LangSpec>(
                 let mut distance = Distance(0);
                 let mut frontier = vec![(
                     intermediary.clone(),
-                    non_transparent_sorts.contains(&intermediary),
+                    non_transparent_sorts.contains(&forbidden_node),
                 )];
                 while !frontier.is_empty() {
                     distance.0 += 1;
@@ -864,14 +864,17 @@ fn unit_ccf_paths_quadratically_large_closure<L: LangSpec>(
                             continue;
                         }
                         reachable.insert(sid.0.clone(), distance);
+                        let nt = non_transparent_sorts.contains(&sid.0);
+                        if sid.1 && nt {
+                            continue;
+                        }
                         for ucr in unit_ccf_rels.iter() {
                             if ucr.to == sid.0 {
-                                let nt = non_transparent_sorts.contains(&ucr.from);
-                                if sid.1 && nt {
-                                    reachable.insert(ucr.from.clone(), Distance(distance.0 + 1));
-                                } else {
-                                    new_frontier.push((ucr.from.clone(), sid.1 || nt));
-                                }
+                                // if sid.1 && nt {
+                                //     reachable.insert(ucr.from.clone(), Distance(distance.0 + 1));
+                                // } else {
+                                new_frontier.push((ucr.from.clone(), sid.1 || nt));
+                                // }
                             }
                         }
                         // let frontier_from_current = unit_ccf_rels
