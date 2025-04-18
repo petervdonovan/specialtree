@@ -19,6 +19,39 @@ impl<L0: LangSpec, L1: LangSpec> EverywhereAlternative<'_, '_, L0, L1> {
             a: vec![sid, l1_as_my_sid::<L0, L1>(self.l1_root.clone())],
         })
     }
+    fn map_l0(&self, sid: SortIdOf<L0>) -> SortIdOf<EverywhereAlternative<L0, L1>> {
+        let mapped = l0_as_my_sid::<L0, L1>(sid.clone());
+        match mapped {
+            langspec::langspec::SortId::Algebraic(_) => mapped,
+            langspec::langspec::SortId::TyMetaFunc(MappedType { f, a }) => {
+                langspec::langspec::SortId::TyMetaFunc(MappedType {
+                    f,
+                    a: a.into_iter().map(|sid| self.map_id(sid)).collect(),
+                })
+            }
+        }
+    }
+    fn map_id(&self, id: langspec::langspec::SortIdOf<Self>) -> langspec::langspec::SortIdOf<Self> {
+        match id {
+            langspec::langspec::SortId::Algebraic(
+                langspec::langspec::AlgebraicSortId::Product(Either::Left(id)),
+            ) => self.eitherfy(self.map_l0(langspec::langspec::SortId::Algebraic(
+                langspec::langspec::AlgebraicSortId::Product(id),
+            ))),
+            langspec::langspec::SortId::Algebraic(langspec::langspec::AlgebraicSortId::Sum(
+                Either::Left(id),
+            )) => self.eitherfy(self.map_l0(langspec::langspec::SortId::Algebraic(
+                langspec::langspec::AlgebraicSortId::Sum(id),
+            ))),
+            langspec::langspec::SortId::TyMetaFunc(MappedType { f, a }) => {
+                langspec::langspec::SortId::TyMetaFunc(MappedType {
+                    f,
+                    a: a.into_iter().map(|sid| self.map_id(sid)).collect(),
+                })
+            }
+            _ => id,
+        }
+    }
 }
 
 impl<L0: LangSpec, L1: LangSpec> LangSpec for EverywhereAlternative<'_, '_, L0, L1> {
@@ -31,19 +64,11 @@ impl<L0: LangSpec, L1: LangSpec> LangSpec for EverywhereAlternative<'_, '_, L0, 
         id: Self::ProductId,
     ) -> impl Iterator<Item = langspec::langspec::SortIdOf<Self>> {
         match id {
-            Either::Left(id) => Box::new(self.l0.product_sorts(id).map(|sid| {
-                let mapped = l0_as_my_sid::<L0, L1>(sid);
-                let mapped = match mapped {
-                    langspec::langspec::SortId::Algebraic(_) => mapped,
-                    langspec::langspec::SortId::TyMetaFunc(MappedType { f, a }) => {
-                        langspec::langspec::SortId::TyMetaFunc(MappedType {
-                            f,
-                            a: a.into_iter().map(|sid| self.eitherfy(sid)).collect(),
-                        })
-                    }
-                };
-                self.eitherfy(mapped)
-            }))
+            Either::Left(id) => Box::new(
+                self.l0
+                    .product_sorts(id)
+                    .map(|sid| self.eitherfy(self.map_l0(sid))),
+            )
                 as Box<dyn Iterator<Item = langspec::langspec::SortIdOf<Self>>>,
             Either::Right(id) => Box::new(self.l1.product_sorts(id).map(l1_as_my_sid::<L0, L1>))
                 as Box<dyn Iterator<Item = langspec::langspec::SortIdOf<Self>>>,
@@ -55,7 +80,11 @@ impl<L0: LangSpec, L1: LangSpec> LangSpec for EverywhereAlternative<'_, '_, L0, 
         id: Self::SumId,
     ) -> impl Iterator<Item = langspec::langspec::SortIdOf<Self>> {
         match id {
-            Either::Left(id) => Box::new(self.l0.sum_sorts(id).map(l0_as_my_sid::<L0, L1>))
+            Either::Left(id) => Box::new(
+                self.l0
+                    .sum_sorts(id)
+                    .map(|sid| self.eitherfy(self.map_l0(sid))),
+            )
                 as Box<dyn Iterator<Item = langspec::langspec::SortIdOf<Self>>>,
             Either::Right(id) => Box::new(self.l1.sum_sorts(id).map(l1_as_my_sid::<L0, L1>))
                 as Box<dyn Iterator<Item = langspec::langspec::SortIdOf<Self>>>,

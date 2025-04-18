@@ -15,6 +15,7 @@ quote = "1.0.38"
 std-parse-error = { version = "0.1.0", path = "../langspec-std/std-parse-error" }
 std-parse-metadata = { version = "0.1.0", path = "../langspec-std/std-parse-metadata" }
 syn = { version = "2.0.96", features = ["full"] }
+syn-insert-use = { version = "0.1.0", path = "../syn-insert-use" }
 term-pattern-match-strategy-provider-impl-gen = { version = "0.1.0", path = "../term-pattern-match-strategy-provider-impl-gen" }
 term-specialized-gen = { version = "0.1.0", path = "../term-specialized-gen" }
 term-specialized-impl-gen = { version = "0.1.0", path = "../term-specialized-impl-gen" }

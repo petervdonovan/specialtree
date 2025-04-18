@@ -39,8 +39,8 @@ pub fn generate_bridge<L: LangSpec>(
     data_structure_lsg: &LsGen<L>,
     term_trait_lsg: &LsGen<L>,
 ) -> syn::ItemMod {
-    let owned_mod = gen_owned_mod(bps, data_structure_lsg);
     let heap_impl = gen_heap_impl(bps, data_structure_lsg, term_trait_lsg);
+    let owned_mod = gen_owned_mod(bps, data_structure_lsg);
     let byline = byline!();
     syn::parse_quote! {
         #byline

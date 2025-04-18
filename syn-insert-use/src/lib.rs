@@ -299,6 +299,7 @@ impl VisitMut for TersifyingPathsVisitor {
         match item {
             syn::Type::Path(type_path) => {
                 if type_path.qself.is_some() {
+                    syn::visit_mut::visit_type_mut(self, item);
                     return;
                 }
                 let (head, tail) = split_path(&type_path.path.segments);

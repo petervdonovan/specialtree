@@ -153,11 +153,7 @@ pub(crate) fn gen_modules_with_prefix(
     let byline = byline!();
     let matches = modules_by_prefix
         .iter()
-        .filter(|(p, _)| {
-            p.iter()
-                .zip(prefix)
-                .all(|(a, b)| a.to_string() == b.to_string())
-        })
+        .filter(|(p, _)| p.iter().zip(prefix).all(|(a, b)| b == a))
         .collect::<Vec<_>>();
     let mut ret: Vec<syn::Item> = matches
         .iter()
@@ -174,7 +170,7 @@ pub(crate) fn gen_modules_with_prefix(
         let next_segment = &m.0[prefix.len()];
         if !next_prefix_segments
             .iter()
-            .any(|s: &syn::Ident| s.to_string() == next_segment.to_string())
+            .any(|s: &syn::Ident| s == next_segment)
         {
             next_prefix_segments.push(m.0[prefix.len()].clone());
         }
