@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{langspec::Name, tymetafunc::TyMetaFuncSpec};
+use crate::{langspec::Name, sublang::reflexive_sublang, tymetafunc::TyMetaFuncSpec};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(bound = "")]
@@ -97,6 +97,10 @@ impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::humanreadable::L
 
     fn sum_from_unique_nat(&self, nat: usize) -> Self::SumId {
         self.sums[nat].name.human.clone()
+    }
+
+    fn sublangs(&self) -> Vec<crate::sublang::Sublang<crate::langspec::SortIdOf<Self>>> {
+        vec![reflexive_sublang(self)]
     }
 }
 

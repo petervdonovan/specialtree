@@ -4,6 +4,7 @@ use typed_index_collections::TiVec;
 
 use crate::{
     langspec::{AlgebraicSortId, LangSpec, Name, SortIdOf, TerminalLangSpec},
+    sublang::reflexive_sublang,
     tymetafunc::TyMetaFuncSpec,
 };
 
@@ -17,22 +18,26 @@ pub struct LangSpecFlat<Tmfs: TyMetaFuncSpec> {
     _phantom: std::marker::PhantomData<Tmfs>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, From, Into, PartialEq, Eq, Hash)]
+#[derive(
+    Debug, Serialize, Deserialize, Clone, Copy, From, Into, PartialEq, Eq, Hash, PartialOrd, Ord,
+)]
 pub struct ProductId(pub usize);
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, From, Into, PartialEq, Eq, Hash)]
+#[derive(
+    Debug, Serialize, Deserialize, Clone, Copy, From, Into, PartialEq, Eq, Hash, PartialOrd, Ord,
+)]
 pub struct SumId(pub usize);
 // #[derive(Debug, Serialize, Deserialize, Clone, Copy, From, Into, PartialEq, Eq)]
 // pub struct FlatTyMetaFuncId(pub usize);
 pub type FlatSortId<Tmfs> = SortIdOf<LangSpecFlat<Tmfs>>;
 pub type FlatAlgebraicSortId = AlgebraicSortId<ProductId, SumId>;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(bound = "")]
 pub struct Product<Tmfs: TyMetaFuncSpec> {
     pub name: Name,
     pub sorts: Box<[FlatSortId<Tmfs>]>,
 }
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(bound = "")]
 pub struct Sum<Tmfs: TyMetaFuncSpec> {
     pub name: Name,
@@ -115,6 +120,10 @@ impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::flat::LangSpecFl
 
     fn sum_from_unique_nat(&self, nat: usize) -> Self::SumId {
         crate::flat::SumId(nat)
+    }
+
+    fn sublangs(&self) -> Vec<crate::sublang::Sublang<SortIdOf<Self>>> {
+        vec![reflexive_sublang(self)]
     }
 
     // fn asi_convert(

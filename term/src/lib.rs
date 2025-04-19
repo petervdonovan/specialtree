@@ -273,32 +273,32 @@ where
 {
     fn maybe_convert(self, heap: &'heap Self::Heap) -> Result<T, Fallibility>;
 }
-#[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
-pub struct TyFingerprint(u128);
-impl TyFingerprint {
-    pub fn combine(&self, other: &Self) -> Self {
-        let mut hasher = twox_hash::XxHash3_128::new();
-        hasher.write(&self.0.to_ne_bytes());
-        hasher.write(&other.0.to_ne_bytes());
-        TyFingerprint(hasher.finish_128())
-    }
-}
-impl<'a> From<&'a str> for TyFingerprint {
-    fn from(s: &'a str) -> Self {
-        TyFingerprint(twox_hash::XxHash3_128::oneshot(s.as_bytes()))
-    }
-}
-impl From<u128> for TyFingerprint {
-    fn from(u: u128) -> Self {
-        TyFingerprint(u)
-    }
-}
-impl TyFingerprint {
-    pub fn lit_int(&self) -> syn::LitInt {
-        syn::LitInt::new(&format!("0x{:x}", &self.0), proc_macro2::Span::call_site())
-    }
-}
-#[derive(PartialEq, Eq, Hash, Clone, Debug)]
+// #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
+// pub struct TyFingerprint(u128);
+// impl TyFingerprint {
+//     pub fn combine(&self, other: &Self) -> Self {
+//         let mut hasher = twox_hash::XxHash3_128::new();
+//         hasher.write(&self.0.to_ne_bytes());
+//         hasher.write(&other.0.to_ne_bytes());
+//         TyFingerprint(hasher.finish_128())
+//     }
+// }
+// impl<'a> From<&'a str> for TyFingerprint {
+//     fn from(s: &'a str) -> Self {
+//         TyFingerprint(twox_hash::XxHash3_128::oneshot(s.as_bytes()))
+//     }
+// }
+// impl From<u128> for TyFingerprint {
+//     fn from(u: u128) -> Self {
+//         TyFingerprint(u)
+//     }
+// }
+// impl TyFingerprint {
+//     pub fn lit_int(&self) -> syn::LitInt {
+//         syn::LitInt::new(&format!("0x{:x}", &self.0), proc_macro2::Span::call_site())
+//     }
+// }
+#[derive(PartialEq, Eq, Hash, Clone, Debug, PartialOrd, Ord)]
 pub struct CcfRelation<SortId> {
     pub from: Vec<SortId>,
     pub to: SortId,

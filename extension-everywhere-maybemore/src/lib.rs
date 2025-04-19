@@ -1,6 +1,7 @@
 use either_id::Either;
 use langspec::{
-    langspec::{LangSpec, MappedType, Name},
+    langspec::{LangSpec, MappedType, Name, SortId},
+    sublang::reflexive_sublang,
     tymetafunc::{Transparency, TyMetaFuncSpec},
 };
 use tmfs_join::TmfsJoin;
@@ -102,5 +103,98 @@ impl<L0: LangSpec, L1: LangSpec> LangSpec for EverywhereMaybeMore<'_, '_, L0, L1
             Either::Right(id) => Box::new(self.l1.sum_sorts(id).map(l1_as_my_sid::<L0, L1>))
                 as Box<dyn Iterator<Item = langspec::langspec::SortIdOf<Self>>>,
         }
+    }
+
+    // fn sublangs(&self) -> Vec<langspec::sublang::Sublang<SortIdOf<Self>>> {
+    //     self.l0
+    //         .sublangs()
+    //         .into_iter()
+    //         .map(
+    //             |sublang: Sublang<SortIdOf<L0>>| langspec::sublang::Sublang::<SortIdOf<Self>> {
+    //                 name: sublang.name,
+    //                 is_in_image: Box::new(move |sid| match sid {
+    //                     SortId::TyMetaFunc(MappedType {
+    //                         f: Either::Right(fr),
+    //                         a,
+    //                     }) => {
+    //                         (*fr == tymetafuncspec_core::EITHER)
+    //                             && match a[0].clone() {
+    //                                 SortId::Algebraic(AlgebraicSortId::Product(Either::Left(
+    //                                     a,
+    //                                 ))) => (sublang.is_in_image)(&SortId::Algebraic(
+    //                                     AlgebraicSortId::Product(a.clone()),
+    //                                 )),
+    //                                 SortId::Algebraic(AlgebraicSortId::Sum(Either::Left(a))) => {
+    //                                     (sublang.is_in_image)(&SortId::Algebraic(
+    //                                         AlgebraicSortId::Sum(a.clone()),
+    //                                     ))
+    //                                 }
+    //                                 _ => false,
+    //                             }
+    //                     }
+    //                     _ => false,
+    //                 }),
+    //                 map: Box::new(move |name| {
+    //                     let id = (sublang.map)(name);
+    //                     let mapped = l0_as_my_sid::<L0, L1>(id);
+    //                     let ret: SortIdOf<Self> = self.map_id(mapped);
+    //                     ret
+    //                 }),
+    //             },
+    //         )
+    //         .collect()
+    // }
+
+    fn sublangs(&self) -> Vec<langspec::sublang::Sublang<langspec::langspec::SortIdOf<Self>>> {
+        self.l0
+            .sublangs()
+            .into_iter()
+            .map(
+                |sublang: langspec::sublang::Sublang<langspec::langspec::SortIdOf<L0>>| {
+                    langspec::sublang::Sublang::<langspec::langspec::SortIdOf<Self>> {
+                        name: sublang.name,
+                        // is_in_image: Box::new(move |sid| match sid {
+                        //     SortId::TyMetaFunc(MappedType {
+                        //         f: Either::Right(fr),
+                        //         a,
+                        //     }) => {
+                        //         (*fr == tymetafuncspec_core::PAIR)
+                        //             && match a[0].clone() {
+                        //                 langspec::langspec::SortId::Algebraic(
+                        //                     langspec::langspec::AlgebraicSortId::Product(
+                        //                         Either::Left(a),
+                        //                     ),
+                        //                 ) => (sublang.is_in_image)(
+                        //                     &langspec::langspec::SortId::Algebraic(
+                        //                         langspec::langspec::AlgebraicSortId::Product(
+                        //                             a.clone(),
+                        //                         ),
+                        //                     ),
+                        //                 ),
+                        //                 _ => false,
+                        //             }
+                        //     }
+                        //     SortId::Algebraic(langspec::langspec::AlgebraicSortId::Sum(
+                        //         Either::Left(a),
+                        //     )) => (sublang.is_in_image)(&SortId::Algebraic(
+                        //         langspec::langspec::AlgebraicSortId::Sum(a.clone()),
+                        //     )),
+                        //     _ => false,
+                        // }),
+                        image: sublang
+                            .image
+                            .into_iter()
+                            .map(|sid| maybemorefy_if_product::<L0, L1>(sid, self.l1_root.clone()))
+                            .collect(),
+                        map: Box::new(move |name| {
+                            let id = (sublang.map)(name);
+                            let mapped = maybemorefy_if_product::<L0, L1>(id, self.l1_root.clone());
+                            mapped
+                        }),
+                    }
+                },
+            )
+            .chain(std::iter::once(reflexive_sublang(self)))
+            .collect()
     }
 }

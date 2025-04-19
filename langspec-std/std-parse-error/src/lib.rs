@@ -26,7 +26,7 @@ pub fn parse_error() -> LangSpecFlat<ParseErrorTmfs> {
 }
 
 pub struct ParseErrorTmfs;
-#[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize, Hash)]
+#[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize, Hash, PartialOrd, Ord)]
 pub struct ParseErrorTmfId();
 
 impl ToLiteral for ParseErrorTmfId {

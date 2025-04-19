@@ -13,6 +13,7 @@ syn = "2.0.82"
 term-trait-gen = { version = "0.1.0", path = "../term-trait-gen" }
 term-specialized-gen = { version = "0.1.0", path = "../term-specialized-gen" }
 words = { version = "0.1.0", path = "../words" }
+term-specialized-impl-gen = { version = "0.1.0", path = "../term-specialized-impl-gen" }
 
 [dev-dependencies]
 langspec-examples = { path = "../langspec-examples" }

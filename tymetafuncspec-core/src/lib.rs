@@ -11,7 +11,7 @@ use term::{
 };
 
 pub struct Core;
-#[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize, Hash)]
+#[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize, Hash, PartialOrd, Ord)]
 pub struct CoreTmfId(usize);
 
 impl ToLiteral for CoreTmfId {

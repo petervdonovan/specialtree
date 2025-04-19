@@ -13,7 +13,6 @@ fn main() {
                 .filter(|t| t.kind.contains(&cargo_metadata::TargetKind::Example))
         })
         .collect();
-    dbg!(&examples);
     for example in examples.iter() {
         let run_example_cmd = std::process::Command::new("cargo")
             .arg("run")

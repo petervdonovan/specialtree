@@ -386,20 +386,19 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
     };
     let m = generate(&bps, &lsg);
     let ds = term_specialized_gen::generate(&bps.data_structure, &lsg, false);
-    let tpmspi = term_pattern_match_strategy_provider_impl_gen::generate(
-        &term_pattern_match_strategy_provider_impl_gen::BasePaths {
-            term_trait: syn::parse_quote!(crate::extension_of),
-            data_structure: syn::parse_quote!(crate::data_structure),
-            strategy_provider: syn::parse_quote!(crate::pattern_match_strategy),
-            words: syn::parse_quote!(crate::words),
-        },
+    let tt = term_trait_gen::generate(&bps.term_trait, &lsf);
+    let words = words::words_mod(&lsg);
+    let words_impls = words::words_impls(
+        &syn::parse_quote!(crate::words),
+        &bps.data_structure,
+        &lsg,
         &lsg,
     );
-    let tt = term_trait_gen::generate(&bps.term_trait, &lsf);
     prettyplease::unparse(&syn::parse_quote! {
         #m
         #ds
-        #tpmspi
         #tt
+        #words
+        #words_impls
     })
 }

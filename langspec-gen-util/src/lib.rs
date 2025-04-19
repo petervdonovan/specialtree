@@ -1,4 +1,4 @@
-use langspec::langspec::Name;
+use langspec::langspec::{call_on_all_tmf_monomorphizations, Name};
 use langspec::tymetafunc::{IdentifiedBy, RustTyMap, Transparency, TyMetaFuncSpec};
 use langspec::{
     langspec::{AlgebraicSortId, LangSpec, MappedType, SortId, SortIdOf},
@@ -6,7 +6,7 @@ use langspec::{
 };
 
 pub use proc_macro2;
-use term::{CcfRelation, TyFingerprint};
+use term::CcfRelation;
 
 #[macro_export]
 macro_rules! byline {
@@ -52,7 +52,7 @@ macro_rules! transpose {
 
 pub struct TyGenData<'a, L: LangSpec> {
     pub id: Option<AlgebraicSortId<L::ProductId, L::SumId>>,
-    pub fingerprint: TyFingerprint,
+    // pub fingerprint: TyFingerprint,
     pub snake_ident: syn::Ident,
     pub camel_ident: syn::Ident,
     pub cmt: CanonicallyMaybeToGenData<'a>,
@@ -130,32 +130,59 @@ impl<L: LangSpec> LsGen<'_, L> {
     }
     pub fn ccf_paths(&self) -> CcfPaths<SortIdOf<L>> {
         let direct_ccf_rels = get_direct_ccf_rels(self.bak);
-        let non_transparent_sorts = self
-            .bak
-            .products()
-            .map(AlgebraicSortId::Product)
-            .chain(self.bak.sums().map(AlgebraicSortId::Sum))
-            .map(SortId::Algebraic)
-            .collect::<Vec<_>>();
-        let ucp = unit_ccf_paths_quadratically_large_closure::<L>(
-            &direct_ccf_rels,
-            &non_transparent_sorts,
-        );
-        let cebup = ccfs_exploded_by_unit_paths::<SortIdOf<L>>(
-            &direct_ccf_rels,
-            &ucp,
-            &non_transparent_sorts,
-        );
+        // let non_transparent_sorts = self
+        //     .bak
+        //     .products()
+        //     .map(AlgebraicSortId::Product)
+        //     .chain(self.bak.sums().map(AlgebraicSortId::Sum))
+        //     .map(SortId::Algebraic)
+        //     .collect::<Vec<_>>();
+        let mut ucp_acc = std::collections::HashSet::new();
+        let mut cebup_acc = std::collections::HashSet::new();
+        for non_transparent_sorts in self.bak.sublangs().into_iter().map(|sl| sl.image) {
+            // let non_transparent_sorts = non_transparent_sorts
+            //     .into_iter()
+            //     .flat_map(|sort| algebraics(self.bak.all_sort_ids().filter(|s| s == &sort)))
+            //     .collect::<Vec<_>>();
+            // let mut ccf_paths = self.ccf_paths_inner(&direct_ccf_rels, &non_transparent_sorts);
+            // ccf_paths.units.sort();
+            // ccf_paths.non_units.sort();
+            // return ccf_paths;
+            let ucp = unit_ccf_paths_quadratically_large_closure::<L>(
+                &direct_ccf_rels,
+                &non_transparent_sorts,
+            );
+            let cebup = ccfs_exploded_by_unit_paths::<SortIdOf<L>>(
+                &direct_ccf_rels,
+                &ucp,
+                &non_transparent_sorts,
+            );
+            ucp_acc.extend(ucp);
+            cebup_acc.extend(cebup);
+        }
+        // let ucp = unit_ccf_paths_quadratically_large_closure::<L>(
+        //     &direct_ccf_rels,
+        //     &non_transparent_sorts,
+        // );
+        // let cebup = ccfs_exploded_by_unit_paths::<SortIdOf<L>>(
+        //     &direct_ccf_rels,
+        //     &ucp,
+        //     &non_transparent_sorts,
+        // );
         // let cebup = vec![];
+        let mut units_sorted = ucp_acc.into_iter().collect::<Vec<_>>();
+        units_sorted.sort();
+        let mut non_units_sorted = cebup_acc.into_iter().collect::<Vec<_>>();
+        non_units_sorted.sort();
         CcfPaths {
-            units: ucp,
+            units: units_sorted,
             // .into_iter()
             // .chain(reflexive_tucrs::<L>(
             //     &direct_ccf_rels,
             //     &non_transparent_sorts,
             // ))
             // .collect(),
-            non_units: cebup,
+            non_units: non_units_sorted,
         }
     }
     pub fn tmfs_monomorphizations<
@@ -171,7 +198,7 @@ impl<L: LangSpec> LsGen<'_, L> {
             .products()
             .map(move |pid| TyGenData {
                 id: Some(AlgebraicSortId::Product(pid.clone())),
-                fingerprint: pid_fingerprint(self.bak, &pid),
+                // fingerprint: pid_fingerprint(self.bak, &pid),
                 snake_ident: syn::Ident::new(
                     &self.bak.product_name(pid.clone()).snake.clone(),
                     proc_macro2::Span::call_site(),
@@ -262,7 +289,7 @@ impl<L: LangSpec> LsGen<'_, L> {
             })
             .chain(self.bak.sums().map(move |sid| TyGenData {
                 id: Some(AlgebraicSortId::Sum(sid.clone())),
-                fingerprint: sid_fingerprint(self.bak, &sid),
+                // fingerprint: sid_fingerprint(self.bak, &sid),
                 snake_ident: syn::Ident::new(
                     &self.bak.sum_name(sid.clone()).snake.clone(),
                     proc_macro2::Span::call_site(),
@@ -537,48 +564,6 @@ fn sort_ident<L: LangSpec>(
     }
 }
 
-fn call_on_all_tmf_monomorphizations<
-    L: LangSpec,
-    F: FnMut(&MappedType<L::ProductId, L::SumId, <L::Tmfs as TyMetaFuncSpec>::TyMetaFuncId>),
->(
-    // &self,
-    l: &L,
-    f: &mut F,
-) {
-    let mut found: std::collections::HashSet<TyFingerprint> = std::collections::HashSet::new();
-    fn process_tmf<
-        L: LangSpec,
-        F: FnMut(&MappedType<L::ProductId, L::SumId, <L::Tmfs as TyMetaFuncSpec>::TyMetaFuncId>),
-    >(
-        l: &L,
-        found: &mut std::collections::HashSet<TyFingerprint>,
-        sort: SortIdOf<L>,
-        f: &mut F,
-    ) {
-        match sort.clone() {
-            SortId::Algebraic(_) => (),
-            SortId::TyMetaFunc(mt) => {
-                let fingerprint = sortid_fingerprint(l, &sort);
-                if found.contains(&fingerprint) {
-                    return;
-                }
-                found.insert(fingerprint);
-                f(&mt);
-                for arg in mt.a {
-                    process_tmf::<L, F>(l, found, arg, f);
-                }
-            }
-        }
-    }
-    for sort in l
-        .products()
-        .flat_map(|pid| l.product_sorts(pid))
-        .chain(l.sums().flat_map(|sid| l.sum_sorts(sid)))
-    {
-        process_tmf::<L, F>(l, &mut found, sort, f);
-    }
-}
-
 pub fn number_range(n: usize) -> impl Iterator<Item = syn::LitInt> {
     (0..n).map(|i| syn::LitInt::new(&i.to_string(), proc_macro2::Span::call_site()))
 }
@@ -607,34 +592,34 @@ fn algebraics<
     })
 }
 
-fn pid_fingerprint<L: LangSpec>(ls: &L, pid: &L::ProductId) -> TyFingerprint {
-    TyFingerprint::from(ls.product_name(pid.clone()).camel.as_str())
-}
-fn sid_fingerprint<L: LangSpec>(ls: &L, sid: &L::SumId) -> TyFingerprint {
-    TyFingerprint::from(ls.sum_name(sid.clone()).camel.as_str())
-}
-fn asi_fingerprint<L: LangSpec>(
-    ls: &L,
-    asi: &AlgebraicSortId<L::ProductId, L::SumId>,
-) -> TyFingerprint {
-    match asi {
-        AlgebraicSortId::Product(pid) => pid_fingerprint(ls, pid),
-        AlgebraicSortId::Sum(sid) => sid_fingerprint(ls, sid),
-    }
-}
-fn sortid_fingerprint<L: LangSpec>(ls: &L, sort: &SortIdOf<L>) -> TyFingerprint {
-    match sort {
-        SortId::Algebraic(asi) => asi_fingerprint(ls, asi),
-        SortId::TyMetaFunc(MappedType { f, a }) => {
-            let mut fingerprint =
-                TyFingerprint::from(L::Tmfs::ty_meta_func_data(f).name.camel.as_str());
-            for arg in a {
-                fingerprint = fingerprint.combine(&sortid_fingerprint(ls, arg));
-            }
-            fingerprint
-        }
-    }
-}
+// fn pid_fingerprint<L: LangSpec>(ls: &L, pid: &L::ProductId) -> TyFingerprint {
+//     TyFingerprint::from(ls.product_name(pid.clone()).camel.as_str())
+// }
+// fn sid_fingerprint<L: LangSpec>(ls: &L, sid: &L::SumId) -> TyFingerprint {
+//     TyFingerprint::from(ls.sum_name(sid.clone()).camel.as_str())
+// }
+// fn asi_fingerprint<L: LangSpec>(
+//     ls: &L,
+//     asi: &AlgebraicSortId<L::ProductId, L::SumId>,
+// ) -> TyFingerprint {
+//     match asi {
+//         AlgebraicSortId::Product(pid) => pid_fingerprint(ls, pid),
+//         AlgebraicSortId::Sum(sid) => sid_fingerprint(ls, sid),
+//     }
+// }
+// fn sortid_fingerprint<L: LangSpec>(ls: &L, sort: &SortIdOf<L>) -> TyFingerprint {
+//     match sort {
+//         SortId::Algebraic(asi) => asi_fingerprint(ls, asi),
+//         SortId::TyMetaFunc(MappedType { f, a }) => {
+//             let mut fingerprint =
+//                 TyFingerprint::from(L::Tmfs::ty_meta_func_data(f).name.camel.as_str());
+//             for arg in a {
+//                 fingerprint = fingerprint.combine(&sortid_fingerprint(ls, arg));
+//             }
+//             fingerprint
+//         }
+//     }
+// }
 fn sortid_name<L: LangSpec>(ls: &L, sort: &SortIdOf<L>) -> Name {
     match sort {
         SortId::Algebraic(asi) => ls.algebraic_sort_name(asi.clone()).clone(),
@@ -792,11 +777,32 @@ where
 //     })
 // }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct TransitiveUnitCcfRelation<SortId> {
     pub to: SortId,
     pub from: SortId,
     pub intermediary: SortId,
+}
+impl<SortId: Ord> PartialOrd for TransitiveUnitCcfRelation<SortId> {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+impl<SortId: Ord> Ord for TransitiveUnitCcfRelation<SortId> {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        let cmp = self.to.cmp(&other.to);
+        match cmp {
+            std::cmp::Ordering::Equal => {
+                let cmp = self.from.cmp(&other.from);
+                if cmp == std::cmp::Ordering::Equal {
+                    self.intermediary.cmp(&other.intermediary)
+                } else {
+                    cmp
+                }
+            }
+            cmp => cmp,
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -1017,7 +1023,7 @@ fn combinations<I: Clone + IntoIterator<Item: Clone>>(
         }
     })
 }
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct TransitiveNonUnitCcfRelation<SortId> {
     pub from: Vec<SortId>,
     pub to: SortId,
@@ -1049,6 +1055,11 @@ fn ccfs_exploded_by_unit_paths<SortId: Clone + Eq>(
             })
             .collect()
     }
+    let unit_ccf_rels_from_nts: Vec<_> = unit_ccf_rels
+        .iter()
+        .filter(|&rel| non_transparent_sorts.contains(&rel.from))
+        .cloned()
+        .collect();
     direct_ccf_rels
         .iter()
         .filter(|direct| direct.from.len() != 1) // we only want non-units
@@ -1056,24 +1067,27 @@ fn ccfs_exploded_by_unit_paths<SortId: Clone + Eq>(
             unit_ccf_rels
                 .iter()
                 .filter_map(|it| {
-                    if it.from == direct.to && !non_transparent_sorts.contains(&it.to) {
+                    if it.from == direct.to && non_transparent_sorts.contains(&it.to) {
                         Some(it.to.clone())
                     } else {
                         None
                     }
                 })
                 .chain(std::iter::once(direct.to.clone())) // also allow no intermediaries
-                .flat_map(move |to| {
-                    combinations(from_sets(direct.from.clone(), unit_ccf_rels))
-                        .filter({
-                            let to = to.clone();
-                            move |from| !from.contains(&to)
-                        }) // we don't want cycles
-                        .map(move |from| TransitiveNonUnitCcfRelation {
-                            from: from.clone(),
-                            to: to.clone(),
-                            intermediary: direct.clone(),
-                        })
+                .flat_map({
+                    let unit_ccf_rels_from_nts = unit_ccf_rels_from_nts.clone();
+                    move |to| {
+                        combinations(from_sets(direct.from.clone(), &unit_ccf_rels_from_nts))
+                            .filter({
+                                let to = to.clone();
+                                move |from| !from.contains(&to)
+                            }) // we don't want cycles
+                            .map(move |from| TransitiveNonUnitCcfRelation {
+                                from: from.clone(),
+                                to: to.clone(),
+                                intermediary: direct.clone(),
+                            })
+                    }
                 })
         })
         // .filter(|rel| {

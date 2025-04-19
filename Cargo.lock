@@ -690,6 +690,7 @@ dependencies = [
  "syn 2.0.100",
  "term",
  "term-specialized-gen",
+ "term-specialized-impl-gen",
  "term-trait-gen",
  "tymetafuncspec-core",
  "words",
@@ -723,10 +724,10 @@ dependencies = [
  "quote",
  "syn 2.0.100",
  "term",
- "term-pattern-match-strategy-provider-impl-gen",
  "term-specialized-gen",
  "term-trait-gen",
  "tymetafuncspec-core",
+ "words",
 ]
 
 [[package]]

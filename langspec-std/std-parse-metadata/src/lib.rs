@@ -26,7 +26,7 @@ pub fn parse_metadata() -> LangSpecFlat<ParseMetadataTmfs> {
 }
 
 pub struct ParseMetadataTmfs;
-#[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize, Hash)]
+#[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize, Hash, PartialOrd, Ord)]
 pub struct ParseMetadataTmfId();
 
 impl ToLiteral for ParseMetadataTmfId {

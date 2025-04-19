@@ -171,7 +171,9 @@ mod tests {
                         "f": 1,
                         "a": [
                           {
-                            "Sum": "ℕ"
+                            "Algebraic": {
+                              "Sum": "ℕ"
+                            }
                           }
                         ]
                       }
@@ -194,13 +196,39 @@ mod tests {
                       }
                     },
                     {
-                      "Algebraic": {
-                        "Product": "f"
+                      "TyMetaFunc": {
+                        "f": 3,
+                        "a": [
+                          {
+                            "Algebraic": {
+                              "Product": "f"
+                            }
+                          }
+                        ]
                       }
                     },
                     {
-                      "Algebraic": {
-                        "Product": "+"
+                      "TyMetaFunc": {
+                        "f": 3,
+                        "a": [
+                          {
+                            "Algebraic": {
+                              "Product": "+"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "TyMetaFunc": {
+                        "f": 3,
+                        "a": [
+                          {
+                            "Algebraic": {
+                              "Product": "∑"
+                            }
+                          }
+                        ]
                       }
                     }
                   ]

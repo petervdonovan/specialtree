@@ -109,11 +109,19 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
     let ds = term_specialized_gen::generate(&bps.data_structure, &lsg, false);
     let words = words::words_mod(&lsg);
     let words_impls = words::words_impls(&bps.words, &bps.data_structure, &lsg, &lsg);
+    let ttimpl = term_specialized_impl_gen::generate(
+        &term_specialized_impl_gen::BasePaths {
+            data_structure: bps.data_structure.clone(),
+            term_trait: bps.term_trait.clone(),
+        },
+        &lsg,
+    );
     prettyplease::unparse(&syn::parse_quote! {
         #m
         #tt
         #ds
         #words
         #words_impls
+        #ttimpl
     })
 }
