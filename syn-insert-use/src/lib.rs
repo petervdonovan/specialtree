@@ -83,45 +83,67 @@ fn to_segments(path: &[syn::PathSegment]) -> Vec<syn::Ident> {
     path.iter().map(|segment| segment.ident.clone()).collect()
 }
 
-fn path_visitor_visit_type<T>(pv: &mut PathVisitor<T>, item: &syn::Type)
+fn path_visitor_visit_type_path<T>(pv: &mut PathVisitor<T>, type_path: &syn::TypePath)
 where
     PathVisitor<T>: for<'ast> syn::visit::Visit<'ast>,
 {
-    match item {
-        syn::Type::Path(type_path) => {
-            let (head, tail) = split_path(&type_path.path.segments);
-            let path = to_segments(&head);
-            if !path.is_empty() {
-                // self.paths.insert(path);
-                if is_crate(&path) {
-                    pv.crate_paths.insert(path);
-                } else {
-                    pv.external_paths.insert(to_segments(
-                        head.iter()
-                            .cloned()
-                            .chain(std::iter::once(tail.first().unwrap()).cloned())
-                            .collect::<Vec<_>>()
-                            .as_slice(),
-                    ));
-                }
-            }
-        }
-        _ => {
-            // do nothing
+    let (head, tail) = split_type_path(type_path);
+    let path = to_segments(&head);
+    if !path.is_empty() {
+        // self.paths.insert(path);
+        if is_crate(&path) {
+            pv.crate_paths.insert(path);
+        } else {
+            pv.external_paths.insert(to_segments(
+                head.iter()
+                    .cloned()
+                    .chain(std::iter::once(tail.first().unwrap()).cloned())
+                    .collect::<Vec<_>>()
+                    .as_slice(),
+            ));
         }
     }
-    syn::visit::visit_type(pv, item);
+    syn::visit::visit_type_path(pv, type_path);
+}
+
+fn path_visitor_visit_trait_bound<T>(pv: &mut PathVisitor<T>, trait_bound: &syn::TraitBound)
+where
+    PathVisitor<T>: for<'ast> syn::visit::Visit<'ast>,
+{
+    let (head, tail) = split_path(&trait_bound.path, trait_bound.path.segments.len());
+    let path = to_segments(&head);
+    if !path.is_empty() {
+        // self.paths.insert(path);
+        if is_crate(&path) {
+            pv.crate_paths.insert(path);
+        } else {
+            pv.external_paths.insert(to_segments(
+                head.iter()
+                    .cloned()
+                    .chain(std::iter::once(tail.first().unwrap()).cloned())
+                    .collect::<Vec<_>>()
+                    .as_slice(),
+            ));
+        }
+    }
+    syn::visit::visit_trait_bound(pv, trait_bound);
 }
 
 impl<'ast> syn::visit::Visit<'ast> for PathVisitor<Recursive> {
-    fn visit_type(&mut self, item: &'ast syn::Type) {
-        path_visitor_visit_type(self, item);
+    fn visit_type_path(&mut self, item: &'ast syn::TypePath) {
+        path_visitor_visit_type_path(self, item);
+    }
+    fn visit_trait_bound(&mut self, item: &'ast syn::TraitBound) {
+        path_visitor_visit_trait_bound(self, item);
     }
 }
 
 impl<'ast> syn::visit::Visit<'ast> for PathVisitor<NonRecursive> {
-    fn visit_type(&mut self, item: &'ast syn::Type) {
-        path_visitor_visit_type(self, item);
+    fn visit_type_path(&mut self, item: &'ast syn::TypePath) {
+        path_visitor_visit_type_path(self, item);
+    }
+    fn visit_trait_bound(&mut self, item: &'ast syn::TraitBound) {
+        path_visitor_visit_trait_bound(self, item);
     }
     fn visit_item_mod(&mut self, _: &'ast syn::ItemMod) {
         // don't visit the mod content
@@ -137,11 +159,22 @@ impl<'ast> syn::visit::Visit<'ast> for PathVisitor<NonRecursive> {
     }
 }
 
-fn split_path(
-    path: &syn::punctuated::Punctuated<syn::PathSegment, syn::token::PathSep>,
-) -> (Vec<syn::PathSegment>, Vec<syn::PathSegment>) {
-    for idx in 0..path.len() {
-        if path[idx]
+fn split_type_path(path: &syn::TypePath) -> (Vec<syn::PathSegment>, Vec<syn::PathSegment>) {
+    let end = if let Some(qself) = &path.qself {
+        qself.position
+    } else {
+        path.path.segments.len()
+    };
+    split_path(&path.path, end)
+}
+
+fn split_path(path: &syn::Path, end: usize) -> (Vec<syn::PathSegment>, Vec<syn::PathSegment>) {
+    let end = if end == 0 { path.segments.len() } else { end };
+    if end == 0 {
+        return (vec![], path.segments.iter().cloned().collect());
+    }
+    for idx in 0..end {
+        if path.segments[idx]
             .ident
             .to_string()
             .chars()
@@ -150,14 +183,14 @@ fn split_path(
             .is_ascii_uppercase()
         {
             return (
-                path.iter().take(idx).cloned().collect(),
-                path.iter().skip(idx).cloned().collect(),
+                path.segments.iter().take(idx).cloned().collect(),
+                path.segments.iter().skip(idx).cloned().collect(),
             );
         }
     }
     (
-        path.iter().take(path.len() - 1).cloned().collect(),
-        path.iter().skip(path.len() - 1).cloned().collect(),
+        path.segments.iter().take(end - 1).cloned().collect(),
+        path.segments.iter().skip(end - 1).cloned().collect(),
     )
 }
 
@@ -294,41 +327,58 @@ struct TersifyingPathsVisitor {
 //         syn::visit::visit_type(self, item);
 //     }
 // }
+
 impl VisitMut for TersifyingPathsVisitor {
-    fn visit_type_mut(&mut self, item: &mut syn::Type) {
-        match item {
-            syn::Type::Path(type_path) => {
-                if type_path.qself.is_some() {
-                    syn::visit_mut::visit_type_mut(self, item);
-                    return;
-                }
-                let (head, tail) = split_path(&type_path.path.segments);
-                let segments = to_segments(&head);
-                if self
-                    .collisions
-                    .collisions
-                    .iter()
-                    .any(|path| path == &segments)
-                    || head.is_empty()
-                {
-                    syn::visit_mut::visit_type_mut(self, item);
-                    return;
-                }
-                let new_path: Vec<syn::Path> = if is_crate(&segments) {
-                    let terse = terse_prefix(&segments);
-                    vec![syn::parse_quote! {#terse}]
-                } else {
-                    vec![]
-                };
-                type_path.path = syn::parse_quote! {
-                    #(#new_path::)*#(#tail)::*
-                };
-            }
-            _ => {
-                // do nothing
-            }
+    fn visit_type_path_mut(&mut self, type_path: &mut syn::TypePath) {
+        let (head, tail) = split_type_path(type_path);
+        let segments = to_segments(&head);
+        if self
+            .collisions
+            .collisions
+            .iter()
+            .any(|path| path == &segments)
+            || head.is_empty()
+        {
+            syn::visit_mut::visit_type_path_mut(self, type_path);
+            return;
         }
-        syn::visit_mut::visit_type_mut(self, item);
+        let new_path: Vec<syn::Path> = if is_crate(&segments) {
+            let terse = terse_prefix(&segments);
+            vec![syn::parse_quote! {#terse}]
+        } else {
+            vec![]
+        };
+        if let Some(qself) = &mut type_path.qself {
+            qself.position = new_path.len() + 1;
+        }
+        type_path.path = syn::parse_quote! {
+            #(#new_path::)*#(#tail)::*
+        };
+        syn::visit_mut::visit_type_path_mut(self, type_path);
+    }
+    fn visit_trait_bound_mut(&mut self, i: &mut syn::TraitBound) {
+        let (head, tail) = split_path(&i.path, i.path.segments.len());
+        let segments = to_segments(&head);
+        if self
+            .collisions
+            .collisions
+            .iter()
+            .any(|path| path == &segments)
+            || head.is_empty()
+        {
+            syn::visit_mut::visit_trait_bound_mut(self, i);
+            return;
+        }
+        let new_path: Vec<syn::Path> = if is_crate(&segments) {
+            let terse = terse_prefix(&segments);
+            vec![syn::parse_quote! {#terse}]
+        } else {
+            vec![]
+        };
+        i.path = syn::parse_quote! {
+            #(#new_path::)*#(#tail)::*
+        };
+        syn::visit_mut::visit_trait_bound_mut(self, i);
     }
 }
 
