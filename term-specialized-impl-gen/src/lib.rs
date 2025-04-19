@@ -17,9 +17,10 @@ pub fn generate<L: LangSpec>(bps: &BasePaths, lsg: &LsGen<L>) -> syn::ItemMod {
     let owned_mod = gen_owned_mod(bps, lsg);
     let ccf_mod = gen_ccf_mod(bps, lsg, lsg);
     let transitive_ccf_mod = gen_transitive_ccf_mod(&bps.data_structure, lsg);
-    let ccf_auto_impls = gen_ccf_auto_impls(&bps.data_structure, lsg);
-    let mct_mod = gen_mct_mod(bps, lsg, lsg);
+    let ccf_auto_impls = gen_ccf_auto_impls(&bps.data_structure, &bps.term_trait, lsg);
+    // let mct_mod = gen_mct_mod(bps, lsg, lsg);
     let heap_impl = gen_heap_impl(bps, lsg, lsg);
+    let maps_tmf_impls = gen_maps_tmf(bps);
     let byline = byline!();
     syn::parse_quote! {
         #byline
@@ -29,7 +30,8 @@ pub fn generate<L: LangSpec>(bps: &BasePaths, lsg: &LsGen<L>) -> syn::ItemMod {
             #ccf_mod
             #transitive_ccf_mod
             #ccf_auto_impls
-            #mct_mod
+            #maps_tmf_impls
+            // #mct_mod
         }
     }
 }
@@ -51,6 +53,27 @@ pub fn generate_bridge<L: LangSpec>(
     }
 }
 
+pub(crate) fn gen_maps_tmf(
+    BasePaths {
+        data_structure,
+        term_trait,
+    }: &BasePaths,
+) -> syn::ItemMod {
+    let byline = byline!();
+    syn::parse_quote! {
+        #byline
+        pub mod maps_tmf_impls {
+            impl<TmfMonomorphization> term::MapsTmf<#term_trait::words::L, TmfMonomorphization>
+                for #data_structure::Heap
+            where
+                TmfMonomorphization: term::CanonicallyConstructibleFrom<Self, (TmfMonomorphization, ())>
+            {
+                type Tmf = TmfMonomorphization;
+            }
+        }
+    }
+}
+
 pub(crate) fn gen_owned_mod<L: LangSpec>(
     BasePaths {
         data_structure,
@@ -59,7 +82,7 @@ pub(crate) fn gen_owned_mod<L: LangSpec>(
     data_structure_lsg: &LsGen<L>,
 ) -> syn::ItemMod {
     let camels = data_structure_lsg
-        .ty_gen_datas()
+        .ty_gen_datas(Some(syn::parse_quote!(#term_trait::words)))
         .map(|td| td.camel_ident.clone());
     let byline = byline!();
     syn::parse_quote! {
@@ -75,8 +98,9 @@ pub(crate) fn gen_ccf_mod<L: LangSpec>(
     data_structure_lsg: &LsGen<L>,
     term_trait_lsg: &LsGen<L>,
 ) -> syn::ItemMod {
+    let term_trait = &bps.term_trait;
     let ccf_impls = term_trait_lsg
-        .ty_gen_datas()
+        .ty_gen_datas(Some(syn::parse_quote!(#term_trait::words)))
         .map(|tgd| gen_ccf_impls(bps, &tgd));
     let byline = byline!();
     syn::parse_quote! {
@@ -89,14 +113,17 @@ pub(crate) fn gen_ccf_mod<L: LangSpec>(
 
 pub(crate) fn gen_ccf_auto_impls<L: LangSpec>(
     ds_base_path: &syn::Path,
+    term_trait_base_path: &syn::Path,
     term_trait_lsg: &LsGen<L>,
 ) -> syn::ItemMod {
-    let ccf_impls = term_trait_lsg.ty_gen_datas().map(|tgd| -> syn::ItemMacro {
-        let camel_ident = &tgd.camel_ident;
-        syn::parse_quote! {
-            term::auto_impl_ccf!(#ds_base_path::Heap, #ds_base_path::#camel_ident);
-        }
-    });
+    let ccf_impls = term_trait_lsg
+        .ty_gen_datas(Some(syn::parse_quote!(#term_trait_base_path::words)))
+        .map(|tgd| -> syn::ItemMacro {
+            let camel_ident = &tgd.camel_ident;
+            syn::parse_quote! {
+                term::auto_impl_ccf!(#ds_base_path::Heap, #ds_base_path::#camel_ident);
+            }
+        });
     let mut tmf_ccf_impls: Vec<syn::ItemMacro> = Default::default();
     term_trait_lsg.tmfs_monomorphizations(&mut |tmf| {
         let ty = term_trait_lsg.sort2rs_ty(
@@ -345,17 +372,17 @@ pub(crate) fn gen_ccf_impl_sum(
     }
 }
 
-pub(crate) fn gen_mct_mod<L: LangSpec>(
-    bps: &BasePaths,
-    data_structure_lsg: &LsGen<L>,
-    term_trait_lsg: &LsGen<L>,
-) -> syn::ItemMod {
-    let byline = byline!();
-    syn::parse_quote! {
-        #byline
-        pub mod mct_impls {}
-    }
-}
+// pub(crate) fn gen_mct_mod<L: LangSpec>(
+//     bps: &BasePaths,
+//     data_structure_lsg: &LsGen<L>,
+//     term_trait_lsg: &LsGen<L>,
+// ) -> syn::ItemMod {
+//     let byline = byline!();
+//     syn::parse_quote! {
+//         #byline
+//         pub mod mct_impls {}
+//     }
+// }
 
 pub(crate) fn gen_heap_impl<L: LangSpec>(
     BasePaths {
@@ -367,7 +394,7 @@ pub(crate) fn gen_heap_impl<L: LangSpec>(
 ) -> syn::ItemImpl {
     let byline = byline!();
     let camels = term_trait_lsg
-        .ty_gen_datas()
+        .ty_gen_datas(Some(syn::parse_quote!(#term_trait::words)))
         .map(|td| td.camel_ident.clone());
     syn::parse_quote! {
         #byline
@@ -387,9 +414,9 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
     let m = generate(&bps, &lsg);
     let ds = term_specialized_gen::generate(&bps.data_structure, &lsg, false);
     let tt = term_trait_gen::generate(&bps.term_trait, &lsf);
-    let words = words::words_mod(&lsg);
+    // let words = words::words_mod(&lsg);
     let words_impls = words::words_impls(
-        &syn::parse_quote!(crate::words),
+        &syn::parse_quote!(crate::extension_of::words),
         &bps.data_structure,
         &lsg,
         &lsg,
@@ -398,7 +425,7 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
         #m
         #ds
         #tt
-        #words
+        // #words
         #words_impls
     })
 }

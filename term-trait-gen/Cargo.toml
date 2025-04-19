@@ -11,6 +11,8 @@ proc-macro2 = "1.0.89"
 quote = "1.0.37"
 syn = "2.0.82"
 tymetafuncspec-core = { version = "0.1.0", path = "../tymetafuncspec-core" }
+words = { version = "0.1.0", path = "../words" }
+syn-insert-use = { version = "0.1.0", path = "../syn-insert-use" }
 
 [dev-dependencies]
 expect-test = "1.5.0"

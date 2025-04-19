@@ -742,8 +742,10 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.100",
+ "syn-insert-use",
  "term",
  "tymetafuncspec-core",
+ "words",
 ]
 
 [[package]]

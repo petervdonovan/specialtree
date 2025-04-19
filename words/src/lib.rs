@@ -6,7 +6,7 @@ pub trait Implements<L> {
 }
 
 pub fn words_mod<L: LangSpec>(lg: &LsGen<L>) -> syn::ItemMod {
-    let sort_camel_idents = lg.ty_gen_datas().map(|it| it.camel_ident);
+    let sort_camel_idents = lg.ty_gen_datas(None).map(|it| it.camel_ident);
     let byline = langspec_gen_util::byline!();
     syn::parse_quote! {
         #byline
@@ -28,10 +28,10 @@ pub fn words_impls<L: LangSpec>(
     lg_words_source: &LsGen<L>,
 ) -> syn::ItemMod {
     let sort_camel_idents = lg_impl_for
-        .ty_gen_datas()
+        .ty_gen_datas(None)
         .filter(|it| {
             lg_words_source
-                .ty_gen_datas() // FIXME: comparing idents
+                .ty_gen_datas(None) // FIXME: comparing idents
                 .any(|other| other.snake_ident == it.snake_ident)
         })
         .map(|it| it.camel_ident);

@@ -30,6 +30,12 @@ pub struct Sublang<'a, SortIdSelf> {
     pub name: Name,
     pub image: Vec<SortIdSelf>,
     pub map: Box<dyn Fn(&Name) -> SortIdSelf + 'a>,
+    pub tems: Vec<TmfEndoMappingNonreflexive<SortIdSelf>>,
+}
+#[derive(Debug)]
+pub struct TmfEndoMappingNonreflexive<SortIdSelf> {
+    pub from: SortIdSelf,
+    pub to: SortIdSelf,
 }
 
 pub fn reflexive_sublang<L: LangSpec>(l: &L) -> Sublang<SortIdOf<L>> {
@@ -47,5 +53,15 @@ pub fn reflexive_sublang<L: LangSpec>(l: &L) -> Sublang<SortIdOf<L>> {
                 })
                 .unwrap()
         }),
+        tems: {
+            let mut tems = vec![];
+            crate::langspec::call_on_all_tmf_monomorphizations(l, &mut |it| {
+                tems.push(TmfEndoMappingNonreflexive {
+                    from: SortId::TyMetaFunc(it.clone()),
+                    to: SortId::TyMetaFunc(it.clone()),
+                })
+            });
+            tems
+        },
     }
 }

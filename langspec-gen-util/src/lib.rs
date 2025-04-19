@@ -55,7 +55,7 @@ pub struct TyGenData<'a, L: LangSpec> {
     // pub fingerprint: TyFingerprint,
     pub snake_ident: syn::Ident,
     pub camel_ident: syn::Ident,
-    pub cmt: CanonicallyMaybeToGenData<'a>,
+    // pub cmt: CanonicallyMaybeToGenData<'a>,
     pub ccf: CanonicallyConstructibleFromGenData<'a>,
     pub transparency: Transparency,
 }
@@ -139,7 +139,8 @@ impl<L: LangSpec> LsGen<'_, L> {
         //     .collect::<Vec<_>>();
         let mut ucp_acc = std::collections::HashSet::new();
         let mut cebup_acc = std::collections::HashSet::new();
-        for non_transparent_sorts in self.bak.sublangs().into_iter().map(|sl| sl.image) {
+        let sublangs = self.bak.sublangs();
+        for non_transparent_sorts in sublangs.iter().map(|it| it.image.clone()) {
             // let non_transparent_sorts = non_transparent_sorts
             //     .into_iter()
             //     .flat_map(|sort| algebraics(self.bak.all_sort_ids().filter(|s| s == &sort)))
@@ -148,7 +149,7 @@ impl<L: LangSpec> LsGen<'_, L> {
             // ccf_paths.units.sort();
             // ccf_paths.non_units.sort();
             // return ccf_paths;
-            let ucp = unit_ccf_paths_quadratically_large_closure::<L>(
+            let ucp = unit_ccf_paths_quadratically_large_closure::<SortIdOf<L>>(
                 &direct_ccf_rels,
                 &non_transparent_sorts,
             );
@@ -159,6 +160,29 @@ impl<L: LangSpec> LsGen<'_, L> {
             );
             ucp_acc.extend(ucp);
             cebup_acc.extend(cebup);
+        }
+        for desired_pair in sublangs
+            .into_iter()
+            .flat_map(|it| it.tems)
+            .filter(|it| it.from != it.to)
+            .filter(|it| {
+                !ucp_acc
+                    .iter()
+                    .any(|existing| existing.from == it.from && existing.to == it.to)
+            })
+            .collect::<Vec<_>>()
+            .into_iter()
+        {
+            ucp_acc.insert(
+                find_ucp(
+                    &direct_ccf_rels,
+                    UcpPair {
+                        from: desired_pair.from.clone(),
+                        to: desired_pair.to.clone(),
+                    },
+                )
+                .unwrap_or_else(|| panic!("Cannot find UCP for {:?}", &desired_pair)),
+            );
         }
         // let ucp = unit_ccf_paths_quadratically_large_closure::<L>(
         //     &direct_ccf_rels,
@@ -193,99 +217,113 @@ impl<L: LangSpec> LsGen<'_, L> {
     ) {
         call_on_all_tmf_monomorphizations(self.bak, f);
     }
-    pub fn ty_gen_datas(&self) -> impl Iterator<Item = TyGenData<'_, L>> {
+    pub fn ty_gen_datas(
+        &self,
+        words_path: Option<syn::Path>,
+    ) -> impl Iterator<Item = TyGenData<'_, L>> {
+        let sort2rs_ty = move |ht: HeapType, abp: AlgebraicsBasePath| {
+            let words_path = words_path.clone();
+            move |sort: SortIdOf<L>| match words_path {
+                Some(ref words_path) => self.sort2tmfmapped_rs_ty(sort, &ht, &abp, words_path),
+                None => self.sort2rs_ty(sort, &ht, &abp),
+            }
+        };
         self.bak
             .products()
-            .map(move |pid| TyGenData {
-                id: Some(AlgebraicSortId::Product(pid.clone())),
-                // fingerprint: pid_fingerprint(self.bak, &pid),
-                snake_ident: syn::Ident::new(
-                    &self.bak.product_name(pid.clone()).snake.clone(),
-                    proc_macro2::Span::call_site(),
-                ),
-                camel_ident: syn::Ident::new(
-                    &self.bak.product_name(pid.clone()).camel.clone(),
-                    proc_macro2::Span::call_site(),
-                ),
-                cmt: CanonicallyMaybeToGenData {
-                    cmt_sort_tys: {
-                        let pidc = pid.clone();
-                        Box::new(move |ht, abp| {
-                            self.bak
-                                .product_sorts(pidc.clone())
-                                .map(|sort| self.sort2rs_ty(sort.clone(), &ht, &abp))
-                                .collect()
-                        })
-                    },
-                    algebraic_cmt_sort_tys: {
-                        let pidc = pid.clone();
-                        Box::new(move |ht, abp| {
-                            algebraics(self.bak.product_sorts(pidc.clone()))
-                                .map(|sort| self.sort2rs_ty(sort.clone(), &ht, &abp))
-                                .collect()
-                        })
-                    },
-                },
-                ccf: CanonicallyConstructibleFromGenData {
-                    ccf_sort_tys: Box::new({
-                        let pid = pid.clone();
-                        move |ht, abp| {
-                            let fields_tys = self
-                                .bak
-                                .product_sorts(pid.clone())
-                                .map(|sort| self.sort2rs_ty(sort.clone(), &ht, &abp));
-                            vec![cons_list(fields_tys)]
-                        }
-                    }),
-                    ccf_sort_transparencies: {
-                        let pid = pid.clone();
-                        Box::new(move || {
-                            vec![self
-                                .bak
-                                .product_sorts(pid.clone())
-                                .map(|sort| self.sort2transparency(sort))
-                                .collect()]
-                        })
-                    },
-                    heap_sort_tys: Box::new({
-                        let pid = pid.clone();
-                        move |ht, abp| {
-                            self.bak
-                                .product_sorts(pid.clone())
-                                .zip(
-                                    (self.product_heap_sort_camel_idents(&pid).into_iter())
-                                        .zip(self.product_heap_sort_snake_idents(&pid)),
-                                )
-                                .filter_map(|(sort, (camel, snake))| {
-                                    self.sort2heap_ty(sort, &ht, &abp)
-                                        .map(|heap_sort_ty| HstData {
-                                            heap_sort_ty,
-                                            heap_sort_snake_ident: snake,
-                                            heap_sort_camel_ident: camel,
+            .map({
+                let sort2rs_ty = sort2rs_ty.clone();
+                move |pid| TyGenData {
+                    id: Some(AlgebraicSortId::Product(pid.clone())),
+                    // fingerprint: pid_fingerprint(self.bak, &pid),
+                    snake_ident: syn::Ident::new(
+                        &self.bak.product_name(pid.clone()).snake.clone(),
+                        proc_macro2::Span::call_site(),
+                    ),
+                    camel_ident: syn::Ident::new(
+                        &self.bak.product_name(pid.clone()).camel.clone(),
+                        proc_macro2::Span::call_site(),
+                    ),
+                    // cmt: CanonicallyMaybeToGenData {
+                    //     cmt_sort_tys: {
+                    //         let pidc = pid.clone();
+                    //         Box::new(move |ht, abp| {
+                    //             self.bak
+                    //                 .product_sorts(pidc.clone())
+                    //                 .map(|sort| self.sort2rs_ty(sort.clone(), &ht, &abp))
+                    //                 .collect()
+                    //         })
+                    //     },
+                    //     algebraic_cmt_sort_tys: {
+                    //         let pidc = pid.clone();
+                    //         Box::new(move |ht, abp| {
+                    //             algebraics(self.bak.product_sorts(pidc.clone()))
+                    //                 .map(|sort| self.sort2rs_ty(sort.clone(), &ht, &abp))
+                    //                 .collect()
+                    //         })
+                    //     },
+                    // },
+                    ccf: CanonicallyConstructibleFromGenData {
+                        ccf_sort_tys: Box::new({
+                            let pid = pid.clone();
+                            let sort2rs_ty = sort2rs_ty.clone();
+                            move |ht, abp| {
+                                let fields_tys =
+                                    self.bak.product_sorts(pid.clone()).map(sort2rs_ty(ht, abp));
+                                vec![cons_list(fields_tys)]
+                            }
+                        }),
+                        ccf_sort_transparencies: {
+                            let pid = pid.clone();
+                            Box::new(move || {
+                                vec![self
+                                    .bak
+                                    .product_sorts(pid.clone())
+                                    .map(|sort| self.sort2transparency(sort))
+                                    .collect()]
+                            })
+                        },
+                        heap_sort_tys: Box::new({
+                            let pid = pid.clone();
+                            move |ht, abp| {
+                                self.bak
+                                    .product_sorts(pid.clone())
+                                    .zip(
+                                        (self.product_heap_sort_camel_idents(&pid).into_iter())
+                                            .zip(self.product_heap_sort_snake_idents(&pid)),
+                                    )
+                                    .filter_map(|(sort, (camel, snake))| {
+                                        self.sort2heap_ty(sort, &ht, &abp).map(|heap_sort_ty| {
+                                            HstData {
+                                                heap_sort_ty,
+                                                heap_sort_snake_ident: snake,
+                                                heap_sort_camel_ident: camel,
+                                            }
                                         })
-                                })
-                                .collect()
-                        }
-                    }),
-                    ccf_sort_tyses: Box::new({
-                        let pid = pid.clone();
-                        move |ht, abp| {
-                            vec![self
-                                .bak
-                                .product_sorts(pid.clone())
-                                .map(|sort| self.sort2rs_ty(sort.clone(), &ht, &abp))
-                                .collect()]
-                        }
-                    }),
-                    ccf_sort_camel_idents: Box::new({
-                        let pid = pid.clone();
-                        move || vec![self.product_heap_sort_camel_idents(&pid)]
-                    }),
-                    ccf_sort_snake_idents: Box::new(move || {
-                        vec![self.product_heap_sort_snake_idents(&pid)]
-                    }),
-                },
-                transparency: Transparency::Visible,
+                                    })
+                                    .collect()
+                            }
+                        }),
+                        ccf_sort_tyses: Box::new({
+                            let pid = pid.clone();
+                            let sort2rs_ty = sort2rs_ty.clone();
+                            move |ht, abp| {
+                                vec![self
+                                    .bak
+                                    .product_sorts(pid.clone())
+                                    .map(sort2rs_ty(ht, abp))
+                                    .collect()]
+                            }
+                        }),
+                        ccf_sort_camel_idents: Box::new({
+                            let pid = pid.clone();
+                            move || vec![self.product_heap_sort_camel_idents(&pid)]
+                        }),
+                        ccf_sort_snake_idents: Box::new(move || {
+                            vec![self.product_heap_sort_snake_idents(&pid)]
+                        }),
+                    },
+                    transparency: Transparency::Visible,
+                }
             })
             .chain(self.bak.sums().map(move |sid| TyGenData {
                 id: Some(AlgebraicSortId::Sum(sid.clone())),
@@ -298,32 +336,33 @@ impl<L: LangSpec> LsGen<'_, L> {
                     &self.bak.sum_name(sid.clone()).camel.clone(),
                     proc_macro2::Span::call_site(),
                 ),
-                cmt: CanonicallyMaybeToGenData {
-                    cmt_sort_tys: {
-                        let sidc = sid.clone();
-                        Box::new(move |ht, abp| {
-                            self.bak
-                                .sum_sorts(sidc.clone())
-                                .map(|sort| self.sort2rs_ty(sort.clone(), &ht, &abp))
-                                .collect()
-                        })
-                    },
-                    algebraic_cmt_sort_tys: {
-                        let sidc = sid.clone();
-                        Box::new(move |ht, abp| {
-                            algebraics(self.bak.sum_sorts(sidc.clone()))
-                                .map(|sort| self.sort2rs_ty(sort.clone(), &ht, &abp))
-                                .collect()
-                        })
-                    },
-                },
+                // cmt: CanonicallyMaybeToGenData {
+                //     cmt_sort_tys: {
+                //         let sidc = sid.clone();
+                //         Box::new(move |ht, abp| {
+                //             self.bak
+                //                 .sum_sorts(sidc.clone())
+                //                 .map(|sort| self.sort2rs_ty(sort.clone(), &ht, &abp))
+                //                 .collect()
+                //         })
+                //     },
+                //     algebraic_cmt_sort_tys: {
+                //         let sidc = sid.clone();
+                //         Box::new(move |ht, abp| {
+                //             algebraics(self.bak.sum_sorts(sidc.clone()))
+                //                 .map(|sort| self.sort2rs_ty(sort.clone(), &ht, &abp))
+                //                 .collect()
+                //         })
+                //     },
+                // },
                 ccf: CanonicallyConstructibleFromGenData {
                     ccf_sort_tys: Box::new({
                         let sid = sid.clone();
+                        let sort2rs_ty = sort2rs_ty.clone();
                         move |ht, abp| {
                             self.bak
                                 .sum_sorts(sid.clone())
-                                .map(|sort| self.sort2rs_ty(sort.clone(), &ht, &abp))
+                                .map(sort2rs_ty(ht, abp))
                                 .map(|ty| syn::parse_quote! { (#ty,()) })
                                 .collect()
                         }
@@ -359,10 +398,12 @@ impl<L: LangSpec> LsGen<'_, L> {
                     },
                     ccf_sort_tyses: Box::new({
                         let sid = sid.clone();
+                        let sort2rs_ty = sort2rs_ty.clone();
                         move |ht, abp| {
                             self.bak
                                 .sum_sorts(sid.clone())
-                                .map(|sort| vec![self.sort2rs_ty(sort.clone(), &ht, &abp)])
+                                .map(sort2rs_ty(ht, abp))
+                                .map(|it| vec![it])
                                 .collect()
                         }
                     }),
@@ -434,6 +475,31 @@ impl<L: LangSpec> LsGen<'_, L> {
                 let args = a.iter().map(|arg| self.sort2rs_ty(arg.clone(), ht, abp));
                 let ht = &ht.0;
                 syn::parse_quote! { #ty_func<#ht, #( #args, )* > }
+            }
+        }
+    }
+    pub fn sort2tmfmapped_rs_ty(
+        &self,
+        sort: SortIdOf<L>,
+        ht: &HeapType,
+        abp: &AlgebraicsBasePath,
+        words_path: &syn::Path,
+    ) -> syn::Type {
+        match &sort {
+            SortId::Algebraic(asi) => {
+                let name = self.bak.algebraic_sort_name(asi.clone());
+                let ident = syn::Ident::new(&name.camel, proc_macro2::Span::call_site());
+                let abp = &abp.0;
+                syn::parse_quote! { #abp #ident }
+            }
+            SortId::TyMetaFunc(MappedType { f: _, a }) => {
+                let rs_ty = self.sort2rs_ty(sort.clone(), ht, abp);
+                let args = a
+                    .iter()
+                    .map(|arg| self.sort2tmfmapped_rs_ty(arg.clone(), ht, abp, words_path));
+                let ht = &ht.0;
+                let ret = quote::quote! {<#ht as term::MapsTmf<#words_path::L, #rs_ty>>::Tmf};
+                syn::parse_quote! { #ret }
             }
         }
     }
@@ -810,19 +876,18 @@ struct UnitCcfRel<SortId> {
     from: SortId,
     to: SortId,
 }
-fn unit_ccf_paths_quadratically_large_closure<L: LangSpec>(
-    direct_ccf_rels: &[CcfRelation<SortIdOf<L>>],
-    non_transparent_sorts: &[SortIdOf<L>],
-) -> Vec<TransitiveUnitCcfRelation<SortIdOf<L>>> {
-    use std::collections::HashMap;
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+struct UcpPair<SortId> {
+    from: SortId,
+    to: SortId,
+}
+#[derive(Clone, Copy)]
+struct Distance(usize);
+fn unit_ccf_paths_quadratically_large_closure<SortId: Clone + Eq + std::hash::Hash>(
+    direct_ccf_rels: &[CcfRelation<SortId>],
+    non_transparent_sorts: &[SortId],
+) -> Vec<TransitiveUnitCcfRelation<SortId>> {
     use std::collections::HashSet;
-    #[derive(Clone, Copy)]
-    struct Distance(usize);
-    #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-    struct Pair<SortId> {
-        from: SortId,
-        to: SortId,
-    }
     let unit_ccf_rels: Vec<_> = direct_ccf_rels
         .iter()
         .filter(|rel| rel.from.len() == 1)
@@ -832,156 +897,185 @@ fn unit_ccf_paths_quadratically_large_closure<L: LangSpec>(
         })
         .collect();
     let unit_ccf_tos: HashSet<_> = unit_ccf_rels.iter().map(|rel| rel.to.clone()).collect();
-    fn get_tucr_for_to<L: LangSpec>(
-        unit_ccf_rels: &[UnitCcfRel<SortIdOf<L>>],
-        to: SortIdOf<L>,
-        non_transparent_sorts: &[SortIdOf<L>],
-    ) -> Vec<TransitiveUnitCcfRelation<SortIdOf<L>>> {
-        let intermediaries = unit_ccf_rels
-            .iter()
-            .filter(|rel| rel.to == to && rel.from != to)
-            .map(|rel| rel.from.clone())
-            .collect::<HashSet<_>>();
-        type CostedTucrs<SortId> =
-            HashMap<Pair<SortId>, (TransitiveUnitCcfRelation<SortId>, Distance)>;
-        fn get_tucr_for_to_and_intermediary<L: LangSpec>(
-            unit_ccf_rels: &[UnitCcfRel<SortIdOf<L>>],
-            to: SortIdOf<L>,
-            intermediary: SortIdOf<L>,
-            non_transparent_sorts: &[SortIdOf<L>],
-        ) -> CostedTucrs<SortIdOf<L>> {
-            fn find_all_reachable_from_intermediary<L: LangSpec>(
-                unit_ccf_rels: &[UnitCcfRel<SortIdOf<L>>],
-                intermediary: SortIdOf<L>,
-                forbidden_node: SortIdOf<L>,
-                non_transparent_sorts: &[SortIdOf<L>],
-            ) -> HashMap<SortIdOf<L>, Distance> {
-                let mut reachable = HashMap::new();
-                let mut distance = Distance(0);
-                let mut frontier = vec![(
-                    intermediary.clone(),
-                    non_transparent_sorts.contains(&forbidden_node),
-                )];
-                while !frontier.is_empty() {
-                    distance.0 += 1;
-                    let mut new_frontier = vec![];
-                    for sid in frontier.iter() {
-                        if reachable.contains_key(&sid.0) || sid.0 == forbidden_node {
-                            continue;
-                        }
-                        reachable.insert(sid.0.clone(), distance);
-                        let nt = non_transparent_sorts.contains(&sid.0);
-                        if sid.1 && nt {
-                            continue;
-                        }
-                        for ucr in unit_ccf_rels.iter() {
-                            if ucr.to == sid.0 {
-                                // if sid.1 && nt {
-                                //     reachable.insert(ucr.from.clone(), Distance(distance.0 + 1));
-                                // } else {
-                                new_frontier.push((ucr.from.clone(), sid.1 || nt));
-                                // }
-                            }
-                        }
-                        // let frontier_from_current = unit_ccf_rels
-                        //     .iter()
-                        //     .filter(|rel| {
-                        //         rel.to == sid.0
-                        //             && (sid.1 || !non_transparent_sorts.contains(&rel.from))
-                        //     })
-                        //     .map(|rel| (rel.from.clone(), sid.1));
-                        // // if non_transparent_sorts.iter().any(|sort| sort == sid) {
-                        // //     // Go one level past non_transparent_sorts, but no further
-                        // //     reachable.extend(
-                        // //         frontier_from_current
-                        // //             .map(|sort| (sort.clone(), Distance(distance.0 + 1))),
-                        // //     );
-                        // // } else {
-                        // new_frontier.extend(frontier_from_current);
-                        // // }
-                    }
-                    frontier = new_frontier;
-                }
-                reachable
-            }
-            let reachable = find_all_reachable_from_intermediary::<L>(
-                unit_ccf_rels,
-                intermediary.clone(),
-                to.clone(),
-                non_transparent_sorts,
-            );
-            reachable
-                .into_iter()
-                .map(move |(from, distance)| {
-                    (
-                        Pair {
-                            from: from.clone(),
-                            to: to.clone(),
-                        },
-                        (
-                            TransitiveUnitCcfRelation {
-                                from: from.clone(),
-                                to: to.clone(),
-                                intermediary: intermediary.clone(),
-                            },
-                            distance,
-                        ),
-                    )
-                })
-                .collect()
-        }
-        let mut tucrs: CostedTucrs<SortIdOf<L>> = HashMap::new();
-        for intermediary in intermediaries.iter() {
-            let tucrs_intermediary = get_tucr_for_to_and_intermediary::<L>(
-                unit_ccf_rels,
-                to.clone(),
-                intermediary.clone(),
-                non_transparent_sorts,
-            );
-            for (pair, (tucr, distance)) in tucrs_intermediary.iter() {
-                if let Some(existing) = tucrs.get(pair) {
-                    if existing.1 .0 > distance.0 {
-                        tucrs.insert(pair.clone(), (tucr.clone(), *distance));
-                    }
-                } else {
-                    tucrs.insert(pair.clone(), (tucr.clone(), *distance));
-                }
-            }
-        }
-        tucrs.into_values().map(|v| v.0).collect()
-    }
     unit_ccf_tos
         .iter()
-        .flat_map(|to| get_tucr_for_to::<L>(&unit_ccf_rels, to.clone(), non_transparent_sorts))
+        .flat_map(|to| get_tucr_for_to::<SortId>(&unit_ccf_rels, to.clone(), non_transparent_sorts))
         .collect()
 }
 
-fn reflexive_tucrs<'a, L: LangSpec>(
-    direct_ccf_rels: &'a [CcfRelation<SortIdOf<L>>],
-    non_transparent_sorts: &'a [SortIdOf<L>],
-) -> impl Iterator<Item = TransitiveUnitCcfRelation<SortIdOf<L>>> + use<'a, L> {
+fn unit_ccf_rels<SortId: Clone>(
+    direct_ccf_rels: &[CcfRelation<SortId>],
+) -> Vec<UnitCcfRel<SortId>> {
     direct_ccf_rels
         .iter()
-        .filter_map(|rel| {
-            if let Some(from) = rel.from.first() {
-                if rel.from.len() == 1 && from != &rel.to && non_transparent_sorts.contains(from) {
-                    Some(UnitCcfRel {
+        .filter(|rel| rel.from.len() == 1)
+        .map(|rel| UnitCcfRel {
+            from: rel.from.first().unwrap().clone(),
+            to: rel.to.clone(),
+        })
+        .collect()
+}
+
+fn find_ucp<SortId: Clone + Eq + std::hash::Hash + std::fmt::Debug>(
+    direct_ccf_rels: &[CcfRelation<SortId>],
+    pair: UcpPair<SortId>,
+) -> Option<TransitiveUnitCcfRelation<SortId>> {
+    let tucr = get_tucr_for_to(&unit_ccf_rels(direct_ccf_rels), pair.to.clone(), &[]);
+    tucr.into_iter()
+        .find(|tucr| {
+            dbg!(&tucr);
+            tucr.from == pair.from && tucr.to == pair.to
+        })
+        .clone()
+}
+
+fn get_tucr_for_to<SortId: Clone + Eq + std::hash::Hash>(
+    unit_ccf_rels: &[UnitCcfRel<SortId>],
+    to: SortId,
+    non_transparent_sorts: &[SortId],
+) -> Vec<TransitiveUnitCcfRelation<SortId>> {
+    use std::collections::HashMap;
+    use std::collections::HashSet;
+    let intermediaries = unit_ccf_rels
+        .iter()
+        .filter(|rel| rel.to == to && rel.from != to)
+        .map(|rel| rel.from.clone())
+        .collect::<HashSet<_>>();
+    type CostedTucrs<SortId> =
+        HashMap<UcpPair<SortId>, (TransitiveUnitCcfRelation<SortId>, Distance)>;
+    fn get_tucr_for_to_and_intermediary<SortId: Clone + Eq + std::hash::Hash>(
+        unit_ccf_rels: &[UnitCcfRel<SortId>],
+        to: SortId,
+        intermediary: SortId,
+        non_transparent_sorts: &[SortId],
+    ) -> CostedTucrs<SortId> {
+        fn find_all_reachable_from_intermediary<SortId: Clone + Eq + std::hash::Hash>(
+            unit_ccf_rels: &[UnitCcfRel<SortId>],
+            intermediary: SortId,
+            forbidden_node: SortId,
+            non_transparent_sorts: &[SortId],
+        ) -> HashMap<SortId, Distance> {
+            let mut reachable = HashMap::new();
+            let mut distance = Distance(0);
+            let mut frontier = vec![(
+                intermediary.clone(),
+                non_transparent_sorts.contains(&forbidden_node),
+            )];
+            while !frontier.is_empty() {
+                distance.0 += 1;
+                let mut new_frontier = vec![];
+                for sid in frontier.iter() {
+                    if reachable.contains_key(&sid.0) || sid.0 == forbidden_node {
+                        continue;
+                    }
+                    reachable.insert(sid.0.clone(), distance);
+                    let nt = non_transparent_sorts.contains(&sid.0);
+                    if sid.1 && nt {
+                        continue;
+                    }
+                    for ucr in unit_ccf_rels.iter() {
+                        if ucr.to == sid.0 {
+                            // if sid.1 && nt {
+                            //     reachable.insert(ucr.from.clone(), Distance(distance.0 + 1));
+                            // } else {
+                            new_frontier.push((ucr.from.clone(), sid.1 || nt));
+                            // }
+                        }
+                    }
+                    // let frontier_from_current = unit_ccf_rels
+                    //     .iter()
+                    //     .filter(|rel| {
+                    //         rel.to == sid.0
+                    //             && (sid.1 || !non_transparent_sorts.contains(&rel.from))
+                    //     })
+                    //     .map(|rel| (rel.from.clone(), sid.1));
+                    // // if non_transparent_sorts.iter().any(|sort| sort == sid) {
+                    // //     // Go one level past non_transparent_sorts, but no further
+                    // //     reachable.extend(
+                    // //         frontier_from_current
+                    // //             .map(|sort| (sort.clone(), Distance(distance.0 + 1))),
+                    // //     );
+                    // // } else {
+                    // new_frontier.extend(frontier_from_current);
+                    // // }
+                }
+                frontier = new_frontier;
+            }
+            reachable
+        }
+        let reachable = find_all_reachable_from_intermediary::<SortId>(
+            unit_ccf_rels,
+            intermediary.clone(),
+            to.clone(),
+            non_transparent_sorts,
+        );
+        reachable
+            .into_iter()
+            .map(move |(from, distance)| {
+                (
+                    UcpPair {
                         from: from.clone(),
-                        to: rel.to.clone(),
-                    })
-                } else {
-                    None
+                        to: to.clone(),
+                    },
+                    (
+                        TransitiveUnitCcfRelation {
+                            from: from.clone(),
+                            to: to.clone(),
+                            intermediary: intermediary.clone(),
+                        },
+                        distance,
+                    ),
+                )
+            })
+            .collect()
+    }
+    let mut tucrs: CostedTucrs<SortId> = HashMap::new();
+    for intermediary in intermediaries.iter() {
+        let tucrs_intermediary = get_tucr_for_to_and_intermediary::<SortId>(
+            unit_ccf_rels,
+            to.clone(),
+            intermediary.clone(),
+            non_transparent_sorts,
+        );
+        for (pair, (tucr, distance)) in tucrs_intermediary.iter() {
+            if let Some(existing) = tucrs.get(pair) {
+                if existing.1 .0 > distance.0 {
+                    tucrs.insert(pair.clone(), (tucr.clone(), *distance));
                 }
             } else {
-                None
+                tucrs.insert(pair.clone(), (tucr.clone(), *distance));
             }
-        })
-        .map(|rel| TransitiveUnitCcfRelation {
-            from: rel.from.clone(),
-            to: rel.to.clone(),
-            intermediary: rel.from,
-        })
+        }
+    }
+    tucrs.into_values().map(|v| v.0).collect()
 }
+
+// fn reflexive_tucrs<'a, L: LangSpec>(
+//     direct_ccf_rels: &'a [CcfRelation<SortIdOf<L>>],
+//     non_transparent_sorts: &'a [SortIdOf<L>],
+// ) -> impl Iterator<Item = TransitiveUnitCcfRelation<SortIdOf<L>>> + use<'a, L> {
+//     direct_ccf_rels
+//         .iter()
+//         .filter_map(|rel| {
+//             if let Some(from) = rel.from.first() {
+//                 if rel.from.len() == 1 && from != &rel.to && non_transparent_sorts.contains(from) {
+//                     Some(UnitCcfRel {
+//                         from: from.clone(),
+//                         to: rel.to.clone(),
+//                     })
+//                 } else {
+//                     None
+//                 }
+//             } else {
+//                 None
+//             }
+//         })
+//         .map(|rel| TransitiveUnitCcfRelation {
+//             from: rel.from.clone(),
+//             to: rel.to.clone(),
+//             intermediary: rel.from,
+//         })
+// }
 
 fn combinations<I: Clone + IntoIterator<Item: Clone>>(
     seqs: Vec<I>,
@@ -1124,7 +1218,7 @@ fn ccfs_exploded_by_unit_paths<SortId: Clone + Eq>(
 // }
 #[cfg(test)]
 mod tests {
-    use langspec::humanreadable::LangSpecHuman;
+    use langspec::{humanreadable::LangSpecHuman, langspec::SortIdOf};
     use term::CcfRelation;
 
     use crate::{
@@ -1145,7 +1239,8 @@ mod tests {
                 langspec::langspec::AlgebraicSortId::Sum("ℕ".into()),
             ),
         ];
-        let ucr = unit_ccf_paths_quadratically_large_closure::<L>(&dcr, non_transparent_sorts);
+        let ucr =
+            unit_ccf_paths_quadratically_large_closure::<SortIdOf<L>>(&dcr, non_transparent_sorts);
         for rel in &ucr {
             println!("{:?}\n", rel);
         }

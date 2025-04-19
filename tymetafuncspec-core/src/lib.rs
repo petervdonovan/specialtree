@@ -181,7 +181,7 @@ thread_local! {
             transparency: Transparency::Visible,
             heapbak: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::PairHeapBak) },
             // maybe_conversions: Box::new([]),
-            canonical_froms: Box::new([Box::new([ArgId(0)])]),
+            canonical_froms: Box::new([Box::new([ArgId(0)]), Box::new([ArgId(1)])]),
         }
         ]
     });

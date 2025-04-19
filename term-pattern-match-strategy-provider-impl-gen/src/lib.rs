@@ -18,12 +18,12 @@ pub struct BasePaths {
 pub fn generate<L: LangSpec>(base_paths: &BasePaths, ls: &LsGen<L>) -> syn::ItemMod {
     let byline = langspec_gen_util::byline!();
     let impls = ls
-        .ty_gen_datas()
+        .ty_gen_datas(Some(base_paths.words.clone()))
         .map(|tgd| {
             let camel_ident = tgd.camel_ident;
             impl_has_pattern_match_strategy_for(base_paths, &camel_ident, tgd.ccf)
         })
-        .chain(ls.ty_gen_datas().map(|tgd| {
+        .chain(ls.ty_gen_datas(Some(base_paths.words.clone())).map(|tgd| {
             let camel_ident = tgd.camel_ident;
             impl_adt_for(base_paths, &camel_ident)
         }))
@@ -101,13 +101,13 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
     let bps = BasePaths {
         strategy_provider: syn::parse_quote!(crate::pattern_match_strategy),
         data_structure: syn::parse_quote!(crate::data_structure),
-        words: syn::parse_quote!(crate::words),
+        words: syn::parse_quote!(crate::extension_of::words),
         term_trait: syn::parse_quote!(crate::extension_of),
     };
     let m = generate(&bps, &lsg);
     let tt = term_trait_gen::generate(&bps.term_trait, &lsf);
     let ds = term_specialized_gen::generate(&bps.data_structure, &lsg, false);
-    let words = words::words_mod(&lsg);
+    // let words = words::words_mod(&lsg);
     let words_impls = words::words_impls(&bps.words, &bps.data_structure, &lsg, &lsg);
     let ttimpl = term_specialized_impl_gen::generate(
         &term_specialized_impl_gen::BasePaths {
@@ -120,7 +120,7 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
         #m
         #tt
         #ds
-        #words
+        // #words
         #words_impls
         #ttimpl
     })

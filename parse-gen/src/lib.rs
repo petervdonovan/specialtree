@@ -16,32 +16,32 @@ pub struct BasePaths {
     pub cst_words: syn::Path,
 }
 
-pub fn generate<L: LangSpec>(bps: &BasePaths, lg: &LsGen<L>) -> syn::ItemMod {
-    let byline = byline!();
-    let arena = bumpalo::Bump::new();
-    let cst = cst(&arena, lg.bak());
-    let lg_cst = LsGen::from(&cst);
-    let cst_tgds = lg_cst.ty_gen_datas().collect::<Vec<_>>();
-    // let parses = lg.ty_gen_datas().filter_map(|tgd| {
-    //     tgd.id.as_ref().map(|sid| {
-    //         generate_parse(
-    //             bps,
-    //             &tgd,
-    //             cst_tgds
-    //                 .iter()
-    //                 .find(|cst_tgd| cst_tgd.snake_ident == tgd.snake_ident) // FIXME: comparing idents
-    //                 .unwrap(),
-    //         )
-    //     })
-    // });
-    let parses: Vec<syn::ItemImpl> = vec![];
-    parse_quote! {
-        #byline
-        pub mod parse {
-            #(#parses)*
-        }
-    }
-}
+// pub fn generate<L: LangSpec>(bps: &BasePaths, lg: &LsGen<L>) -> syn::ItemMod {
+//     let byline = byline!();
+//     let arena = bumpalo::Bump::new();
+//     let cst = cst(&arena, lg.bak());
+//     let lg_cst = LsGen::from(&cst);
+//     let cst_tgds = lg_cst.ty_gen_datas().collect::<Vec<_>>();
+//     // let parses = lg.ty_gen_datas().filter_map(|tgd| {
+//     //     tgd.id.as_ref().map(|sid| {
+//     //         generate_parse(
+//     //             bps,
+//     //             &tgd,
+//     //             cst_tgds
+//     //                 .iter()
+//     //                 .find(|cst_tgd| cst_tgd.snake_ident == tgd.snake_ident) // FIXME: comparing idents
+//     //                 .unwrap(),
+//     //         )
+//     //     })
+//     // });
+//     let parses: Vec<syn::ItemImpl> = vec![];
+//     parse_quote! {
+//         #byline
+//         pub mod parse {
+//             #(#parses)*
+//         }
+//     }
+// }
 
 pub fn generate_parse<L: LangSpec, LCst: LangSpec>(
     bps: &BasePaths,
@@ -127,7 +127,7 @@ pub fn gen_impls<L: LangSpec>(base_path: &syn::Path, lsg: &LsGen<L>) -> proc_mac
         &term_pattern_match_strategy_provider_impl_gen::BasePaths {
             term_trait: syn::parse_quote!(#base_path::extension_of),
             data_structure: syn::parse_quote!(#base_path::data_structure),
-            words: syn::parse_quote!(#base_path::words),
+            words: syn::parse_quote!(#base_path::extension_of::words),
             strategy_provider: syn::parse_quote!(#base_path::pattern_match_strategy),
         },
         lsg,
@@ -139,9 +139,9 @@ pub fn gen_impls<L: LangSpec>(base_path: &syn::Path, lsg: &LsGen<L>) -> proc_mac
         },
         lsg,
     );
-    let tt_words = words::words_mod(lsg);
+    // let tt_words = words::words_mod(lsg);
     let tt_words_impl = words::words_impls(
-        &syn::parse_quote! { #base_path::words },
+        &syn::parse_quote! { #base_path::extension_of::words },
         &syn::parse_quote! { #base_path::data_structure },
         lsg,
         lsg,
@@ -150,7 +150,7 @@ pub fn gen_impls<L: LangSpec>(base_path: &syn::Path, lsg: &LsGen<L>) -> proc_mac
         #ds
         #tt
         #tpmspi
-        #tt_words
+        // #tt_words
         #tt_words_impl
         #tt_impl
     }
@@ -161,7 +161,7 @@ pub fn bridge_words_impls<L: LangSpec>(
     og_words_base_path: &syn::Path,
     elsg: &LsGen<L>,
 ) -> syn::ItemMod {
-    let impls = elsg.ty_gen_datas().map(|tgd| -> syn::ItemImpl {
+    let impls = elsg.ty_gen_datas(Some(og_words_base_path.clone())).map(|tgd| -> syn::ItemImpl {
         let camel_ident = &tgd.camel_ident;
         let cstfication = transparency2cstfication(&tgd.transparency);
         let ty: syn::Type = syn::parse_quote! {
@@ -190,7 +190,7 @@ pub fn gen_bridge<L: LangSpec>(
 ) -> proc_macro2::TokenStream {
     let words_impls = bridge_words_impls(
         &syn::parse_quote! { #extension_base_path::data_structure },
-        &syn::parse_quote! { #og_base_path::words },
+        &syn::parse_quote! { #og_base_path::extension_of::words },
         elsg,
     );
     // let bridge_tt_impl = term_specialized_impl_gen::generate_bridge(
@@ -210,15 +210,15 @@ pub fn gen_bridge<L: LangSpec>(
 
 pub fn formatted<L: LangSpec>(l: &L) -> String {
     let lg = LsGen::from(l);
-    let bps = BasePaths {
-        data_structure: parse_quote! { crate::data_structure },
-        term_trait: parse_quote! { crate::extension_of },
-        words: parse_quote! { crate::words },
-        cst_data_structure: parse_quote! { crate::cst::data_structure },
-        cst_term_trait: parse_quote! { crate::cst::extension_of },
-        cst_words: parse_quote! { crate::cst::words },
-    };
-    let m = generate(&bps, &lg);
+    // let bps = BasePaths {
+    //     data_structure: parse_quote! { crate::data_structure },
+    //     term_trait: parse_quote! { crate::extension_of },
+    //     words: parse_quote! { crate::extension_of::words },
+    //     cst_data_structure: parse_quote! { crate::cst::data_structure },
+    //     cst_term_trait: parse_quote! { crate::cst::extension_of },
+    //     cst_words: parse_quote! { crate::cst::words },
+    // };
+    // let m = generate(&bps, &lg);
     let cst_impls = {
         let arena = bumpalo::Bump::new();
         let cst = cst(&arena, l);
@@ -271,7 +271,8 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
         //         cst::data_structure::Heap,
         //     >>::co_visit(&mut parser, &mut heap);
         // }
-        #m
+        // #m
+        #byline
         pub mod cst {
             #cst_impls
         }
@@ -288,60 +289,6 @@ pub(crate) fn temp_bridge_paste() -> syn::ItemMod {
     syn::parse_quote! {
     #byline
     pub mod term_impls {
-        // impl term::TransitivelyUnitCcf<crate::cst::data_structure::Heap, crate::cst::data_structure::LeftOperand>
-        //     for tymetafuncspec_core::Either<
-        //         crate::cst::data_structure::Heap,
-        //         tymetafuncspec_core::Pair<
-        //             crate::cst::data_structure::Heap,
-        //             crate::cst::data_structure::LeftOperand,
-        //             tymetafuncspec_core::Maybe<
-        //                 crate::cst::data_structure::Heap,
-        //                 std_parse_metadata::ParseMetadata<crate::cst::data_structure::Heap>,
-        //             >,
-        //         >,
-        //         std_parse_error::ParseError<crate::cst::data_structure::Heap>,
-        //     >
-        // {
-        //     type Intermediary = tymetafuncspec_core::Either<
-        //         crate::cst::data_structure::Heap,
-        //         tymetafuncspec_core::Pair<
-        //             crate::cst::data_structure::Heap,
-        //             crate::cst::data_structure::LeftOperand,
-        //             tymetafuncspec_core::Maybe<
-        //                 crate::cst::data_structure::Heap,
-        //                 std_parse_metadata::ParseMetadata<crate::cst::data_structure::Heap>,
-        //             >,
-        //         >,
-        //         std_parse_error::ParseError<crate::cst::data_structure::Heap>,
-        //     >;
-        // }
-        // impl term::TransitivelyUnitCcf<crate::cst::data_structure::Heap, crate::cst::data_structure::RightOperand>
-        //     for tymetafuncspec_core::Either<
-        //         crate::cst::data_structure::Heap,
-        //         tymetafuncspec_core::Pair<
-        //             crate::cst::data_structure::Heap,
-        //             crate::cst::data_structure::RightOperand,
-        //             tymetafuncspec_core::Maybe<
-        //                 crate::cst::data_structure::Heap,
-        //                 std_parse_metadata::ParseMetadata<crate::cst::data_structure::Heap>,
-        //             >,
-        //         >,
-        //         std_parse_error::ParseError<crate::cst::data_structure::Heap>,
-        //     >
-        // {
-        //     type Intermediary = tymetafuncspec_core::Either<
-        //         crate::cst::data_structure::Heap,
-        //         tymetafuncspec_core::Pair<
-        //             crate::cst::data_structure::Heap,
-        //             crate::cst::data_structure::RightOperand,
-        //             tymetafuncspec_core::Maybe<
-        //                 crate::cst::data_structure::Heap,
-        //                 std_parse_metadata::ParseMetadata<crate::cst::data_structure::Heap>,
-        //             >,
-        //         >,
-        //         std_parse_error::ParseError<crate::cst::data_structure::Heap>,
-        //     >;
-        // }
         impl crate::extension_of::Heap for crate::cst::data_structure::Heap {
             type F = parse_adt::cstfy::Cstfy<
                 crate::cst::data_structure::Heap,
@@ -411,6 +358,46 @@ pub(crate) fn temp_bridge_paste() -> syn::ItemMod {
                 >
             {
             }
+        }
+
+        impl term::MapsTmf<crate::extension_of::words::L, tymetafuncspec_core::IdxBox<cds::Heap, tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap,cds::Sum,tymetafuncspec_core::Maybe<cds::Heap,std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>>> for cds::Heap {
+            type Tmf = Cstfy<cds::Heap, tymetafuncspec_core::IdxBox<cds::Heap, tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap,cds::Sum,tymetafuncspec_core::Maybe<cds::Heap,std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>>>;
+        }
+
+        impl term::MapsTmf<crate::extension_of::words::L, tymetafuncspec_core::IdxBox<crate::cst::data_structure::Heap, tymetafuncspec_core::Either<crate::cst::data_structure::Heap, tymetafuncspec_core::Pair<crate::cst::data_structure::Heap, crate::cst::data_structure::Plus, tymetafuncspec_core::Maybe<crate::cst::data_structure::Heap, std_parse_metadata::ParseMetadata<crate::cst::data_structure::Heap>>>, std_parse_error::ParseError<crate::cst::data_structure::Heap>>>> for cds::Heap {
+            type Tmf = Cstfy<cds::Heap, tymetafuncspec_core::IdxBox<crate::cst::data_structure::Heap, tymetafuncspec_core::Either<crate::cst::data_structure::Heap, tymetafuncspec_core::Pair<crate::cst::data_structure::Heap, crate::cst::data_structure::Plus, tymetafuncspec_core::Maybe<crate::cst::data_structure::Heap, std_parse_metadata::ParseMetadata<crate::cst::data_structure::Heap>>>, std_parse_error::ParseError<crate::cst::data_structure::Heap>>>>;
+        }
+
+        impl term::MapsTmf<crate::extension_of::words::L, tymetafuncspec_core::BoundedNat<cds::Heap>> for cds::Heap {
+            type Tmf = parse_adt::cstfy::Cstfy<cds::Heap, tymetafuncspec_core::BoundedNat<cds::Heap>>;
+        }
+
+        impl term::MapsTmf<crate::extension_of::words::L, tymetafuncspec_core::Set<crate::cst::data_structure::Heap, tymetafuncspec_core::Either<crate::cst::data_structure::Heap, crate::cst::data_structure::Nat, std_parse_error::ParseError<crate::cst::data_structure::Heap>>>> for cds::Heap {
+            type Tmf = Cstfy<cds::Heap, tymetafuncspec_core::Set<cds::Heap, tymetafuncspec_core::Either<cds::Heap, crate::cst::data_structure::Nat, std_parse_error::ParseError<cds::Heap>>>>;
+        }
+
+        impl term::MapsTmf<crate::extension_of::words::L, tymetafuncspec_core::IdxBox<crate::cst::data_structure::Heap, tymetafuncspec_core::Either<crate::cst::data_structure::Heap, tymetafuncspec_core::Pair<crate::cst::data_structure::Heap, crate::cst::data_structure::F, tymetafuncspec_core::Maybe<crate::cst::data_structure::Heap, std_parse_metadata::ParseMetadata<crate::cst::data_structure::Heap>>>, std_parse_error::ParseError<crate::cst::data_structure::Heap>>>> for cds::Heap {
+            type Tmf = Cstfy<cds::Heap, tymetafuncspec_core::IdxBox<cds::Heap, tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap, cds::F, tymetafuncspec_core::Maybe<cds::Heap, std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>>>;
+        }
+
+        impl term::MapsTmf<crate::extension_of::words::L, tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap, cds::F, tymetafuncspec_core::Maybe<cds::Heap, std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>> for cds::Heap {
+            type Tmf = tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap, cds::F, tymetafuncspec_core::Maybe<cds::Heap, std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>;
+        }
+        impl term::MapsTmf<crate::extension_of::words::L, tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap, cds::Plus, tymetafuncspec_core::Maybe<cds::Heap, std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>> for cds::Heap {
+            type Tmf = tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap, cds::Plus, tymetafuncspec_core::Maybe<cds::Heap, std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>;
+
+        }
+        impl term::MapsTmf<crate::extension_of::words::L, tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap, cds::LeftOperand, tymetafuncspec_core::Maybe<cds::Heap, std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>> for cds::Heap {
+            type Tmf = tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap, cds::LeftOperand, tymetafuncspec_core::Maybe<cds::Heap, std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>;
+        }
+        impl term::MapsTmf<crate::extension_of::words::L, tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap, cds::RightOperand, tymetafuncspec_core::Maybe<cds::Heap, std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>> for cds::Heap {
+            type Tmf = tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap, cds::RightOperand, tymetafuncspec_core::Maybe<cds::Heap, std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>;
+        }
+        impl term::MapsTmf<crate::extension_of::words::L, tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap, cds::Sum, tymetafuncspec_core::Maybe<cds::Heap, std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>> for cds::Heap {
+            type Tmf = tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap, cds::Sum, tymetafuncspec_core::Maybe<cds::Heap, std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>;
+        }
+        impl term::MapsTmf<crate::extension_of::words::L, tymetafuncspec_core::Either<cds::Heap, cds::Nat, std_parse_error::ParseError<cds::Heap>>> for cds::Heap {
+            type Tmf = tymetafuncspec_core::Either<cds::Heap, cds::Nat, std_parse_error::ParseError<cds::Heap>>;
         }
     }
     }

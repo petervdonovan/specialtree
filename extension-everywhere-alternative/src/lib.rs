@@ -1,7 +1,7 @@
 use either_id::Either;
 use langspec::{
     langspec::{AlgebraicSortId, LangSpec, MappedType, Name, SortId, SortIdOf},
-    sublang::{reflexive_sublang, Sublang},
+    sublang::{reflexive_sublang, Sublang, TmfEndoMappingNonreflexive},
 };
 use tmfs_join::TmfsJoin;
 
@@ -125,6 +125,7 @@ impl<L0: LangSpec, L1: LangSpec> LangSpec for EverywhereAlternative<'_, '_, L0, 
                     // }),
                     image: sublang
                         .image
+                        .clone()
                         .into_iter()
                         .map(|sid| self.map_id(l0_as_my_sid::<L0, L1>(sid)))
                         .collect(),
@@ -134,6 +135,26 @@ impl<L0: LangSpec, L1: LangSpec> LangSpec for EverywhereAlternative<'_, '_, L0, 
                         let ret: SortIdOf<Self> = self.map_id(mapped);
                         ret
                     }),
+                    tems: sublang
+                        .tems
+                        .into_iter()
+                        .map(|tem| match (tem.from, tem.to) {
+                            (SortId::TyMetaFunc(mtfrom), mtto) => TmfEndoMappingNonreflexive::<
+                                SortIdOf<Self>,
+                            > {
+                                from: SortId::TyMetaFunc(MappedType {
+                                    f: Either::Left(Either::Left(mtfrom.f.clone())),
+                                    a: mtfrom
+                                        .a
+                                        .iter()
+                                        .map(|sid| self.map_id(l0_as_my_sid::<L0, L1>(sid.clone())))
+                                        .collect(),
+                                }),
+                                to: self.map_id(l0_as_my_sid::<L0, L1>(mtto.clone())),
+                            },
+                            _ => panic!(),
+                        })
+                        .collect(),
                 },
             )
             .chain(std::iter::once(reflexive_sublang(self)))

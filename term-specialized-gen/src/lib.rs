@@ -9,7 +9,7 @@ use syn::parse_quote;
 
 pub fn generate<L: LangSpec>(base_path: &syn::Path, lg: &LsGen<L>, serde: bool) -> syn::ItemMod {
     let algebraics = lg
-        .ty_gen_datas()
+        .ty_gen_datas(None)
         .filter(|it| it.id.is_some())
         .map(|tgd| alg_dt(serde, base_path, tgd));
     let heaped_impls = gen_heaped_impls(base_path, lg);
@@ -80,15 +80,17 @@ pub fn gen_heap<L: LangSpec>(
     abp: &AlgebraicsBasePath,
     lg: &LsGen<L>,
 ) -> syn::File {
-    let alg_snakes = lg.ty_gen_datas().map(|tgd| tgd.snake_ident);
+    // let alg_snakes = lg
+    //     .ty_gen_datas(words_base_path.clone())
+    //     .map(|tgd| tgd.snake_ident);
     // let alg_camels = lg.ty_gen_datas().map(|tgd| tgd.camel_ident);
     // let alg_heapbaks = lg.ty_gen_datas().map(alg_heapbak);
     // let heapbak_paths = heapbak_paths(lg);
     let hgd = lg.heapbak_gen_datas();
-    let heapbak_paths = hgd.iter().map(|hgd: &HeapbakGenData| -> syn::Path {
-        let identifiers = &hgd.identifiers;
-        syn::parse_quote! {#(#identifiers)::*}
-    });
+    // let heapbak_paths = hgd.iter().map(|hgd: &HeapbakGenData| -> syn::Path {
+    //     let identifiers = &hgd.identifiers;
+    //     syn::parse_quote! {#(#identifiers)::*}
+    // });
     let heapbak_modules = hgd
         .iter()
         .map(|hgd| gen_heapbak_module(base_path, abp, hgd))
@@ -250,7 +252,7 @@ pub(crate) fn gen_heaped_impls<L: LangSpec>(base_path: &syn::Path, lg: &LsGen<L>
         }
     }
     let byline = byline!();
-    let impls = lg.ty_gen_datas().map(|tgd| heaped_impl(base_path, tgd));
+    let impls = lg.ty_gen_datas(None).map(|tgd| heaped_impl(base_path, tgd));
     parse_quote! {
         #byline
         pub mod heaped {

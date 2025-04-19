@@ -199,9 +199,9 @@ where
     type Heap = T::Heap;
 }
 impl<Heap, TOwned: AllOwned, U: CanonicallyConstructibleFrom<Heap, TOwned::Bak>>
-    CanonicallyConstructibleFrom<Heap, (TOwned,)> for Owned<U>
+    CanonicallyConstructibleFrom<Heap, (TOwned, ())> for Owned<U>
 {
-    fn construct(heap: &mut Heap, t: (TOwned,)) -> Self {
+    fn construct(heap: &mut Heap, t: (TOwned, ())) -> Self {
         // safe because bak and construct are inverse to each other wrt freeing
         unsafe {
             let bak = t.0.bak();
@@ -214,17 +214,20 @@ impl<Heap, TOwned: AllOwned, U: CanonicallyConstructibleFrom<Heap, TOwned::Bak>>
         self.0.deconstruct_succeeds(heap)
     }
 
-    fn deconstruct(self, heap: &Heap) -> (TOwned,) {
+    fn deconstruct(self, heap: &Heap) -> (TOwned, ()) {
         // safe because .0 and new are inverse to each other wrt freeing
         unsafe {
             let bak = std::mem::ManuallyDrop::<U>::into_inner(self.0).deconstruct(heap);
-            (TOwned::new(bak),)
+            (TOwned::new(bak), ())
         }
     }
 }
 
 pub trait Heaped {
     type Heap;
+}
+pub trait MapsTmf<LWord, TmfMonomorphization>: Sized {
+    type Tmf: CanonicallyConstructibleFrom<Self, (TmfMonomorphization, ())>;
 }
 pub trait SuperHeap<SubHeap> {
     fn subheap<T>(&self) -> &SubHeap

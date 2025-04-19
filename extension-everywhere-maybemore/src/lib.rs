@@ -1,7 +1,7 @@
 use either_id::Either;
 use langspec::{
-    langspec::{LangSpec, MappedType, Name, SortId},
-    sublang::reflexive_sublang,
+    langspec::{LangSpec, MappedType, Name, SortId, SortIdOf},
+    sublang::{reflexive_sublang, TmfEndoMappingNonreflexive},
     tymetafunc::{Transparency, TyMetaFuncSpec},
 };
 use tmfs_join::TmfsJoin;
@@ -40,31 +40,39 @@ fn maybemorefy_if_product<'a, 'b, L0: LangSpec, L1: LangSpec>(
         langspec::langspec::SortId::Algebraic(langspec::langspec::AlgebraicSortId::Product(_)) => {
             maybemorefy::<L0, L1>(sid, maybe_sid)
         }
-        langspec::langspec::SortId::TyMetaFunc(MappedType { f, a }) => {
-            let rec = langspec::langspec::SortId::TyMetaFunc(langspec::langspec::MappedType {
-                f: Either::Left(Either::Left(f.clone())),
-                a: a.into_iter()
-                    .map(|a| maybemorefy_if_product::<L0, L1>(a, maybe_sid.clone()))
-                    .collect(),
-            });
-            // if <<L0 as LangSpec>::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(&f).transparency
-            //     == langspec::tymetafunc::Transparency::Visible
-            // {
-            //     maybemorefy::<L0, L1>(sid, maybe_sid)
-            // } else {
-            //     rec
-            // }
-            match <<L0 as LangSpec>::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(&f).transparency {
-                Transparency::Visible => {
-                    langspec::langspec::SortId::TyMetaFunc(langspec::langspec::MappedType {
-                        f: Either::Right(tymetafuncspec_core::PAIR),
-                        a: vec![rec, maybefy::<L0, L1>(maybe_sid)],
-                    })
-                }
-                Transparency::Transparent => rec,
-            }
-        }
+        langspec::langspec::SortId::TyMetaFunc(mt) => l0_tmfmap::<L0, L1>(maybe_sid, mt),
         _ => l0_as_my_sid::<L0, L1>(sid),
+    }
+}
+fn l0_tmfmap<'a, 'b, L0: LangSpec, L1: LangSpec>(
+    maybe_sid: langspec::langspec::SortIdOf<L1>,
+    MappedType { f, a }: MappedType<
+        L0::ProductId,
+        L0::SumId,
+        <L0::Tmfs as TyMetaFuncSpec>::TyMetaFuncId,
+    >,
+) -> langspec::langspec::SortIdOf<EverywhereMaybeMore<'a, 'b, L0, L1>> {
+    let rec = langspec::langspec::SortId::TyMetaFunc(langspec::langspec::MappedType {
+        f: Either::Left(Either::Left(f.clone())),
+        a: a.into_iter()
+            .map(|a| maybemorefy_if_product::<L0, L1>(a, maybe_sid.clone()))
+            .collect(),
+    });
+    // if <<L0 as LangSpec>::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(&f).transparency
+    //     == langspec::tymetafunc::Transparency::Visible
+    // {
+    //     maybemorefy::<L0, L1>(sid, maybe_sid)
+    // } else {
+    //     rec
+    // }
+    match <<L0 as LangSpec>::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(&f).transparency {
+        Transparency::Visible => {
+            langspec::langspec::SortId::TyMetaFunc(langspec::langspec::MappedType {
+                f: Either::Right(tymetafuncspec_core::PAIR),
+                a: vec![rec, maybefy::<L0, L1>(maybe_sid)],
+            })
+        }
+        Transparency::Transparent => rec,
     }
 }
 
@@ -183,6 +191,7 @@ impl<L0: LangSpec, L1: LangSpec> LangSpec for EverywhereMaybeMore<'_, '_, L0, L1
                         // }),
                         image: sublang
                             .image
+                            .clone()
                             .into_iter()
                             .map(|sid| maybemorefy_if_product::<L0, L1>(sid, self.l1_root.clone()))
                             .collect(),
@@ -191,6 +200,62 @@ impl<L0: LangSpec, L1: LangSpec> LangSpec for EverywhereMaybeMore<'_, '_, L0, L1
                             let mapped = maybemorefy_if_product::<L0, L1>(id, self.l1_root.clone());
                             mapped
                         }),
+
+                        tems: sublang
+                            .tems
+                            .into_iter()
+                            .map(|tem| match (tem.from, tem.to) {
+                                (SortId::TyMetaFunc(mtfrom), SortId::TyMetaFunc(mtto)) => {
+                                    TmfEndoMappingNonreflexive::<SortIdOf<Self>> {
+                                        from: SortId::TyMetaFunc(MappedType {
+                                            f: Either::Left(Either::Left(mtfrom.f.clone())),
+                                            a: mtfrom
+                                                .a
+                                                .iter()
+                                                .map(|sid| {
+                                                    maybemorefy_if_product::<L0, L1>(
+                                                        sid.clone(),
+                                                        self.l1_root.clone(),
+                                                    )
+                                                })
+                                                .collect(),
+                                        }),
+                                        to: l0_tmfmap::<L0, L1>(self.l1_root.clone(), mtto.clone()),
+                                    }
+                                }
+                                _ => panic!(),
+                            })
+                            .collect(),
+                        // tems: {
+                        //     sublang
+                        //         .image
+                        //         .into_iter()
+                        //         .chain(sublang.tems.into_iter().map(|tem| tem.from))
+                        //         .filter_map(|sid| match &sid {
+                        //             langspec::langspec::SortId::TyMetaFunc(mt) => {
+                        //                 let to =
+                        //                     l0_tmfmap::<L0, L1>(self.l1_root.clone(), mt.clone());
+                        //                 Some(TmfEndoMappingNonreflexive {
+                        //                     from: SortId::TyMetaFunc(MappedType {
+                        //                         f: Either::Left(Either::Left(mt.f.clone())),
+                        //                         a: mt
+                        //                             .a
+                        //                             .iter()
+                        //                             .map(|sid| {
+                        //                                 maybemorefy_if_product::<L0, L1>(
+                        //                                     sid.clone(),
+                        //                                     self.l1_root.clone(),
+                        //                                 )
+                        //                             })
+                        //                             .collect(),
+                        //                     }),
+                        //                     to,
+                        //                 })
+                        //             }
+                        //             _ => None,
+                        //         })
+                        //         .collect()
+                        // },
                     }
                 },
             )
