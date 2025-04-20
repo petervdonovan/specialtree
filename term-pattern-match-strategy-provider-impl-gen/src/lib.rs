@@ -101,8 +101,8 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
     let bps = BasePaths {
         strategy_provider: syn::parse_quote!(crate::pattern_match_strategy),
         data_structure: syn::parse_quote!(crate::data_structure),
-        words: syn::parse_quote!(crate::extension_of::words),
-        term_trait: syn::parse_quote!(crate::extension_of),
+        words: syn::parse_quote!(crate::term_trait::words),
+        term_trait: syn::parse_quote!(crate::term_trait),
     };
     let m = generate(&bps, &lsg);
     let tt = term_trait_gen::generate(&bps.term_trait, &lsf);

@@ -17,7 +17,7 @@ pub fn generate<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::ItemMod {
     let words = words::words_mod(&lg);
     parse_quote!(
         #byline
-        pub mod extension_of {
+        pub mod term_trait {
             #heap_trait
             #owned
             // #reference
@@ -191,7 +191,7 @@ pub fn formatted(
     > as langspec::langspec::TerminalLangSpec>::canonical_from(
         lsh
     );
-    let gen_result = generate(&syn::parse_quote!(crate::extension_of), &lsf);
+    let gen_result = generate(&syn::parse_quote!(crate::term_trait), &lsf);
     prettyplease::unparse(&syn_insert_use::insert_use(syn::parse_quote! {
         #gen_result
     }))

@@ -409,14 +409,14 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
     let lsg = LsGen::from(&lsf);
     let bps = BasePaths {
         data_structure: syn::parse_quote!(crate::data_structure),
-        term_trait: syn::parse_quote!(crate::extension_of),
+        term_trait: syn::parse_quote!(crate::term_trait),
     };
     let m = generate(&bps, &lsg);
     let ds = term_specialized_gen::generate(&bps.data_structure, &lsg, false);
     let tt = term_trait_gen::generate(&bps.term_trait, &lsf);
     // let words = words::words_mod(&lsg);
     let words_impls = words::words_impls(
-        &syn::parse_quote!(crate::extension_of::words),
+        &syn::parse_quote!(crate::term_trait::words),
         &bps.data_structure,
         &lsg,
         &lsg,
