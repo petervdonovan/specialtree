@@ -129,6 +129,7 @@ impl<L0: LangSpec, L1: LangSpec> LangSpec for EverywhereAlternative<'_, '_, L0, 
                         .into_iter()
                         .map(|sid| self.map_id(l0_as_my_sid::<L0, L1>(sid)))
                         .collect(),
+                    ty_names: sublang.ty_names,
                     map: Box::new(move |name| {
                         let id = (sublang.map)(name);
                         let mapped = l0_as_my_sid::<L0, L1>(id);

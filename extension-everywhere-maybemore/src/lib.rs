@@ -195,12 +195,13 @@ impl<L0: LangSpec, L1: LangSpec> LangSpec for EverywhereMaybeMore<'_, '_, L0, L1
                             .into_iter()
                             .map(|sid| maybemorefy_if_product::<L0, L1>(sid, self.l1_root.clone()))
                             .collect(),
+                        ty_names: sublang.ty_names,
                         map: Box::new(move |name| {
                             let id = (sublang.map)(name);
                             let mapped = maybemorefy_if_product::<L0, L1>(id, self.l1_root.clone());
+                            println!("name: {:?}, mapped: {:?}", name, mapped);
                             mapped
                         }),
-
                         tems: sublang
                             .tems
                             .into_iter()

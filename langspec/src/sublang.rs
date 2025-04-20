@@ -29,6 +29,7 @@ use crate::{
 pub struct Sublang<'a, SortIdSelf> {
     pub name: Name,
     pub image: Vec<SortIdSelf>,
+    pub ty_names: Vec<Name>,
     pub map: Box<dyn Fn(&Name) -> SortIdSelf + 'a>,
     pub tems: Vec<TmfEndoMappingNonreflexive<SortIdSelf>>,
 }
@@ -42,6 +43,11 @@ pub fn reflexive_sublang<L: LangSpec>(l: &L) -> Sublang<SortIdOf<L>> {
     Sublang {
         name: l.name().clone(),
         image: l.all_sort_ids().collect(),
+        ty_names: l
+            .products()
+            .map(|p| l.product_name(p.clone()).clone())
+            .chain(l.sums().map(|s| l.sum_name(s.clone()).clone()))
+            .collect(),
         map: Box::new(|name| {
             l.products()
                 .find(|p| l.product_name(p.clone()) == name)

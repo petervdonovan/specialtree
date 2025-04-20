@@ -182,16 +182,16 @@ pub fn bridge_words_impls<L: LangSpec>(
     }
 }
 
-pub fn gen_bridge<L: LangSpec>(
+pub fn gen_bridge<LOg: LangSpec, LExt: LangSpec>(
     extension_base_path: &syn::Path,
     og_base_path: &syn::Path,
-    elsg: &LsGen<L>,
-    oglsg: &LsGen<L>,
+    ext_lg: &LsGen<LExt>,
+    oglsg: &LsGen<LOg>,
 ) -> proc_macro2::TokenStream {
     let words_impls = bridge_words_impls(
         &syn::parse_quote! { #extension_base_path::data_structure },
         &syn::parse_quote! { #og_base_path::term_trait::words },
-        elsg,
+        ext_lg,
     );
     // let bridge_tt_impl = term_specialized_impl_gen::generate_bridge(
     //     &term_specialized_impl_gen::BasePaths {
@@ -201,7 +201,7 @@ pub fn gen_bridge<L: LangSpec>(
     //     elsg,
     //     oglsg,
     // );
-    let temp_paste = temp_bridge_paste();
+    let temp_paste = temp_bridge_paste(extension_base_path, og_base_path, ext_lg, oglsg);
     quote::quote! {
         #words_impls
         #temp_paste
@@ -219,18 +219,20 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
     //     cst_words: parse_quote! { crate::cst::words },
     // };
     // let m = generate(&bps, &lg);
-    let cst_impls = {
+    let (cst_impls, bridge) = {
         let arena = bumpalo::Bump::new();
         let cst = cst(&arena, l);
-        let lg = LsGen::from(&cst);
-        gen_impls(&syn::parse_quote! { crate::cst }, &lg)
+        let ext_lg = LsGen::from(&cst);
+        (
+            gen_impls(&syn::parse_quote! { crate::cst }, &ext_lg),
+            gen_bridge(
+                &syn::parse_quote! { crate::cst },
+                &syn::parse_quote! { crate },
+                &ext_lg,
+                &lg,
+            ),
+        )
     };
-    let bridge = gen_bridge(
-        &syn::parse_quote! { crate::cst },
-        &syn::parse_quote! { crate },
-        &lg,
-        &lg,
-    );
     let root_impls = gen_impls(&syn::parse_quote! { crate }, &lg);
     let byline = byline!();
     let f: syn::File = syn::parse_quote! {
@@ -284,37 +286,25 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
     prettyplease::unparse(&syn_insert_use::insert_use(f))
 }
 
-pub(crate) fn temp_bridge_paste() -> syn::ItemMod {
+pub(crate) fn temp_bridge_paste<LOg: LangSpec, LExt: LangSpec>(
+    extension_base_path: &syn::Path,
+    og_base_path: &syn::Path,
+    ext_lg: &LsGen<LExt>,
+    oglsg: &LsGen<LOg>,
+) -> syn::ItemMod {
     let byline = byline!();
+    let tbg = term_bridge_gen::generate(
+        ext_lg,
+        oglsg.bak().name(),
+        &term_bridge_gen::BasePaths {
+            ext_data_structure: syn::parse_quote!(#extension_base_path::data_structure),
+            og_term_trait: syn::parse_quote!(#og_base_path::term_trait),
+        },
+    );
     syn::parse_quote! {
     #byline
     pub mod term_impls {
-        impl crate::term_trait::Heap for crate::cst::data_structure::Heap {
-            type F = parse_adt::cstfy::Cstfy<
-                crate::cst::data_structure::Heap,
-                crate::cst::data_structure::F,
-            >;
-            type Plus = parse_adt::cstfy::Cstfy<
-                crate::cst::data_structure::Heap,
-                crate::cst::data_structure::Plus,
-            >;
-            type LeftOperand = parse_adt::cstfy::Cstfy<
-                crate::cst::data_structure::Heap,
-                crate::cst::data_structure::LeftOperand,
-            >;
-            type RightOperand = parse_adt::cstfy::Cstfy<
-                crate::cst::data_structure::Heap,
-                crate::cst::data_structure::RightOperand,
-            >;
-            type Sum = parse_adt::cstfy::Cstfy<
-                crate::cst::data_structure::Heap,
-                crate::cst::data_structure::Sum,
-            >;
-            type Nat = parse_adt::cstfy::CstfyTransparent<
-                crate::cst::data_structure::Heap,
-                crate::cst::data_structure::Nat,
-            >;
-        }
+        #tbg
         pub mod owned_impls {
             impl crate::term_trait::owned::F
                 for parse_adt::cstfy::Cstfy<
