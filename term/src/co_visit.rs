@@ -2,7 +2,7 @@ use crate::{
     Heaped,
     case_split::{Adt, ConsList, HasPatternMatchStrategyFor},
     co_case_split::{AdmitNoMatchingCase, CoCallable, CoCaseSplittable},
-    select::AcceptingCases,
+    select::{AcceptingCases, FromSelectCase, SelectCase},
 };
 
 pub trait CoVisitor<T> {
@@ -115,8 +115,9 @@ where
     V: AdmitNoMatchingCase<T>,
     T: Heaped,
 {
-    fn no_matching_case(&self, heap: &mut <T as Heaped>::Heap) -> T {
-        self.cv.no_matching_case(heap)
+    fn no_matching_case(&self, heap: &mut <T as Heaped>::Heap) -> (T, Self::ShortCircuitsTo) {
+        let (t, short) = self.cv.no_matching_case(heap);
+        (t, CoCallablefyCoVisitor::new(short))
     }
 }
 // impl<V, PatternMatchStrategyProvider, T> Visitable<V, PatternMatchStrategyProvider> for T
@@ -152,18 +153,27 @@ where
 
 // co_visit::CoCallablefyCoVisitor<CV, T, PatternMatchStrategyProvider>: select::AcceptingCases<<PatternMatchStrategyProvider as case_split::HasPatternMatchStrategyFor<T>>::Strategy>
 
+impl<CV, T, PatternMatchStrategyProvider> FromSelectCase
+    for CoCallablefyCoVisitor<CV, T, PatternMatchStrategyProvider>
+where
+    CV: FromSelectCase,
+{
+    type ShortCircuitsTo =
+        CoCallablefyCoVisitor<CV::ShortCircuitsTo, T, PatternMatchStrategyProvider>;
+}
+
 impl<CV, T, PatternMatchStrategyProvider, Cases> AcceptingCases<Cases>
     for CoCallablefyCoVisitor<CV, T, PatternMatchStrategyProvider>
 where
     Cases: ConsList,
-    CV: AcceptingCases<Cases>,
+    CV: AcceptingCases<Cases> + FromSelectCase,
 {
-    type ShortCircuitsTo =
-        CoCallablefyCoVisitor<CV::ShortCircuitsTo, T, PatternMatchStrategyProvider>;
+    // type ShortCircuitsTo =
+    //     CoCallablefyCoVisitor<CV::ShortCircuitsTo, T, PatternMatchStrategyProvider>;
     type AcceptingRemainingCases =
         CoCallablefyCoVisitor<CV::AcceptingRemainingCases, T, PatternMatchStrategyProvider>;
 
-    fn try_case(&mut self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
+    fn try_case(self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
         match self.cv.try_case() {
             Ok(short_circuited) => Ok(CoCallablefyCoVisitor::new(short_circuited)),
             Err(remaining_cases) => {
@@ -216,25 +226,29 @@ impl<Heap, CV, PatternMatchStrategyProvider, T> CoVisitable<CV, PatternMatchStra
 where
     T: Heaped<Heap = Heap>
         + CoCaseSplittable<
-            CoCallablefyCoVisitor<CV, T, PatternMatchStrategyProvider>,
+            CoCallablefyCoVisitor<
+                CV::AC<PatternMatchStrategyProvider::Strategy>,
+                T,
+                PatternMatchStrategyProvider,
+            >,
             PatternMatchStrategyProvider::Strategy,
         > + Copy,
-    CV: CoVisitor<T> + AdmitNoMatchingCase<T>, //  + AcceptingCases<PatternMatchStrategyProvider::Strategy>
+    CV: CoVisitor<T> + SelectCase, //  + AcceptingCases<PatternMatchStrategyProvider::Strategy>
+    CV::AC<PatternMatchStrategyProvider::Strategy>: AdmitNoMatchingCase<T>,
     PatternMatchStrategyProvider: crate::case_split::HasPatternMatchStrategyFor<T>,
 {
     fn co_visit(visitor: &mut CV, heap: &mut Heap) -> Self {
         let mut ret: Option<Self> = None;
         visitor.co_push();
         take_mut::take(visitor, |visitor| {
-            let mut callable = CoCallablefyCoVisitor {
-                cv: visitor,
+            let visitor_co = visitor.start_cases();
+            let callable = CoCallablefyCoVisitor {
+                cv: visitor_co,
                 phantom: std::marker::PhantomData,
             };
-            ret = Some(<T as CoCaseSplittable<_, _>>::co_case_split(
-                &mut callable,
-                heap,
-            ));
-            callable.cv
+            let (new_ret, short) = <T as CoCaseSplittable<_, _>>::co_case_split(callable, heap);
+            ret = Some(new_ret);
+            short.cv
         });
         visitor.co_pop();
         ret.unwrap()

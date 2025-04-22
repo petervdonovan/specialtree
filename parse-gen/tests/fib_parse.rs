@@ -31,7 +31,7 @@ fn test() {
         Heap,
         cst::data_structure::Sum,
     > as term::co_visit::CoVisitable<
-        Parser<'_>,
+        Parser<'_, ()>,
         pms::PatternMatchStrategyProvider<Heap>,
         Heap,
     >>::co_visit(&mut parser, &mut heap);
@@ -39,7 +39,7 @@ fn test() {
         Heap,
         tymetafuncspec_core::Set<Heap, tymetafuncspec_core::Either<Heap, Nat, std_parse_error::ParseError<Heap>>>,
     > as term::co_visit::CoVisitable<
-        Parser<'_>,
+        Parser<'_, ()>,
         pms::PatternMatchStrategyProvider<Heap>,
         Heap,
     >>::co_visit(&mut parser, &mut heap);

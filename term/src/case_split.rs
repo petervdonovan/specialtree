@@ -17,6 +17,10 @@ impl ConsList for () {
         ((), ())
     }
 }
+pub trait NonemptyConsList: ConsList {}
+impl<Car, Cdr> NonemptyConsList for (Car, Cdr) where Cdr: ConsList {}
+pub trait AtLeastTwoConsList: ConsList {}
+impl<Car, Cdr> AtLeastTwoConsList for (Car, Cdr) where Cdr: NonemptyConsList {}
 impl<T, Cdr> ConsList for (T, Cdr)
 where
     Cdr: ConsList,

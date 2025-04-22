@@ -4,9 +4,9 @@
 use cstfy::{Cstfy, CstfyTransparent};
 use parse::{Keyword, KeywordSequence, UnexpectedTokenError};
 use term::{
-    case_split::{Adt, ConsList, HasPatternMatchStrategyFor},
+    case_split::{Adt, AtLeastTwoConsList, ConsList, HasPatternMatchStrategyFor, NonemptyConsList},
     co_visit::{CoVisitable, CoVisitor},
-    select::AcceptingCases,
+    select::{AcceptingCases, FromSelectCase, SelectCase},
     CanonicallyConstructibleFrom,
 };
 use tymetafuncspec_core::{BoundedNat, BoundedNatHeapBak};
@@ -14,15 +14,17 @@ use tymetafuncspec_core::{BoundedNat, BoundedNatHeapBak};
 pub mod cstfy;
 mod tmfscore;
 
-pub struct Parser<'a> {
+pub struct Parser<'a, AllCurrentCases> {
     source: &'a str,
     position: miette::SourceOffset,
+    phantom: std::marker::PhantomData<AllCurrentCases>,
 }
-impl<'a> Parser<'a> {
+impl<'a, AllCurrentCases> Parser<'a, AllCurrentCases> {
     pub fn new(source: &'a str) -> Self {
         Self {
             source,
             position: miette::SourceOffset::from(0),
+            phantom: std::marker::PhantomData,
         }
     }
 }
@@ -33,13 +35,29 @@ pub trait ParseLL {
     const END: KeywordSequence;
 }
 
-trait IsSoleCaseHack {}
+impl<'a> SelectCase for Parser<'a, ()> {
+    type AC<CasesConsList: ConsList> = Parser<'a, CasesConsList>;
 
-impl AcceptingCases<()> for Parser<'_> {
-    type ShortCircuitsTo = Self;
+    fn start_cases<CasesConsList: ConsList>(self) -> Self::AC<CasesConsList> {
+        Parser {
+            source: self.source,
+            position: self.position,
+            phantom: std::marker::PhantomData,
+        }
+    }
+}
+
+impl<'a, Cases> FromSelectCase for Parser<'a, Cases> {
+    type ShortCircuitsTo = Parser<'a, ()>;
+}
+
+impl<AllCurrentCases> AcceptingCases<()> for Parser<'_, AllCurrentCases>
+where
+    AllCurrentCases: NonemptyConsList,
+{
     type AcceptingRemainingCases = Self;
 
-    fn try_case(&mut self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
+    fn try_case(self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
         todo!()
     }
 
@@ -51,95 +69,85 @@ impl AcceptingCases<()> for Parser<'_> {
     // }
 }
 
-impl<Heap, Car, CdrCar, CdrCdr> AcceptingCases<((Cstfy<Heap, Car>, ()), (CdrCar, CdrCdr))>
-    for Parser<'_>
+impl<Heap, Car, CdrCar, CdrCdr, AllCurrentCases>
+    AcceptingCases<((Cstfy<Heap, Car>, ()), (CdrCar, CdrCdr))> for Parser<'_, AllCurrentCases>
 where
+    AllCurrentCases: AtLeastTwoConsList,
     CdrCdr: ConsList,
     Self: AcceptingCases<(CdrCar, CdrCdr), ShortCircuitsTo = Self>,
     Car: ParseLL,
 {
-    type ShortCircuitsTo = Self;
     type AcceptingRemainingCases = Self;
 
-    fn try_case(&mut self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
+    fn try_case(self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
         todo!()
     }
 }
 
-impl<Heap, Car, CdrCar, CdrCdr>
-    AcceptingCases<((CstfyTransparent<Heap, Car>, ()), (CdrCar, CdrCdr))> for Parser<'_>
+impl<Heap, Car, CdrCar, CdrCdr, AllCurrentCases>
+    AcceptingCases<((CstfyTransparent<Heap, Car>, ()), (CdrCar, CdrCdr))>
+    for Parser<'_, AllCurrentCases>
 where
+    AllCurrentCases: AtLeastTwoConsList,
     CdrCdr: ConsList,
     Self: AcceptingCases<(CdrCar, CdrCdr), ShortCircuitsTo = Self>,
     Car: ParseLL,
 {
-    type ShortCircuitsTo = Self;
     type AcceptingRemainingCases = Self;
 
-    fn try_case(&mut self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
+    fn try_case(self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
         todo!()
     }
 }
 
-impl<Heap, Car> AcceptingCases<((Cstfy<Heap, Car>, ()), ())> for Parser<'_>
+impl<'a, Car> AcceptingCases<((Car, ()), ())> for Parser<'a, ((Car, ()), ())>
 where
     // Cdr: ConsList,
-    Self: AcceptingCases<(), ShortCircuitsTo = Self>,
+    Self: AcceptingCases<(), ShortCircuitsTo = Parser<'a, ()>>,
     // Car: ParseLL,
-    Car: IsSoleCaseHack,
+    // Car: IsSoleCaseHack,
 {
-    type ShortCircuitsTo = Self;
     type AcceptingRemainingCases = Self;
 
-    fn try_case(&mut self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
-        todo!()
+    fn try_case(self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
+        Ok(Parser {
+            source: self.source,
+            position: self.position,
+            phantom: std::marker::PhantomData,
+        })
     }
 }
 
-impl<Heap, Car> AcceptingCases<((CstfyTransparent<Heap, Car>, ()), ())> for Parser<'_>
-where
-    // Cdr: ConsList,
-    Self: AcceptingCases<(), ShortCircuitsTo = Self>,
-    // Car: ParseLL,
-    Car: IsSoleCaseHack,
-{
-    type ShortCircuitsTo = Self;
-    type AcceptingRemainingCases = Self;
+// impl<Heap, Car, CarCdrCar, CarCdrCdr, AllCurrentCases>
+//     AcceptingCases<((Cstfy<Heap, Car>, (CarCdrCar, CarCdrCdr)), ())> for Parser<'_, AllCurrentCases>
+// where
+//     AllCurrentCases: AtLeastTwoConsList,
+//     Self: AcceptingCases<(), ShortCircuitsTo = Self>,
+//     Car: ParseLL,
+// {
+//     type AcceptingRemainingCases = Self;
 
-    fn try_case(&mut self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
-        todo!()
-    }
-}
+//     fn try_case(self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
+//         Ok(todo!())
+//     }
+// }
 
-impl<Heap, Car, CarCdrCar, CarCdrCdr>
-    AcceptingCases<((Cstfy<Heap, Car>, (CarCdrCar, CarCdrCdr)), ())> for Parser<'_>
-where
-    Self: AcceptingCases<(), ShortCircuitsTo = Self>,
-    Car: ParseLL,
-{
-    type ShortCircuitsTo = Self;
-    type AcceptingRemainingCases = Self;
+// impl<Heap, Car, CarCdrCar, CarCdrCdr, AllCurrentCases>
+//     AcceptingCases<((CstfyTransparent<Heap, Car>, (CarCdrCar, CarCdrCdr)), ())>
+//     for Parser<'_, AllCurrentCases>
+// where
+//     AllCurrentCases: AtLeastTwoConsList,
+//     Self: AcceptingCases<(), ShortCircuitsTo = Self>,
+//     Car: ParseLL,
+// {
+//     type AcceptingRemainingCases = Self;
 
-    fn try_case(&mut self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
-        Ok(todo!())
-    }
-}
+//     fn try_case(self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
+//         Ok(todo!())
+//     }
+// }
 
-impl<Heap, Car, CarCdrCar, CarCdrCdr>
-    AcceptingCases<((CstfyTransparent<Heap, Car>, (CarCdrCar, CarCdrCdr)), ())> for Parser<'_>
-where
-    Self: AcceptingCases<(), ShortCircuitsTo = Self>,
-    Car: ParseLL,
-{
-    type ShortCircuitsTo = Self;
-    type AcceptingRemainingCases = Self;
-
-    fn try_case(&mut self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
-        Ok(todo!())
-    }
-}
-
-impl<A, Heap> CoVisitor<CstfyTransparent<Heap, A>> for Parser<'_>
+impl<A, Heap, AllCurrentCases> CoVisitor<CstfyTransparent<Heap, A>> for Parser<'_, AllCurrentCases>
 where
     A: ParseLL,
 {
@@ -156,7 +164,7 @@ where
     }
 }
 
-impl<A, Heap> CoVisitor<Cstfy<Heap, A>> for Parser<'_>
+impl<A, Heap, AllCurrentCases> CoVisitor<Cstfy<Heap, A>> for Parser<'_, AllCurrentCases>
 where
     A: ParseLL,
 {
@@ -173,40 +181,56 @@ where
     }
 }
 
-impl<A, Heap> term::co_case_split::AdmitNoMatchingCase<Cstfy<Heap, A>> for Parser<'_>
+impl<A, Heap, AllCurrentCases> term::co_case_split::AdmitNoMatchingCase<Cstfy<Heap, A>>
+    for Parser<'_, AllCurrentCases>
 where
     A: ParseLL,
 {
     fn no_matching_case(
         &self,
         _heap: &mut <Cstfy<Heap, A> as term::Heaped>::Heap,
-    ) -> Cstfy<Heap, A> {
-        tymetafuncspec_core::Either::Right(
-            std_parse_error::ParseError::new(parse::ParseError::UnexpectedToken(
-                UnexpectedTokenError {
-                    at: self.position.into(),
-                },
-            )),
-            std::marker::PhantomData,
+    ) -> (Cstfy<Heap, A>, Self::ShortCircuitsTo) {
+        (
+            tymetafuncspec_core::Either::Right(
+                std_parse_error::ParseError::new(parse::ParseError::UnexpectedToken(
+                    UnexpectedTokenError {
+                        at: self.position.into(),
+                    },
+                )),
+                std::marker::PhantomData,
+            ),
+            Parser {
+                source: self.source,
+                position: self.position,
+                phantom: std::marker::PhantomData,
+            },
         )
     }
 }
 
-impl<A, Heap> term::co_case_split::AdmitNoMatchingCase<CstfyTransparent<Heap, A>> for Parser<'_>
+impl<A, Heap, AllCurrentCases> term::co_case_split::AdmitNoMatchingCase<CstfyTransparent<Heap, A>>
+    for Parser<'_, AllCurrentCases>
 where
     A: ParseLL,
 {
     fn no_matching_case(
         &self,
         _heap: &mut <CstfyTransparent<Heap, A> as term::Heaped>::Heap,
-    ) -> CstfyTransparent<Heap, A> {
-        tymetafuncspec_core::Either::Right(
-            std_parse_error::ParseError::new(parse::ParseError::UnexpectedToken(
-                UnexpectedTokenError {
-                    at: self.position.into(),
-                },
-            )),
-            std::marker::PhantomData,
+    ) -> (CstfyTransparent<Heap, A>, Self::ShortCircuitsTo) {
+        (
+            tymetafuncspec_core::Either::Right(
+                std_parse_error::ParseError::new(parse::ParseError::UnexpectedToken(
+                    UnexpectedTokenError {
+                        at: self.position.into(),
+                    },
+                )),
+                std::marker::PhantomData,
+            ),
+            Parser {
+                source: self.source,
+                position: self.position,
+                phantom: std::marker::PhantomData,
+            },
         )
     }
 }

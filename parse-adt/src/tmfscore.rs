@@ -3,7 +3,7 @@ use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Maybe, Pair, Set, S
 
 use crate::{
     cstfy::{cstfy_ok, Cstfy, CstfyTransparent},
-    return_if_err, IsSoleCaseHack, Parser,
+    return_if_err, Parser,
 };
 
 // impl<Heap, L, R> !term::case_split::Adt for tymetafuncspec_core::Either<Heap, L, R> {}
@@ -26,14 +26,14 @@ use crate::{
 //     const END: KeywordSequence = KeywordSequence(&[Keyword::new("}")]);
 // }
 
-impl<Heap, Pmsp> term::co_visit::CoVisitable<Parser<'_>, Pmsp, Heap>
+impl<Heap, Pmsp, Amc> term::co_visit::CoVisitable<Parser<'_, Amc>, Pmsp, Heap>
     for tymetafuncspec_core::Either<
         Heap,
         Pair<Heap, BoundedNat<Heap>, Maybe<Heap, std_parse_metadata::ParseMetadata<Heap>>>,
         std_parse_error::ParseError<Heap>,
     >
 {
-    fn co_visit(visitor: &mut Parser<'_>, _: &mut Heap) -> Self {
+    fn co_visit(visitor: &mut Parser<'_, Amc>, _: &mut Heap) -> Self {
         let next_unicode_word = parse::unicode_segmentation::UnicodeSegmentation::unicode_words(
             &visitor.source[visitor.position.offset()..],
         )
@@ -89,13 +89,13 @@ impl<Heap, Pmsp> term::co_visit::CoVisitable<Parser<'_>, Pmsp, Heap>
 //     )
 // }
 
-impl<'a, Heap, Elem, Pmsp> term::co_visit::CoVisitable<Parser<'a>, Pmsp, Heap>
+impl<'a, Heap, Elem, Pmsp, Amc> term::co_visit::CoVisitable<Parser<'a, Amc>, Pmsp, Heap>
     for Cstfy<Heap, Set<Heap, Elem>>
 where
     //     Elem: for<'b> term::co_visit::CoVisitable<Parser<'b>, Pmsp, Heap>,
     Heap: term::SuperHeap<SetHeapBak<Heap, Elem>>,
 {
-    fn co_visit(visitor: &mut Parser<'_>, heap: &mut Heap) -> Self {
+    fn co_visit(visitor: &mut Parser<'_, Amc>, heap: &mut Heap) -> Self {
         todo!()
         // let mut items = Vec::new();
         // let initial_offset = visitor.position;
@@ -114,13 +114,13 @@ where
     }
 }
 
-impl<'a, Heap, Elem, Pmsp> term::co_visit::CoVisitable<Parser<'a>, Pmsp, Heap>
+impl<'a, Heap, Elem, Pmsp, Amc> term::co_visit::CoVisitable<Parser<'a, Amc>, Pmsp, Heap>
     for Cstfy<Heap, IdxBox<Heap, Elem>>
 where
-    Elem: for<'b> term::co_visit::CoVisitable<Parser<'b>, Pmsp, Heap>,
+    Elem: for<'b> term::co_visit::CoVisitable<Parser<'b, Amc>, Pmsp, Heap>,
     Heap: term::SuperHeap<IdxBoxHeapBak<Heap, Elem>>,
 {
-    fn co_visit(visitor: &mut Parser<'_>, heap: &mut Heap) -> Self {
+    fn co_visit(visitor: &mut Parser<'_, Amc>, heap: &mut Heap) -> Self {
         let initial_offset = visitor.position;
         let item = Elem::co_visit(visitor, heap);
         let final_offset = visitor.position;
@@ -128,6 +128,6 @@ where
     }
 }
 
-impl<Heap> IsSoleCaseHack for BoundedNat<Heap> {}
-impl<Heap, Elem> IsSoleCaseHack for IdxBox<Heap, Elem> {}
-impl<Heap, Elem> IsSoleCaseHack for Set<Heap, Elem> {}
+// impl<Heap> IsSoleCaseHack for BoundedNat<Heap> {}
+// impl<Heap, Elem> IsSoleCaseHack for IdxBox<Heap, Elem> {}
+// impl<Heap, Elem> IsSoleCaseHack for Set<Heap, Elem> {}
