@@ -11,22 +11,22 @@ use parse_adt::Parser;
 fn test() {
     let mut parser = parse_adt::Parser::new("test");
     let mut heap = cst::data_structure::Heap::default();
-    // <CstfyTransparent<
-    //     Heap,
-    //     Nat,
-    // > as term::co_visit::CoVisitable<
-    //     Parser<'_>,
-    //     pms::PatternMatchStrategyProvider<Heap>,
-    //     Heap,
-    // >>::co_visit(&mut parser, &mut heap);
-    // <Cstfy<
-    //     Heap,
-    //     F,
-    // > as term::co_visit::CoVisitable<
-    //     Parser<'_>,
-    //     pms::PatternMatchStrategyProvider<Heap>,
-    //     Heap,
-    // >>::co_visit(&mut parser, &mut heap);
+    <CstfyTransparent<
+        Heap,
+        Nat,
+    > as term::co_visit::CoVisitable<
+        Parser<'_, ()>,
+        pms::PatternMatchStrategyProvider<Heap>,
+        Heap,
+    >>::co_visit(&mut parser, &mut heap);
+    <Cstfy<
+        Heap,
+        F,
+    > as term::co_visit::CoVisitable<
+        Parser<'_, ()>,
+        pms::PatternMatchStrategyProvider<Heap>,
+        Heap,
+    >>::co_visit(&mut parser, &mut heap);
     <Cstfy<
         Heap,
         cst::data_structure::Sum,

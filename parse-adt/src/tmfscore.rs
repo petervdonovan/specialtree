@@ -3,7 +3,7 @@ use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Maybe, Pair, Set, S
 
 use crate::{
     cstfy::{cstfy_ok, Cstfy, CstfyTransparent},
-    return_if_err, Parser,
+    return_if_err, Lookahead, ParseLL, Parser,
 };
 
 // impl<Heap, L, R> !term::case_split::Adt for tymetafuncspec_core::Either<Heap, L, R> {}
@@ -117,16 +117,29 @@ where
 impl<'a, Heap, Elem, Pmsp, Amc> term::co_visit::CoVisitable<Parser<'a, Amc>, Pmsp, Heap>
     for Cstfy<Heap, IdxBox<Heap, Elem>>
 where
-    Elem: for<'b> term::co_visit::CoVisitable<Parser<'b, Amc>, Pmsp, Heap>,
+    // Elem: for<'b> term::co_visit::CoVisitable<Parser<'b, Amc>, Pmsp, Heap>,
     Heap: term::SuperHeap<IdxBoxHeapBak<Heap, Elem>>,
 {
     fn co_visit(visitor: &mut Parser<'_, Amc>, heap: &mut Heap) -> Self {
-        let initial_offset = visitor.position;
-        let item = Elem::co_visit(visitor, heap);
-        let final_offset = visitor.position;
-        cstfy_ok(IdxBox::new(heap, item), initial_offset, final_offset)
+        // let initial_offset = visitor.position;
+        // let item = Elem::co_visit(visitor, heap);
+        // let final_offset = visitor.position;
+        // cstfy_ok(IdxBox::new(heap, item), initial_offset, final_offset)
+        todo!()
     }
 }
+
+impl<Heap> Lookahead for BoundedNat<Heap> {}
+impl<Heap, Elem> Lookahead for IdxBox<Heap, Elem> {}
+impl<Heap, Elem> Lookahead for Set<Heap, Elem> {}
+
+// impl<Heap, Elem> ParseLL for IdxBox<Heap, Elem> {
+//     const START: KeywordSequence;
+
+//     const PROCEED: &'static [KeywordSequence];
+
+//     const END: KeywordSequence;
+// }
 
 // impl<Heap> IsSoleCaseHack for BoundedNat<Heap> {}
 // impl<Heap, Elem> IsSoleCaseHack for IdxBox<Heap, Elem> {}

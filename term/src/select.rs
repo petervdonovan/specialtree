@@ -22,3 +22,35 @@ where
     //     proof_of_success: CasesConsList::Car,
     // ) -> Self::ShortCircuitsTo;
 }
+
+// mod test {
+//     struct A0<A1>(std::marker::PhantomData<A1>);
+//     struct B0<B1>(std::marker::PhantomData<B1>);
+//     trait Ind {
+//         fn run();
+//     }
+//     trait WouldBeIndIfWasInd<T> {}
+
+//     impl<A1> Ind for A0<A1>
+//     where
+//         B0<A1>: Ind,
+//     {
+//         fn run() {
+//             println!("A0");
+//             B0::<A1>::run();
+//         }
+//     }
+//     impl<B1> Ind for B0<B1>
+//     where
+//         // A0<B1>: WouldBeIndIfWasInd<Self>,
+//         Self: std::fmt::Display,
+//     {
+//         fn run() {
+//             println!("B0");
+//             A0::<B1>::run();
+//         }
+//     }
+//     fn run() {
+//         A0::<()>::run();
+//     }
+// }

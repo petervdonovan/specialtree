@@ -35,6 +35,8 @@ pub trait ParseLL {
     const END: KeywordSequence;
 }
 
+pub trait Lookahead {}
+
 impl<'a> SelectCase for Parser<'a, ()> {
     type AC<CasesConsList: ConsList> = Parser<'a, CasesConsList>;
 
@@ -69,13 +71,18 @@ where
     // }
 }
 
-impl<Heap, Car, CdrCar, CdrCdr, AllCurrentCases>
-    AcceptingCases<((Cstfy<Heap, Car>, ()), (CdrCar, CdrCdr))> for Parser<'_, AllCurrentCases>
+impl<'a, Heap, RemainingCasesUnwrappedCarCar, RemainingCasesCdr, AllCurrentCases>
+    AcceptingCases<(
+        (Cstfy<Heap, RemainingCasesUnwrappedCarCar>, ()),
+        RemainingCasesCdr,
+    )> for Parser<'a, AllCurrentCases>
 where
     AllCurrentCases: AtLeastTwoConsList,
-    CdrCdr: ConsList,
-    Self: AcceptingCases<(CdrCar, CdrCdr), ShortCircuitsTo = Self>,
-    Car: ParseLL,
+    RemainingCasesCdr: ConsList,
+    // CdrCdr: ConsList,
+    // Self: AcceptingCases<(CdrCar, CdrCdr), ShortCircuitsTo = Self>,
+    Self: AcceptingCases<RemainingCasesCdr, ShortCircuitsTo = Parser<'a, ()>>,
+    RemainingCasesUnwrappedCarCar: Lookahead,
 {
     type AcceptingRemainingCases = Self;
 
@@ -84,14 +91,18 @@ where
     }
 }
 
-impl<Heap, Car, CdrCar, CdrCdr, AllCurrentCases>
-    AcceptingCases<((CstfyTransparent<Heap, Car>, ()), (CdrCar, CdrCdr))>
-    for Parser<'_, AllCurrentCases>
+impl<'a, Heap, RemainingCasesUnwrappedCarCar, RemainingCasesCdr, AllCurrentCases>
+    AcceptingCases<(
+        (CstfyTransparent<Heap, RemainingCasesUnwrappedCarCar>, ()),
+        RemainingCasesCdr,
+    )> for Parser<'a, AllCurrentCases>
 where
     AllCurrentCases: AtLeastTwoConsList,
-    CdrCdr: ConsList,
-    Self: AcceptingCases<(CdrCar, CdrCdr), ShortCircuitsTo = Self>,
-    Car: ParseLL,
+    RemainingCasesCdr: ConsList,
+    // CdrCdr: ConsList,
+    // Self: AcceptingCases<(CdrCar, CdrCdr), ShortCircuitsTo = Self>,
+    Self: AcceptingCases<RemainingCasesCdr, ShortCircuitsTo = Parser<'a, ()>>,
+    RemainingCasesUnwrappedCarCar: Lookahead,
 {
     type AcceptingRemainingCases = Self;
 
@@ -102,10 +113,10 @@ where
 
 impl<'a, Car> AcceptingCases<((Car, ()), ())> for Parser<'a, ((Car, ()), ())>
 where
-    // Cdr: ConsList,
-    Self: AcceptingCases<(), ShortCircuitsTo = Parser<'a, ()>>,
-    // Car: ParseLL,
-    // Car: IsSoleCaseHack,
+// Cdr: ConsList,
+// Self: AcceptingCases<(), ShortCircuitsTo = Parser<'a, ()>>,
+// Car: ParseLL,
+// Car: IsSoleCaseHack,
 {
     type AcceptingRemainingCases = Self;
 
