@@ -1,5 +1,6 @@
 use crate::{CanonicallyConstructibleFrom, Heaped};
 
+#[fundamental]
 pub trait Adt: Sized {
     type PatternMatchStrategyProvider: HasPatternMatchStrategyFor<Self>;
 }

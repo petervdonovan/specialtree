@@ -44,8 +44,7 @@ where
     T: CanonicallyConstructibleFrom<T::Heap, CasesCar>,
     F: AdmitNoMatchingCase<T>,
     F: AcceptingCases<(CasesCar, CasesCdr)>,
-    <F as AcceptingCases<(CasesCar, CasesCdr)>>::ShortCircuitsTo:
-        CoCallable<T::Heap, CasesCar> + AcceptingCases<(CasesCar, CasesCdr)>,
+    <F as AcceptingCases<(CasesCar, CasesCdr)>>::ShortCircuitsTo: CoCallable<T::Heap, CasesCar>, //  + AcceptingCases<(CasesCar, CasesCdr)>
     T: CoCaseSplittable<
             <F as AcceptingCases<(CasesCar, CasesCdr)>>::AcceptingRemainingCases,
             CasesCdr,

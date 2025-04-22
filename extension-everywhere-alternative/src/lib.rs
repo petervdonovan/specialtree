@@ -66,11 +66,7 @@ impl<L0: LangSpec, L1: LangSpec> LangSpec for EverywhereAlternative<'_, '_, L0, 
         id: Self::ProductId,
     ) -> impl Iterator<Item = langspec::langspec::SortIdOf<Self>> {
         match id {
-            Either::Left(id) => Box::new(
-                self.l0
-                    .product_sorts(id)
-                    .map(|sid| self.eitherfy(self.map_l0(sid))),
-            )
+            Either::Left(id) => Box::new(self.l0.product_sorts(id).map(|sid| self.map_l0(sid)))
                 as Box<dyn Iterator<Item = langspec::langspec::SortIdOf<Self>>>,
             Either::Right(id) => Box::new(self.l1.product_sorts(id).map(l1_as_my_sid::<L0, L1>))
                 as Box<dyn Iterator<Item = langspec::langspec::SortIdOf<Self>>>,
@@ -82,11 +78,7 @@ impl<L0: LangSpec, L1: LangSpec> LangSpec for EverywhereAlternative<'_, '_, L0, 
         id: Self::SumId,
     ) -> impl Iterator<Item = langspec::langspec::SortIdOf<Self>> {
         match id {
-            Either::Left(id) => Box::new(
-                self.l0
-                    .sum_sorts(id)
-                    .map(|sid| self.eitherfy(self.map_l0(sid))),
-            )
+            Either::Left(id) => Box::new(self.l0.sum_sorts(id).map(|sid| self.map_l0(sid)))
                 as Box<dyn Iterator<Item = langspec::langspec::SortIdOf<Self>>>,
             Either::Right(id) => Box::new(self.l1.sum_sorts(id).map(l1_as_my_sid::<L0, L1>))
                 as Box<dyn Iterator<Item = langspec::langspec::SortIdOf<Self>>>,
@@ -150,7 +142,7 @@ impl<L0: LangSpec, L1: LangSpec> LangSpec for EverywhereAlternative<'_, '_, L0, 
                                             .map(|sid| self.map_l0(sid.clone()))
                                             .collect(),
                                     }),
-                                    to: self.eitherfy(self.map_l0(mtto.clone())),
+                                    to: self.map_l0(mtto.clone()),
                                 }
                             }
                             _ => panic!(),

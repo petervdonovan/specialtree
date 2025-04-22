@@ -1,5 +1,4 @@
-// #![feature(never_type)]
-
+#![feature(fundamental)]
 use case_split::HasPatternMatchStrategyFor;
 pub use type_equals;
 
