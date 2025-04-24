@@ -92,7 +92,7 @@ impl<Heap, Pmsp, Amc> term::co_visit::CoVisitable<Parser<'_, Amc>, Pmsp, Heap>
 impl<'a, Heap, Elem, Pmsp, Amc> term::co_visit::CoVisitable<Parser<'a, Amc>, Pmsp, Heap>
     for Cstfy<Heap, Set<Heap, Elem>>
 where
-    //     Elem: for<'b> term::co_visit::CoVisitable<Parser<'b>, Pmsp, Heap>,
+    // Elem: for<'b> term::co_visit::CoVisitable<Parser<'b, ()>, Pmsp, Heap>,
     Heap: term::SuperHeap<SetHeapBak<Heap, Elem>>,
 {
     fn co_visit(visitor: &mut Parser<'_, Amc>, heap: &mut Heap) -> Self {
@@ -117,15 +117,15 @@ where
 impl<'a, Heap, Elem, Pmsp, Amc> term::co_visit::CoVisitable<Parser<'a, Amc>, Pmsp, Heap>
     for Cstfy<Heap, IdxBox<Heap, Elem>>
 where
-    // Elem: for<'b> term::co_visit::CoVisitable<Parser<'b, Amc>, Pmsp, Heap>,
+    Elem: for<'b> term::co_visit::CoVisitable<Parser<'b, Amc>, Pmsp, Heap>,
     Heap: term::SuperHeap<IdxBoxHeapBak<Heap, Elem>>,
 {
     fn co_visit(visitor: &mut Parser<'_, Amc>, heap: &mut Heap) -> Self {
-        // let initial_offset = visitor.position;
-        // let item = Elem::co_visit(visitor, heap);
-        // let final_offset = visitor.position;
-        // cstfy_ok(IdxBox::new(heap, item), initial_offset, final_offset)
-        todo!()
+        let initial_offset = visitor.position;
+        let item = Elem::co_visit(visitor, heap);
+        let final_offset = visitor.position;
+        cstfy_ok(IdxBox::new(heap, item), initial_offset, final_offset)
+        // todo!()
     }
 }
 

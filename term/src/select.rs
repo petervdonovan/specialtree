@@ -54,3 +54,73 @@ where
 //         A0::<()>::run();
 //     }
 // }
+// mod test {
+//     struct A<T>(T);
+//     struct B<T>(T);
+//     struct C<T>(T);
+
+//     trait Ind {
+//         fn run();
+//     }
+
+//     impl<T> Ind for A<T> {
+//         fn run() {
+//             B::<T>::run();
+//             C::<T>::run();
+//         }
+//     }
+//     impl<T> Ind for B<T> {
+//         fn run() {
+//             A::<T>::run();
+//             C::<T>::run();
+//         }
+//     }
+//     impl<T> Ind for C<T> {
+//         fn run() {
+//             A::<T>::run();
+//             B::<T>::run();
+//         }
+//     }
+// }
+// mod test {
+//     struct A(X, Y);
+//     struct B<X, Y>(X, Y);
+//     struct C<X, Y>(X, Y);
+
+//     trait Ind {
+//         fn run();
+//     }
+
+//     impl Ind for A {
+//         fn run() {
+//             B::<A, C<A, A>>::run();
+//             C::<A, B<A, A>>::run();
+//         }
+//     }
+//     impl<X: Ind, Y: Ind> Ind for B<X, Y> {
+//         fn run() {
+//             X::run();
+//             Y::run();
+//         }
+//     }
+//     impl<X: Ind, Y: Ind> Ind for C<X, Y> {
+//         fn run() {
+//             X::run();
+//             Y::run();
+//         }
+//     }
+//     // fn test() {
+//     //     A::<B<A, C>, C<A, B>>::run();
+//     // }
+// }
+// mod test {
+//     struct A;
+//     struct B;
+//     struct C;
+
+//     trait Ind {}
+
+//     impl Ind for A where B: Ind {}
+//     impl Ind for B where C: Ind {}
+//     impl Ind for C where A: Ind {}
+// }
