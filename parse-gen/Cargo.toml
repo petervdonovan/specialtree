@@ -3,9 +3,6 @@ name = "parse-gen"
 version = { workspace = true }
 edition = { workspace = true }
 
-[profile.dev]
-panic = "abort"
-
 [dependencies]
 typenum = { workspace = true }
 bumpalo = { workspace = true }
