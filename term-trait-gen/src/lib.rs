@@ -10,8 +10,6 @@ use langspec_gen_util::{
 pub fn generate<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::ItemMod {
     let lg = LsGen::from(ls);
     let owned = owned::generate(base_path, &lg);
-    // let reference = reference::generate(base_path, &lg);
-    // let mut_reference = mut_referenc::generate(base_path, &lg);
     let heap_trait = heap_trait(base_path, &lg);
     let byline = byline!();
     let words = words::words_mod(&lg);
@@ -20,7 +18,6 @@ pub fn generate<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::ItemMod {
         pub mod term_trait {
             #heap_trait
             #owned
-            // #reference
             #words
         }
     )
@@ -31,7 +28,7 @@ pub(crate) fn heap_trait<L: LangSpec>(base_path: &syn::Path, ls: &LsGen<L>) -> s
         camel_ident
     );
     let byline = byline!();
-    let superheap_bounds = generate_superheap_bounds(base_path, ls);
+    let superheap_bounds = generate_superheap_bounds(ls);
     let maps_tmf_bounds = generate_maps_tmf_bounds(base_path, ls);
     parse_quote! {
         #byline
@@ -43,15 +40,11 @@ pub(crate) fn heap_trait<L: LangSpec>(base_path: &syn::Path, ls: &LsGen<L>) -> s
     }
 }
 
-fn generate_superheap_bounds<L: LangSpec>(
-    base_path: &syn::Path,
-    ls: &LsGen<L>,
-) -> Vec<syn::TraitBound> {
+fn generate_superheap_bounds<L: LangSpec>(ls: &LsGen<L>) -> Vec<syn::TraitBound> {
     ls.heapbak_gen_datas()
         .iter()
         .map(|hgd| -> syn::Type {
             let ty_func = &hgd.ty_func.ty_func;
-            // let args = &hgd.ty_arg_camels;
             let args = (hgd.ty_args)(
                 HeapType(syn::parse_quote! {Self}),
                 AlgebraicsBasePath::new(quote::quote! {Self::}),
@@ -130,58 +123,6 @@ mod owned {
         }
     }
 }
-// mod reference {
-
-//     use super::*;
-//     pub fn generate<L: LangSpec>(base_path: &syn::Path, ls: &LsGen<L>) -> syn::ItemMod {
-//         let traits = ls.ty_gen_datas().map(
-//             |TyGenData {
-//                  camel_ident, cmt: CanonicallyMaybeToGenData {
-//                     cmt_sort_tys,
-//                     algebraic_cmt_sort_tys,
-//                  }, ..
-//              }| -> syn::ItemTrait {
-//                 let cst = cmt_sort_tys(
-//                     HeapType(syn::parse_quote! {Heap}),
-//                     AlgebraicsBasePath::new(quote::quote! { Self:: })
-//                 );
-//                 let trait_bounds = cst.iter().map(|cmt| -> syn::TraitBound {
-//                     syn::parse_quote! {
-//                         term::CanonicallyMaybeConvertibleTo<'heap, #cmt, term::ExpansionMaybeConversionFallibility>
-//                     }
-//                 });
-//                 let cst = algebraic_cmt_sort_tys(
-//                     HeapType(syn::parse_quote! {Heap}),
-//                     AlgebraicsBasePath::new(syn::parse_quote! { })
-//                 );
-//                 let ret = quote::quote! {
-//                     pub trait #camel_ident<'a, 'heap: 'a, Heap: #base_path::Heap>: term::Heaped<Heap = Heap> #( + #trait_bounds )* {
-//                         #(
-//                             type #cst: term::Heaped<Heap = Heap>;
-//                         )*
-//                     }
-//                 };
-//                 syn::parse_quote! {
-//                     #ret
-//                 }
-//             },
-//         );
-//         let byline = byline!();
-//         // parse_quote! {
-//         //     #byline
-//         //     pub mod reference {
-//         //         #(
-//         //             #traits
-//         //         )*
-//         //     }
-//         // }
-//         parse_quote! {
-//             #byline
-//             pub mod reference {
-//             }
-//         }
-//     }
-// }
 
 pub fn formatted(
     lsh: &langspec::humanreadable::LangSpecHuman<tymetafuncspec_core::Core>,

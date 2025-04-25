@@ -138,7 +138,6 @@ pub fn gen_impls<L: LangSpec>(base_path: &syn::Path, lsg: &LsGen<L>) -> proc_mac
         },
         lsg,
     );
-    // let tt_words = words::words_mod(lsg);
     let tt_words_impl = words::words_impls(
         &syn::parse_quote! { #base_path::term_trait::words },
         &syn::parse_quote! { #base_path::data_structure },
@@ -149,7 +148,6 @@ pub fn gen_impls<L: LangSpec>(base_path: &syn::Path, lsg: &LsGen<L>) -> proc_mac
         #ds
         #tt
         #tpmspi
-        // #tt_words
         #tt_words_impl
         #tt_impl
     }
@@ -192,14 +190,6 @@ pub fn gen_bridge<LOg: LangSpec, LExt: LangSpec>(
         &syn::parse_quote! { #og_base_path::term_trait::words },
         ext_lg,
     );
-    // let bridge_tt_impl = term_specialized_impl_gen::generate_bridge(
-    //     &term_specialized_impl_gen::BasePaths {
-    //         data_structure: syn::parse_quote!(#extension_base_path::data_structure),
-    //         term_trait: syn::parse_quote!(#og_base_path::term_trait),
-    //     },
-    //     elsg,
-    //     oglsg,
-    // );
     let bridge = term_bridge_gen::generate(
         ext_lg,
         oglsg.bak().name(),

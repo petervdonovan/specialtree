@@ -1,10 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::langspec::{Name, ToLiteral};
-// #[derive(Clone)]
-// pub struct RustGenericTrait {
-//     pub tys2trait_func: syn::Path,
-// }
+
 #[derive(Clone)]
 pub struct RustTyMap {
     pub ty_func: syn::Path,
@@ -23,7 +20,6 @@ pub struct TyMetaFuncData {
     pub imp: RustTyMap,
     pub idby: IdentifiedBy,
     pub heapbak: RustTyMap,
-    // pub maybe_conversions: Box<[RustGenericTrait]>,
     pub canonical_froms: Box<[Box<[ArgId]>]>,
     pub transparency: Transparency,
 }

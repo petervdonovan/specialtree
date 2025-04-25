@@ -1,30 +1,4 @@
-use crate::{
-    flat::LangSpecFlat,
-    langspec::{AlgebraicSortId, LangSpec, Name, SortId, SortIdOf},
-};
-
-// pub trait Sublang<L1>
-// where
-//     L1: LangSpec,
-// {
-//     type L0: LangSpec;
-//     fn map(&self, l0: &SortIdOf<Self::L0>) -> SortIdOf<L1>;
-//     fn is_in_image(&self, l1: &SortIdOf<L1>) -> bool;
-// }
-// pub struct ReflexiveSublang;
-
-// impl<L> Sublang<L> for ReflexiveSublang
-// where
-//     L: LangSpec,
-// {
-//     type L0 = L;
-//     fn map(&self, l0: &SortIdOf<Self::L0>) -> SortIdOf<L> {
-//         l0.clone()
-//     }
-//     fn is_in_image(&self, _l1: &SortIdOf<L>) -> bool {
-//         true
-//     }
-// }
+use crate::langspec::{AlgebraicSortId, LangSpec, Name, SortId, SortIdOf};
 
 pub struct Sublang<'a, SortIdSelf> {
     pub name: Name,

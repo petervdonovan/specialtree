@@ -14,7 +14,6 @@ pub struct LangSpecFlat<Tmfs: TyMetaFuncSpec> {
     pub name: Name,
     pub products: TiVec<ProductId, Product<Tmfs>>,
     pub sums: TiVec<SumId, Sum<Tmfs>>,
-    // ty_meta_funcs: TiVec<FlatTyMetaFuncId, TyMetaFunc>,
     _phantom: std::marker::PhantomData<Tmfs>,
 }
 
@@ -26,8 +25,6 @@ pub struct ProductId(pub usize);
     Debug, Serialize, Deserialize, Clone, Copy, From, Into, PartialEq, Eq, Hash, PartialOrd, Ord,
 )]
 pub struct SumId(pub usize);
-// #[derive(Debug, Serialize, Deserialize, Clone, Copy, From, Into, PartialEq, Eq)]
-// pub struct FlatTyMetaFuncId(pub usize);
 pub type FlatSortId<Tmfs> = SortIdOf<LangSpecFlat<Tmfs>>;
 pub type FlatAlgebraicSortId = AlgebraicSortId<ProductId, SumId>;
 
@@ -44,12 +41,6 @@ pub struct Sum<Tmfs: TyMetaFuncSpec> {
     pub sorts: Box<[FlatSortId<Tmfs>]>,
 }
 
-// #[derive(Debug, Serialize, Deserialize)]
-// pub struct TyMetaFunc {
-//     pub name: Name,
-//     pub args: Vec<Name>,
-// }
-
 impl<Tmfs: TyMetaFuncSpec> std::fmt::Display for LangSpecFlat<Tmfs> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", serde_yml::to_string(self).unwrap())
@@ -63,10 +54,6 @@ impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::flat::LangSpecFl
 
     type Tmfs = Tmfs;
 
-    // type TyMetaFuncId = crate::flat::FlatTyMetaFuncId;
-
-    // type AlgebraicSortId = crate::flat::FlatAlgebraicSortId;
-
     fn name(&self) -> &crate::langspec::Name {
         &self.name
     }
@@ -78,10 +65,6 @@ impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::flat::LangSpecFl
     fn sums(&self) -> impl Iterator<Item = Self::SumId> {
         (0..self.sums.len()).map(crate::flat::SumId)
     }
-
-    // fn ty_meta_funcs(&self) -> impl Iterator<Item = <Self::Tmfs as TyMetaFuncSpec>::TyMetaFuncId> {
-    //     (0..self.ty_meta_funcs.len()).map(crate::flat::FlatTyMetaFuncId)
-    // }
 
     fn product_name(&self, id: Self::ProductId) -> &crate::langspec::Name {
         &self.products[id].name
@@ -98,13 +81,6 @@ impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::flat::LangSpecFl
     fn sum_sorts(&self, id: Self::SumId) -> impl Iterator<Item = SortIdOf<Self>> {
         self.sums[id].sorts.iter().cloned()
     }
-
-    // fn ty_meta_func_args(
-    //     &self,
-    //     id: <Self::Tmfs as TyMetaFuncSpec>::TyMetaFuncId,
-    // ) -> impl Iterator<Item = &crate::langspec::Name> {
-    //     self.ty_meta_funcs[id].args.iter()
-    // }
 
     fn prod_to_unique_nat(&self, id: Self::ProductId) -> usize {
         id.0
@@ -125,20 +101,6 @@ impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::flat::LangSpecFl
     fn sublangs(&self) -> Vec<crate::sublang::Sublang<SortIdOf<Self>>> {
         vec![reflexive_sublang(self)]
     }
-
-    // fn asi_convert(
-    //     &self,
-    //     id: Self::AlgebraicSortId,
-    // ) -> crate::langspec::AlgebraicSortId<Self::ProductId, Self::SumId> {
-    //     id
-    // }
-
-    // fn asi_unconvert(
-    //     &self,
-    //     id: crate::langspec::UnpackedAlgebraicSortId<Self>,
-    // ) -> Self::AlgebraicSortId {
-    //     id
-    // }
 }
 
 impl<Tmfs: TyMetaFuncSpec> TerminalLangSpec for LangSpecFlat<Tmfs> {
@@ -150,8 +112,6 @@ impl<Tmfs: TyMetaFuncSpec> TerminalLangSpec for LangSpecFlat<Tmfs> {
         let mut sums_sorted = l.sums().collect::<Vec<_>>();
         sums_sorted.sort_by_key(|sid| l.sum_name(sid.clone()).human.clone());
         let sums_sorted = sums_sorted;
-        // let mut ty_meta_funcs_sorted = l.ty_meta_funcs().collect::<Vec<_>>();
-        // ty_meta_funcs_sorted.sort_by_key(|fid| l.ty_meta_func_name(fid.clone()).human.clone());
         let products = products_sorted
             .iter()
             .map(|pid| {
@@ -163,14 +123,6 @@ impl<Tmfs: TyMetaFuncSpec> TerminalLangSpec for LangSpecFlat<Tmfs> {
                             ProductId(products_sorted.iter().position(|it| it == &p).unwrap())
                         })
                         .fmap_s(|s| SumId(sums_sorted.iter().position(|it| it == &s).unwrap()))
-                        // .fmap_f(|fid| {
-                        //     FlatTyMetaFuncId(
-                        //         ty_meta_funcs_sorted
-                        //             .iter()
-                        //             .position(|it| it == &fid)
-                        //             .unwrap(),
-                        //     )
-                        // })
                     })
                     .collect::<Vec<_>>()
                     .into_boxed_slice();
@@ -189,14 +141,6 @@ impl<Tmfs: TyMetaFuncSpec> TerminalLangSpec for LangSpecFlat<Tmfs> {
                             ProductId(products_sorted.iter().position(|it| it == &p).unwrap())
                         })
                         .fmap_s(|s| SumId(sums_sorted.iter().position(|it| it == &s).unwrap()))
-                        // .fmap_f(|fid| {
-                        //     FlatTyMetaFuncId(
-                        //         ty_meta_funcs_sorted
-                        //             .iter()
-                        //             .position(|it| it == &fid)
-                        //             .unwrap(),
-                        //     )
-                        // })
                     })
                     .collect::<Vec<_>>()
                     .into_boxed_slice();
@@ -204,20 +148,10 @@ impl<Tmfs: TyMetaFuncSpec> TerminalLangSpec for LangSpecFlat<Tmfs> {
             })
             .collect::<Vec<_>>()
             .into();
-        // let ty_meta_funcs = ty_meta_funcs_sorted
-        //     .iter()
-        //     .map(|fid| {
-        //         let name = l.ty_meta_func_name(fid.clone()).clone();
-        //         let args = l.ty_meta_func_args(fid.clone()).cloned().collect();
-        //         TyMetaFunc { name, args }
-        //     })
-        //     .collect::<Vec<_>>()
-        //     .into();
         LangSpecFlat {
             name,
             products,
             sums,
-            // ty_meta_funcs,
             _phantom: std::marker::PhantomData,
         }
     }
@@ -236,13 +170,6 @@ impl crate::langspec::ToLiteral for SumId {
         syn::parse_quote! { langspec::flat::SumId(#inner) }
     }
 }
-
-// impl crate::langspec::ToLiteral for FlatTyMetaFuncId {
-//     fn to_literal(&self) -> syn::Expr {
-//         let inner = &self.0;
-//         syn::parse_quote! { langspec::flat::FlatAlgebraicTyMetaFuncId(#inner) }
-//     }
-// }
 
 #[cfg(test)]
 mod test {

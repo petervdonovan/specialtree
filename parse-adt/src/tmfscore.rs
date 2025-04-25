@@ -107,24 +107,8 @@ where
         let item = Cstfy::<Heap, Elem>::co_visit(visitor, heap);
         let final_offset = visitor.position;
         cstfy_ok(IdxBox::new(heap, item), initial_offset, final_offset)
-        // todo!()
     }
 }
-
-// impl<'a, Heap, Elem, Pmsp> term::co_visit::CoVisitable<Parser<'a, ()>, Pmsp, Heap, typenum::U0>
-//     for Cstfy<Heap, IdxBox<Heap, Elem>>
-// where
-//     Heap: term::SuperHeap<IdxBoxHeapBak<Heap, Elem>>,
-// {
-//     fn co_visit(visitor: &mut Parser<'_, ()>, _heap: &mut Heap) -> Self {
-//         tymetafuncspec_core::Either::Right(
-//             std_parse_error::ParseError::new(parse::ParseError::RecursionLimitExceeded(
-//                 visitor.position.into(),
-//             )),
-//             std::marker::PhantomData,
-//         )
-//     }
-// }
 
 impl<Heap> Lookahead for BoundedNat<Heap> {
     fn matches<T>(parser: &Parser<'_, T>) -> bool {

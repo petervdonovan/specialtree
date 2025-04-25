@@ -18,7 +18,6 @@ pub fn generate<L: LangSpec>(bps: &BasePaths, lsg: &LsGen<L>) -> syn::ItemMod {
     let ccf_mod = gen_ccf_mod(bps, lsg, lsg);
     let transitive_ccf_mod = gen_transitive_ccf_mod(&bps.data_structure, lsg);
     let ccf_auto_impls = gen_ccf_auto_impls(&bps.data_structure, &bps.term_trait, lsg);
-    // let mct_mod = gen_mct_mod(bps, lsg, lsg);
     let heap_impl = gen_heap_impl(bps, lsg, lsg);
     let maps_tmf_impls = gen_maps_tmf(bps);
     let byline = byline!();
@@ -31,7 +30,6 @@ pub fn generate<L: LangSpec>(bps: &BasePaths, lsg: &LsGen<L>) -> syn::ItemMod {
             #transitive_ccf_mod
             #ccf_auto_impls
             #maps_tmf_impls
-            // #mct_mod
         }
     }
 }
@@ -172,9 +170,6 @@ pub(crate) fn tuc_impls<'a, 'b, 'c, L: LangSpec>(
     lsg: &'c LsGen<L>,
 ) -> impl Iterator<Item = syn::ItemImpl> + use<'a, 'b, 'c, L> {
     ccfp.units.iter().map(move |tuc| -> syn::ItemImpl {
-        // if matches!(tuc.to, langspec::langspec::SortId::TyMetaFunc(_)) {
-        //     return None;
-        // }
         let tuc = tuc.clone();
         let sort2rs_ty = |sid| {
             lsg.sort2rs_ty(
@@ -202,9 +197,6 @@ pub(crate) fn tac_impls<'a, 'b, 'c, L: LangSpec>(
     lsg: &'c LsGen<L>,
 ) -> impl Iterator<Item = syn::ItemImpl> + use<'a, 'b, 'c, L> {
     ccfp.non_units.iter().map(move |tac| -> syn::ItemImpl {
-        // if matches!(tuc.to, langspec::langspec::SortId::TyMetaFunc(_)) {
-        //     return None;
-        // }
         let tac = tac.clone();
         let sort2rs_ty = |sid| {
             lsg.sort2rs_ty(
@@ -257,7 +249,6 @@ pub(crate) fn gen_ccf_impls<L: LangSpec>(bps: &BasePaths, tgd: &TyGenData<L>) ->
     let ccf_impls = match tgd.id {
         None => vec![],
         Some(AlgebraicSortId::Product(_)) => {
-            // vec![]
             vec![gen_ccf_impl_prod(
                 bps,
                 camel,
@@ -372,18 +363,6 @@ pub(crate) fn gen_ccf_impl_sum(
     }
 }
 
-// pub(crate) fn gen_mct_mod<L: LangSpec>(
-//     bps: &BasePaths,
-//     data_structure_lsg: &LsGen<L>,
-//     term_trait_lsg: &LsGen<L>,
-// ) -> syn::ItemMod {
-//     let byline = byline!();
-//     syn::parse_quote! {
-//         #byline
-//         pub mod mct_impls {}
-//     }
-// }
-
 pub(crate) fn gen_heap_impl<L: LangSpec>(
     BasePaths {
         data_structure,
@@ -414,7 +393,6 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
     let m = generate(&bps, &lsg);
     let ds = term_specialized_gen::generate(&bps.data_structure, &lsg, false);
     let tt = term_trait_gen::generate(&bps.term_trait, &lsf);
-    // let words = words::words_mod(&lsg);
     let words_impls = words::words_impls(
         &syn::parse_quote!(crate::term_trait::words),
         &bps.data_structure,
@@ -425,7 +403,6 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
         #m
         #ds
         #tt
-        // #words
         #words_impls
     })
 }

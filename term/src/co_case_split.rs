@@ -31,19 +31,6 @@ where
     }
 }
 
-// pub trait CoCallableForStrategy<Heap, Strategy>:
-//     AcceptingCases<Strategy, ShortCircuitsTo: CoCallable<Heap, Strategy::Car>>
-// where
-//     Strategy: ConsList,
-// {
-// }
-// impl<Heap, Strategy, T> CoCallableForStrategy<Heap, Strategy> for T
-// where
-//     Self: AcceptingCases<Strategy, ShortCircuitsTo: CoCallable<Heap, Strategy::Car>>,
-//     Strategy: ConsList,
-// {
-// }
-
 impl<F, T, CasesCar, CasesCdr> CoCaseSplittable<F, (CasesCar, CasesCdr)> for T
 where
     CasesCdr: ConsList,

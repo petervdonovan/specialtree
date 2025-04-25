@@ -51,7 +51,6 @@ pub trait AdmitNoMatchingCase<T>: Heaped + HasBorrowedHeapRef {
 }
 pub trait Callable<Case>: Heaped + HasBorrowedHeapRef {
     fn call(&mut self, t: Case, heap: &mut Self::Borrowed<'_, Self::Heap>);
-    // fn do_not_call(&mut self);
 }
 impl<F: AdmitNoMatchingCase<T> + Heaped<Heap = T::Heap>, T: Heaped> CaseSplittable<F, ()> for T {
     fn case_split(&self, callable: &mut F, heap: &mut F::Borrowed<'_, Self::Heap>) {
@@ -80,7 +79,6 @@ where
             });
             callable.call(t, heap);
         } else {
-            // callable.do_not_call();
             <Self as CaseSplittable<F, CasesCdr>>::case_split(self, callable, heap);
         }
     }

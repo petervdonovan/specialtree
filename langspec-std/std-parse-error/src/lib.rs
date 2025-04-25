@@ -59,7 +59,6 @@ impl TyMetaFuncSpec for ParseErrorTmfs {
                 heapbak: RustTyMap {
                     ty_func: syn::parse_quote! {std_parse_error::ParseErrorBak},
                 },
-                // maybe_conversions: Box::new([]),
                 canonical_froms: Box::new([]),
             },
         }

@@ -7,7 +7,6 @@ pub use unicode_segmentation;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Keyword(&'static str);
-// pub struct Keyword(std::borrow::Cow<'static, str>);
 
 impl std::fmt::Display for Keyword {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -29,50 +28,9 @@ impl Keyword {
         }
         self.0
     }
-    // pub fn find(
-    //     &self,
-    //     source: &str,
-    //     offset: miette::SourceOffset,
-    // ) -> Option<(miette::SourceOffset, miette::SourceOffset)> {
-    //     match unicode_segmentation::UnicodeSegmentation::unicode_words(&source[offset.offset()..])
-    //         .next()
-    //     {
-    //         Some(token) => {
-    //             if token == self.get() {
-    //                 let start = offset.offset() + source[offset.offset()..].find(token).unwrap();
-    //                 let end = start + token.len();
-    //                 Some((start.into(), end.into()))
-    //             } else {
-    //                 None
-    //             }
-    //         }
-    //         None => None,
-    //     }
-    // }
 }
 
 pub struct KeywordSequence(pub &'static [Keyword]);
-// impl KeywordSequence {
-//     pub fn find(
-//         &self,
-//         source: &str,
-//         offset: miette::SourceOffset,
-//     ) -> Option<(miette::SourceOffset, miette::SourceOffset)> {
-//         let mut start = None;
-//         let mut end = None;
-//         for kw in self.0.iter() {
-//             if let Some((kw_start, kw_end)) = kw.find(source, offset) {
-//                 if start.is_none() {
-//                     start = Some(kw_start);
-//                 }
-//                 end = Some(kw_end);
-//             } else {
-//                 return None;
-//             }
-//         }
-//         Some((start.unwrap(), end.unwrap()))
-//     }
-// }
 
 pub enum TokenKind {
     FunctionSymbol,

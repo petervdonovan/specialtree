@@ -37,24 +37,6 @@ macro_rules! auto_impl_ccf {
         }
     };
 }
-// #[macro_export]
-// macro_rules! generic_auto_impl_ccf {
-//     ($ty:ty, $($generics:ident : $bounds:tt),*) => {
-//         impl<$($generics : $bounds),*> term::CanonicallyConstructibleFrom<Heap, ($ty, ())> for $ty {
-//             fn construct(heap: &mut Heap, t: ($ty, ())) -> Self {
-//                 t.0
-//             }
-
-//             fn deconstruct_succeeds(&self, heap: &Heap) -> bool {
-//                 true
-//             }
-
-//             fn deconstruct(self, heap: &Heap) -> ($ty, ()) {
-//                 (self, ())
-//             }
-//         }
-//     };
-// }
 
 pub trait TransitivelyUnitCcf<Heap, T> {
     type Intermediary;
@@ -64,15 +46,6 @@ pub trait TransitivelyAllCcf<Heap, T> {
     type Intermediary;
     type Intermediaries;
 }
-
-// impl<U, T, TheOnlyPossibleOption> TransitivelyAllCcf<T> for U
-// where
-//     U: case_split::Adt,
-//     U::PatternMatchStrategyProvider:
-//         HasPatternMatchStrategyFor<U, Strategy = (TheOnlyPossibleOption, ())>,
-// {
-//     type Intermediaries = TheOnlyPossibleOption;
-// }
 
 impl<Heap, T, U> CanonicallyConstructibleFrom<Heap, (T, ())> for U
 where
@@ -94,34 +67,6 @@ where
         self.deconstruct(heap).0.deconstruct(heap)
     }
 }
-
-// pub trait HasDagEmbedding
-// where
-//     Self: CanonicallyConstructibleFrom<(Self::Domain,)>,
-// {
-//     type Domain;
-// }
-
-// impl<T, U> CanonicallyConstructibleFrom<(T,)> for U
-// where
-//     U: Copy,
-//     U: HasDagEmbedding,
-//     U::Domain: CanonicallyConstructibleFrom<(T,)>,
-//     U::Domain: Heaped<Heap = U::Heap>,
-// {
-//     fn construct(heap: &mut Self::Heap, t: (T,)) -> Self {
-//         let u = U::Domain::construct(heap, t);
-//         Self::construct(heap, (u,))
-//     }
-
-//     fn deconstruct_succeeds(&self, heap: &Self::Heap) -> bool {
-//         self.deconstruct_succeeds(heap) && self.deconstruct(heap).0.deconstruct_succeeds(heap)
-//     }
-
-//     fn deconstruct(self, heap: &Self::Heap) -> (T,) {
-//         self.deconstruct(heap).0.deconstruct(heap)
-//     }
-// }
 
 pub trait AllCcf<Heap, FromConsList> {
     fn construct(heap: &mut Heap, t: FromConsList) -> Self;
@@ -275,44 +220,11 @@ where
 {
     fn maybe_convert(self, heap: &'heap Self::Heap) -> Result<T, Fallibility>;
 }
-// #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
-// pub struct TyFingerprint(u128);
-// impl TyFingerprint {
-//     pub fn combine(&self, other: &Self) -> Self {
-//         let mut hasher = twox_hash::XxHash3_128::new();
-//         hasher.write(&self.0.to_ne_bytes());
-//         hasher.write(&other.0.to_ne_bytes());
-//         TyFingerprint(hasher.finish_128())
-//     }
-// }
-// impl<'a> From<&'a str> for TyFingerprint {
-//     fn from(s: &'a str) -> Self {
-//         TyFingerprint(twox_hash::XxHash3_128::oneshot(s.as_bytes()))
-//     }
-// }
-// impl From<u128> for TyFingerprint {
-//     fn from(u: u128) -> Self {
-//         TyFingerprint(u)
-//     }
-// }
-// impl TyFingerprint {
-//     pub fn lit_int(&self) -> syn::LitInt {
-//         syn::LitInt::new(&format!("0x{:x}", &self.0), proc_macro2::Span::call_site())
-//     }
-// }
 #[derive(PartialEq, Eq, Hash, Clone, Debug, PartialOrd, Ord)]
 pub struct CcfRelation<SortId> {
     pub from: Vec<SortId>,
     pub to: SortId,
 }
-// #[derive(PartialEq, Eq, Hash, Clone)]
-// pub struct MctRelation {
-//     pub from: TyFingerprint,
-//     pub to: TyFingerprint,
-// }
-// pub trait SettableTo<'heap, T>: Heaped {
-//     fn set_to(&mut self, heap: &'heap mut Self::Heap, t: T);
-// }
 pub trait MutableCollection<'a, 'heap: 'a>:
     Heaped
     + IntoIterator<Item = <Self as MutableCollection<'a, 'heap>>::Item>
@@ -440,25 +352,3 @@ macro_rules! impl_to_refs {
     () => {};
 }
 impl_to_refs!(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11);
-
-// impl<T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> ToRefs
-//     for (T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
-// {
-//     type Refs<'a>
-//         = (
-//         &'a T,
-//         &'a T1,
-//         &'a T2,
-//         &'a T3,
-//         &'a T4,
-//         &'a T5,
-//         &'a T6,
-//         &'a T7,
-//         &'a T8,
-//         &'a T9,
-//         &'a T10,
-//         &'a T11,
-//     )
-//     where
-//         Self: 'a;
-// }

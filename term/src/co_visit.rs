@@ -23,12 +23,7 @@ impl<CV, Ctx, Heap, StrategyProvider, DepthFuel, FieldsCar, FieldsCdrCar, Fields
     AllCoVisitable<Heap, CV, Ctx, StrategyProvider, DepthFuel>
     for (FieldsCar, (FieldsCdrCar, FieldsCdrCdr))
 where
-    // Self: Copy,
-    // Ctx: Copy,
-    // CV: CoVisitor<Ctx>,
     FieldsCar: CoVisitable<CV, StrategyProvider, Heap, DepthFuel>,
-    // CV: Heaped<Heap = FieldsCar::Heap>,
-    // StrategyProvider: crate::case_split::HasPatternMatchStrategyFor<FieldsCar>,
     (FieldsCdrCar, FieldsCdrCdr): AllCoVisitable<Heap, CV, Ctx, StrategyProvider, DepthFuel>,
 {
     fn all_co_visit(visitor: &mut CV, heap: &mut Heap) -> Self {
@@ -42,11 +37,7 @@ where
 impl<CV, Ctx, Heap, StrategyProvider, FieldsCar, DepthFuel>
     AllCoVisitable<Heap, CV, Ctx, StrategyProvider, DepthFuel> for (FieldsCar, ())
 where
-    // Self: Copy,
-    // Ctx: Copy,
-    // CV: CoVisitor<Ctx>,
     FieldsCar: CoVisitable<CV, StrategyProvider, Heap, DepthFuel>,
-    // StrategyProvider: crate::case_split::HasPatternMatchStrategyFor<FieldsCar>,
 {
     fn all_co_visit(visitor: &mut CV, heap: &mut Heap) -> Self {
         let car = FieldsCar::co_visit(visitor, heap);
@@ -70,31 +61,6 @@ impl<CV, MatchedType, StrategyProvider, DepthFuel>
     }
 }
 
-// impl<V, MatchedType, StrategyProvider> CoCallablefyCoVisitor<V, MatchedType, StrategyProvider> {
-//     fn descend<Ctx, F: FnMut(&mut CoCallablefyCoVisitor<V, Ctx, StrategyProvider>)>(
-//         &mut self,
-//         ctx: Ctx,
-//         mut f: F,
-//     ) {
-//         take_mut::take(self, |this| {
-//             let CoCallablefyCoVisitor {
-//                 cv, ctx: outer_ctx, ..
-//             } = this;
-//             let mut descended = CoCallablefyCoVisitor {
-//                 cv,
-//                 ctx,
-//                 phantom: std::marker::PhantomData,
-//             };
-//             f(&mut descended);
-//             Self {
-//                 cv: descended.cv,
-//                 ctx: outer_ctx,
-//                 phantom: std::marker::PhantomData,
-//             }
-//         });
-//     }
-// }
-
 impl<V: Heaped, MatchedType, StrategyProvider, DepthFuel> Heaped
     for CoCallablefyCoVisitor<V, MatchedType, StrategyProvider, DepthFuel>
 {
@@ -106,7 +72,6 @@ impl<V, MatchedType, Heap, CaseCar, CaseCdr, StrategyProvider, DepthFuel>
     for CoCallablefyCoVisitor<V, MatchedType, StrategyProvider, DepthFuel>
 where
     MatchedType: Copy,
-    // V: CoVisitor<MatchedType> + CoVisitor<CaseCar>,
     (CaseCar, CaseCdr): Copy + AllCoVisitable<Heap, V, MatchedType, StrategyProvider, DepthFuel>,
 {
     fn call(&mut self, heap: &mut Heap) -> (CaseCar, CaseCdr) {
@@ -124,38 +89,6 @@ where
         (t, CoCallablefyCoVisitor::new(short))
     }
 }
-// impl<V, PatternMatchStrategyProvider, T> Visitable<V, PatternMatchStrategyProvider> for T
-// where
-//     T: Heaped<Heap = V::Heap>
-//         + CaseSplittable<
-//             CallablefyVisitor<V, T, PatternMatchStrategyProvider>,
-//             PatternMatchStrategyProvider::Strategy,
-//         > + Copy,
-//     V: VisitorDfs<T>,
-//     PatternMatchStrategyProvider: HasPatternMatchStrategyFor<T>,
-// {
-//     fn visit(
-//         &self,
-//         visitor: &mut V,
-//         heap: &mut <V as HasBorrowedHeapRef>::Borrowed<'_, Self::Heap>,
-//     ) {
-//         let mut heap = heap;
-//         if let MaybeAbortThisSubtree::Proceed = visitor.push(*self, &mut heap) {
-//             take_mut::take(visitor, |visitor| {
-//                 let mut callable = CallablefyVisitor {
-//                     visitor,
-//                     ctx: *self,
-//                     phantom: std::marker::PhantomData,
-//                 };
-//                 <T as CaseSplittable<_, _>>::case_split(self, &mut callable, &mut heap);
-//                 callable.visitor
-//             });
-//         }
-//         visitor.pop(*self, heap);
-//     }
-// }
-
-// co_visit::CoCallablefyCoVisitor<CV, T, PatternMatchStrategyProvider>: select::AcceptingCases<<PatternMatchStrategyProvider as case_split::HasPatternMatchStrategyFor<T>>::Strategy>
 
 impl<CV, T, PatternMatchStrategyProvider, DepthFuel> FromSelectCase
     for CoCallablefyCoVisitor<CV, T, PatternMatchStrategyProvider, DepthFuel>
@@ -172,8 +105,6 @@ where
     Cases: ConsList,
     CV: AcceptingCases<Cases> + FromSelectCase,
 {
-    // type ShortCircuitsTo =
-    //     CoCallablefyCoVisitor<CV::ShortCircuitsTo, T, PatternMatchStrategyProvider>;
     type AcceptingRemainingCases = CoCallablefyCoVisitor<
         CV::AcceptingRemainingCases,
         T,
@@ -193,41 +124,7 @@ where
             }
         }
     }
-
-    // fn stop_with_external_success(self, proof_of_success: Cases::Car) -> Self::ShortCircuitsTo {
-    //     self.cv.stop_with_external_success(proof_of_success)
-    // }
 }
-
-// impl<Heap, CV, T> CoVisitable<CV, T::PatternMatchStrategyProvider, Heap> for T
-// where
-//     T: Heaped<Heap = Heap>
-//         + CoCaseSplittable<
-//             CoCallablefyCoVisitor<CV, T, T::PatternMatchStrategyProvider>,
-//             <T::PatternMatchStrategyProvider as HasPatternMatchStrategyFor<T>>::Strategy,
-//         > + Copy
-//         + Adt,
-//     CV: CoVisitor<T> + AdmitNoMatchingCase<T>, //  + AcceptingCases<PatternMatchStrategyProvider::Strategy>
-//                                                // PatternMatchStrategyProvider: crate::case_split::HasPatternMatchStrategyFor<T>,
-// {
-//     fn co_visit(visitor: &mut CV, heap: &mut Heap) -> Self {
-//         let mut ret: Option<Self> = None;
-//         visitor.co_push();
-//         take_mut::take(visitor, |visitor| {
-//             let mut callable = CoCallablefyCoVisitor {
-//                 cv: visitor,
-//                 phantom: std::marker::PhantomData,
-//             };
-//             ret = Some(<T as CoCaseSplittable<_, _>>::co_case_split(
-//                 &mut callable,
-//                 heap,
-//             ));
-//             callable.cv
-//         });
-//         visitor.co_pop();
-//         ret.unwrap()
-//     }
-// }
 
 impl<Heap, CV, PatternMatchStrategyProvider, T, DepthFuelUpperBits, DepthFuelLastBit>
     CoVisitable<
@@ -248,7 +145,7 @@ where
             >,
             PatternMatchStrategyProvider::Strategy,
         > + Copy,
-    CV: CoVisitor<T> + SelectCase + Default, //  + AcceptingCases<PatternMatchStrategyProvider::Strategy>
+    CV: CoVisitor<T> + SelectCase + Default,
     CV::AC<PatternMatchStrategyProvider::Strategy>: AdmitNoMatchingCase<T>,
     PatternMatchStrategyProvider: crate::case_split::HasPatternMatchStrategyFor<T>,
 {

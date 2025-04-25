@@ -80,17 +80,7 @@ pub fn gen_heap<L: LangSpec>(
     abp: &AlgebraicsBasePath,
     lg: &LsGen<L>,
 ) -> syn::File {
-    // let alg_snakes = lg
-    //     .ty_gen_datas(words_base_path.clone())
-    //     .map(|tgd| tgd.snake_ident);
-    // let alg_camels = lg.ty_gen_datas().map(|tgd| tgd.camel_ident);
-    // let alg_heapbaks = lg.ty_gen_datas().map(alg_heapbak);
-    // let heapbak_paths = heapbak_paths(lg);
     let hgd = lg.heapbak_gen_datas();
-    // let heapbak_paths = hgd.iter().map(|hgd: &HeapbakGenData| -> syn::Path {
-    //     let identifiers = &hgd.identifiers;
-    //     syn::parse_quote! {#(#identifiers)::*}
-    // });
     let heapbak_modules = hgd
         .iter()
         .map(|hgd| gen_heapbak_module(base_path, abp, hgd))
@@ -100,7 +90,6 @@ pub fn gen_heap<L: LangSpec>(
     let superheap_impls = hgd.iter().map(|hgd| {
         let ty_func = &hgd.ty_func.ty_func;
         let identifiers = &hgd.identifiers;
-        // let abp = abp.to_token_stream();
         let ty_args = (hgd.ty_args)(HeapType(syn::parse_quote!{#base_path::Heap}), abp.clone());
         quote::quote! {
             term::impl_superheap!(#base_path::Heap ; #ty_func<#base_path::Heap, #(#ty_args),*> ; #(#identifiers)*);
@@ -130,7 +119,6 @@ pub(crate) fn gen_heapbak_module(
     hgd: &HeapbakGenData,
 ) -> (Vec<syn::Ident>, syn::Item) {
     let byline = byline!();
-    // let abp = abp.to_token_stream();
     let heapbak_ty_func = &hgd.ty_func.ty_func;
     let heapbak_ty_args =
         (hgd.ty_args)(HeapType(syn::parse_quote! {#heap_path::Heap}), abp.clone());
@@ -177,17 +165,6 @@ pub(crate) fn gen_modules_with_prefix(
             next_prefix_segments.push(m.0[prefix.len()].clone());
         }
     }
-    // for (p, m) in modules_by_prefix {
-    //     if p.len() > prefix.len() {
-    //         let subprefix = &p[prefix.len()..];
-    //         let submodules = gen_modules_with_prefix(subprefix, modules_by_prefix);
-    //         ret.push(parse_quote! {
-    //             mod #m {
-    //                 #(#submodules)*
-    //             }
-    //         });
-    //     }
-    // }
     if next_prefix_segments.is_empty() {
         return (vec![], ret);
     }
@@ -205,7 +182,6 @@ pub(crate) fn gen_modules_with_prefix(
             .chain(std::iter::once(next_segment))
             .cloned()
             .collect::<Vec<_>>();
-        // ret.extend(gen_modules_with_prefix(&subprefix, modules_by_prefix));
         let (_, submodules) = gen_modules_with_prefix(base_path, &subprefix, modules_by_prefix);
         ret.push(parse_quote! {
             #byline
@@ -216,26 +192,6 @@ pub(crate) fn gen_modules_with_prefix(
     }
     (next_prefix_segments, ret)
 }
-
-// pub(crate) fn alg_heapbak<L: LangSpec>(tgd: TyGenData<L>) -> syn::ItemStruct {
-//     let camel_ident = tgd.camel_ident;
-//     let hst = (tgd.ccf.heap_sort_tys)(
-//         HeapType(parse_quote!(crate::data_structure::Heap)),
-//         AlgebraicsBasePath::new(parse_quote!(crate::data_structure::heap::)),
-//     );
-//     transpose!(hst, heap_sort_ty, heap_sort_snake_ident);
-//     let byline = byline!();
-//     let ret = quote::quote! {
-//         #byline
-//         #[derive(Default)]
-//         pub struct #camel_ident {
-//             #(pub #heap_sort_snake_ident: #heap_sort_ty,)*
-//         }
-//     };
-//     parse_quote! {
-//         #ret
-//     }
-// }
 
 pub(crate) fn gen_heaped_impls<L: LangSpec>(base_path: &syn::Path, lg: &LsGen<L>) -> syn::ItemMod {
     fn heaped_impl<L: LangSpec>(base_path: &syn::Path, tgd: TyGenData<L>) -> syn::ItemImpl {

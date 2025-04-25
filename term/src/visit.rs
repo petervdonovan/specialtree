@@ -70,33 +70,6 @@ struct CallablefyVisitor<V, MatchedType, StrategyProvider> {
     phantom: std::marker::PhantomData<StrategyProvider>,
 }
 
-// impl<V, MatchedType, StrategyProvider> CallablefyVisitor<V, MatchedType, StrategyProvider> {
-//     fn descend<Ctx, F: FnMut(&mut CallablefyVisitor<V, Ctx, StrategyProvider>)>(
-//         &mut self,
-//         ctx: Ctx,
-//         mut f: F,
-//     ) {
-//         take_mut::take(self, |this| {
-//             let CallablefyVisitor {
-//                 visitor,
-//                 ctx: outer_ctx,
-//                 ..
-//             } = this;
-//             let mut descended = CallablefyVisitor {
-//                 visitor,
-//                 ctx,
-//                 phantom: std::marker::PhantomData,
-//             };
-//             f(&mut descended);
-//             Self {
-//                 visitor: descended.visitor,
-//                 ctx: outer_ctx,
-//                 phantom: std::marker::PhantomData,
-//             }
-//         });
-//     }
-// }
-
 impl<V: HasBorrowedHeapRef, MatchedType, StrategyProvider> HasBorrowedHeapRef
     for CallablefyVisitor<V, MatchedType, StrategyProvider>
 {
@@ -168,31 +141,3 @@ where
         visitor.pop(*self, heap);
     }
 }
-// The following demonstrates that mutually recursive trait implementations work Just Fine if you use a trait bound
-// trait Loop0: Loop1 {
-//     fn loop0(&self);
-// }
-// trait Loop1 {
-//     fn loop1(&self);
-// }
-
-// impl<T> Loop0 for T
-// {
-//     fn loop0(&self) {
-//         self.loop1();
-//     }
-// }
-
-// impl<T> Loop1 for T
-// where
-//     T: Loop0,
-// {
-//     fn loop1(&self) {
-//         self.loop0();
-//     }
-// }
-
-// fn test() {
-//     struct A();
-//     (A()).loop0();
-// }

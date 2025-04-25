@@ -58,13 +58,6 @@ fn l0_tmfmap<'a, 'b, L0: LangSpec, L1: LangSpec>(
             .map(|a| maybemorefy_if_product::<L0, L1>(a, maybe_sid.clone()))
             .collect(),
     });
-    // if <<L0 as LangSpec>::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(&f).transparency
-    //     == langspec::tymetafunc::Transparency::Visible
-    // {
-    //     maybemorefy::<L0, L1>(sid, maybe_sid)
-    // } else {
-    //     rec
-    // }
     match <<L0 as LangSpec>::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(&f).transparency {
         Transparency::Visible => {
             langspec::langspec::SortId::TyMetaFunc(langspec::langspec::MappedType {
@@ -113,46 +106,6 @@ impl<L0: LangSpec, L1: LangSpec> LangSpec for EverywhereMaybeMore<'_, '_, L0, L1
         }
     }
 
-    // fn sublangs(&self) -> Vec<langspec::sublang::Sublang<SortIdOf<Self>>> {
-    //     self.l0
-    //         .sublangs()
-    //         .into_iter()
-    //         .map(
-    //             |sublang: Sublang<SortIdOf<L0>>| langspec::sublang::Sublang::<SortIdOf<Self>> {
-    //                 name: sublang.name,
-    //                 is_in_image: Box::new(move |sid| match sid {
-    //                     SortId::TyMetaFunc(MappedType {
-    //                         f: Either::Right(fr),
-    //                         a,
-    //                     }) => {
-    //                         (*fr == tymetafuncspec_core::EITHER)
-    //                             && match a[0].clone() {
-    //                                 SortId::Algebraic(AlgebraicSortId::Product(Either::Left(
-    //                                     a,
-    //                                 ))) => (sublang.is_in_image)(&SortId::Algebraic(
-    //                                     AlgebraicSortId::Product(a.clone()),
-    //                                 )),
-    //                                 SortId::Algebraic(AlgebraicSortId::Sum(Either::Left(a))) => {
-    //                                     (sublang.is_in_image)(&SortId::Algebraic(
-    //                                         AlgebraicSortId::Sum(a.clone()),
-    //                                     ))
-    //                                 }
-    //                                 _ => false,
-    //                             }
-    //                     }
-    //                     _ => false,
-    //                 }),
-    //                 map: Box::new(move |name| {
-    //                     let id = (sublang.map)(name);
-    //                     let mapped = l0_as_my_sid::<L0, L1>(id);
-    //                     let ret: SortIdOf<Self> = self.map_id(mapped);
-    //                     ret
-    //                 }),
-    //             },
-    //         )
-    //         .collect()
-    // }
-
     fn sublangs(&self) -> Vec<langspec::sublang::Sublang<langspec::langspec::SortIdOf<Self>>> {
         self.l0
             .sublangs()
@@ -161,34 +114,6 @@ impl<L0: LangSpec, L1: LangSpec> LangSpec for EverywhereMaybeMore<'_, '_, L0, L1
                 |sublang: langspec::sublang::Sublang<langspec::langspec::SortIdOf<L0>>| {
                     langspec::sublang::Sublang::<langspec::langspec::SortIdOf<Self>> {
                         name: sublang.name,
-                        // is_in_image: Box::new(move |sid| match sid {
-                        //     SortId::TyMetaFunc(MappedType {
-                        //         f: Either::Right(fr),
-                        //         a,
-                        //     }) => {
-                        //         (*fr == tymetafuncspec_core::PAIR)
-                        //             && match a[0].clone() {
-                        //                 langspec::langspec::SortId::Algebraic(
-                        //                     langspec::langspec::AlgebraicSortId::Product(
-                        //                         Either::Left(a),
-                        //                     ),
-                        //                 ) => (sublang.is_in_image)(
-                        //                     &langspec::langspec::SortId::Algebraic(
-                        //                         langspec::langspec::AlgebraicSortId::Product(
-                        //                             a.clone(),
-                        //                         ),
-                        //                     ),
-                        //                 ),
-                        //                 _ => false,
-                        //             }
-                        //     }
-                        //     SortId::Algebraic(langspec::langspec::AlgebraicSortId::Sum(
-                        //         Either::Left(a),
-                        //     )) => (sublang.is_in_image)(&SortId::Algebraic(
-                        //         langspec::langspec::AlgebraicSortId::Sum(a.clone()),
-                        //     )),
-                        //     _ => false,
-                        // }),
                         image: sublang
                             .image
                             .clone()
@@ -226,36 +151,6 @@ impl<L0: LangSpec, L1: LangSpec> LangSpec for EverywhereMaybeMore<'_, '_, L0, L1
                                 _ => panic!(),
                             })
                             .collect(),
-                        // tems: {
-                        //     sublang
-                        //         .image
-                        //         .into_iter()
-                        //         .chain(sublang.tems.into_iter().map(|tem| tem.from))
-                        //         .filter_map(|sid| match &sid {
-                        //             langspec::langspec::SortId::TyMetaFunc(mt) => {
-                        //                 let to =
-                        //                     l0_tmfmap::<L0, L1>(self.l1_root.clone(), mt.clone());
-                        //                 Some(TmfEndoMappingNonreflexive {
-                        //                     from: SortId::TyMetaFunc(MappedType {
-                        //                         f: Either::Left(Either::Left(mt.f.clone())),
-                        //                         a: mt
-                        //                             .a
-                        //                             .iter()
-                        //                             .map(|sid| {
-                        //                                 maybemorefy_if_product::<L0, L1>(
-                        //                                     sid.clone(),
-                        //                                     self.l1_root.clone(),
-                        //                                 )
-                        //                             })
-                        //                             .collect(),
-                        //                     }),
-                        //                     to,
-                        //                 })
-                        //             }
-                        //             _ => None,
-                        //         })
-                        //         .collect()
-                        // },
                     }
                 },
             )

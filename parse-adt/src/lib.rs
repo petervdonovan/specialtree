@@ -120,13 +120,6 @@ where
     fn try_case(self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
         todo!()
     }
-
-    // fn stop_with_external_success(
-    //     self,
-    //     proof_of_success: <() as term::case_split::ConsList>::Car,
-    // ) -> Self::ShortCircuitsTo {
-    //     todo!()
-    // }
 }
 
 impl<'a, Heap, RemainingCasesUnwrappedCarCar, RemainingCasesCdr, AllCurrentCases>
@@ -137,8 +130,6 @@ impl<'a, Heap, RemainingCasesUnwrappedCarCar, RemainingCasesCdr, AllCurrentCases
 where
     AllCurrentCases: AtLeastTwoConsList,
     RemainingCasesCdr: ConsList,
-    // CdrCdr: ConsList,
-    // Self: AcceptingCases<(CdrCar, CdrCdr), ShortCircuitsTo = Self>,
     Self: AcceptingCases<RemainingCasesCdr, ShortCircuitsTo = Parser<'a, ()>>,
     RemainingCasesUnwrappedCarCar: Lookahead,
 {
@@ -161,8 +152,6 @@ impl<'a, Heap, RemainingCasesUnwrappedCarCar, RemainingCasesCdr, AllCurrentCases
 where
     AllCurrentCases: AtLeastTwoConsList,
     RemainingCasesCdr: ConsList,
-    // CdrCdr: ConsList,
-    // Self: AcceptingCases<(CdrCar, CdrCdr), ShortCircuitsTo = Self>,
     Self: AcceptingCases<RemainingCasesCdr, ShortCircuitsTo = Parser<'a, ()>>,
     RemainingCasesUnwrappedCarCar: Lookahead,
 {
@@ -173,13 +162,7 @@ where
     }
 }
 
-impl<'a, Car> AcceptingCases<(Car, ())> for Parser<'a, (Car, ())>
-where
-// Cdr: ConsList,
-// Self: AcceptingCases<(), ShortCircuitsTo = Parser<'a, ()>>,
-// Car: ParseLL,
-// Car: IsSoleCaseHack,
-{
+impl<'a, Car> AcceptingCases<(Car, ())> for Parser<'a, (Car, ())> {
     type AcceptingRemainingCases = Self;
 
     fn try_case(self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
@@ -191,35 +174,6 @@ where
         })
     }
 }
-
-// impl<Heap, Car, CarCdrCar, CarCdrCdr, AllCurrentCases>
-//     AcceptingCases<((Cstfy<Heap, Car>, (CarCdrCar, CarCdrCdr)), ())> for Parser<'_, AllCurrentCases>
-// where
-//     AllCurrentCases: AtLeastTwoConsList,
-//     Self: AcceptingCases<(), ShortCircuitsTo = Self>,
-//     Car: ParseLL,
-// {
-//     type AcceptingRemainingCases = Self;
-
-//     fn try_case(self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
-//         Ok(todo!())
-//     }
-// }
-
-// impl<Heap, Car, CarCdrCar, CarCdrCdr, AllCurrentCases>
-//     AcceptingCases<((CstfyTransparent<Heap, Car>, (CarCdrCar, CarCdrCdr)), ())>
-//     for Parser<'_, AllCurrentCases>
-// where
-//     AllCurrentCases: AtLeastTwoConsList,
-//     Self: AcceptingCases<(), ShortCircuitsTo = Self>,
-//     Car: ParseLL,
-// {
-//     type AcceptingRemainingCases = Self;
-
-//     fn try_case(self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
-//         Ok(todo!())
-//     }
-// }
 
 impl<A, Heap, AllCurrentCases> CoVisitor<CstfyTransparent<Heap, A>> for Parser<'_, AllCurrentCases>
 where

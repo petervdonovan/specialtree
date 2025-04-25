@@ -107,7 +107,6 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
     let m = generate(&bps, &lsg);
     let tt = term_trait_gen::generate(&bps.term_trait, &lsf);
     let ds = term_specialized_gen::generate(&bps.data_structure, &lsg, false);
-    // let words = words::words_mod(&lsg);
     let words_impls = words::words_impls(&bps.words, &bps.data_structure, &lsg, &lsg);
     let ttimpl = term_specialized_impl_gen::generate(
         &term_specialized_impl_gen::BasePaths {
@@ -120,7 +119,6 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
         #m
         #tt
         #ds
-        // #words
         #words_impls
         #ttimpl
     })

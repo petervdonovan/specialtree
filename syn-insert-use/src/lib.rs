@@ -90,7 +90,6 @@ where
     let (head, tail) = split_type_path(type_path);
     let path = to_segments(&head);
     if !path.is_empty() {
-        // self.paths.insert(path);
         if is_crate(&path) {
             pv.crate_paths.insert(path);
         } else {
@@ -113,7 +112,6 @@ where
     let (head, tail) = split_path(&trait_bound.path, trait_bound.path.segments.len());
     let path = to_segments(&head);
     if !path.is_empty() {
-        // self.paths.insert(path);
         if is_crate(&path) {
             pv.crate_paths.insert(path);
         } else {
@@ -304,30 +302,6 @@ struct TersifyingPathsVisitor {
     collisions: CollidingPaths,
 }
 
-// impl<'ast> syn::visit::Visit<'ast> for TersifyingPathsVisitor {
-//     fn visit_type(&mut self, item: &'ast syn::Type) {
-//         match item {
-//             syn::Type::Path(type_path) => {
-//                 let segments = to_segments(&type_path.path);
-//                 let new_path = if is_crate(&segments) {
-//                     typ_path.path = syn::parse_quote! {
-//                         #(#segments)*
-//                     }
-//                 } else {
-//                     segments
-//                         .iter()
-//                         .map(|segment| segment.ident.clone())
-//                         .collect()
-//                 };
-//             }
-//             _ => {
-//                 // do nothing
-//             }
-//         }
-//         syn::visit::visit_type(self, item);
-//     }
-// }
-
 impl VisitMut for TersifyingPathsVisitor {
     fn visit_type_path_mut(&mut self, type_path: &mut syn::TypePath) {
         let (head, tail) = split_type_path(type_path);
@@ -433,16 +407,6 @@ mod tests {
                 );
             }
         };
-        // let mut pv = PathVisitor::new();
-        // pv.visit_file(&file);
-        // dbg!(&pv.paths.len());
-        // for path in &pv.paths {
-        //     println!("{}", quote::quote! {#(#path),*});
-        // }
-        // let use_declarations = use_declarations(&pv.paths.iter().cloned().collect::<Vec<_>>());
-        // for use_decl in &use_declarations.0 {
-        //     println!("use decl = {}", use_decl);
-        // }
         let tersified_file = insert_use(file.clone());
         let tersified_file = prettyplease::unparse(&tersified_file);
         println!("Tersified file = {}", tersified_file);
