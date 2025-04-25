@@ -4,7 +4,7 @@ use langspec::{
     langspec::{LangSpec, MappedType, Name, SortId},
     tymetafunc::Transparency,
 };
-use langspec_gen_util::{byline, proc_macro2, LsGen, TyGenData};
+use langspec_gen_util::{LsGen, TyGenData, byline, proc_macro2};
 use syn::parse_quote;
 
 pub struct BasePaths {
@@ -117,7 +117,11 @@ pub(crate) fn cst<'a, 'b: 'a, L: LangSpec>(
     }
 }
 
-pub fn gen_impls<L: LangSpec>(base_path: &syn::Path, lsg: &LsGen<L>) -> proc_macro2::TokenStream {
+pub fn gen_impls<L: LangSpec>(
+    base_path: &syn::Path,
+    lsg: &LsGen<L>,
+    important_sublangs: &[Name],
+) -> proc_macro2::TokenStream {
     let ds =
         term_specialized_gen::generate(&syn::parse_quote!(#base_path::data_structure), lsg, false);
     let tt = term_trait_gen::generate(&syn::parse_quote!(#base_path::term_trait), lsg.bak());
@@ -136,6 +140,7 @@ pub fn gen_impls<L: LangSpec>(base_path: &syn::Path, lsg: &LsGen<L>) -> proc_mac
             term_trait: syn::parse_quote!(#base_path::term_trait),
         },
         lsg,
+        important_sublangs,
     );
     let tt_words_impl = words::words_impls(
         &syn::parse_quote! { #base_path::term_trait::words },
@@ -219,7 +224,11 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
         let cst = cst(&arena, l);
         let ext_lg = LsGen::from(&cst);
         (
-            gen_impls(&syn::parse_quote! { crate::cst }, &ext_lg),
+            gen_impls(
+                &syn::parse_quote! { crate::cst },
+                &ext_lg,
+                &[cst.name().clone(), l.name().clone()],
+            ),
             gen_bridge(
                 &syn::parse_quote! { crate::cst },
                 &syn::parse_quote! { crate },
@@ -228,7 +237,7 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
             ),
         )
     };
-    let root_impls = gen_impls(&syn::parse_quote! { crate }, &lg);
+    let root_impls = gen_impls(&syn::parse_quote! { crate }, &lg, &[l.name().clone()]);
     let byline = byline!();
     let f: syn::File = syn::parse_quote! {
         #byline

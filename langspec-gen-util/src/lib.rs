@@ -120,11 +120,16 @@ impl<L: LangSpec> LsGen<'_, L> {
     pub fn bak(&self) -> &L {
         self.bak
     }
-    pub fn ccf_paths(&self) -> CcfPaths<SortIdOf<L>> {
+    pub fn ccf_paths(&self, important_sublangs: &[Name]) -> CcfPaths<SortIdOf<L>> {
         let direct_ccf_rels = get_direct_ccf_rels(self.bak);
         let mut ucp_acc = std::collections::HashSet::new();
         let mut cebup_acc = std::collections::HashSet::new();
-        let sublangs = self.bak.sublangs();
+        let sublangs = self
+            .bak
+            .sublangs()
+            .into_iter()
+            .filter(|it| important_sublangs.contains(&it.name))
+            .collect::<Vec<_>>();
         for non_transparent_sorts in sublangs.iter().map(|it| it.image.clone()) {
             let ucp = unit_ccf_paths_quadratically_large_closure::<SortIdOf<L>>(
                 direct_ccf_rels.as_slice(),
@@ -135,8 +140,20 @@ impl<L: LangSpec> LsGen<'_, L> {
                 &ucp,
                 &non_transparent_sorts,
             );
-            ucp_acc.extend(ucp);
-            cebup_acc.extend(cebup);
+            let cebup_filtered = cebup
+                .into_iter()
+                .filter(|it| {
+                    it.from.iter().all(|it| non_transparent_sorts.contains(it))
+                        && non_transparent_sorts.contains(&it.to)
+                })
+                .collect::<Vec<_>>();
+            ucp_acc.extend(ucp.into_iter().filter(|it| {
+                non_transparent_sorts.contains(&it.from)
+                    || cebup_filtered
+                        .iter()
+                        .any(|cebup| cebup.intermediary.to == it.from)
+            }));
+            cebup_acc.extend(cebup_filtered);
         }
         for desired_pair in sublangs
             .into_iter()
@@ -668,10 +685,7 @@ fn find_ucp<SortId: Clone + Eq + std::hash::Hash + std::fmt::Debug>(
 ) -> Option<TransitiveUnitCcfRelation<SortId>> {
     let tucr = get_tucr_for_to(&unit_ccf_rels(direct_ccf_rels), pair.to.clone(), &[]);
     tucr.into_iter()
-        .find(|tucr| {
-            dbg!(&tucr);
-            tucr.from == pair.from && tucr.to == pair.to
-        })
+        .find(|tucr| tucr.from == pair.from && tucr.to == pair.to)
         .clone()
 }
 

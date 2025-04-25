@@ -5,7 +5,7 @@ use langspec::{
     tymetafunc::TyMetaFuncSpec,
 };
 use langspec_gen_util::{
-    cons_list, AlgebraicsBasePath, CanonicallyConstructibleFromGenData, HeapType, LsGen,
+    AlgebraicsBasePath, CanonicallyConstructibleFromGenData, HeapType, LsGen, cons_list,
 };
 
 pub struct BasePaths {
@@ -113,6 +113,7 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
             term_trait: bps.term_trait.clone(),
         },
         &lsg,
+        &[lsf.name().clone()],
     );
     prettyplease::unparse(&syn::parse_quote! {
         #m

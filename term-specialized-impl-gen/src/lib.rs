@@ -1,11 +1,11 @@
 use langspec::{
     flat::LangSpecFlat,
     humanreadable::LangSpecHuman,
-    langspec::{AlgebraicSortId, LangSpec, SortId, SortIdOf, TerminalLangSpec as _},
+    langspec::{AlgebraicSortId, LangSpec, Name, SortId, SortIdOf, TerminalLangSpec as _},
     tymetafunc::TyMetaFuncSpec,
 };
 use langspec_gen_util::{
-    byline, cons_list_index_range, AlgebraicsBasePath, CcfPaths, HeapType, LsGen, TyGenData,
+    AlgebraicsBasePath, CcfPaths, HeapType, LsGen, TyGenData, byline, cons_list_index_range,
 };
 
 pub struct BasePaths {
@@ -13,10 +13,14 @@ pub struct BasePaths {
     pub term_trait: syn::Path,
 }
 
-pub fn generate<L: LangSpec>(bps: &BasePaths, lsg: &LsGen<L>) -> syn::ItemMod {
+pub fn generate<L: LangSpec>(
+    bps: &BasePaths,
+    lsg: &LsGen<L>,
+    important_sublangs: &[Name],
+) -> syn::ItemMod {
     let owned_mod = gen_owned_mod(bps, lsg);
     let ccf_mod = gen_ccf_mod(bps, lsg);
-    let transitive_ccf_mod = gen_transitive_ccf_mod(&bps.data_structure, lsg);
+    let transitive_ccf_mod = gen_transitive_ccf_mod(&bps.data_structure, lsg, important_sublangs);
     let ccf_auto_impls = gen_ccf_auto_impls(&bps.data_structure, &bps.term_trait, lsg);
     let heap_impl = gen_heap_impl(bps, lsg, lsg);
     let maps_tmf_impls = gen_maps_tmf(bps);
@@ -142,8 +146,9 @@ pub(crate) fn gen_ccf_auto_impls<L: LangSpec>(
 pub(crate) fn gen_transitive_ccf_mod<L: LangSpec>(
     ds_base_path: &syn::Path,
     lsg: &LsGen<L>,
+    important_sublangs: &[Name],
 ) -> syn::ItemMod {
-    let ccfp = lsg.ccf_paths();
+    let ccfp = lsg.ccf_paths(important_sublangs);
     let tucs = tuc_impls(ds_base_path, &ccfp, lsg);
     let tacs = tac_impls(ds_base_path, &ccfp, lsg);
     let byline = byline!();
@@ -386,7 +391,7 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
         data_structure: syn::parse_quote!(crate::data_structure),
         term_trait: syn::parse_quote!(crate::term_trait),
     };
-    let m = generate(&bps, &lsg);
+    let m = generate(&bps, &lsg, &[lsf.name().clone()]);
     let ds = term_specialized_gen::generate(&bps.data_structure, &lsg, false);
     let tt = term_trait_gen::generate(&bps.term_trait, &lsf);
     let words_impls = words::words_impls(
