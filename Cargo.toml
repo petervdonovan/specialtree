@@ -29,6 +29,9 @@ members = [
     "term-bridge-gen",
 ]
 
+[profile.release]
+debug = true # debug symbols
+
 [workspace.package]
 version = "0.1.0"
 edition = "2024"

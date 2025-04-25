@@ -24,7 +24,22 @@ pub fn insert_use(f: syn::File) -> syn::File {
     for use_decl in top_level_use {
         tersified_file.items.insert(0, use_decl.to_syn().into());
     }
+    insert_generated_code_annotations(&mut tersified_file);
     tersified_file
+}
+
+fn insert_generated_code_annotations(f: &mut syn::File) {
+    let mut annotations: Vec<syn::Attribute> = vec![
+        syn::parse_quote! {
+            //! @generated
+        },
+        syn::parse_quote! {#![feature(custom_inner_attributes)]},
+        syn::parse_quote! {#![rustfmt::skip]},
+        syn::parse_quote! {#![allow(warnings)]},
+        syn::parse_quote! {#![allow(unknown_lints)]},
+    ];
+    annotations.extend(f.attrs.iter().cloned());
+    f.attrs = annotations;
 }
 
 struct InsertUseInModuleAsNeeded;
