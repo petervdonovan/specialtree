@@ -1,5 +1,5 @@
-use extension_everywhere_alternative::EverywhereAlternative;
-use extension_everywhere_maybemore::EverywhereMaybeMore;
+use extension_everywhere_alternative::everywhere_alternative;
+use extension_everywhere_maybemore::everywhere_maybemore;
 use langspec::{
     langspec::{LangSpec, MappedType, Name, SortId},
     tymetafunc::Transparency,
@@ -88,33 +88,33 @@ pub(crate) fn cst<'a, 'b: 'a, L: LangSpec>(
     l: &'b L,
 ) -> impl LangSpec + 'a {
     let errlang = arena.alloc(std_parse_error::parse_error());
-    let fallible_ast = arena.alloc(EverywhereAlternative {
-        name: Name {
+    let fallible_ast = arena.alloc(everywhere_alternative(
+        Name {
             human: "FallibleAst".into(),
             camel: "FallibleAst".into(),
             snake: "fallible_ast".into(),
         },
-        l0: l,
-        l1: errlang,
-        l1_root: SortId::TyMetaFunc(MappedType {
+        l,
+        errlang,
+        SortId::TyMetaFunc(MappedType {
             f: std_parse_error::ParseErrorTmfId(),
             a: vec![],
         }),
-    });
+    ));
     let parse_metadata = arena.alloc(std_parse_metadata::parse_metadata());
-    EverywhereMaybeMore {
-        name: Name {
+    everywhere_maybemore(
+        Name {
             human: "Cst".into(),
             camel: "Cst".into(),
             snake: "cst".into(),
         },
-        l0: fallible_ast,
-        l1: parse_metadata,
-        l1_root: SortId::TyMetaFunc(MappedType {
+        fallible_ast,
+        parse_metadata,
+        SortId::TyMetaFunc(MappedType {
             f: std_parse_metadata::ParseMetadataTmfId(),
             a: vec![],
         }),
-    }
+    )
 }
 
 pub fn gen_impls<L: LangSpec>(

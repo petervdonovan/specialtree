@@ -1,41 +1,30 @@
 use either_id::Either;
 use langspec::{
-    langspec::{LangSpec, MappedType, Name, SortId, SortIdOf},
-    sublang::{reflexive_sublang, TmfEndoMappingNonreflexive},
+    langspec::{LangSpec, MappedType, Name, SortIdOf},
     tymetafunc::{Transparency, TyMetaFuncSpec},
 };
-use tmfs_join::TmfsJoin;
 
-pub struct EverywhereMaybeMore<'a, 'b, L0: LangSpec, L1: LangSpec> {
-    pub name: Name,
-    pub l0: &'a L0,
-    pub l1: &'b L1,
-    pub l1_root: langspec::langspec::SortIdOf<L1>,
-}
-
-join_boilerplate::join_over_tmfs_as_my_sid!(EverywhereMaybeMore<'a, 'b, L0, L1>);
-
-fn maybefy<'a, 'b, L0: LangSpec, L1: LangSpec>(
+fn maybefy<L0: LangSpec, L1: LangSpec>(
     sid: langspec::langspec::SortIdOf<L1>,
-) -> langspec::langspec::SortIdOf<EverywhereMaybeMore<'a, 'b, L0, L1>> {
+) -> SortIdOfExtension<L0, L1> {
     langspec::langspec::SortId::TyMetaFunc(langspec::langspec::MappedType {
         f: Either::Right(tymetafuncspec_core::MAYBE),
         a: vec![l1_as_my_sid::<L0, L1>(sid)],
     })
 }
-fn maybemorefy<'a, 'b, L0: LangSpec, L1: LangSpec>(
+fn maybemorefy<L0: LangSpec, L1: LangSpec>(
     sid: langspec::langspec::SortIdOf<L0>,
     maybe_sid: langspec::langspec::SortIdOf<L1>,
-) -> langspec::langspec::SortIdOf<EverywhereMaybeMore<'a, 'b, L0, L1>> {
+) -> SortIdOfExtension<L0, L1> {
     langspec::langspec::SortId::TyMetaFunc(langspec::langspec::MappedType {
         f: Either::Right(tymetafuncspec_core::PAIR),
         a: vec![l0_as_my_sid::<L0, L1>(sid), maybefy::<L0, L1>(maybe_sid)],
     })
 }
-fn maybemorefy_if_product<'a, 'b, L0: LangSpec, L1: LangSpec>(
+fn maybemorefy_if_product<L0: LangSpec, L1: LangSpec>(
     sid: langspec::langspec::SortIdOf<L0>,
     maybe_sid: langspec::langspec::SortIdOf<L1>,
-) -> langspec::langspec::SortIdOf<EverywhereMaybeMore<'a, 'b, L0, L1>> {
+) -> SortIdOfExtension<L0, L1> {
     match sid {
         langspec::langspec::SortId::Algebraic(langspec::langspec::AlgebraicSortId::Product(_)) => {
             maybemorefy::<L0, L1>(sid, maybe_sid)
@@ -44,14 +33,14 @@ fn maybemorefy_if_product<'a, 'b, L0: LangSpec, L1: LangSpec>(
         _ => l0_as_my_sid::<L0, L1>(sid),
     }
 }
-fn l0_tmfmap<'a, 'b, L0: LangSpec, L1: LangSpec>(
+fn l0_tmfmap<L0: LangSpec, L1: LangSpec>(
     maybe_sid: langspec::langspec::SortIdOf<L1>,
     MappedType { f, a }: MappedType<
         L0::ProductId,
         L0::SumId,
         <L0::Tmfs as TyMetaFuncSpec>::TyMetaFuncId,
     >,
-) -> langspec::langspec::SortIdOf<EverywhereMaybeMore<'a, 'b, L0, L1>> {
+) -> SortIdOfExtension<L0, L1> {
     let rec = langspec::langspec::SortId::TyMetaFunc(langspec::langspec::MappedType {
         f: Either::Left(Either::Left(f.clone())),
         a: a.into_iter()
@@ -69,92 +58,34 @@ fn l0_tmfmap<'a, 'b, L0: LangSpec, L1: LangSpec>(
     }
 }
 
-impl<L0: LangSpec, L1: LangSpec> LangSpec for EverywhereMaybeMore<'_, '_, L0, L1> {
-    type Tmfs = TmfsJoin<TmfsJoin<L0::Tmfs, L1::Tmfs>, tymetafuncspec_core::Core>;
+use langspec_extension::{L0Map, LsExtension, SortIdOfExtension, l0_as_my_sid, l1_as_my_sid};
 
-    join_boilerplate::lsjoin!();
-
-    fn product_sorts(
-        &self,
-        id: Self::ProductId,
-    ) -> impl Iterator<Item = langspec::langspec::SortIdOf<Self>> {
-        match id {
-            Either::Left(id) => Box::new(
-                self.l0
-                    .product_sorts(id)
-                    .map(|sid| maybemorefy_if_product::<L0, L1>(sid, self.l1_root.clone())),
-            )
-                as Box<dyn Iterator<Item = langspec::langspec::SortIdOf<Self>>>,
-            Either::Right(id) => Box::new(self.l1.product_sorts(id).map(l1_as_my_sid::<L0, L1>))
-                as Box<dyn Iterator<Item = langspec::langspec::SortIdOf<Self>>>,
-        }
+pub struct L0M<L1: LangSpec> {
+    pub l1_root: SortIdOf<L1>,
+}
+impl<'a, 'b, L0, L1> L0Map<'a, 'b, L0, L1> for L0M<L1>
+where
+    L0: LangSpec,
+    L1: LangSpec,
+{
+    fn l0_map(
+        this: &LsExtension<'a, 'b, L0, L1, Self>,
+        sid: SortIdOf<L0>,
+    ) -> SortIdOfExtension<L0, L1> {
+        maybemorefy_if_product::<L0, L1>(sid, this.l0m.l1_root.clone())
     }
+}
 
-    fn sum_sorts(
-        &self,
-        id: Self::SumId,
-    ) -> impl Iterator<Item = langspec::langspec::SortIdOf<Self>> {
-        match id {
-            Either::Left(id) => Box::new(
-                self.l0
-                    .sum_sorts(id)
-                    .map(|sid| maybemorefy_if_product::<L0, L1>(sid, self.l1_root.clone())),
-            )
-                as Box<dyn Iterator<Item = langspec::langspec::SortIdOf<Self>>>,
-            Either::Right(id) => Box::new(self.l1.sum_sorts(id).map(l1_as_my_sid::<L0, L1>))
-                as Box<dyn Iterator<Item = langspec::langspec::SortIdOf<Self>>>,
-        }
-    }
-
-    fn sublangs(&self) -> Vec<langspec::sublang::Sublang<langspec::langspec::SortIdOf<Self>>> {
-        self.l0
-            .sublangs()
-            .into_iter()
-            .map(
-                |sublang: langspec::sublang::Sublang<langspec::langspec::SortIdOf<L0>>| {
-                    langspec::sublang::Sublang::<langspec::langspec::SortIdOf<Self>> {
-                        name: sublang.name,
-                        image: sublang
-                            .image
-                            .clone()
-                            .into_iter()
-                            .map(|sid| maybemorefy_if_product::<L0, L1>(sid, self.l1_root.clone()))
-                            .collect(),
-                        ty_names: sublang.ty_names,
-                        map: Box::new(move |name| {
-                            let id = (sublang.map)(name);
-                            let mapped = maybemorefy_if_product::<L0, L1>(id, self.l1_root.clone());
-                            mapped
-                        }),
-                        tems: sublang
-                            .tems
-                            .into_iter()
-                            .map(|tem| match (tem.from, tem.to) {
-                                (SortId::TyMetaFunc(mtfrom), SortId::TyMetaFunc(mtto)) => {
-                                    TmfEndoMappingNonreflexive::<SortIdOf<Self>> {
-                                        from: SortId::TyMetaFunc(MappedType {
-                                            f: Either::Left(Either::Left(mtfrom.f.clone())),
-                                            a: mtfrom
-                                                .a
-                                                .iter()
-                                                .map(|sid| {
-                                                    maybemorefy_if_product::<L0, L1>(
-                                                        sid.clone(),
-                                                        self.l1_root.clone(),
-                                                    )
-                                                })
-                                                .collect(),
-                                        }),
-                                        to: l0_tmfmap::<L0, L1>(self.l1_root.clone(), mtto.clone()),
-                                    }
-                                }
-                                _ => panic!(),
-                            })
-                            .collect(),
-                    }
-                },
-            )
-            .chain(std::iter::once(reflexive_sublang(self)))
-            .collect()
+pub fn everywhere_maybemore<'a, 'b, L0: LangSpec, L1: LangSpec>(
+    name: Name,
+    l0: &'a L0,
+    l1: &'b L1,
+    l1_root: SortIdOf<L1>,
+) -> LsExtension<'a, 'b, L0, L1, L0M<L1>> {
+    LsExtension {
+        name,
+        l0,
+        l1,
+        l0m: L0M { l1_root },
     }
 }

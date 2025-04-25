@@ -5,7 +5,6 @@ edition = { workspace = true }
 
 [dependencies]
 either-id = { path = "../either-id" }
-join-boilerplate = { path = "../join-boilerplate" }
 langspec = { path = "../langspec" }
-tmfs-join = { path = "../tmfs-join" }
+langspec-extension = { path = "../langspec-extension" }
 tymetafuncspec-core = { path = "../tymetafuncspec-core" }

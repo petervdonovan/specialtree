@@ -26,7 +26,7 @@ members = [
     "parse-adt",
     "words",
     "syn-insert-use",
-    "term-bridge-gen",
+    "term-bridge-gen", "langspec-extension",
 ]
 
 [profile.release]

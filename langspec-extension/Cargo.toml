@@ -1,0 +1,11 @@
+[package]
+name = "langspec-extension"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+either-id = { path = "../either-id" }
+join-boilerplate = { path = "../join-boilerplate" }
+langspec = { path = "../langspec" }
+tmfs-join = { path = "../tmfs-join" }
+tymetafuncspec-core = { path = "../tymetafuncspec-core" }

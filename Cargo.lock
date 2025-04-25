@@ -131,9 +131,8 @@ name = "extension-everywhere-alternative"
 version = "0.1.0"
 dependencies = [
  "either-id",
- "join-boilerplate",
  "langspec",
- "tmfs-join",
+ "langspec-extension",
  "tymetafuncspec-core",
 ]
 
@@ -142,9 +141,8 @@ name = "extension-everywhere-maybemore"
 version = "0.1.0"
 dependencies = [
  "either-id",
- "join-boilerplate",
  "langspec",
- "tmfs-join",
+ "langspec-extension",
  "tymetafuncspec-core",
 ]
 
@@ -237,6 +235,17 @@ dependencies = [
  "expect-test",
  "langspec",
  "serde_json",
+ "tymetafuncspec-core",
+]
+
+[[package]]
+name = "langspec-extension"
+version = "0.1.0"
+dependencies = [
+ "either-id",
+ "join-boilerplate",
+ "langspec",
+ "tmfs-join",
  "tymetafuncspec-core",
 ]
 
