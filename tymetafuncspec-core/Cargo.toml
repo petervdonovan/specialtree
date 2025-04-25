@@ -6,7 +6,6 @@ edition = { workspace = true }
 [dependencies]
 langspec = { path = "../langspec" }
 term = { path = "../term" }
-parse = { path = "../parse" }
 once_cell = { workspace = true }
 serde = { workspace = true }
 syn = { workspace = true }

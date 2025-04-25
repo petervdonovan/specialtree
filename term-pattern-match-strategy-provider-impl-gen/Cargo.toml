@@ -11,7 +11,6 @@ term-specialized-gen = { path = "../term-specialized-gen" }
 words = { path = "../words" }
 term-specialized-impl-gen = { path = "../term-specialized-impl-gen" }
 prettyplease = { workspace = true }
-proc-macro2 = { workspace = true }
 quote = { workspace = true }
 syn = { workspace = true }
 

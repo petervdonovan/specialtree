@@ -4,7 +4,6 @@ version = { workspace = true }
 edition = { workspace = true }
 
 [dependencies]
-typenum = { workspace = true }
 bumpalo = { workspace = true }
 prettyplease = { workspace = true }
 quote = { workspace = true }
@@ -13,7 +12,7 @@ extension-everywhere-alternative = { path = "../extension-everywhere-alternative
 extension-everywhere-maybemore = { path = "../extension-everywhere-maybemore" }
 langspec = { path = "../langspec" }
 langspec-gen-util = { path = "../langspec-gen-util" }
-parse-adt = { path = "../parse-adt" }
+
 std-parse-error = { path = "../langspec-std/std-parse-error" }
 std-parse-metadata = { path = "../langspec-std/std-parse-metadata" }
 syn-insert-use = { path = "../syn-insert-use" }
@@ -22,11 +21,14 @@ term-pattern-match-strategy-provider-impl-gen = { path = "../term-pattern-match-
 term-specialized-gen = { path = "../term-specialized-gen" }
 term-specialized-impl-gen = { path = "../term-specialized-impl-gen" }
 term-trait-gen = { path = "../term-trait-gen" }
-tymetafuncspec-core = { path = "../tymetafuncspec-core" }
 words = { path = "../words" }
 
 [dev-dependencies]
+typenum = { workspace = true }
 miette = { workspace = true }
-langspec-examples = { path = "../langspec-examples" }
 parse = { path = "../parse" }
 term = { path = "../term" }
+
+langspec-examples = { path = "../langspec-examples" }
+parse-adt = { path = "../parse-adt" }
+tymetafuncspec-core = { path = "../tymetafuncspec-core" }
