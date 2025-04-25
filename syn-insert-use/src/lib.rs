@@ -10,12 +10,17 @@ pub fn insert_use(f: syn::File) -> syn::File {
     let mut tersified_file = f.clone();
     InsertUseInModuleAsNeeded.visit_file_mut(&mut tersified_file);
     TersifyingPathsVisitor { collisions: cp }.visit_file_mut(&mut tersified_file);
-    let (top_level_use, _) = {
+    let (mut top_level_use, _) = {
         let mut pv = PathVisitor::<NonRecursive>::new();
         pv.visit_file(&f);
         let pv = pv.sorted();
         use_declarations(pv)
     };
+    top_level_use.sort_by(|a, b| {
+        let a = a.to_string();
+        let b = b.to_string();
+        a.cmp(&b)
+    });
     for use_decl in top_level_use {
         tersified_file.items.insert(0, use_decl.to_syn().into());
     }
@@ -32,7 +37,13 @@ impl VisitMut for InsertUseInModuleAsNeeded {
                 pv.visit_item(item);
             }
             let pv = pv.sorted();
-            for use_decl in use_declarations(pv).0 {
+            let mut sorted_declarations = use_declarations(pv).0;
+            sorted_declarations.sort_by(|a, b| {
+                let a = a.to_string();
+                let b = b.to_string();
+                a.cmp(&b)
+            });
+            for use_decl in sorted_declarations {
                 items.insert(0, use_decl.to_syn().into());
             }
         }
