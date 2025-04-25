@@ -4,7 +4,7 @@ use langspec::{
     langspec::{LangSpec, MappedType, Name, SortId},
     tymetafunc::Transparency,
 };
-use langspec_gen_util::{byline, proc_macro2, AlgebraicsBasePath, HeapType, LsGen, TyGenData};
+use langspec_gen_util::{byline, proc_macro2, LsGen, TyGenData};
 use syn::parse_quote;
 
 pub struct BasePaths {
@@ -49,7 +49,6 @@ pub fn generate_parse<L: LangSpec, LCst: LangSpec>(
 ) -> syn::Item {
     let camel_ident = &cst_tgd.camel_ident;
     let snake_ident = &cst_tgd.snake_ident;
-    let cstfication = transparency2cstfication(&tgd.transparency);
     let cst_data_structure_bp = &bps.cst_data_structure;
     let my_cst_ty: syn::Type = syn::parse_quote! { #cst_data_structure_bp::#camel_ident };
     syn::parse_quote! {

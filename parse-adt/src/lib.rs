@@ -2,14 +2,12 @@
 #![feature(fundamental)]
 
 use cstfy::{Cstfy, CstfyTransparent};
-use parse::{Keyword, KeywordSequence, UnexpectedTokenError};
+use parse::{KeywordSequence, UnexpectedTokenError};
 use term::{
-    case_split::{Adt, AtLeastTwoConsList, ConsList, HasPatternMatchStrategyFor, NonemptyConsList},
-    co_visit::{CoVisitable, CoVisitor},
+    case_split::{AtLeastTwoConsList, ConsList, NonemptyConsList},
+    co_visit::CoVisitor,
     select::{AcceptingCases, FromSelectCase, SelectCase},
-    CanonicallyConstructibleFrom,
 };
-use tymetafuncspec_core::{BoundedNat, BoundedNatHeapBak};
 
 pub mod cstfy;
 mod tmfscore;

@@ -15,7 +15,7 @@ pub struct BasePaths {
 
 pub fn generate<L: LangSpec>(bps: &BasePaths, lsg: &LsGen<L>) -> syn::ItemMod {
     let owned_mod = gen_owned_mod(bps, lsg);
-    let ccf_mod = gen_ccf_mod(bps, lsg, lsg);
+    let ccf_mod = gen_ccf_mod(bps, lsg);
     let transitive_ccf_mod = gen_transitive_ccf_mod(&bps.data_structure, lsg);
     let ccf_auto_impls = gen_ccf_auto_impls(&bps.data_structure, &bps.term_trait, lsg);
     let heap_impl = gen_heap_impl(bps, lsg, lsg);
@@ -91,11 +91,7 @@ pub(crate) fn gen_owned_mod<L: LangSpec>(
     }
 }
 
-pub(crate) fn gen_ccf_mod<L: LangSpec>(
-    bps: &BasePaths,
-    data_structure_lsg: &LsGen<L>,
-    term_trait_lsg: &LsGen<L>,
-) -> syn::ItemMod {
+pub(crate) fn gen_ccf_mod<L: LangSpec>(bps: &BasePaths, term_trait_lsg: &LsGen<L>) -> syn::ItemMod {
     let term_trait = &bps.term_trait;
     let ccf_impls = term_trait_lsg
         .ty_gen_datas(Some(syn::parse_quote!(#term_trait::words)))

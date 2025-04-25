@@ -51,7 +51,7 @@ where
                 let ok = short_circuited.call(heap);
                 (T::construct(heap, ok), short_circuited)
             }
-            Err(mut arc) => <T as CoCaseSplittable<
+            Err(arc) => <T as CoCaseSplittable<
                 <F as AcceptingCases<(CasesCar, CasesCdr)>>::AcceptingRemainingCases,
                 CasesCdr,
             >>::co_case_split(arc, heap),

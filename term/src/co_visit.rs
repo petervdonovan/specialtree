@@ -1,6 +1,6 @@
 use crate::{
     Heaped,
-    case_split::{Adt, ConsList, HasPatternMatchStrategyFor},
+    case_split::ConsList,
     co_case_split::{AdmitNoMatchingCase, CoCallable, CoCaseSplittable},
     select::{AcceptingCases, FromSelectCase, SelectCase},
 };
@@ -150,7 +150,6 @@ where
     PatternMatchStrategyProvider: crate::case_split::HasPatternMatchStrategyFor<T>,
 {
     fn co_visit(visitor: &mut CV, heap: &mut Heap) -> Self {
-        let mut ret: Option<Self> = None;
         visitor.co_push();
         let visitor_owned = std::mem::take(visitor);
         // take_mut::take(visitor, |visitor| {
@@ -160,10 +159,9 @@ where
             phantom: std::marker::PhantomData,
         };
         let (new_ret, short) = <T as CoCaseSplittable<_, _>>::co_case_split(callable, heap);
-        ret = Some(new_ret);
         *visitor = short.cv;
         // });
         visitor.co_pop();
-        ret.unwrap()
+        new_ret
     }
 }

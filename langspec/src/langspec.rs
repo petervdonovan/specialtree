@@ -16,7 +16,7 @@ pub struct Name {
     pub snake: String,
 }
 #[allow(type_alias_bounds)]
-pub type SortIdOf<L: LangSpec + ?Sized> =
+pub type SortIdOf<L: LangSpec> =
     SortId<L::ProductId, L::SumId, <L::Tmfs as TyMetaFuncSpec>::TyMetaFuncId>;
 
 #[derive(Debug, Serialize, Deserialize, Clone, Functor, PartialEq, Eq, Hash)]
@@ -139,7 +139,7 @@ pub trait LangSpec: Sized {
 /// Marks a langspec as an element of the iso class of terminal objects in the category of [LangSpec]s.
 /// Needed because a [From] impl would conflict with the blanket impl for [From] for all types.
 pub trait TerminalLangSpec: LangSpec {
-    fn canonical_from<L: LangSpec<Tmfs = <Self as LangSpec>::Tmfs> + ?Sized>(l: &L) -> Self;
+    fn canonical_from<L: LangSpec<Tmfs = <Self as LangSpec>::Tmfs>>(l: &L) -> Self;
 }
 
 pub trait ToLiteral {

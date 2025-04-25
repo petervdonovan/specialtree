@@ -414,11 +414,8 @@ impl<L: LangSpec> LsGen<'_, L> {
                 let abp = &abp.0;
                 syn::parse_quote! { #abp #ident }
             }
-            SortId::TyMetaFunc(MappedType { f: _, a }) => {
+            SortId::TyMetaFunc(_) => {
                 let rs_ty = self.sort2rs_ty(sort.clone(), ht, abp);
-                let args = a
-                    .iter()
-                    .map(|arg| self.sort2tmfmapped_rs_ty(arg.clone(), ht, abp, words_path));
                 let ht = &ht.0;
                 let ret = quote::quote! {<#ht as term::MapsTmf<#words_path::L, #rs_ty>>::Tmf};
                 syn::parse_quote! { #ret }
@@ -522,22 +519,6 @@ pub fn cons_list_index_range(n: usize, expr: syn::Expr) -> impl Iterator<Item = 
         syn::parse_quote! {
             #expr #(. #ones)*.0
         }
-    })
-}
-
-fn algebraics<
-    ProductId: Clone + 'static,
-    SumId: Clone + 'static,
-    TyMetaFuncId: Clone + 'static,
-    I: Iterator<Item = SortId<ProductId, SumId, TyMetaFuncId>>,
->(
-    it: I,
-) -> impl Iterator<Item = SortId<ProductId, SumId, TyMetaFuncId>> {
-    it.flat_map(|sort| match &sort {
-        SortId::Algebraic(_) => {
-            Box::new(std::iter::once(sort.clone())) as Box<dyn Iterator<Item = _>>
-        }
-        SortId::TyMetaFunc(mapped_type) => Box::new(mapped_type.a.clone().into_iter()),
     })
 }
 fn sortid_name<L: LangSpec>(ls: &L, sort: &SortIdOf<L>) -> Name {
@@ -825,8 +806,8 @@ fn combinations<I: Clone + IntoIterator<Item: Clone>>(
         }
         None => {
             let mut new_value = vec![];
-            for i in 0..seqs.len() {
-                if let Some(next_value) = iterators[i].next() {
+            for iterator in iterators.iter_mut() {
+                if let Some(next_value) = iterator.next() {
                     new_value.push(next_value);
                 } else {
                     return None;
@@ -910,7 +891,6 @@ fn ccfs_exploded_by_unit_paths<SortId: Clone + Eq>(
 #[cfg(test)]
 mod tests {
     use langspec::{humanreadable::LangSpecHuman, langspec::SortIdOf};
-    use term::CcfRelation;
 
     use crate::{
         ccfs_exploded_by_unit_paths, get_direct_ccf_rels,

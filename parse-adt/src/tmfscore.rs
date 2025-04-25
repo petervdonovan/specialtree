@@ -1,11 +1,10 @@
 use core::panic;
 
-use parse::{Keyword, KeywordSequence};
 use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Maybe, Pair, Set, SetHeapBak};
 
 use crate::{
     cstfy::{cstfy_ok, Cstfy, CstfyTransparent},
-    return_if_err, Lookahead, ParseLL, Parser,
+    return_if_err, Lookahead, Parser,
 };
 
 impl<Heap, Pmsp, Amc, DepthFuelUpperBits, DepthFuelLastBit>

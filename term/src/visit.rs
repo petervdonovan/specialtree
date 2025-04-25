@@ -126,15 +126,14 @@ where
         visitor: &mut V,
         heap: &mut <V as HasBorrowedHeapRef>::Borrowed<'_, Self::Heap>,
     ) {
-        let mut heap = heap;
-        if let MaybeAbortThisSubtree::Proceed = visitor.push(*self, &mut heap) {
+        if let MaybeAbortThisSubtree::Proceed = visitor.push(*self, heap) {
             take_mut::take(visitor, |visitor| {
                 let mut callable = CallablefyVisitor {
                     visitor,
                     ctx: *self,
                     phantom: std::marker::PhantomData,
                 };
-                <T as CaseSplittable<_, _>>::case_split(self, &mut callable, &mut heap);
+                <T as CaseSplittable<_, _>>::case_split(self, &mut callable, heap);
                 callable.visitor
             });
         }

@@ -29,7 +29,6 @@ pub fn generate<L: LangSpec>(base_paths: &BasePaths, ls: &LsGen<L>) -> syn::Item
         }))
         .collect::<Vec<_>>();
     let term_trait = &base_paths.term_trait;
-    let data_structure = &base_paths.data_structure;
     let words = &base_paths.words;
     syn::parse_quote! {
         #byline
@@ -53,7 +52,7 @@ pub fn generate<L: LangSpec>(base_paths: &BasePaths, ls: &LsGen<L>) -> syn::Item
 pub(crate) fn impl_has_pattern_match_strategy_for(
     BasePaths {
         term_trait,
-        data_structure,
+        data_structure: _,
         words,
         strategy_provider: _,
     }: &BasePaths,

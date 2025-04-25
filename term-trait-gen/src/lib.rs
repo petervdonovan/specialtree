@@ -4,7 +4,7 @@ use langspec_gen_util::{LsGen, byline, transpose};
 use syn::parse_quote;
 
 use langspec_gen_util::{
-    AlgebraicsBasePath, CanonicallyConstructibleFromGenData, CanonicallyMaybeToGenData, TyGenData,
+    AlgebraicsBasePath, CanonicallyConstructibleFromGenData, TyGenData,
 };
 
 pub fn generate<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::ItemMod {

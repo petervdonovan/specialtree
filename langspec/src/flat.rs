@@ -104,7 +104,7 @@ impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::flat::LangSpecFl
 }
 
 impl<Tmfs: TyMetaFuncSpec> TerminalLangSpec for LangSpecFlat<Tmfs> {
-    fn canonical_from<L: LangSpec<Tmfs = Tmfs> + ?Sized>(l: &L) -> Self {
+    fn canonical_from<L: LangSpec<Tmfs = Tmfs>>(l: &L) -> Self {
         let name = l.name().clone();
         let mut products_sorted = l.products().collect::<Vec<_>>();
         products_sorted.sort_by_key(|pid| l.product_name(pid.clone()).human.clone());

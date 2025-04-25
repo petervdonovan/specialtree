@@ -1,5 +1,4 @@
 #![feature(fundamental)]
-use case_split::HasPatternMatchStrategyFor;
 pub use type_equals;
 
 pub mod case_split;

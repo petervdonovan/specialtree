@@ -65,7 +65,7 @@ impl UnexpectedTokenError {
     ) -> Option<UnexpectedTokenError> {
         match previous {
             None => Some(self),
-            Some(mut previous) => {
+            Some(previous) => {
                 // for kw in self.expected_any_of {
                 //     if !previous.expected_any_of.iter().any(|it| it.0 == kw.0) {
                 //         previous.expected_any_of.push(kw);
