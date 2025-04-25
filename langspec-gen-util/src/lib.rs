@@ -685,8 +685,14 @@ fn get_tucr_for_to<SortId: Clone + Eq + std::hash::Hash>(
         .filter(|rel| rel.to == to && rel.from != to)
         .map(|rel| rel.from.clone())
         .collect::<HashSet<_>>();
+    enum Ambiguity {
+        Ambiguous,
+        Unambiguous,
+    }
     type CostedTucrs<SortId> =
         HashMap<UcpPair<SortId>, (TransitiveUnitCcfRelation<SortId>, Distance)>;
+    type CostedTucrsWithAmbiguity<SortId> =
+        HashMap<UcpPair<SortId>, (TransitiveUnitCcfRelation<SortId>, Distance, Ambiguity)>;
     fn get_tucr_for_to_and_intermediary<SortId: Clone + Eq + std::hash::Hash>(
         unit_ccf_rels: &[UnitCcfRel<SortId>],
         to: SortId,
@@ -719,11 +725,7 @@ fn get_tucr_for_to<SortId: Clone + Eq + std::hash::Hash>(
                     }
                     for ucr in unit_ccf_rels.iter() {
                         if ucr.to == sid.0 {
-                            // if sid.1 && nt {
-                            //     reachable.insert(ucr.from.clone(), Distance(distance.0 + 1));
-                            // } else {
                             new_frontier.push((ucr.from.clone(), sid.1 || nt));
-                            // }
                         }
                     }
                 }
@@ -757,7 +759,7 @@ fn get_tucr_for_to<SortId: Clone + Eq + std::hash::Hash>(
             })
             .collect()
     }
-    let mut tucrs: CostedTucrs<SortId> = HashMap::new();
+    let mut tucrs: CostedTucrsWithAmbiguity<SortId> = HashMap::new();
     for intermediary in intermediaries.iter() {
         let tucrs_intermediary = get_tucr_for_to_and_intermediary::<SortId>(
             unit_ccf_rels,
@@ -768,14 +770,29 @@ fn get_tucr_for_to<SortId: Clone + Eq + std::hash::Hash>(
         for (pair, (tucr, distance)) in tucrs_intermediary.iter() {
             if let Some(existing) = tucrs.get(pair) {
                 if existing.1 .0 > distance.0 {
-                    tucrs.insert(pair.clone(), (tucr.clone(), *distance));
+                    tucrs.insert(
+                        pair.clone(),
+                        (tucr.clone(), *distance, Ambiguity::Unambiguous),
+                    );
+                } else if existing.1 .0 == distance.0 {
+                    tucrs.insert(
+                        pair.clone(),
+                        (tucr.clone(), *distance, Ambiguity::Ambiguous),
+                    );
                 }
             } else {
-                tucrs.insert(pair.clone(), (tucr.clone(), *distance));
+                tucrs.insert(
+                    pair.clone(),
+                    (tucr.clone(), *distance, Ambiguity::Unambiguous),
+                );
             }
         }
     }
-    tucrs.into_values().map(|v| v.0).collect()
+    tucrs
+        .into_values()
+        .filter(|it| matches!(it.2, Ambiguity::Unambiguous))
+        .map(|v| v.0)
+        .collect()
 }
 
 fn combinations<I: Clone + IntoIterator<Item: Clone>>(
