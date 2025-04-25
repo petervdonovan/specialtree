@@ -1,10 +1,10 @@
 [package]
 name = "either-id"
-version = "0.1.0"
-edition = "2021"
+version = { workspace = true }
+edition = { workspace = true }
 
 [dependencies]
 functor_derive = "0.4.3"
-langspec = { version = "0.1.0", path = "../langspec" }
+langspec = { path = "../langspec" }
 serde = { version = "1.0.217", features = ["derive"] }
 syn = "2.0.96"

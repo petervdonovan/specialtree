@@ -1,13 +1,13 @@
 [package]
 name = "std-parse-metadata"
-version = "0.1.0"
-edition = "2021"
+version = { workspace = true }
+edition = { workspace = true }
 
 [dependencies]
-derivative = "2.2.0"
-langspec = { version = "0.1.0", path = "../../langspec" }
-parse = { version = "0.1.0", path = "../../parse" }
-serde = { version = "1.0.217", features = ["derive"] }
-serde_json = "1.0.137"
-syn = "2.0.98"
-term = { version = "0.1.0", path = "../../term" }
+derivative = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+syn = { workspace = true }
+langspec = { path = "../../langspec" }
+parse = { path = "../../parse" }
+term = { path = "../../term" }

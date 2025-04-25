@@ -1,19 +1,19 @@
 [package]
 name = "term-pattern-match-strategy-provider-impl-gen"
-version = "0.1.0"
-edition = "2021"
+version = { workspace = true }
+edition = { workspace = true }
 
 [dependencies]
-langspec-gen-util = { version = "0.1.0", path = "../langspec-gen-util" }
-langspec = { version = "0.1.0", path = "../langspec" }
-prettyplease = "0.2.24"
-proc-macro2 = "1.0.89"
-quote = "1.0.37"
-syn = "2.0.82"
-term-trait-gen = { version = "0.1.0", path = "../term-trait-gen" }
-term-specialized-gen = { version = "0.1.0", path = "../term-specialized-gen" }
-words = { version = "0.1.0", path = "../words" }
-term-specialized-impl-gen = { version = "0.1.0", path = "../term-specialized-impl-gen" }
+langspec-gen-util = { path = "../langspec-gen-util" }
+langspec = { path = "../langspec" }
+term-trait-gen = { path = "../term-trait-gen" }
+term-specialized-gen = { path = "../term-specialized-gen" }
+words = { path = "../words" }
+term-specialized-impl-gen = { path = "../term-specialized-impl-gen" }
+prettyplease = { workspace = true }
+proc-macro2 = { workspace = true }
+quote = { workspace = true }
+syn = { workspace = true }
 
 [dev-dependencies]
 langspec-examples = { path = "../langspec-examples" }

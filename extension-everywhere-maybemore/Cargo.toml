@@ -1,11 +1,11 @@
 [package]
 name = "extension-everywhere-maybemore"
-version = "0.1.0"
-edition = "2021"
+version = { workspace = true }
+edition = { workspace = true }
 
 [dependencies]
-either-id = { version = "0.1.0", path = "../either-id" }
-join-boilerplate = { version = "0.1.0", path = "../join-boilerplate" }
-langspec = { version = "0.1.0", path = "../langspec" }
-tmfs-join = { version = "0.1.0", path = "../tmfs-join" }
-tymetafuncspec-core = { version = "0.1.0", path = "../tymetafuncspec-core" }
+either-id = { path = "../either-id" }
+join-boilerplate = { path = "../join-boilerplate" }
+langspec = { path = "../langspec" }
+tmfs-join = { path = "../tmfs-join" }
+tymetafuncspec-core = { path = "../tymetafuncspec-core" }

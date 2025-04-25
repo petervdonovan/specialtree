@@ -1,9 +1,9 @@
 [package]
 name = "words"
-version = "0.1.0"
-edition = "2021"
+version = { workspace = true }
+edition = { workspace = true }
 
 [dependencies]
-langspec = { version = "0.1.0", path = "../langspec" }
-langspec-gen-util = { version = "0.1.0", path = "../langspec-gen-util" }
-syn = "2.0.100"
+langspec = { path = "../langspec" }
+langspec-gen-util = { path = "../langspec-gen-util" }
+syn = { workspace = true }

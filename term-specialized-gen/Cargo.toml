@@ -1,21 +1,20 @@
 [package]
 name = "term-specialized-gen"
-version = "0.1.0"
-edition = "2021"
+version = { workspace = true }
+edition = { workspace = true }
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-langspec-gen-util = { version = "0.1.0", path = "../langspec-gen-util" }
-expect-test = "1.5.0"
-langspec = { version = "0.1.0", path = "../langspec" }
-prettyplease = "0.2.23"
-proc-macro2 = "1.0.88"
-quote = "1.0.37"
-syn = { version = "2.0.79", features = ["full"] }
+langspec-gen-util = { path = "../langspec-gen-util" }
+langspec = { path = "../langspec" }
+expect-test = { workspace = true }
+prettyplease = { workspace = true }
+proc-macro2 = { workspace = true }
+quote = { workspace = true }
+syn = { workspace = true }
 
 [dev-dependencies]
 langspec-examples = { path = "../langspec-examples" }
 term = { path = "../term" }
-trybuild = "1.0.101"
 tymetafuncspec-core = { path = "../tymetafuncspec-core" }

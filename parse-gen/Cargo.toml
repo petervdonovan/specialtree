@@ -1,35 +1,35 @@
 [package]
 name = "parse-gen"
-version = "0.1.0"
-edition = "2021"
+version = { workspace = true }
+edition = { workspace = true }
 
 [profile.dev]
 panic = "abort"
 
 [dependencies]
-bumpalo = "3.16.0"
-extension-everywhere-alternative = { version = "0.1.0", path = "../extension-everywhere-alternative" }
-extension-everywhere-maybemore = { version = "0.1.0", path = "../extension-everywhere-maybemore" }
-langspec = { version = "0.1.0", path = "../langspec" }
-langspec-gen-util = { version = "0.1.0", path = "../langspec-gen-util" }
-parse-adt = { version = "0.1.0", path = "../parse-adt" }
-prettyplease = "0.2.29"
-quote = "1.0.38"
-std-parse-error = { version = "0.1.0", path = "../langspec-std/std-parse-error" }
-std-parse-metadata = { version = "0.1.0", path = "../langspec-std/std-parse-metadata" }
-syn = { version = "2.0.96", features = ["full"] }
-syn-insert-use = { version = "0.1.0", path = "../syn-insert-use" }
-term-bridge-gen = { version = "0.1.0", path = "../term-bridge-gen" }
-term-pattern-match-strategy-provider-impl-gen = { version = "0.1.0", path = "../term-pattern-match-strategy-provider-impl-gen" }
-term-specialized-gen = { version = "0.1.0", path = "../term-specialized-gen" }
-term-specialized-impl-gen = { version = "0.1.0", path = "../term-specialized-impl-gen" }
-term-trait-gen = { version = "0.1.0", path = "../term-trait-gen" }
+typenum = { workspace = true }
+bumpalo = { workspace = true }
+prettyplease = { workspace = true }
+quote = { workspace = true }
+syn = { workspace = true }
+extension-everywhere-alternative = { path = "../extension-everywhere-alternative" }
+extension-everywhere-maybemore = { path = "../extension-everywhere-maybemore" }
+langspec = { path = "../langspec" }
+langspec-gen-util = { path = "../langspec-gen-util" }
+parse-adt = { path = "../parse-adt" }
+std-parse-error = { path = "../langspec-std/std-parse-error" }
+std-parse-metadata = { path = "../langspec-std/std-parse-metadata" }
+syn-insert-use = { path = "../syn-insert-use" }
+term-bridge-gen = { path = "../term-bridge-gen" }
+term-pattern-match-strategy-provider-impl-gen = { path = "../term-pattern-match-strategy-provider-impl-gen" }
+term-specialized-gen = { path = "../term-specialized-gen" }
+term-specialized-impl-gen = { path = "../term-specialized-impl-gen" }
+term-trait-gen = { path = "../term-trait-gen" }
 tymetafuncspec-core = { path = "../tymetafuncspec-core" }
-typenum = "1.18.0"
-words = { version = "0.1.0", path = "../words" }
+words = { path = "../words" }
 
 [dev-dependencies]
+miette = { workspace = true }
 langspec-examples = { path = "../langspec-examples" }
-miette = "7.4.0"
 parse = { path = "../parse" }
 term = { path = "../term" }

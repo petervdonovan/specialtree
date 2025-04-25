@@ -1,4 +1,4 @@
-use langspec::langspec::{call_on_all_tmf_monomorphizations, Name};
+use langspec::langspec::{Name, call_on_all_tmf_monomorphizations};
 use langspec::tymetafunc::{IdentifiedBy, RustTyMap, Transparency, TyMetaFuncSpec};
 use langspec::{
     langspec::{AlgebraicSortId, LangSpec, MappedType, SortId, SortIdOf},
@@ -127,11 +127,11 @@ impl<L: LangSpec> LsGen<'_, L> {
         let sublangs = self.bak.sublangs();
         for non_transparent_sorts in sublangs.iter().map(|it| it.image.clone()) {
             let ucp = unit_ccf_paths_quadratically_large_closure::<SortIdOf<L>>(
-                &direct_ccf_rels,
+                direct_ccf_rels.as_slice(),
                 &non_transparent_sorts,
             );
             let cebup = ccfs_exploded_by_unit_paths::<SortIdOf<L>>(
-                &direct_ccf_rels,
+                direct_ccf_rels.as_slice(),
                 &ucp,
                 &non_transparent_sorts,
             );
@@ -152,7 +152,7 @@ impl<L: LangSpec> LsGen<'_, L> {
         {
             ucp_acc.insert(
                 find_ucp(
-                    &direct_ccf_rels,
+                    direct_ccf_rels.as_slice(),
                     UcpPair {
                         from: desired_pair.from.clone(),
                         to: desired_pair.to.clone(),
@@ -217,11 +217,12 @@ impl<L: LangSpec> LsGen<'_, L> {
                         ccf_sort_transparencies: {
                             let pid = pid.clone();
                             Box::new(move || {
-                                vec![self
-                                    .bak
-                                    .product_sorts(pid.clone())
-                                    .map(|sort| self.sort2transparency(sort))
-                                    .collect()]
+                                vec![
+                                    self.bak
+                                        .product_sorts(pid.clone())
+                                        .map(|sort| self.sort2transparency(sort))
+                                        .collect(),
+                                ]
                             })
                         },
                         heap_sort_tys: Box::new({
@@ -249,11 +250,12 @@ impl<L: LangSpec> LsGen<'_, L> {
                             let pid = pid.clone();
                             let sort2rs_ty = sort2rs_ty.clone();
                             move |ht, abp| {
-                                vec![self
-                                    .bak
-                                    .product_sorts(pid.clone())
-                                    .map(sort2rs_ty(ht, abp))
-                                    .collect()]
+                                vec![
+                                    self.bak
+                                        .product_sorts(pid.clone())
+                                        .map(sort2rs_ty(ht, abp))
+                                        .collect(),
+                                ]
                             }
                         }),
                         ccf_sort_camel_idents: Box::new({
@@ -769,12 +771,12 @@ fn get_tucr_for_to<SortId: Clone + Eq + std::hash::Hash>(
         );
         for (pair, (tucr, distance)) in tucrs_intermediary.iter() {
             if let Some(existing) = tucrs.get(pair) {
-                if existing.1 .0 > distance.0 {
+                if existing.1.0 > distance.0 {
                     tucrs.insert(
                         pair.clone(),
                         (tucr.clone(), *distance, Ambiguity::Unambiguous),
                     );
-                } else if existing.1 .0 == distance.0 {
+                } else if existing.1.0 == distance.0 {
                     tucrs.insert(
                         pair.clone(),
                         (tucr.clone(), *distance, Ambiguity::Ambiguous),
@@ -804,7 +806,7 @@ fn combinations<I: Clone + IntoIterator<Item: Clone>>(
     }
     let mut previous: Option<Vec<I::Item>> = None;
     std::iter::from_fn(move || match &mut previous {
-        Some(ref mut value) => {
+        Some(value) => {
             for currently_incrementing_iterator in 0..iterators.len() {
                 if let Some(next_value) = iterators[currently_incrementing_iterator].next() {
                     value[currently_incrementing_iterator] = next_value;
@@ -927,12 +929,14 @@ mod tests {
                 langspec::langspec::AlgebraicSortId::Sum("ℕ".into()),
             ),
         ];
-        let ucr =
-            unit_ccf_paths_quadratically_large_closure::<SortIdOf<L>>(&dcr, non_transparent_sorts);
+        let ucr = unit_ccf_paths_quadratically_large_closure::<SortIdOf<L>>(
+            dcr.as_slice(),
+            non_transparent_sorts,
+        );
         for rel in &ucr {
             println!("{:?}\n", rel);
         }
-        let cebup = ccfs_exploded_by_unit_paths(&dcr, &ucr, non_transparent_sorts);
+        let cebup = ccfs_exploded_by_unit_paths(dcr.as_slice(), &ucr, non_transparent_sorts);
         for rel in &cebup {
             println!("{:?}\n", rel);
         }

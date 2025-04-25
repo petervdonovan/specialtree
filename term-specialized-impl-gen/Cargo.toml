@@ -1,17 +1,17 @@
 [package]
 name = "term-specialized-impl-gen"
-version = "0.1.0"
-edition = "2021"
+version = { workspace = true }
+edition = { workspace = true }
 
 [dependencies]
-langspec = { version = "0.1.0", path = "../langspec" }
-langspec-gen-util = { version = "0.1.0", path = "../langspec-gen-util" }
-prettyplease = "0.2.28"
-quote = "1.0.38"
-syn = { version = "2.0.96", features = ["full"] }
-term-specialized-gen = { version = "0.1.0", path = "../term-specialized-gen" }
-term-trait-gen = { version = "0.1.0", path = "../term-trait-gen" }
-words = { version = "0.1.0", path = "../words" }
+langspec = { path = "../langspec" }
+langspec-gen-util = { path = "../langspec-gen-util" }
+term-specialized-gen = { path = "../term-specialized-gen" }
+term-trait-gen = { path = "../term-trait-gen" }
+words = { path = "../words" }
+prettyplease = { workspace = true }
+quote = { workspace = true }
+syn = { workspace = true }
 
 [dev-dependencies]
 langspec-examples = { path = "../langspec-examples" }

@@ -1,14 +1,14 @@
 [package]
 name = "parse-adt"
-version = "0.1.0"
-edition = "2021"
+version = { workspace = true }
+edition = { workspace = true }
 
 [dependencies]
-miette = "7.5.0"
-parse = { version = "0.1.0", path = "../parse" }
-std-parse-error = { version = "0.1.0", path = "../langspec-std/std-parse-error" }
-std-parse-metadata = { version = "0.1.0", path = "../langspec-std/std-parse-metadata" }
-term = { version = "0.1.0", path = "../term" }
-tymetafuncspec-core = { version = "0.1.0", path = "../tymetafuncspec-core" }
-typenum = "1.18.0"
-unicode-segmentation = "1.12.0"
+parse = { path = "../parse" }
+std-parse-error = { path = "../langspec-std/std-parse-error" }
+std-parse-metadata = { path = "../langspec-std/std-parse-metadata" }
+term = { path = "../term" }
+tymetafuncspec-core = { path = "../tymetafuncspec-core" }
+miette = { workspace = true }
+typenum = { workspace = true }
+unicode-segmentation = { workspace = true }

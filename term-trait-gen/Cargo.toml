@@ -1,20 +1,20 @@
 [package]
 name = "term-trait-gen"
-version = "0.1.0"
-edition = "2024"
+version = { workspace = true }
+edition = { workspace = true }
 
 [dependencies]
-langspec-gen-util = { version = "0.1.0", path = "../langspec-gen-util" }
-langspec = { version = "0.1.0", path = "../langspec" }
-prettyplease = "0.2.24"
-proc-macro2 = "1.0.89"
-quote = "1.0.37"
-syn = "2.0.82"
-tymetafuncspec-core = { version = "0.1.0", path = "../tymetafuncspec-core" }
-words = { version = "0.1.0", path = "../words" }
-syn-insert-use = { version = "0.1.0", path = "../syn-insert-use" }
+langspec-gen-util = { path = "../langspec-gen-util" }
+langspec = { path = "../langspec" }
+tymetafuncspec-core = { path = "../tymetafuncspec-core" }
+words = { path = "../words" }
+syn-insert-use = { path = "../syn-insert-use" }
+prettyplease = { workspace = true }
+proc-macro2 = { workspace = true }
+quote = { workspace = true }
+syn = { workspace = true }
 
 [dev-dependencies]
-expect-test = "1.5.0"
+expect-test = { workspace = true }
 langspec-examples = { path = "../langspec-examples" }
 term = { path = "../term" }

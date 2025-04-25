@@ -1,17 +1,17 @@
 [package]
 name = "langspec"
-version = "0.1.0"
-edition = "2021"
+version = { workspace = true }
+edition = { workspace = true }
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-derive_more = "0.99.18"
-functor_derive = "0.4.3"
-serde = { version = "1.0.203", features = ["derive"] }
-serde_yml = "0.0.12"
-syn = "2.0.89"
-typed-index-collections = { version = "3.1.0", features = ["serde-std"] }
+derive_more = { workspace = true }
+functor_derive = { workspace = true }
+serde = { workspace = true }
+serde_yml = { workspace = true }
+syn = { workspace = true }
+typed-index-collections = { workspace = true }
 
 [dev-dependencies]
-quote = "1.0.37"
+quote = { workspace = true }

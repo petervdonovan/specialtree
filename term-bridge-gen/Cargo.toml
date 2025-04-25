@@ -1,11 +1,11 @@
 [package]
 name = "term-bridge-gen"
-version = "0.1.0"
-edition = "2024"
+version = { workspace = true }
+edition = { workspace = true }
 
 [dependencies]
-langspec = { version = "0.1.0", path = "../langspec" }
-langspec-gen-util = { version = "0.1.0", path = "../langspec-gen-util" }
-proc-macro2 = "1.0.95"
-quote = "1.0.40"
-syn = { version = "2.0.100", features = ["full"] }
+langspec = { path = "../langspec" }
+langspec-gen-util = { path = "../langspec-gen-util" }
+proc-macro2 = { workspace = true }
+quote = { workspace = true }
+syn = { workspace = true }

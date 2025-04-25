@@ -42,7 +42,7 @@ impl<'a, AllCurrentCases> Parser<'a, AllCurrentCases> {
             phantom: std::marker::PhantomData,
         }
     }
-    pub fn peek_words(&self) -> impl Iterator<Item = (usize, &'a str)> {
+    pub fn peek_words(&self) -> impl Iterator<Item = (usize, &'a str)> + use<'a, AllCurrentCases> {
         unicode_segmentation::UnicodeSegmentation::split_word_bound_indices(
             &self.source[self.position.offset()..],
         )

@@ -1,13 +1,13 @@
 [package]
 name = "term"
-version = "0.1.0"
-edition = "2024"
+version = { workspace = true }
+edition = { workspace = true }
 
 [dependencies]
-langspec = { version = "0.1.0", path = "../langspec" }
-proc-macro2 = "1.0.93"
-syn = "2.0.96"
-take_mut = "0.2.2"
-twox-hash = "2.1.0"
-type-equals = "0.1.0"
-typenum = "1.18.0"
+langspec = { path = "../langspec" }
+proc-macro2 = { workspace = true }
+syn = { workspace = true }
+take_mut = { workspace = true }
+twox-hash = { workspace = true }
+type-equals = { workspace = true }
+typenum = { workspace = true }
