@@ -10,3 +10,5 @@ std-parse-error = { version = "0.1.0", path = "../langspec-std/std-parse-error" 
 std-parse-metadata = { version = "0.1.0", path = "../langspec-std/std-parse-metadata" }
 term = { version = "0.1.0", path = "../term" }
 tymetafuncspec-core = { version = "0.1.0", path = "../tymetafuncspec-core" }
+typenum = "1.18.0"
+unicode-segmentation = "1.12.0"

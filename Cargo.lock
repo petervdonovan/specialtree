@@ -371,6 +371,8 @@ dependencies = [
  "std-parse-metadata",
  "term",
  "tymetafuncspec-core",
+ "typenum",
+ "unicode-segmentation",
 ]
 
 [[package]]
@@ -399,6 +401,7 @@ dependencies = [
  "term-specialized-impl-gen",
  "term-trait-gen",
  "tymetafuncspec-core",
+ "typenum",
  "words",
 ]
 
@@ -676,6 +679,7 @@ dependencies = [
  "take_mut",
  "twox-hash",
  "type-equals",
+ "typenum",
 ]
 
 [[package]]
@@ -904,6 +908,12 @@ checksum = "183496e014253d15abbe6235677b1392dba2d40524c88938991226baa38ac7c4"
 dependencies = [
  "serde",
 ]
+
+[[package]]
+name = "typenum"
+version = "1.18.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1dccffe3ce07af9386bfd29e80c0ab1a8205a2fc34e4bcd40364df902cfa8f3f"
 
 [[package]]
 name = "unicode-ident"

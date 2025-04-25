@@ -59,7 +59,7 @@ pub fn generate_parse<L: LangSpec, LCst: LangSpec>(
             );
             const PROCEED: &'static [parse::KeywordSequence] = &[];
             const END: parse::KeywordSequence = parse::KeywordSequence(
-                &[parse::Keyword::new(";")],
+                &[],
             );
         }
     }
@@ -243,41 +243,34 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
     let byline = byline!();
     let f: syn::File = syn::parse_quote! {
         #byline
+        #[test]
         fn test() {
-            let mut parser = parse_adt::Parser::new("test");
-            let mut heap = cst::data_structure::Heap::default();
-            // <CstfyTransparent<
-            //     Heap,
-            //     Nat,
-            // > as term::co_visit::CoVisitable<
-            //     Parser<'_>,
-            //     pms::PatternMatchStrategyProvider<Heap>,
-            //     Heap,
-            // >>::co_visit(&mut parser, &mut heap);
-            // <Cstfy<
-            //     Heap,
-            //     F,
-            // > as term::co_visit::CoVisitable<
-            //     Parser<'_>,
-            //     pms::PatternMatchStrategyProvider<Heap>,
-            //     Heap,
-            // >>::co_visit(&mut parser, &mut heap);
-            <Cstfy<
-                Heap,
-                cst::data_structure::Sum,
-            > as term::co_visit::CoVisitable<
-                Parser<'_>,
-                pms::PatternMatchStrategyProvider<Heap>,
-                Heap,
-            >>::co_visit(&mut parser, &mut heap);
-            <Cstfy<
-                Heap,
-                tymetafuncspec_core::Set<Heap, tymetafuncspec_core::Either<Heap, Nat, std_parse_error::ParseError<Heap>>>,
-            > as term::co_visit::CoVisitable<
-                Parser<'_>,
-                pms::PatternMatchStrategyProvider<Heap>,
-                Heap,
-            >>::co_visit(&mut parser, &mut heap);
+            {
+                let mut parser = parse_adt::Parser::new("{ 3 }");
+                let mut heap = cst::data_structure::Heap::default();
+                <parse_adt::cstfy::Cstfy<
+                    crate::cst::data_structure::Heap,
+                    tymetafuncspec_core::Set<crate::cst::data_structure::Heap, tymetafuncspec_core::Either<crate::cst::data_structure::Heap, crate::cst::data_structure::Nat, std_parse_error::ParseError<crate::cst::data_structure::Heap>>>,
+                > as term::co_visit::CoVisitable<
+                    parse_adt::Parser<'_, ()>,
+                    crate::pattern_match_strategy::PatternMatchStrategyProvider<crate::cst::data_structure::Heap>,
+                    crate::cst::data_structure::Heap,
+                    typenum::U2,
+                >>::co_visit(&mut parser, &mut heap);
+            }
+            {
+                let mut parser = parse_adt::Parser::new("sum { 3 }");
+                let mut heap = cst::data_structure::Heap::default();
+                <parse_adt::cstfy::Cstfy<
+                    crate::cst::data_structure::Heap,
+                    crate::cst::data_structure::Sum,
+                > as term::co_visit::CoVisitable<
+                    parse_adt::Parser<'_, ()>,
+                    crate::pattern_match_strategy::PatternMatchStrategyProvider<crate::cst::data_structure::Heap>,
+                    crate::cst::data_structure::Heap,
+                    typenum::U3,
+                >>::co_visit(&mut parser, &mut heap);
+            }
         }
         #m
         #byline

@@ -223,59 +223,7 @@ impl<Heap> BoundedNat<Heap> {
         }
     }
 }
-// impl<Heap> CanonicallyConstructibleFrom<Heap, BoundedNat<Heap>> for BoundedNat<Heap> {
-//     fn construct(_: &mut Heap, t: BoundedNat<Heap>) -> Self {
-//         t
-//     }
-
-//     fn deconstruct_succeeds(&self, _: &Heap) -> bool {
-//         true
-//     }
-
-//     fn deconstruct(self, _: &Heap) -> BoundedNat<Heap> {
-//         self
-//     }
-// }
 empty_heap_bak!(BoundedNatHeapBak);
-// impl<Heap> parse::Parse<Heap> for Cstfy<Heap, BoundedNat<Heap>>
-// where
-//     Heap: SuperHeap<BoundedNatHeapBak<Heap>>,
-// {
-//     fn parse(
-//         source: &str,
-//         offset: parse::miette::SourceOffset,
-//         _heap: &mut Heap,
-//         _errors: &mut Vec<parse::ParseError>,
-//     ) -> (Self, parse::miette::SourceOffset) {
-//         let next_unicode_word = parse::unicode_segmentation::UnicodeSegmentation::unicode_words(
-//             &source[offset.offset()..],
-//         )
-//         .next()
-//         .ok_or(parse::ParseError::UnexpectedEndOfInput(offset.into()));
-//         return_if_err!(next_unicode_word, offset);
-//         let n = next_unicode_word
-//             .parse::<usize>()
-//             .map_err(|_| parse::ParseError::TmfsParseFailure(offset.into()));
-//         return_if_err!(n, offset);
-//         let new_offset =
-//             parse::miette::SourceOffset::from(offset.offset() + next_unicode_word.len());
-//         (
-//             cstfy_ok(
-//                 BoundedNat {
-//                     heap: std::marker::PhantomData,
-//                     n,
-//                 },
-//                 offset,
-//                 new_offset,
-//             ),
-//             new_offset,
-//         )
-//     }
-
-//     fn unparse(&self, _: &Self::Heap) -> parse::Unparse {
-//         uncstfy(self).map_or(Unparse::new("err"), |n| Unparse::new(&n.n.to_string()))
-//     }
-// }
 #[derive(derivative::Derivative)]
 #[derivative(Debug(bound = ""))]
 #[derivative(Clone(bound = ""))]
@@ -314,60 +262,6 @@ where
         }
     }
 }
-// impl<Heap, Elem> parse::Parse<Heap> for Cstfy<Heap, Set<Heap, Elem>>
-// where
-//     Heap: SuperHeap<SetHeapBak<Heap, Elem>>,
-//     Elem: parse::Parse<Heap>,
-// {
-//     fn parse(
-//         source: &str,
-//         initial_offset: parse::miette::SourceOffset,
-//         heap: &mut Self::Heap,
-//         errors: &mut Vec<parse::ParseError>,
-//     ) -> (
-//         Either<
-//             Heap,
-//             Pair<Heap, Set<Heap, Elem>, Maybe<Heap, std_parse_metadata::ParseMetadata<Heap>>>,
-//             std_parse_error::ParseError<Heap>,
-//         >,
-//         parse::miette::SourceOffset,
-//     ) {
-//         let mut items = Vec::new();
-//         let mut offset = initial_offset;
-//         while !source[offset.offset()..].starts_with('}') {
-//             let (item, new_offset) =
-//                 <Elem as parse::Parse<Heap>>::parse(source, offset, heap, errors);
-//             items.push(item);
-//             offset = new_offset;
-//             if source[offset.offset()..].starts_with(',') {
-//                 offset = parse::miette::SourceOffset::from(offset.offset() + 1);
-//             }
-//         }
-//         (
-//             cstfy_ok(
-//                 Set {
-//                     items: todo!(),
-//                     heap: std::marker::PhantomData,
-//                 },
-//                 initial_offset,
-//                 offset,
-//             ),
-//             offset,
-//         )
-//     }
-//     fn unparse(&self, heap: &Self::Heap) -> Unparse {
-//         uncstfy(self).map_or(Unparse::new("err"), |s| {
-//             let mut unparse = Unparse::new("{");
-//             unparse.indent();
-//             todo!();
-//             // for item in &s.items {
-//             //     unparse.vstack(item.unparse(heap));
-//             // }
-//             // unparse.hstack(Unparse::new("}"));
-//             unparse
-//         })
-//     }
-// }
 #[derive(Debug)]
 pub struct Seq<Heap, Elem> {
     heap: std::marker::PhantomData<Heap>,
@@ -377,53 +271,6 @@ impl<Heap, Elem> Heaped for Seq<Heap, Elem> {
     type Heap = Heap;
 }
 empty_heap_bak!(SeqHeapBak, Elem);
-// collection_term_round_trip_impl!(Seq<Heap, Elem>, tymetafuncspec_core::Seq);
-// impl<Heap, T> parse::Parse<Heap> for Cstfy<Heap, Seq<Heap, T>>
-// where
-//     Heap: SuperHeap<SeqHeapBak<Heap, T>>,
-//     T: parse::Parse<Heap> + Heaped<Heap = Heap>,
-// {
-//     fn parse(
-//         source: &str,
-//         initial_offset: parse::miette::SourceOffset,
-//         heap: &mut Self::Heap,
-//         errors: &mut Vec<parse::ParseError>,
-//     ) -> (Cstfy<Heap, Seq<Heap, T>>, parse::miette::SourceOffset) {
-//         let mut items = Vec::new();
-//         let mut offset = initial_offset;
-//         while !source[offset.offset()..].starts_with(']') {
-//             let (item, new_offset) = <T as parse::Parse<Heap>>::parse(source, offset, heap, errors);
-//             items.push(item);
-//             offset = new_offset;
-//             if source[offset.offset()..].starts_with(',') {
-//                 offset = parse::miette::SourceOffset::from(offset.offset() + 1);
-//             }
-//         }
-//         (
-//             cstfy_ok(
-//                 Seq {
-//                     items,
-//                     heap: std::marker::PhantomData,
-//                 },
-//                 initial_offset,
-//                 offset,
-//             ),
-//             offset,
-//         )
-//     }
-
-//     fn unparse(&self, heap: &Self::Heap) -> Unparse {
-//         uncstfy(self).map_or(Unparse::new("err"), |s| {
-//             let mut unparse = Unparse::new("[");
-//             unparse.indent();
-//             for item in &s.items {
-//                 unparse.vstack(item.unparse(heap));
-//             }
-//             unparse.hstack(Unparse::new("]"));
-//             unparse
-//         })
-//     }
-// }
 #[derive(derivative::Derivative)]
 #[derivative(Debug(bound = ""))]
 #[derivative(Clone(bound = ""))]
@@ -476,32 +323,6 @@ where
         }
     }
 }
-// term::generic_auto_impl_ccf!(IdxBox<Heap, Elem>, Heap : (SuperHeap<IdxBoxHeapBak<Heap, Elem>>), Elem : (Heaped<Heap = Heap>));
-// impl<Heap, T: Parse<Heap> + Copy> Parse<Heap> for CstfyTransparent<Heap, IdxBox<Heap, T>>
-// where
-//     Heap: SuperHeap<IdxBoxHeapBak<Heap, T>>,
-// {
-//     fn parse(
-//         source: &str,
-//         offset: parse::miette::SourceOffset,
-//         heap: &mut Self::Heap,
-//         errors: &mut Vec<parse::ParseError>,
-//     ) -> (
-//         Either<Heap, IdxBox<Heap, T>, std_parse_error::ParseError<Heap>>,
-//         parse::miette::SourceOffset,
-//     ) {
-//         let (it, new_offset) = <T as Parse<Heap>>::parse(source, offset, heap, errors);
-//         (
-//             cstfy_transparent_ok(IdxBox::construct(heap, it)),
-//             new_offset,
-//         )
-//     }
-
-//     fn unparse(&self, heap: &Self::Heap) -> Unparse {
-//         let item = uncstfy_transparent(self).unwrap();
-//         heap.subheap::<IdxBoxHeapBak<Heap, T>>().elems[item.idx as usize].unparse(heap)
-//     }
-// }
 
 #[derive(derivative::Derivative)]
 #[derivative(Clone(bound = "L: Clone, R: Clone"))]
@@ -560,66 +381,6 @@ impl<Heap, L, R> DirectlyCanonicallyConstructibleFrom<Heap, (L, ())> for Either<
 //     }
 // }
 empty_heap_bak!(EitherHeapBak, L, R);
-// impl<Heap, L, R> parse::Parse<Heap>
-//     for CstfyTransparent<Heap, Either<Heap, CstfyTransparent<Heap, L>, CstfyTransparent<Heap, R>>>
-// where
-//     CstfyTransparent<Heap, L>: parse::Parse<Heap>,
-//     CstfyTransparent<Heap, R>: parse::Parse<Heap>,
-// {
-//     fn parse(
-//         source: &str,
-//         offset: parse::miette::SourceOffset,
-//         heap: &mut Self::Heap,
-//         errors: &mut Vec<parse::ParseError>,
-//     ) -> (
-//         CstfyTransparent<Heap, Either<Heap, CstfyTransparent<Heap, L>, CstfyTransparent<Heap, R>>>,
-//         parse::miette::SourceOffset,
-//     ) {
-//         let mut maybe_errors = vec![];
-//         let mut ute =
-//             match CstfyTransparent::<Heap, L>::parse(source, offset, heap, &mut maybe_errors) {
-//                 (Either::Left(ok, _), new_offset) => {
-//                     return (
-//                         cstfy_transparent_ok(Either::Left(
-//                             Either::Left(ok, std::marker::PhantomData),
-//                             std::marker::PhantomData,
-//                         )),
-//                         new_offset,
-//                     )
-//                 }
-//                 (Either::Right(err, _), _) => Some(err),
-//             };
-//         match CstfyTransparent::<Heap, R>::parse(source, offset, heap, &mut maybe_errors) {
-//             (Either::Left(ok, _), new_offset) => {
-//                 return (
-//                     cstfy_transparent_ok(Either::Right(
-//                         Either::Left(ok, std::marker::PhantomData),
-//                         std::marker::PhantomData,
-//                     )),
-//                     new_offset,
-//                 )
-//             }
-//             (Either::Right(err, _), _) => {
-//                 if ute.is_none() {
-//                     ute = Some(err);
-//                 }
-//             }
-//         };
-//         errors.append(&mut maybe_errors);
-//         (
-//             Either::Right(ute.unwrap(), std::marker::PhantomData),
-//             offset,
-//         )
-//     }
-
-//     fn unparse(&self, heap: &Self::Heap) -> Unparse {
-//         match uncstfy_transparent(self) {
-//             Some(Either::Left(l, _)) => l.unparse(heap),
-//             Some(Either::Right(r, _)) => r.unparse(heap),
-//             _ => Unparse::new("err"),
-//         }
-//     }
-// }
 
 #[derive(derivative::Derivative)]
 #[derivative(Clone(bound = "T: Clone"))]
@@ -635,49 +396,6 @@ impl<Heap, T> Heaped for Maybe<Heap, T> {
 }
 // generic_auto_impl_ccf!(Maybe<Heap, T>, Heap : (SuperHeap<MaybeHeapBak<Heap, T>>), T : (Heaped<Heap = Heap>));
 empty_heap_bak!(MaybeHeapBak, T);
-// impl<Heap, T> parse::Parse<Heap> for Cstfy<Heap, Maybe<Heap, Cstfy<Heap, T>>>
-// where
-//     Cstfy<Heap, T>: parse::Parse<Heap>,
-// {
-//     fn parse(
-//         source: &str,
-//         offset: parse::miette::SourceOffset,
-//         heap: &mut Self::Heap,
-//         errors: &mut Vec<parse::ParseError>,
-//     ) -> (
-//         Cstfy<Heap, Maybe<Heap, Cstfy<Heap, T>>>,
-//         parse::miette::SourceOffset,
-//     ) {
-//         if source[offset.offset()..].starts_with("nothing") {
-//             return (
-//                 cstfy_ok(
-//                     Maybe::Nothing,
-//                     offset,
-//                     parse::miette::SourceOffset::from(offset.offset() + 7),
-//                 ),
-//                 parse::miette::SourceOffset::from(offset.offset() + 7),
-//             );
-//         }
-//         let (it, new_offset) =
-//             <Cstfy<Heap, T> as parse::Parse<Heap>>::parse(source, offset, heap, errors);
-//         (
-//             cstfy_ok(
-//                 Maybe::Just(it, std::marker::PhantomData),
-//                 offset,
-//                 new_offset,
-//             ),
-//             new_offset,
-//         )
-//     }
-
-//     fn unparse(&self, heap: &Self::Heap) -> Unparse {
-//         match uncstfy(self) {
-//             Some(Maybe::Just(t, _)) => t.unparse(heap),
-//             Some(Maybe::Nothing) => Unparse::new("nothing"),
-//             _ => Unparse::new("err"),
-//         }
-//     }
-// }
 #[derive(derivative::Derivative)]
 #[derivative(Clone(bound = "L: Clone, R: Clone"))]
 #[derivative(Copy(bound = "L: Copy, R: Copy"))]

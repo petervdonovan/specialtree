@@ -24,5 +24,7 @@ members = [
     "generate-tests",
     "term-pattern-match-strategy-provider-impl-gen",
     "parse-adt",
-    "words", "syn-insert-use", "term-bridge-gen",
+    "words",
+    "syn-insert-use",
+    "term-bridge-gen",
 ]

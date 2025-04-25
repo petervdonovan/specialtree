@@ -4,40 +4,46 @@
 
 // // fn round_trip<T>(input: &str)
 // // where
-// //     tymetafuncspec_core::Cstfy<Heap, T>: ::parse::Parse<Heap>,
+// //     Cstfy<Heap, T>: term::co_visit::CoVisitable<Parser<'_, ()>, (), Heap, typenum::B0>,
 // // {
 // //     let mut heap = Heap::default();
 // //     let mut errors = Vec::new();
-// //     let (nl, offset) = <tymetafuncspec_core::Cstfy<Heap, T> as ::parse::Parse<Heap>>::parse(
-// //         input,
-// //         0.into(),
-// //         &mut heap,
-// //         &mut errors,
-// //     );
+// //     let (nl, offset) = <Cstfy<Heap, T> as term::co_visit::CoVisitable<
+// //         Parser<'_, ()>,
+// //         (),
+// //         Heap,
+// //         typenum::B0,
+// //     >>::parse(input, 0.into(), &mut heap, &mut errors);
 // //     println!(
 // //         "parse result: {}",
-// //         <tymetafuncspec_core::Cstfy<Heap, T> as ::parse::Parse<Heap>>::unparse(&nl, &heap)
+// //         <Cstfy<Heap, T> as term::co_visit::CoVisitable<
+// //         Parser<'_, ()>,
+// //         (),
+// //         Heap,
+// //         typenum::B0,>>::unparse(&nl, &heap)
 // //     );
 // // }
 
 // // fn round_trip_transparent<T>(input: &str)
 // // where
-// //     tymetafuncspec_core::CstfyTransparent<Heap, T>: ::parse::Parse<Heap>,
+// //     CstfyTransparent<Heap, T>: term::co_visit::CoVisitable<Parser<'_, ()>, (), Heap, typenum::B0>,
 // // {
 // //     let mut heap = Heap::default();
 // //     let mut errors = Vec::new();
-// //     let (nl, offset) =
-// //         <tymetafuncspec_core::CstfyTransparent<Heap, T> as ::parse::Parse<Heap>>::parse(
-// //             input,
-// //             0.into(),
-// //             &mut heap,
-// //             &mut errors,
-// //         );
+// //     let (nl, offset) = <CstfyTransparent<Heap, T> as term::co_visit::CoVisitable<
+// //         Parser<'_, ()>,
+// //         (),
+// //         Heap,
+// //         typenum::B0,
+// //     >>::parse(input, 0.into(), &mut heap, &mut errors);
 // //     println!(
 // //         "parse result: {}",
-// //         <tymetafuncspec_core::CstfyTransparent<Heap, T> as ::parse::Parse<Heap>>::unparse(
-// //             &nl, &heap
-// //         )
+// //         <CstfyTransparent<Heap, T> as term::co_visit::CoVisitable<
+// //             Parser<'_, ()>,
+// //             (),
+// //             Heap,
+// //             typenum::B0,
+// //         >>::unparse(&nl, &heap)
 // //     );
 // // }
 

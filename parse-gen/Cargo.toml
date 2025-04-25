@@ -3,6 +3,9 @@ name = "parse-gen"
 version = "0.1.0"
 edition = "2021"
 
+[profile.dev]
+panic = "abort"
+
 [dependencies]
 bumpalo = "3.16.0"
 extension-everywhere-alternative = { version = "0.1.0", path = "../extension-everywhere-alternative" }
@@ -22,6 +25,7 @@ term-specialized-gen = { version = "0.1.0", path = "../term-specialized-gen" }
 term-specialized-impl-gen = { version = "0.1.0", path = "../term-specialized-impl-gen" }
 term-trait-gen = { version = "0.1.0", path = "../term-trait-gen" }
 tymetafuncspec-core = { path = "../tymetafuncspec-core" }
+typenum = "1.18.0"
 words = { version = "0.1.0", path = "../words" }
 
 [dev-dependencies]

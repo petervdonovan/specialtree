@@ -19,6 +19,16 @@ pub struct Parser<'a, AllCurrentCases> {
     position: miette::SourceOffset,
     phantom: std::marker::PhantomData<AllCurrentCases>,
 }
+impl<'a, AllCurrentCases> Default for Parser<'a, AllCurrentCases> {
+    fn default() -> Self {
+        // todo: eliminate the need for this
+        Self {
+            source: "",
+            position: miette::SourceOffset::from(0),
+            phantom: std::marker::PhantomData,
+        }
+    }
+}
 impl<'a, AllCurrentCases> Parser<'a, AllCurrentCases> {
     pub fn new(source: &'a str) -> Self {
         Self {
@@ -26,6 +36,43 @@ impl<'a, AllCurrentCases> Parser<'a, AllCurrentCases> {
             position: miette::SourceOffset::from(0),
             phantom: std::marker::PhantomData,
         }
+    }
+    pub fn convert_to<To>(self) -> Parser<'a, To> {
+        Parser {
+            source: self.source,
+            position: self.position,
+            phantom: std::marker::PhantomData,
+        }
+    }
+    pub fn peek_words(&self) -> impl Iterator<Item = (usize, &'a str)> {
+        unicode_segmentation::UnicodeSegmentation::split_word_bound_indices(
+            &self.source[self.position.offset()..],
+        )
+        .filter(|it| !it.1.is_empty() && !it.1.chars().any(|c| c.is_whitespace()))
+    }
+    pub fn pop_word(&mut self) -> Option<&'a str> {
+        let mut iter = self.peek_words();
+        if let Some(word) = iter.next() {
+            self.position = (self.position.offset() + word.0 + word.1.len()).into();
+            dbg!(word.1);
+            Some(word.1)
+        } else {
+            None
+        }
+    }
+    pub fn match_keywords(&self, keywords: &KeywordSequence) -> Option<miette::SourceOffset> {
+        let mut keywords = keywords.0.iter();
+        let mut last_offset = self.position;
+        for (found, expected) in self.peek_words().zip(keywords.by_ref()) {
+            if found.1 != expected.get() {
+                return None;
+            }
+            last_offset = (found.0 + found.1.len()).into();
+        }
+        if keywords.next().is_some() {
+            return None;
+        }
+        return Some(last_offset);
     }
 }
 
@@ -35,7 +82,18 @@ pub trait ParseLL {
     const END: KeywordSequence;
 }
 
-pub trait Lookahead {}
+pub trait Lookahead {
+    fn matches<T>(parser: &Parser<'_, T>) -> bool;
+}
+
+impl<T> Lookahead for T
+where
+    T: ParseLL,
+{
+    fn matches<C>(parser: &Parser<'_, C>) -> bool {
+        parser.match_keywords(&Self::START).is_some()
+    }
+}
 
 impl<'a> SelectCase for Parser<'a, ()> {
     type AC<CasesConsList: ConsList> = Parser<'a, CasesConsList>;
@@ -87,7 +145,11 @@ where
     type AcceptingRemainingCases = Self;
 
     fn try_case(self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
-        todo!()
+        if RemainingCasesUnwrappedCarCar::matches(&self) {
+            Ok(self.convert_to())
+        } else {
+            Err(self)
+        }
     }
 }
 
@@ -163,15 +225,15 @@ where
     A: ParseLL,
 {
     fn co_push(&mut self) {
-        todo!()
+        // do nothing (transparent)
     }
 
     fn co_proceed(&mut self) {
-        todo!()
+        // do nothing (transparent)
     }
 
     fn co_pop(&mut self) {
-        todo!()
+        // do nothing (transparent)
     }
 }
 
@@ -180,15 +242,24 @@ where
     A: ParseLL,
 {
     fn co_push(&mut self) {
-        todo!()
+        self.position = self.match_keywords(&A::START).unwrap_or_else(|| {
+            panic!("Expected start keyword: {:?}", &A::START.0[0]);
+        });
+        println!("co_push: {:?}", self.position);
     }
 
     fn co_proceed(&mut self) {
-        todo!()
+        self.position = self.match_keywords(&A::PROCEED[0]).unwrap_or_else(|| {
+            panic!("Expected proceed keyword: {:?}", &A::PROCEED[0].0[0]);
+        }); // todo: do not use 0
+        println!("co_proceed: {:?}", self.position);
     }
 
     fn co_pop(&mut self) {
-        todo!()
+        self.position = self.match_keywords(&A::END).unwrap_or_else(|| {
+            panic!("Expected end keyword: {:?}", &A::END.0[0]);
+        });
+        println!("co_pop: {:?}", self.position);
     }
 }
 

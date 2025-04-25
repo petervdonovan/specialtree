@@ -20,7 +20,7 @@ impl Keyword {
         // validate on read instead of on construction so that constructor is const
         Keyword(s)
     }
-    fn get(&self) -> &'static str {
+    pub fn get(&self) -> &'static str {
         if self.0.is_empty() {
             panic!("Keyword cannot be empty");
         }
@@ -29,50 +29,50 @@ impl Keyword {
         }
         self.0
     }
-    pub fn find(
-        &self,
-        source: &str,
-        offset: miette::SourceOffset,
-    ) -> Option<(miette::SourceOffset, miette::SourceOffset)> {
-        match unicode_segmentation::UnicodeSegmentation::unicode_words(&source[offset.offset()..])
-            .next()
-        {
-            Some(token) => {
-                if token == self.get() {
-                    let start = offset.offset() + source[offset.offset()..].find(token).unwrap();
-                    let end = start + token.len();
-                    Some((start.into(), end.into()))
-                } else {
-                    None
-                }
-            }
-            None => None,
-        }
-    }
+    // pub fn find(
+    //     &self,
+    //     source: &str,
+    //     offset: miette::SourceOffset,
+    // ) -> Option<(miette::SourceOffset, miette::SourceOffset)> {
+    //     match unicode_segmentation::UnicodeSegmentation::unicode_words(&source[offset.offset()..])
+    //         .next()
+    //     {
+    //         Some(token) => {
+    //             if token == self.get() {
+    //                 let start = offset.offset() + source[offset.offset()..].find(token).unwrap();
+    //                 let end = start + token.len();
+    //                 Some((start.into(), end.into()))
+    //             } else {
+    //                 None
+    //             }
+    //         }
+    //         None => None,
+    //     }
+    // }
 }
 
 pub struct KeywordSequence(pub &'static [Keyword]);
-impl KeywordSequence {
-    pub fn find(
-        &self,
-        source: &str,
-        offset: miette::SourceOffset,
-    ) -> Option<(miette::SourceOffset, miette::SourceOffset)> {
-        let mut start = None;
-        let mut end = None;
-        for kw in self.0.iter() {
-            if let Some((kw_start, kw_end)) = kw.find(source, offset) {
-                if start.is_none() {
-                    start = Some(kw_start);
-                }
-                end = Some(kw_end);
-            } else {
-                return None;
-            }
-        }
-        Some((start.unwrap(), end.unwrap()))
-    }
-}
+// impl KeywordSequence {
+//     pub fn find(
+//         &self,
+//         source: &str,
+//         offset: miette::SourceOffset,
+//     ) -> Option<(miette::SourceOffset, miette::SourceOffset)> {
+//         let mut start = None;
+//         let mut end = None;
+//         for kw in self.0.iter() {
+//             if let Some((kw_start, kw_end)) = kw.find(source, offset) {
+//                 if start.is_none() {
+//                     start = Some(kw_start);
+//                 }
+//                 end = Some(kw_end);
+//             } else {
+//                 return None;
+//             }
+//         }
+//         Some((start.unwrap(), end.unwrap()))
+//     }
+// }
 
 pub enum TokenKind {
     FunctionSymbol,
@@ -85,6 +85,7 @@ pub enum ParseError {
     UnexpectedToken(UnexpectedTokenError),
     UnexpectedEndOfInput(#[label("here")] SourceSpan),
     TmfsParseFailure(#[label("here")] SourceSpan),
+    RecursionLimitExceeded(#[label("here")] SourceSpan),
 }
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct ParseMetadata {
@@ -155,6 +156,13 @@ impl std::fmt::Display for ParseError {
             }
             ParseError::TmfsParseFailure(_) => {
                 write!(f, "failed to parse tmfs")
+            }
+            ParseError::RecursionLimitExceeded(source_span) => {
+                write!(
+                    f,
+                    "recursion limit exceeded at offset {}",
+                    source_span.offset()
+                )
             }
         }
     }
