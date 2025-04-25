@@ -246,8 +246,9 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
         #[test]
         fn test() {
             {
+                println!("test Set");
                 let mut parser = parse_adt::Parser::new("{ 3 }");
-                let mut heap = cst::data_structure::Heap::default();
+                let mut heap = crate::cst::data_structure::Heap::default();
                 <parse_adt::cstfy::Cstfy<
                     crate::cst::data_structure::Heap,
                     tymetafuncspec_core::Set<crate::cst::data_structure::Heap, tymetafuncspec_core::Either<crate::cst::data_structure::Heap, crate::cst::data_structure::Nat, std_parse_error::ParseError<crate::cst::data_structure::Heap>>>,
@@ -259,8 +260,9 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
                 >>::co_visit(&mut parser, &mut heap);
             }
             {
+                println!("test Sum");
                 let mut parser = parse_adt::Parser::new("sum { 3 }");
-                let mut heap = cst::data_structure::Heap::default();
+                let mut heap = crate::cst::data_structure::Heap::default();
                 <parse_adt::cstfy::Cstfy<
                     crate::cst::data_structure::Heap,
                     crate::cst::data_structure::Sum,
@@ -269,6 +271,104 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
                     crate::pattern_match_strategy::PatternMatchStrategyProvider<crate::cst::data_structure::Heap>,
                     crate::cst::data_structure::Heap,
                     typenum::U3,
+                >>::co_visit(&mut parser, &mut heap);
+            }
+            {
+                println!("test Nat");
+                let mut parser = parse_adt::Parser::new("3");
+                let mut heap = crate::cst::data_structure::Heap::default();
+                <parse_adt::cstfy::CstfyTransparent<
+                    crate::cst::data_structure::Heap,
+                    crate::cst::data_structure::Nat,
+                > as term::co_visit::CoVisitable<
+                    parse_adt::Parser<'_, ()>,
+                    crate::pattern_match_strategy::PatternMatchStrategyProvider<crate::cst::data_structure::Heap>,
+                    crate::cst::data_structure::Heap,
+                    typenum::U4,
+                >>::co_visit(&mut parser, &mut heap);
+            }
+            {
+                println!("test Nat");
+                let mut parser = parse_adt::Parser::new("f 3");
+                let mut heap = crate::cst::data_structure::Heap::default();
+                <CstfyTransparent<
+                    crate::cst::data_structure::Heap,
+                    crate::cst::data_structure::Nat,
+                > as term::co_visit::CoVisitable<
+                    Parser<'_, ()>,
+                    crate::pattern_match_strategy::PatternMatchStrategyProvider<crate::cst::data_structure::Heap>,
+                    crate::cst::data_structure::Heap,
+                    typenum::U2,
+                >>::co_visit(&mut parser, &mut heap);
+            }
+            {
+                println!("test Sum");
+                let mut parser = parse_adt::Parser::new("sum { 3 }");
+                let mut heap = crate::cst::data_structure::Heap::default();
+                <Cstfy<
+                    crate::cst::data_structure::Heap,
+                    crate::cst::data_structure::Sum,
+                > as term::co_visit::CoVisitable<
+                    Parser<'_, ()>,
+                    crate::pattern_match_strategy::PatternMatchStrategyProvider<crate::cst::data_structure::Heap>,
+                    crate::cst::data_structure::Heap,
+                    typenum::U3,
+                >>::co_visit(&mut parser, &mut heap);
+            }
+            {
+                println!("test F");
+                let mut parser = parse_adt::Parser::new("f 3");
+                let mut heap = crate::cst::data_structure::Heap::default();
+                <parse_adt::cstfy::Cstfy<
+                    crate::cst::data_structure::Heap,
+                    crate::cst::data_structure::F,
+                > as term::co_visit::CoVisitable<
+                    Parser<'_, ()>,
+                    crate::pattern_match_strategy::PatternMatchStrategyProvider<crate::cst::data_structure::Heap>,
+                    crate::cst::data_structure::Heap,
+                    typenum::U7,
+                >>::co_visit(&mut parser, &mut heap);
+            }
+            {
+                println!("test Plus");
+                let mut parser = parse_adt::Parser::new("plus left_operand 3 right_operand 4");
+                let mut heap = crate::cst::data_structure::Heap::default();
+                <parse_adt::cstfy::Cstfy<
+                    crate::cst::data_structure::Heap,
+                    crate::cst::data_structure::Plus,
+                > as term::co_visit::CoVisitable<
+                    Parser<'_, ()>,
+                    crate::pattern_match_strategy::PatternMatchStrategyProvider<crate::cst::data_structure::Heap>,
+                    crate::cst::data_structure::Heap,
+                    typenum::U3,
+                >>::co_visit(&mut parser, &mut heap);
+            }
+            {
+                println!("test IdxBox");
+                let mut parser = parse_adt::Parser::new("plus left_operand 3 right_operand 4");
+                let mut heap = crate::cst::data_structure::Heap::default();
+                <parse_adt::cstfy::Cstfy<
+                    cds::Heap,
+                    tymetafuncspec_core::IdxBox<cds::Heap, parse_adt::cstfy::Cstfy<cds::Heap, cds::Plus>>,
+                > as term::co_visit::CoVisitable<
+                    Parser<'_, ()>,
+                    crate::pattern_match_strategy::PatternMatchStrategyProvider<cds::Heap>,
+                    cds::Heap,
+                    typenum::U5,
+                >>::co_visit(&mut parser, &mut heap);
+            }
+            {
+                println!("test Nat");
+                let mut parser = parse_adt::Parser::new("sum { f 3, f plus left_operand f 1 right_operand 4 }");
+                let mut heap = crate::cst::data_structure::Heap::default();
+                <CstfyTransparent<
+                    crate::cst::data_structure::Heap,
+                    crate::cst::data_structure::Nat,
+                > as term::co_visit::CoVisitable<
+                    Parser<'_, ()>,
+                    crate::pattern_match_strategy::PatternMatchStrategyProvider<crate::cst::data_structure::Heap>,
+                    crate::cst::data_structure::Heap,
+                    typenum::U2,
                 >>::co_visit(&mut parser, &mut heap);
             }
         }
@@ -284,58 +384,3 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
     };
     prettyplease::unparse(&syn_insert_use::insert_use(f))
 }
-
-// pub(crate) fn temp_bridge_paste<LOg: LangSpec, LExt: LangSpec>(
-//     extension_base_path: &syn::Path,
-//     og_base_path: &syn::Path,
-//     ext_lg: &LsGen<LExt>,
-//     oglsg: &LsGen<LOg>,
-// ) -> syn::ItemMod {
-//     let byline = byline!();
-//     syn::parse_quote! {
-//     #byline
-//     pub mod term_impls {
-//         #tbg
-
-//         // impl term::MapsTmf<crate::term_trait::words::L, tymetafuncspec_core::IdxBox<cds::Heap, tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap,cds::Sum,tymetafuncspec_core::Maybe<cds::Heap,std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>>> for cds::Heap {
-//         //     type Tmf = Cstfy<cds::Heap, tymetafuncspec_core::IdxBox<cds::Heap, tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap,cds::Sum,tymetafuncspec_core::Maybe<cds::Heap,std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>>>;
-//         // }
-
-//         // impl term::MapsTmf<crate::term_trait::words::L, tymetafuncspec_core::IdxBox<crate::cst::data_structure::Heap, tymetafuncspec_core::Either<crate::cst::data_structure::Heap, tymetafuncspec_core::Pair<crate::cst::data_structure::Heap, crate::cst::data_structure::Plus, tymetafuncspec_core::Maybe<crate::cst::data_structure::Heap, std_parse_metadata::ParseMetadata<crate::cst::data_structure::Heap>>>, std_parse_error::ParseError<crate::cst::data_structure::Heap>>>> for cds::Heap {
-//         //     type Tmf = Cstfy<cds::Heap, tymetafuncspec_core::IdxBox<crate::cst::data_structure::Heap, tymetafuncspec_core::Either<crate::cst::data_structure::Heap, tymetafuncspec_core::Pair<crate::cst::data_structure::Heap, crate::cst::data_structure::Plus, tymetafuncspec_core::Maybe<crate::cst::data_structure::Heap, std_parse_metadata::ParseMetadata<crate::cst::data_structure::Heap>>>, std_parse_error::ParseError<crate::cst::data_structure::Heap>>>>;
-//         // }
-
-//         // impl term::MapsTmf<crate::term_trait::words::L, tymetafuncspec_core::BoundedNat<cds::Heap>> for cds::Heap {
-//         //     type Tmf = parse_adt::cstfy::Cstfy<cds::Heap, tymetafuncspec_core::BoundedNat<cds::Heap>>;
-//         // }
-
-//         // impl term::MapsTmf<crate::term_trait::words::L, tymetafuncspec_core::Set<crate::cst::data_structure::Heap, tymetafuncspec_core::Either<crate::cst::data_structure::Heap, crate::cst::data_structure::Nat, std_parse_error::ParseError<crate::cst::data_structure::Heap>>>> for cds::Heap {
-//         //     type Tmf = Cstfy<cds::Heap, tymetafuncspec_core::Set<cds::Heap, tymetafuncspec_core::Either<cds::Heap, crate::cst::data_structure::Nat, std_parse_error::ParseError<cds::Heap>>>>;
-//         // }
-
-//         // impl term::MapsTmf<crate::term_trait::words::L, tymetafuncspec_core::IdxBox<crate::cst::data_structure::Heap, tymetafuncspec_core::Either<crate::cst::data_structure::Heap, tymetafuncspec_core::Pair<crate::cst::data_structure::Heap, crate::cst::data_structure::F, tymetafuncspec_core::Maybe<crate::cst::data_structure::Heap, std_parse_metadata::ParseMetadata<crate::cst::data_structure::Heap>>>, std_parse_error::ParseError<crate::cst::data_structure::Heap>>>> for cds::Heap {
-//         //     type Tmf = Cstfy<cds::Heap, tymetafuncspec_core::IdxBox<cds::Heap, tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap, cds::F, tymetafuncspec_core::Maybe<cds::Heap, std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>>>;
-//         // }
-
-//         // impl term::MapsTmf<crate::term_trait::words::L, tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap, cds::F, tymetafuncspec_core::Maybe<cds::Heap, std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>> for cds::Heap {
-//         //     type Tmf = tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap, cds::F, tymetafuncspec_core::Maybe<cds::Heap, std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>;
-//         // }
-//         // impl term::MapsTmf<crate::term_trait::words::L, tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap, cds::Plus, tymetafuncspec_core::Maybe<cds::Heap, std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>> for cds::Heap {
-//         //     type Tmf = tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap, cds::Plus, tymetafuncspec_core::Maybe<cds::Heap, std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>;
-
-//         // }
-//         // impl term::MapsTmf<crate::term_trait::words::L, tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap, cds::LeftOperand, tymetafuncspec_core::Maybe<cds::Heap, std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>> for cds::Heap {
-//         //     type Tmf = tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap, cds::LeftOperand, tymetafuncspec_core::Maybe<cds::Heap, std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>;
-//         // }
-//         // impl term::MapsTmf<crate::term_trait::words::L, tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap, cds::RightOperand, tymetafuncspec_core::Maybe<cds::Heap, std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>> for cds::Heap {
-//         //     type Tmf = tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap, cds::RightOperand, tymetafuncspec_core::Maybe<cds::Heap, std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>;
-//         // }
-//         // impl term::MapsTmf<crate::term_trait::words::L, tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap, cds::Sum, tymetafuncspec_core::Maybe<cds::Heap, std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>> for cds::Heap {
-//         //     type Tmf = tymetafuncspec_core::Either<cds::Heap, tymetafuncspec_core::Pair<cds::Heap, cds::Sum, tymetafuncspec_core::Maybe<cds::Heap, std_parse_metadata::ParseMetadata<cds::Heap>>>, std_parse_error::ParseError<cds::Heap>>;
-//         // }
-//         // impl term::MapsTmf<crate::term_trait::words::L, tymetafuncspec_core::Either<cds::Heap, cds::Nat, std_parse_error::ParseError<cds::Heap>>> for cds::Heap {
-//         //     type Tmf = tymetafuncspec_core::Either<cds::Heap, cds::Nat, std_parse_error::ParseError<cds::Heap>>;
-//         // }
-//     }
-//     }
-// }

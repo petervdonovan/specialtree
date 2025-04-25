@@ -229,17 +229,22 @@ where
 //     }
 // }
 
-impl<Heap, CV, PatternMatchStrategyProvider, T, DepthFuel>
-    CoVisitable<CV, PatternMatchStrategyProvider, Heap, DepthFuel> for T
+impl<Heap, CV, PatternMatchStrategyProvider, T, DepthFuelUpperBits, DepthFuelLastBit>
+    CoVisitable<
+        CV,
+        PatternMatchStrategyProvider,
+        Heap,
+        typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>,
+    > for T
 where
-    DepthFuel: std::ops::Sub<typenum::B1>,
+    typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>: std::ops::Sub<typenum::B1>,
     T: Heaped<Heap = Heap>
         + CoCaseSplittable<
             CoCallablefyCoVisitor<
                 CV::AC<PatternMatchStrategyProvider::Strategy>,
                 T,
                 PatternMatchStrategyProvider,
-                typenum::Sub1<DepthFuel>,
+                typenum::Sub1<typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>>,
             >,
             PatternMatchStrategyProvider::Strategy,
         > + Copy,

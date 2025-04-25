@@ -67,12 +67,12 @@ impl<'a, AllCurrentCases> Parser<'a, AllCurrentCases> {
             if found.1 != expected.get() {
                 return None;
             }
-            last_offset = (found.0 + found.1.len()).into();
+            last_offset = (self.position.offset() + found.0 + found.1.len()).into();
         }
         if keywords.next().is_some() {
             return None;
         }
-        return Some(last_offset);
+        Some(last_offset)
     }
 }
 
@@ -173,7 +173,7 @@ where
     }
 }
 
-impl<'a, Car> AcceptingCases<((Car, ()), ())> for Parser<'a, ((Car, ()), ())>
+impl<'a, Car> AcceptingCases<(Car, ())> for Parser<'a, (Car, ())>
 where
 // Cdr: ConsList,
 // Self: AcceptingCases<(), ShortCircuitsTo = Parser<'a, ()>>,
@@ -183,6 +183,7 @@ where
     type AcceptingRemainingCases = Self;
 
     fn try_case(self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
+        println!("assuming the only case at: {:?}", self.position);
         Ok(Parser {
             source: self.source,
             position: self.position,
@@ -243,7 +244,11 @@ where
 {
     fn co_push(&mut self) {
         self.position = self.match_keywords(&A::START).unwrap_or_else(|| {
-            panic!("Expected start keyword: {:?}", &A::START.0[0]);
+            panic!(
+                "Expected start keyword \"{}\" but got \"{}\"",
+                &A::START.0[0].get(),
+                &self.source[self.position.offset()..]
+            );
         });
         println!("co_push: {:?}", self.position);
     }
@@ -317,127 +322,40 @@ where
     }
 }
 
-// fn test() {
-//     struct Pmsp;
-//     impl HasPatternMatchStrategyFor<BoundedNat<BoundedNatHeapBak<()>>> for Pmsp {
-//         type Strategy = ((BoundedNat<BoundedNatHeapBak<()>>, ()), ());
-//     }
-//     // impl term::co_visit::CoVisitable<Parser<'_>, Pmsp, tymetafuncspec_core::BoundedNatHeapBak<()>>
-//     //     for BoundedNat<BoundedNatHeapBak<()>>
-//     // {
-//     //     fn co_visit(
-//     //         visitor: &mut Parser<'_>,
-//     //         heap: &mut tymetafuncspec_core::BoundedNatHeapBak<()>,
-//     //     ) -> Self {
-//     //         todo!()
-//     //     }
-//     // }
+impl<'a, Heap, Pmsp, Lookaheadable>
+    term::co_visit::CoVisitable<Parser<'a, ()>, Pmsp, Heap, typenum::U0>
+    for Cstfy<Heap, Lookaheadable>
+where
+    Lookaheadable: Lookahead,
+{
+    fn co_visit(visitor: &mut Parser<'_, ()>, _heap: &mut Heap) -> Self {
+        println!("dbg: recursion limit exceeded");
+        let current_position = visitor.position;
+        visitor.pop_word();
+        tymetafuncspec_core::Either::Right(
+            std_parse_error::ParseError::new(parse::ParseError::RecursionLimitExceeded(
+                current_position.into(),
+            )),
+            std::marker::PhantomData,
+        )
+    }
+}
 
-//     // impl<'a>
-//     //     term::co_visit::CoVisitor<
-//     //         tymetafuncspec_core::BoundedNat<tymetafuncspec_core::BoundedNatHeapBak<()>>,
-//     //     > for Parser<'a>
-//     // {
-//     //     fn co_push(&mut self) {
-//     //         todo!()
-//     //     }
-
-//     //     fn co_proceed(&mut self) {
-//     //         todo!()
-//     //     }
-
-//     //     fn co_pop(&mut self) {
-//     //         todo!()
-//     //     }
-//     // }
-//     // impl<'a>
-//     //     term::select::AcceptingCases<(
-//     //         tymetafuncspec_core::BoundedNat<tymetafuncspec_core::BoundedNatHeapBak<()>>,
-//     //         (),
-//     //     )> for Parser<'a>
-//     // {
-//     //     type ShortCircuitsTo = Self;
-
-//     //     type AcceptingRemainingCases = Self;
-
-//     //     fn try_case(&mut self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
-//     //         todo!()
-//     //     }
-//     // }
-//     // impl<'a>
-//     //     term::co_case_split::CoCallable<
-//     //         tymetafuncspec_core::BoundedNatHeapBak<()>,
-//     //         tymetafuncspec_core::BoundedNat<tymetafuncspec_core::BoundedNatHeapBak<()>>,
-//     //     > for Parser<'a>
-//     // {
-//     //     fn call(
-//     //         &mut self,
-//     //         heap: &mut tymetafuncspec_core::BoundedNatHeapBak<()>,
-//     //     ) -> tymetafuncspec_core::BoundedNat<tymetafuncspec_core::BoundedNatHeapBak<()>> {
-//     //         todo!()
-//     //     }
-//     // }
-//     // impl
-//     //     term::co_case_split::AdmitNoMatchingCase<
-//     //         tymetafuncspec_core::BoundedNat<tymetafuncspec_core::BoundedNatHeapBak<()>>,
-//     //     > for Parser<'_>
-//     // {
-//     //     fn no_matching_case(
-//     //         &self,
-//     //         heap: &mut <tymetafuncspec_core::BoundedNat<tymetafuncspec_core::BoundedNatHeapBak<()>> as term::Heaped>::Heap,
-//     //     ) -> tymetafuncspec_core::BoundedNat<tymetafuncspec_core::BoundedNatHeapBak<()>> {
-//     //         panic!("No matching case")
-//     //     }
-//     // }
-
-//     let mut parser = Parser {
-//         source: "test",
-//         position: 0.into(),
-//     };
-//     let mut heap = BoundedNatHeapBak::<()>::default();
-//     <Cstfy<BoundedNatHeapBak<()>, BoundedNat<BoundedNatHeapBak<()>>> as CoVisitable<
-//         Parser<'_>,
-//         Pmsp,
-//         BoundedNatHeapBak<()>,
-//     >>::co_visit(&mut parser, &mut heap);
-// }
-
-// fn test2() {
-//     // pub struct Directly;
-//     // pub struct Transitively;
-//     // pub trait CorrespondsTo {
-//     //     type DirectlyOrTransitively;
-//     // }
-//     // pub trait Goal {}
-
-//     // impl<T> Goal for T where T: CorrespondsTo<DirectlyOrTransitively = Directly> {}
-//     // impl<T> Goal for T where T: CorrespondsTo<DirectlyOrTransitively = Transitively> {}
-
-//     pub trait HasEmbeddingFrom
-//     where
-//         Self: CanonicallyConstructibleFrom<Self::Intermediary>,
-//     {
-//         type Intermediary;
-//         // fn from_intermediary(intermediary: Self::Intermediary) -> Self;
-//     }
-
-//     pub trait TransitivelyConstructible<T> {
-//         fn construct(t: T) -> Self;
-//     }
-//     impl<T, U> TransitivelyConstructible<T> for U
-//     where
-//         U: HasEmbeddingFrom,
-//         U::Intermediary: TransitivelyConstructible<T>,
-//     {
-//         fn construct(t: T) -> Self {
-//             let intermediary = U::Intermediary::construct(t);
-//             Self::from_intermediary(intermediary)
-//         }
-//     }
-
-//     // impl<U> TransitivelyConstructible<U> for U {
-//     //     fn construct(t: U) -> Self {
-//     //         t
-//     //     }
-//     // }
-// }
+impl<'a, Heap, Pmsp, Lookaheadable>
+    term::co_visit::CoVisitable<Parser<'a, ()>, Pmsp, Heap, typenum::U0>
+    for CstfyTransparent<Heap, Lookaheadable>
+where
+    Lookaheadable: Lookahead,
+{
+    fn co_visit(visitor: &mut Parser<'_, ()>, _heap: &mut Heap) -> Self {
+        println!("dbg: recursion limit exceeded");
+        let current_position = visitor.position;
+        visitor.pop_word();
+        tymetafuncspec_core::Either::Right(
+            std_parse_error::ParseError::new(parse::ParseError::RecursionLimitExceeded(
+                current_position.into(),
+            )),
+            std::marker::PhantomData,
+        )
+    }
+}
