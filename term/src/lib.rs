@@ -5,6 +5,7 @@ pub mod case_split;
 pub mod co_case_split;
 pub mod co_visit;
 pub mod drop;
+pub mod fnlut;
 pub mod select;
 pub mod visit;
 

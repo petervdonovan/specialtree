@@ -159,6 +159,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "fn-traits"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "63fa6a0487cbc51bbe29ca4fd89c0bccc18eca48e7cb750b61d0828074ba40d0"
+
+[[package]]
 name = "functor_derive"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -621,6 +627,7 @@ checksum = "f764005d11ee5f36500a149ace24e00e3da98b0158b3e2d53a7495660d3f4d60"
 name = "term"
 version = "0.1.0"
 dependencies = [
+ "fn-traits",
  "take_mut",
  "type-equals",
  "typenum",

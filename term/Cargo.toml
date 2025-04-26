@@ -4,6 +4,7 @@ version = { workspace = true }
 edition = { workspace = true }
 
 [dependencies]
+fn-traits = { workspace = true }
 take_mut = { workspace = true }
-type-equals = { workspace = true }
+type-equals.workspace = true
 typenum = { workspace = true }
