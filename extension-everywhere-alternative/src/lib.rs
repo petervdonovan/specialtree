@@ -2,8 +2,8 @@ use either_id::Either;
 use langspec::langspec::{LangSpec, MappedType, Name, SortIdOf};
 use langspec_extension::{L0Map, LsExtension, SortIdOfExtension, l0_as_my_sid, l1_as_my_sid};
 
-pub struct L0M<L1: LangSpec> {
-    pub l1_root: SortIdOf<L1>,
+struct L0M<L1: LangSpec> {
+    l1_root: SortIdOf<L1>,
 }
 impl<'a, 'b, L0, L1> L0Map<'a, 'b, L0, L1> for L0M<L1>
 where
@@ -43,12 +43,12 @@ where
     }
 }
 
-pub fn everywhere_alternative<'a, 'b, L0: LangSpec, L1: LangSpec>(
+pub fn everywhere_alternative<L0: LangSpec, L1: LangSpec>(
     name: Name,
-    l0: &'a L0,
-    l1: &'b L1,
+    l0: &L0,
+    l1: &L1,
     l1_root: SortIdOf<L1>,
-) -> LsExtension<'a, 'b, L0, L1, L0M<L1>> {
+) -> impl LangSpec {
     LsExtension {
         name,
         l0,

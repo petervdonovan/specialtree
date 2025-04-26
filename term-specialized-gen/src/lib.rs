@@ -1,10 +1,11 @@
+use extension_autobox::autobox;
 use langspec::{
     flat::LangSpecFlat,
     humanreadable::LangSpecHuman,
     langspec::{AlgebraicSortId, LangSpec, TerminalLangSpec},
     tymetafunc::TyMetaFuncSpec,
 };
-use langspec_gen_util::{byline, AlgebraicsBasePath, HeapType, HeapbakGenData, LsGen, TyGenData};
+use langspec_gen_util::{AlgebraicsBasePath, HeapType, HeapbakGenData, LsGen, TyGenData, byline};
 use syn::parse_quote;
 
 pub fn generate<L: LangSpec>(base_path: &syn::Path, lg: &LsGen<L>, serde: bool) -> syn::ItemMod {
@@ -219,7 +220,8 @@ pub(crate) fn gen_heaped_impls<L: LangSpec>(base_path: &syn::Path, lg: &LsGen<L>
 
 pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
     let lsf: LangSpecFlat<Tmfs> = LangSpecFlat::canonical_from(lsh);
-    let lg = LsGen::from(&lsf);
+    let lsf_boxed = autobox(&lsf);
+    let lg = LsGen::from(&lsf_boxed);
     let m = generate(&parse_quote!(crate::data_structure), &lg, false);
     prettyplease::unparse(&syn::parse_quote! {
         #m

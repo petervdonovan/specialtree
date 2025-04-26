@@ -5,7 +5,7 @@ use langspec::{
 };
 
 use serde::{Deserialize, Serialize};
-use term::{drop::UnsafeHeapDrop, DirectlyCanonicallyConstructibleFrom, Heaped, SuperHeap};
+use term::{DirectlyCanonicallyConstructibleFrom, Heaped, SuperHeap, drop::UnsafeHeapDrop};
 
 pub struct Core;
 #[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize, Hash, PartialOrd, Ord)]
@@ -55,6 +55,7 @@ thread_local! {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::BoundedNatHeapBak),
             },
             canonical_froms: Box::new([]),
+            size_depends_on: Box::new([]),
         },
         TyMetaFuncData {
             name: Name {
@@ -78,6 +79,7 @@ thread_local! {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::SetHeapBak),
             },
             canonical_froms: Box::new([]),
+            size_depends_on: Box::new([]),
         },
         TyMetaFuncData {
             name: Name {
@@ -101,6 +103,7 @@ thread_local! {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::SeqHeapBak),
             },
             canonical_froms: Box::new([]),
+            size_depends_on: Box::new([]),
         },
         TyMetaFuncData {
             name: Name {
@@ -125,6 +128,7 @@ thread_local! {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::IdxBoxHeapBak),
             },
             canonical_froms: Box::new([Box::new([ArgId(0)])]),
+            size_depends_on: Box::new([]),
         },
         TyMetaFuncData {
             name: Name {
@@ -140,7 +144,8 @@ thread_local! {
             idby: IdentifiedBy::FirstTmfArg,
             transparency: Transparency::Transparent,
             heapbak: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::EitherHeapBak) },
-            canonical_froms: Box::new([Box::new([ArgId(0)]), Box::new([ArgId(1)])])
+            canonical_froms: Box::new([Box::new([ArgId(0)]), Box::new([ArgId(1)])]),
+            size_depends_on: Box::new([ArgId(0), ArgId(1)]),
         },
         TyMetaFuncData {
             name: Name {
@@ -155,7 +160,8 @@ thread_local! {
             idby: IdentifiedBy::FirstTmfArg,
             transparency: Transparency::Transparent,
             heapbak: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::MaybeHeapBak) },
-            canonical_froms: Box::new([Box::new([ArgId(0)])])
+            canonical_froms: Box::new([Box::new([ArgId(0)])]),
+            size_depends_on: Box::new([ArgId(0)]),
         },
         TyMetaFuncData {
             name: Name {
@@ -172,6 +178,7 @@ thread_local! {
             transparency: Transparency::Visible,
             heapbak: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::PairHeapBak) },
             canonical_froms: Box::new([Box::new([ArgId(0)]), Box::new([ArgId(1)])]),
+            size_depends_on: Box::new([ArgId(0), ArgId(1)]),
         }
         ]
     });

@@ -2,3 +2,4 @@
 target/
 todo.md
 flamegraph.svg
+depgraph.png

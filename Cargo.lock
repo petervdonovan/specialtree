@@ -127,6 +127,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "extension-autobox"
+version = "0.1.0"
+dependencies = [
+ "derivative",
+ "either-id",
+ "langspec",
+ "langspec-extension",
+ "once_cell",
+ "tymetafuncspec-core",
+]
+
+[[package]]
 name = "extension-everywhere-alternative"
 version = "0.1.0"
 dependencies = [
@@ -359,6 +371,7 @@ name = "parse-gen"
 version = "0.1.0"
 dependencies = [
  "bumpalo",
+ "extension-autobox",
  "extension-everywhere-alternative",
  "extension-everywhere-maybemore",
  "langspec",
@@ -375,6 +388,7 @@ dependencies = [
  "syn-insert-use",
  "term",
  "term-bridge-gen",
+ "term-pattern-match-strategy-provider-gen",
  "term-pattern-match-strategy-provider-impl-gen",
  "term-specialized-gen",
  "term-specialized-impl-gen",
@@ -615,7 +629,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "term-pattern-match-strategy-provider-impl-gen"
+name = "term-pattern-match-strategy-provider-gen"
 version = "0.1.0"
 dependencies = [
  "langspec",
@@ -633,10 +647,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "term-pattern-match-strategy-provider-impl-gen"
+version = "0.1.0"
+dependencies = [
+ "extension-autobox",
+ "langspec",
+ "langspec-examples",
+ "langspec-gen-util",
+ "prettyplease",
+ "quote",
+ "syn 2.0.100",
+ "syn-insert-use",
+ "term",
+ "term-pattern-match-strategy-provider-gen",
+ "term-specialized-gen",
+ "term-specialized-impl-gen",
+ "term-trait-gen",
+ "tymetafuncspec-core",
+ "words",
+]
+
+[[package]]
 name = "term-specialized-gen"
 version = "0.1.0"
 dependencies = [
  "expect-test",
+ "extension-autobox",
  "langspec",
  "langspec-examples",
  "langspec-gen-util",
@@ -651,12 +687,14 @@ dependencies = [
 name = "term-specialized-impl-gen"
 version = "0.1.0"
 dependencies = [
+ "extension-autobox",
  "langspec",
  "langspec-examples",
  "langspec-gen-util",
  "prettyplease",
  "quote",
  "syn 2.0.100",
+ "syn-insert-use",
  "term",
  "term-specialized-gen",
  "term-trait-gen",

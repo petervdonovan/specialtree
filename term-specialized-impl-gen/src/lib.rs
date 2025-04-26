@@ -1,3 +1,4 @@
+use extension_autobox::autobox;
 use langspec::{
     flat::LangSpecFlat,
     humanreadable::LangSpecHuman,
@@ -386,7 +387,8 @@ pub(crate) fn gen_heap_impl<L: LangSpec>(
 
 pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
     let lsf: LangSpecFlat<Tmfs> = LangSpecFlat::canonical_from(lsh);
-    let lsg = LsGen::from(&lsf);
+    let lsf_boxed = autobox(&lsf);
+    let lsg = LsGen::from(&lsf_boxed);
     let bps = BasePaths {
         data_structure: syn::parse_quote!(crate::data_structure),
         term_trait: syn::parse_quote!(crate::term_trait),
@@ -400,10 +402,10 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
         &lsg,
         &lsg,
     );
-    prettyplease::unparse(&syn::parse_quote! {
+    prettyplease::unparse(&syn_insert_use::insert_use(syn::parse_quote! {
         #m
         #ds
         #tt
         #words_impls
-    })
+    }))
 }

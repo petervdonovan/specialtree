@@ -60,6 +60,7 @@ impl TyMetaFuncSpec for ParseMetadataTmfs {
                     ty_func: syn::parse_quote! {std_parse_metadata::ParseMetadataBak},
                 },
                 canonical_froms: Box::new([]),
+                size_depends_on: Box::new([]),
             },
         }
     }

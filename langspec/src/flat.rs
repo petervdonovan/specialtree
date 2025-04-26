@@ -17,6 +17,17 @@ pub struct LangSpecFlat<Tmfs: TyMetaFuncSpec> {
     _phantom: std::marker::PhantomData<Tmfs>,
 }
 
+impl<Tmfs: TyMetaFuncSpec> LangSpecFlat<Tmfs> {
+    pub fn empty(name: Name) -> Self {
+        LangSpecFlat {
+            name,
+            products: TiVec::new(),
+            sums: TiVec::new(),
+            _phantom: std::marker::PhantomData,
+        }
+    }
+}
+
 #[derive(
     Debug, Serialize, Deserialize, Clone, Copy, From, Into, PartialEq, Eq, Hash, PartialOrd, Ord,
 )]

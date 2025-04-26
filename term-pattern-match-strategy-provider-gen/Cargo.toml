@@ -1,18 +1,15 @@
 [package]
-name = "term-pattern-match-strategy-provider-impl-gen"
+name = "term-pattern-match-strategy-provider-gen"
 version = { workspace = true }
 edition = { workspace = true }
 
 [dependencies]
-extension-autobox = { path = "../extension-autobox" }
 langspec-gen-util = { path = "../langspec-gen-util" }
 langspec = { path = "../langspec" }
-term-pattern-match-strategy-provider-gen = { path = "../term-pattern-match-strategy-provider-gen" }
 term-trait-gen = { path = "../term-trait-gen" }
 term-specialized-gen = { path = "../term-specialized-gen" }
 words = { path = "../words" }
 term-specialized-impl-gen = { path = "../term-specialized-impl-gen" }
-syn-insert-use = { path = "../syn-insert-use" }
 prettyplease = { workspace = true }
 quote = { workspace = true }
 syn = { workspace = true }

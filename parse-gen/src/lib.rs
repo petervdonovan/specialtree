@@ -1,3 +1,4 @@
+use extension_autobox::autobox;
 use extension_everywhere_alternative::everywhere_alternative;
 use extension_everywhere_maybemore::everywhere_maybemore;
 use langspec::{
@@ -125,9 +126,17 @@ pub fn gen_impls<L: LangSpec>(
     let ds =
         term_specialized_gen::generate(&syn::parse_quote!(#base_path::data_structure), lsg, false);
     let tt = term_trait_gen::generate(&syn::parse_quote!(#base_path::term_trait), lsg.bak());
+    let tpmsp = term_pattern_match_strategy_provider_gen::generate(
+        &term_pattern_match_strategy_provider_gen::BasePaths {
+            term_trait: syn::parse_quote!(#base_path::term_trait),
+            data_structure: syn::parse_quote!(#base_path::data_structure),
+            words: syn::parse_quote!(#base_path::term_trait::words),
+            strategy_provider: syn::parse_quote!(#base_path::pattern_match_strategy),
+        },
+        lsg,
+    );
     let tpmspi = term_pattern_match_strategy_provider_impl_gen::generate(
         &term_pattern_match_strategy_provider_impl_gen::BasePaths {
-            term_trait: syn::parse_quote!(#base_path::term_trait),
             data_structure: syn::parse_quote!(#base_path::data_structure),
             words: syn::parse_quote!(#base_path::term_trait::words),
             strategy_provider: syn::parse_quote!(#base_path::pattern_match_strategy),
@@ -151,6 +160,7 @@ pub fn gen_impls<L: LangSpec>(
     quote::quote! {
         #ds
         #tt
+        #tpmsp
         #tpmspi
         #tt_words_impl
         #tt_impl
@@ -221,7 +231,8 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
     let m = generate(&bps, &lg);
     let (cst_impls, bridge) = {
         let arena = bumpalo::Bump::new();
-        let cst = cst(&arena, l);
+        let autoboxed = autobox(l);
+        let cst = cst(&arena, &autoboxed);
         let ext_lg = LsGen::from(&cst);
         (
             gen_impls(
@@ -237,7 +248,7 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
             ),
         )
     };
-    let root_impls = gen_impls(&syn::parse_quote! { crate }, &lg, &[l.name().clone()]);
+    let root_impls = term_trait_gen::generate(&syn::parse_quote!(crate::term_trait), lg.bak());
     let byline = byline!();
     let f: syn::File = syn::parse_quote! {
         #byline

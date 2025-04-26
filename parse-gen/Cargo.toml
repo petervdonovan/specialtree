@@ -8,15 +8,16 @@ bumpalo = { workspace = true }
 prettyplease = { workspace = true }
 quote = { workspace = true }
 syn = { workspace = true }
+extension-autobox = { path = "../extension-autobox" }
 extension-everywhere-alternative = { path = "../extension-everywhere-alternative" }
 extension-everywhere-maybemore = { path = "../extension-everywhere-maybemore" }
 langspec = { path = "../langspec" }
 langspec-gen-util = { path = "../langspec-gen-util" }
-
 std-parse-error = { path = "../langspec-std/std-parse-error" }
 std-parse-metadata = { path = "../langspec-std/std-parse-metadata" }
 syn-insert-use = { path = "../syn-insert-use" }
 term-bridge-gen = { path = "../term-bridge-gen" }
+term-pattern-match-strategy-provider-gen = { path = "../term-pattern-match-strategy-provider-gen" }
 term-pattern-match-strategy-provider-impl-gen = { path = "../term-pattern-match-strategy-provider-impl-gen" }
 term-specialized-gen = { path = "../term-specialized-gen" }
 term-specialized-impl-gen = { path = "../term-specialized-impl-gen" }

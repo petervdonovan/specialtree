@@ -1,0 +1,12 @@
+[package]
+name = "extension-autobox"
+version = { workspace = true }
+edition = { workspace = true }
+
+[dependencies]
+derivative = { workspace = true }
+once_cell = { workspace = true }
+either-id = { path = "../either-id" }
+langspec = { path = "../langspec" }
+langspec-extension = { path = "../langspec-extension" }
+tymetafuncspec-core = { path = "../tymetafuncspec-core" }

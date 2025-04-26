@@ -4,11 +4,13 @@ version = { workspace = true }
 edition = { workspace = true }
 
 [dependencies]
+extension-autobox = { path = "../extension-autobox" }
 langspec = { path = "../langspec" }
 langspec-gen-util = { path = "../langspec-gen-util" }
 term-specialized-gen = { path = "../term-specialized-gen" }
 term-trait-gen = { path = "../term-trait-gen" }
 words = { path = "../words" }
+syn-insert-use = { path = "../syn-insert-use" }
 prettyplease = { workspace = true }
 quote = { workspace = true }
 syn = { workspace = true }
