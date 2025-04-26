@@ -248,7 +248,16 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
             ),
         )
     };
-    let root_impls = term_trait_gen::generate(&syn::parse_quote!(crate::term_trait), lg.bak());
+    let pmsp = term_pattern_match_strategy_provider_gen::generate(
+        &term_pattern_match_strategy_provider_gen::BasePaths {
+            term_trait: syn::parse_quote!(crate::term_trait),
+            data_structure: syn::parse_quote!(crate::data_structure),
+            words: syn::parse_quote!(crate::term_trait::words),
+            strategy_provider: syn::parse_quote!(crate::pattern_match_strategy),
+        },
+        &lg,
+    );
+    let tt = term_trait_gen::generate(&syn::parse_quote!(crate::term_trait), lg.bak());
     let byline = byline!();
     let f: syn::File = syn::parse_quote! {
         #byline
@@ -389,7 +398,8 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
         pub mod bridge {
             #bridge
         }
-        #root_impls
+        #pmsp
+        #tt
     };
     prettyplease::unparse(&syn_insert_use::insert_use(f))
 }

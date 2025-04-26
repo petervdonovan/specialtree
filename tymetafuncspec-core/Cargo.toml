@@ -4,6 +4,7 @@ version = { workspace = true }
 edition = { workspace = true }
 
 [dependencies]
+functor_derive = { workspace = true }
 langspec = { path = "../langspec" }
 term = { path = "../term" }
 once_cell = { workspace = true }

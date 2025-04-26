@@ -1,4 +1,5 @@
 use derivative::Derivative;
+use functor_derive::Functor;
 use langspec::{
     langspec::{Name, ToLiteral},
     tymetafunc::{ArgId, IdentifiedBy, RustTyMap, Transparency, TyMetaFuncData, TyMetaFuncSpec},
@@ -323,9 +324,31 @@ where
 #[derive(derivative::Derivative)]
 #[derivative(Clone(bound = "L: Clone, R: Clone"))]
 #[derivative(Copy(bound = "L: Copy, R: Copy"))]
+#[derive(Functor)]
+#[functor(L as l, R as r)]
 pub enum Either<Heap, L, R> {
     Left(L, std::marker::PhantomData<Heap>),
     Right(R, std::marker::PhantomData<Heap>),
+}
+impl<Heap, L, R> Either<Heap, L, R> {
+    pub fn fmap_l_fnmut<F, T>(self, mut f: F) -> Either<Heap, T, R>
+    where
+        F: FnMut(L) -> T,
+    {
+        match self {
+            Either::Left(l, _) => Either::Left(f(l), std::marker::PhantomData),
+            Either::Right(r, _) => Either::Right(r, std::marker::PhantomData),
+        }
+    }
+    pub fn fmap_r_fnmut<F, T>(self, mut f: F) -> Either<Heap, L, T>
+    where
+        F: FnMut(R) -> T,
+    {
+        match self {
+            Either::Left(l, _) => Either::Left(l, std::marker::PhantomData),
+            Either::Right(r, _) => Either::Right(f(r), std::marker::PhantomData),
+        }
+    }
 }
 impl<Heap, L, R> Heaped for Either<Heap, L, R> {
     type Heap = Heap;
@@ -368,6 +391,8 @@ empty_heap_bak!(MaybeHeapBak, T);
 #[derive(derivative::Derivative)]
 #[derivative(Clone(bound = "L: Clone, R: Clone"))]
 #[derivative(Copy(bound = "L: Copy, R: Copy"))]
+#[derive(Functor)]
+#[functor(L as l, R as r)]
 pub struct Pair<Heap, L, R> {
     pub l: L,
     pub r: R,
@@ -378,6 +403,26 @@ impl<Heap, L, R> Pair<Heap, L, R> {
         Pair {
             l,
             r,
+            heap: std::marker::PhantomData,
+        }
+    }
+    pub fn fmap_l_fnmut<F, T>(self, mut f: F) -> Pair<Heap, T, R>
+    where
+        F: FnMut(L) -> T,
+    {
+        Pair {
+            l: f(self.l),
+            r: self.r,
+            heap: std::marker::PhantomData,
+        }
+    }
+    pub fn fmap_r_fnmut<F, T>(self, mut f: F) -> Pair<Heap, L, T>
+    where
+        F: FnMut(R) -> T,
+    {
+        Pair {
+            l: self.l,
+            r: f(self.r),
             heap: std::marker::PhantomData,
         }
     }

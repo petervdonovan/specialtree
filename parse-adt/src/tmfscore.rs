@@ -3,8 +3,9 @@ use core::panic;
 use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Maybe, Pair, Set, SetHeapBak};
 
 use crate::{
-    cstfy::{cstfy_ok, Cstfy, CstfyTransparent},
-    return_if_err, Lookahead, Parser,
+    Lookahead, Parser,
+    cstfy::{Cstfy, CstfyTransparent, cstfy_ok},
+    return_if_err,
 };
 
 impl<Heap, Pmsp, Amc, DepthFuelUpperBits, DepthFuelLastBit>
@@ -42,11 +43,11 @@ impl<'a, Heap, Elem, Pmsp, DepthFuelUpperBits, DepthFuelLastBit>
 where
     typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>: std::ops::Sub<typenum::B1>,
     Elem: for<'b> term::co_visit::CoVisitable<
-        Parser<'b, ()>,
-        Pmsp,
-        Heap,
-        typenum::Sub1<typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>>,
-    >,
+            Parser<'b, ()>,
+            Pmsp,
+            Heap,
+            typenum::Sub1<typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>>,
+        >,
     Heap: term::SuperHeap<SetHeapBak<Heap, Elem>>,
 {
     fn co_visit(visitor: &mut Parser<'_, ()>, heap: &mut Heap) -> Self {
@@ -94,11 +95,11 @@ where
     typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>: std::ops::Sub<typenum::B1>,
     Elem: Lookahead,
     Cstfy<Heap, Elem>: for<'b> term::co_visit::CoVisitable<
-        Parser<'b, ()>,
-        Pmsp,
-        Heap,
-        typenum::Sub1<typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>>,
-    >,
+            Parser<'b, ()>,
+            Pmsp,
+            Heap,
+            typenum::Sub1<typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>>,
+        >,
     Heap: term::SuperHeap<IdxBoxHeapBak<Heap, Cstfy<Heap, Elem>>>,
 {
     fn co_visit(visitor: &mut Parser<'_, ()>, heap: &mut Heap) -> Self {
@@ -106,6 +107,30 @@ where
         let item = Cstfy::<Heap, Elem>::co_visit(visitor, heap);
         let final_offset = visitor.position;
         cstfy_ok(IdxBox::new(heap, item), initial_offset, final_offset)
+    }
+}
+
+impl<'a, Heap, Elem, Pmsp, DepthFuelUpperBits, DepthFuelLastBit>
+    term::co_visit::CoVisitable<
+        Parser<'a, ()>,
+        Pmsp,
+        Heap,
+        typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>,
+    > for Cstfy<Heap, IdxBox<Heap, Elem>>
+where
+    typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>: std::ops::Sub<typenum::B1>,
+    Elem: Lookahead,
+    Cstfy<Heap, Elem>: for<'b> term::co_visit::CoVisitable<
+            Parser<'b, ()>,
+            Pmsp,
+            Heap,
+            typenum::Sub1<typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>>,
+        >,
+    Heap: term::SuperHeap<IdxBoxHeapBak<Heap, Elem>>,
+{
+    fn co_visit(visitor: &mut Parser<'_, ()>, heap: &mut Heap) -> Self {
+        let item = Cstfy::<Heap, Elem>::co_visit(visitor, heap);
+        item.fmap_l_fnmut(|p| p.fmap_l_fnmut(|elem| IdxBox::new(heap, elem)))
     }
 }
 

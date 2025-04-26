@@ -773,6 +773,7 @@ name = "tymetafuncspec-core"
 version = "0.1.0"
 dependencies = [
  "derivative",
+ "functor_derive",
  "langspec",
  "once_cell",
  "serde",
