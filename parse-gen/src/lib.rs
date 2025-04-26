@@ -12,6 +12,7 @@ pub struct BasePaths {
     pub data_structure: syn::Path,
     pub term_trait: syn::Path,
     pub words: syn::Path,
+    pub pattern_match_strategy: syn::Path,
     pub cst_data_structure: syn::Path,
     pub cst_term_trait: syn::Path,
     pub cst_words: syn::Path,
@@ -23,14 +24,24 @@ pub fn generate<L: LangSpec>(bps: &BasePaths, lg: &LsGen<L>) -> syn::ItemMod {
     let cst = cst(&arena, lg.bak());
     let lg_cst = LsGen::from(&cst);
     let cst_tgds = lg_cst.ty_gen_datas(None).collect::<Vec<_>>();
-    let parses = lg.ty_gen_datas(None).filter_map(|tgd| {
-        tgd.id.as_ref().map(|sid| {
-            generate_parse(
+    let parsells = lg.ty_gen_datas(None).filter_map(|tgd| {
+        tgd.id.as_ref().map(|_| {
+            generate_parsell(
                 bps,
-                &tgd,
                 cst_tgds
                     .iter()
-                    .find(|cst_tgd| cst_tgd.snake_ident == tgd.snake_ident) // FIXME: comparing idents
+                    .find(|cst_tgd| cst_tgd.snake_ident == tgd.snake_ident)
+                    .unwrap(),
+            )
+        })
+    });
+    let parses = lg.ty_gen_datas(None).filter_map(|tgd| {
+        tgd.id.as_ref().map(|_| {
+            generate_parse(
+                bps,
+                cst_tgds
+                    .iter()
+                    .find(|cst_tgd| cst_tgd.snake_ident == tgd.snake_ident)
                     .unwrap(),
             )
         })
@@ -39,15 +50,42 @@ pub fn generate<L: LangSpec>(bps: &BasePaths, lg: &LsGen<L>) -> syn::ItemMod {
         #byline
         pub mod parse {
             #(#parses)*
+            pub mod parsell {
+                #(#parsells)*
+            }
         }
     }
 }
 
-pub fn generate_parse<L: LangSpec, LCst: LangSpec>(
-    bps: &BasePaths,
-    tgd: &TyGenData<L>,
-    cst_tgd: &TyGenData<LCst>,
-) -> syn::Item {
+pub fn generate_parse<LCst: LangSpec>(bps: &BasePaths, cst_tgd: &TyGenData<LCst>) -> syn::Item {
+    let camel_ident = &cst_tgd.camel_ident;
+    let snake_ident = &cst_tgd.snake_ident;
+    let cst_data_structure_bp = &bps.cst_data_structure;
+    let my_cst_ty: syn::Type = syn::parse_quote! { #cst_data_structure_bp::#camel_ident };
+    let cstfication = transparency2cstfication(&cst_tgd.transparency);
+    let my_cstfied_ty: syn::Type = syn::parse_quote! {
+        parse_adt::cstfy::#cstfication<
+            #cst_data_structure_bp::Heap,
+            #my_cst_ty,
+        >
+    };
+    let pattern_match_strategy = &bps.pattern_match_strategy;
+    syn::parse_quote! {
+        pub fn #snake_ident(source: &str) -> (#cst_data_structure_bp::Heap, #my_cstfied_ty) {
+            let mut parser = parse_adt::Parser::new(source);
+            let mut heap = #cst_data_structure_bp::Heap::default();
+            let ret = <#my_cstfied_ty as term::co_visit::CoVisitable<
+                parse_adt::Parser<'_, ()>,
+                #pattern_match_strategy::PatternMatchStrategyProvider<#cst_data_structure_bp::Heap>,
+                #cst_data_structure_bp::Heap,
+                typenum::U16,
+            >>::co_visit(&mut parser, &mut heap);
+            (heap, ret)
+        }
+    }
+}
+
+pub fn generate_parsell<LCst: LangSpec>(bps: &BasePaths, cst_tgd: &TyGenData<LCst>) -> syn::Item {
     let camel_ident = &cst_tgd.camel_ident;
     let snake_ident = &cst_tgd.snake_ident;
     let cst_data_structure_bp = &bps.cst_data_structure;
@@ -173,6 +211,7 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
         data_structure: parse_quote! { crate::data_structure },
         term_trait: parse_quote! { crate::term_trait },
         words: parse_quote! { crate::term_trait::words },
+        pattern_match_strategy: parse_quote! { crate::pattern_match_strategy },
         cst_data_structure: parse_quote! { crate::cst::data_structure },
         cst_term_trait: parse_quote! { crate::cst::term_trait },
         cst_words: parse_quote! { crate::cst::words },
@@ -232,87 +271,27 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
             }
             {
                 println!("test Sum");
-                let mut parser = parse_adt::Parser::new("sum { 3 }");
-                let mut heap = crate::cst::data_structure::Heap::default();
-                <parse_adt::cstfy::Cstfy<
-                    crate::cst::data_structure::Heap,
-                    crate::cst::data_structure::Sum,
-                > as term::co_visit::CoVisitable<
-                    parse_adt::Parser<'_, ()>,
-                    crate::pattern_match_strategy::PatternMatchStrategyProvider<crate::cst::data_structure::Heap>,
-                    crate::cst::data_structure::Heap,
-                    typenum::U3,
-                >>::co_visit(&mut parser, &mut heap);
+                crate::parse::sum("sum { 3 }");
             }
             {
                 println!("test Nat");
-                let mut parser = parse_adt::Parser::new("3");
-                let mut heap = crate::cst::data_structure::Heap::default();
-                <parse_adt::cstfy::CstfyTransparent<
-                    crate::cst::data_structure::Heap,
-                    crate::cst::data_structure::Nat,
-                > as term::co_visit::CoVisitable<
-                    parse_adt::Parser<'_, ()>,
-                    crate::pattern_match_strategy::PatternMatchStrategyProvider<crate::cst::data_structure::Heap>,
-                    crate::cst::data_structure::Heap,
-                    typenum::U4,
-                >>::co_visit(&mut parser, &mut heap);
+                crate::parse::nat("3");
             }
             {
                 println!("test Nat");
-                let mut parser = parse_adt::Parser::new("f 3");
-                let mut heap = crate::cst::data_structure::Heap::default();
-                <CstfyTransparent<
-                    crate::cst::data_structure::Heap,
-                    crate::cst::data_structure::Nat,
-                > as term::co_visit::CoVisitable<
-                    Parser<'_, ()>,
-                    crate::pattern_match_strategy::PatternMatchStrategyProvider<crate::cst::data_structure::Heap>,
-                    crate::cst::data_structure::Heap,
-                    typenum::U2,
-                >>::co_visit(&mut parser, &mut heap);
+                crate::parse::nat("f 3");
             }
             {
                 println!("test Sum");
-                let mut parser = parse_adt::Parser::new("sum { 3 }");
-                let mut heap = crate::cst::data_structure::Heap::default();
-                <Cstfy<
-                    crate::cst::data_structure::Heap,
-                    crate::cst::data_structure::Sum,
-                > as term::co_visit::CoVisitable<
-                    Parser<'_, ()>,
-                    crate::pattern_match_strategy::PatternMatchStrategyProvider<crate::cst::data_structure::Heap>,
-                    crate::cst::data_structure::Heap,
-                    typenum::U3,
-                >>::co_visit(&mut parser, &mut heap);
+                crate::parse::sum("sum { 3 }");
             }
             {
                 println!("test F");
-                let mut parser = parse_adt::Parser::new("f 3");
-                let mut heap = crate::cst::data_structure::Heap::default();
-                <parse_adt::cstfy::Cstfy<
-                    crate::cst::data_structure::Heap,
-                    crate::cst::data_structure::F,
-                > as term::co_visit::CoVisitable<
-                    Parser<'_, ()>,
-                    crate::pattern_match_strategy::PatternMatchStrategyProvider<crate::cst::data_structure::Heap>,
-                    crate::cst::data_structure::Heap,
-                    typenum::U7,
-                >>::co_visit(&mut parser, &mut heap);
+                crate::parse::f("f 3");
             }
             {
                 println!("test Plus");
-                let mut parser = parse_adt::Parser::new("plus left_operand 3 right_operand 4");
-                let mut heap = crate::cst::data_structure::Heap::default();
-                <parse_adt::cstfy::Cstfy<
-                    crate::cst::data_structure::Heap,
-                    crate::cst::data_structure::Plus,
-                > as term::co_visit::CoVisitable<
-                    Parser<'_, ()>,
-                    crate::pattern_match_strategy::PatternMatchStrategyProvider<crate::cst::data_structure::Heap>,
-                    crate::cst::data_structure::Heap,
-                    typenum::U3,
-                >>::co_visit(&mut parser, &mut heap);
+                crate::parse::plus("plus left_operand 3 right_operand 4");
             }
             {
                 println!("test IdxBox");
@@ -330,17 +309,7 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
             }
             {
                 println!("test Nat");
-                let mut parser = parse_adt::Parser::new("sum { f 3, f plus left_operand f 1 right_operand 4 }");
-                let mut heap = crate::cst::data_structure::Heap::default();
-                <CstfyTransparent<
-                    crate::cst::data_structure::Heap,
-                    crate::cst::data_structure::Nat,
-                > as term::co_visit::CoVisitable<
-                    Parser<'_, ()>,
-                    crate::pattern_match_strategy::PatternMatchStrategyProvider<crate::cst::data_structure::Heap>,
-                    crate::cst::data_structure::Heap,
-                    typenum::U2,
-                >>::co_visit(&mut parser, &mut heap);
+                crate::parse::nat("sum { f 3, f plus left_operand f 1 right_operand 4 }");
             }
         }
         #m
