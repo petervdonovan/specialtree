@@ -1,17 +1,26 @@
 use type_equals::TypeEquals;
 
-pub trait HasFn<ArgsType, RetType> {
+pub trait HasFn<DispatchOn, ArgsType, RetType> {
     fn fn_type<T>(&self) -> impl fn_traits::Fn<ArgsType, Output = RetType>
     where
-        T: TypeEquals<Other = ArgsType>;
+        T: TypeEquals<Other = DispatchOn>;
 }
-// pub struct PanickingFnLut;
-// impl<ArgsType, RetType> HasFn<ArgsType, RetType> for PanickingFnLut {
-//     fn fn_type(&self) -> impl fn_traits::Fn<ArgsType, Output = RetType> {
-//         |_: ArgsType| panic!("PanickingFnLut")
-//     }
-// }
+pub struct PanickingFnLut;
+pub struct PanicFunction<RetType>(std::marker::PhantomData<RetType>);
+impl<ArgsType, RetType> fn_traits::Fn<ArgsType> for PanicFunction<RetType> {
+    type Output = RetType;
 
+    fn call(&self, _: ArgsType) -> Self::Output {
+        panic!("no implementation provided");
+    }
+}
+impl<DispatchOn, ArgsType, RetType> HasFn<DispatchOn, ArgsType, RetType> for PanickingFnLut {
+    fn fn_type<T>(&self) -> impl fn_traits::Fn<ArgsType, Output = RetType> {
+        PanicFunction(std::marker::PhantomData)
+    }
+}
+
+#[macro_export]
 macro_rules! impl_fn_lut {
     (witness_name $name:ident ; trait $trai:tt ; fn_name $fn_name:ident ; fn_args $($fn_args:ty),* ; fn_ret_type $fn_ret_type:ty ; types $($typ_snake_ident:ident = $typ:ty),*) => {
         pub struct $name {
@@ -35,7 +44,7 @@ macro_rules! impl_fn_lut {
         }
         macro_rules! impl_for_one {
             ($typ2:ty, $typ_snake_ident2:ident) => {
-                impl $crate::fnlut::HasFn<($($fn_args,)*), $fn_ret_type> for $name
+                impl $crate::fnlut::HasFn<$typ2, ($($fn_args,)*), $fn_ret_type> for $name
                 {
                     #[allow(refining_impl_trait_reachable)]
                     fn fn_type<T>(&self) -> impl Fn($($fn_args,)*) -> $fn_ret_type {
@@ -93,8 +102,8 @@ mod test {
         let a = A;
         let b = B(a.clone());
         let clone_lut = CloneWitness::new();
-        let a_clone = (clone_lut.fn_type::<(&A,)>())(&a);
-        let b_clone = (clone_lut.fn_type::<(&B<A>,)>())(&b);
+        let _a_clone = (clone_lut.fn_type::<A>())(&a);
+        let _b_clone = (clone_lut.fn_type::<B<A>>())(&b);
         // let clone_a_fn = <CloneWitness<A, B<A>> as HasFn<(&A,), A>>::fn_type(&clone_lut);
         // let clone_b_fn = <CloneWitness<A, B<A>> as HasFn<(&B<A>,), B<A>>>::fn_type(&clone_lut);
         // let cloned_a = clone_a_fn(&a);
