@@ -30,7 +30,7 @@ fn test() {
             pms::PatternMatchStrategyProvider<cds::Heap>,
             cds::Heap,
             U2,
-        >>::co_visit(&mut parser, &mut heap);
+        >>::co_visit(&mut parser, &mut heap, PanickingFnLut);
     }
     {
         println!("test Sum");
@@ -68,7 +68,7 @@ fn test() {
             pms::PatternMatchStrategyProvider<Heap>,
             Heap,
             U5,
-        >>::co_visit(&mut parser, &mut heap);
+        >>::co_visit(&mut parser, &mut heap, PanickingFnLut);
     }
     {
         println!("test Nat");
@@ -93,8 +93,8 @@ pub mod parse {
             Parser<'_, ()>,
             pms::PatternMatchStrategyProvider<cds::Heap>,
             cds::Heap,
-            U16,
-        >>::co_visit(&mut parser, &mut heap);
+            PanickingFnLut,
+        >>::co_visit(&mut parser, &mut heap, PanickingFnLut);
         (heap, ret)
     }
     pub fn plus(source: &str) -> (cds::Heap, Cstfy<cds::Heap, cds::Plus>) {
@@ -107,8 +107,8 @@ pub mod parse {
             Parser<'_, ()>,
             pms::PatternMatchStrategyProvider<cds::Heap>,
             cds::Heap,
-            U16,
-        >>::co_visit(&mut parser, &mut heap);
+            PanickingFnLut,
+        >>::co_visit(&mut parser, &mut heap, PanickingFnLut);
         (heap, ret)
     }
     pub fn left_operand(
@@ -123,8 +123,8 @@ pub mod parse {
             Parser<'_, ()>,
             pms::PatternMatchStrategyProvider<cds::Heap>,
             cds::Heap,
-            U16,
-        >>::co_visit(&mut parser, &mut heap);
+            PanickingFnLut,
+        >>::co_visit(&mut parser, &mut heap, PanickingFnLut);
         (heap, ret)
     }
     pub fn right_operand(
@@ -139,8 +139,8 @@ pub mod parse {
             Parser<'_, ()>,
             pms::PatternMatchStrategyProvider<cds::Heap>,
             cds::Heap,
-            U16,
-        >>::co_visit(&mut parser, &mut heap);
+            PanickingFnLut,
+        >>::co_visit(&mut parser, &mut heap, PanickingFnLut);
         (heap, ret)
     }
     pub fn sum(source: &str) -> (cds::Heap, Cstfy<cds::Heap, cds::Sum>) {
@@ -153,8 +153,8 @@ pub mod parse {
             Parser<'_, ()>,
             pms::PatternMatchStrategyProvider<cds::Heap>,
             cds::Heap,
-            U16,
-        >>::co_visit(&mut parser, &mut heap);
+            PanickingFnLut,
+        >>::co_visit(&mut parser, &mut heap, PanickingFnLut);
         (heap, ret)
     }
     pub fn nat(source: &str) -> (cds::Heap, CstfyTransparent<cds::Heap, cds::Nat>) {
@@ -167,8 +167,8 @@ pub mod parse {
             Parser<'_, ()>,
             pms::PatternMatchStrategyProvider<cds::Heap>,
             cds::Heap,
-            U16,
-        >>::co_visit(&mut parser, &mut heap);
+            PanickingFnLut,
+        >>::co_visit(&mut parser, &mut heap, PanickingFnLut);
         (heap, ret)
     }
     pub mod parsell {

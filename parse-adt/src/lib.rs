@@ -274,40 +274,40 @@ where
     }
 }
 
-impl<'a, Heap, Pmsp, Lookaheadable>
-    term::co_visit::CoVisitable<Parser<'a, ()>, Pmsp, Heap, typenum::U0>
-    for Cstfy<Heap, Lookaheadable>
-where
-    Lookaheadable: Lookahead,
-{
-    fn co_visit(visitor: &mut Parser<'_, ()>, _heap: &mut Heap) -> Self {
-        println!("dbg: recursion limit exceeded");
-        let current_position = visitor.position;
-        visitor.pop_word();
-        tymetafuncspec_core::Either::Right(
-            std_parse_error::ParseError::new(parse::ParseError::RecursionLimitExceeded(
-                current_position.into(),
-            )),
-            std::marker::PhantomData,
-        )
-    }
-}
+// impl<'a, Heap, Pmsp, Lookaheadable>
+//     term::co_visit::CoVisitable<Parser<'a, ()>, Pmsp, Heap, typenum::U0>
+//     for Cstfy<Heap, Lookaheadable>
+// where
+//     Lookaheadable: Lookahead,
+// {
+//     fn co_visit(visitor: &mut Parser<'_, ()>, _heap: &mut Heap) -> Self {
+//         println!("dbg: recursion limit exceeded");
+//         let current_position = visitor.position;
+//         visitor.pop_word();
+//         tymetafuncspec_core::Either::Right(
+//             std_parse_error::ParseError::new(parse::ParseError::RecursionLimitExceeded(
+//                 current_position.into(),
+//             )),
+//             std::marker::PhantomData,
+//         )
+//     }
+// }
 
-impl<'a, Heap, Pmsp, Lookaheadable>
-    term::co_visit::CoVisitable<Parser<'a, ()>, Pmsp, Heap, typenum::U0>
-    for CstfyTransparent<Heap, Lookaheadable>
-where
-    Lookaheadable: Lookahead,
-{
-    fn co_visit(visitor: &mut Parser<'_, ()>, _heap: &mut Heap) -> Self {
-        println!("dbg: recursion limit exceeded");
-        let current_position = visitor.position;
-        visitor.pop_word();
-        tymetafuncspec_core::Either::Right(
-            std_parse_error::ParseError::new(parse::ParseError::RecursionLimitExceeded(
-                current_position.into(),
-            )),
-            std::marker::PhantomData,
-        )
-    }
-}
+// impl<'a, Heap, Pmsp, Lookaheadable>
+//     term::co_visit::CoVisitable<Parser<'a, ()>, Pmsp, Heap, typenum::U0>
+//     for CstfyTransparent<Heap, Lookaheadable>
+// where
+//     Lookaheadable: Lookahead,
+// {
+//     fn co_visit(visitor: &mut Parser<'_, ()>, _heap: &mut Heap) -> Self {
+//         println!("dbg: recursion limit exceeded");
+//         let current_position = visitor.position;
+//         visitor.pop_word();
+//         tymetafuncspec_core::Either::Right(
+//             std_parse_error::ParseError::new(parse::ParseError::RecursionLimitExceeded(
+//                 current_position.into(),
+//             )),
+//             std::marker::PhantomData,
+//         )
+//     }
+// }
