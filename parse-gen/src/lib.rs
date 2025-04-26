@@ -167,57 +167,6 @@ pub fn gen_impls<L: LangSpec>(
     }
 }
 
-pub fn bridge_words_impls<L: LangSpec>(
-    extension_ds_base_path: &syn::Path,
-    og_words_base_path: &syn::Path,
-    elsg: &LsGen<L>,
-) -> syn::ItemMod {
-    let impls = elsg.ty_gen_datas(Some(og_words_base_path.clone())).map(|tgd| -> syn::ItemImpl {
-        let camel_ident = &tgd.camel_ident;
-        let cstfication = transparency2cstfication(&tgd.transparency);
-        let ty: syn::Type = syn::parse_quote! {
-            parse_adt::cstfy::#cstfication<#extension_ds_base_path::Heap, #extension_ds_base_path::#camel_ident>
-        };
-        syn::parse_quote! {
-            impl words::Implements<#og_words_base_path::L> for #ty {
-                type LWord = #og_words_base_path::sorts::#camel_ident;
-            }
-        }
-    });
-    let byline = byline!();
-    syn::parse_quote! {
-        #byline
-        pub mod words_impls {
-            #(#impls)*
-        }
-    }
-}
-
-pub fn gen_bridge<LOg: LangSpec, LExt: LangSpec>(
-    extension_base_path: &syn::Path,
-    og_base_path: &syn::Path,
-    ext_lg: &LsGen<LExt>,
-    oglsg: &LsGen<LOg>,
-) -> proc_macro2::TokenStream {
-    let words_impls = bridge_words_impls(
-        &syn::parse_quote! { #extension_base_path::data_structure },
-        &syn::parse_quote! { #og_base_path::term_trait::words },
-        ext_lg,
-    );
-    let bridge = term_bridge_gen::generate(
-        ext_lg,
-        oglsg.bak().name(),
-        &term_bridge_gen::BasePaths {
-            ext_data_structure: syn::parse_quote!(#extension_base_path::data_structure),
-            og_term_trait: syn::parse_quote!(#og_base_path::term_trait),
-        },
-    );
-    quote::quote! {
-        #words_impls
-        #bridge
-    }
-}
-
 pub fn formatted<L: LangSpec>(l: &L) -> String {
     let lg = LsGen::from(l);
     let bps = BasePaths {
@@ -240,12 +189,16 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
                 &ext_lg,
                 &[cst.name().clone(), l.name().clone()],
             ),
-            gen_bridge(
-                &syn::parse_quote! { crate::cst },
-                &syn::parse_quote! { crate },
-                &ext_lg,
-                &lg,
-            ),
+            {
+                term_bridge_gen::generate(
+                    &ext_lg,
+                    lg.bak().name(),
+                    &term_bridge_gen::BasePaths {
+                        ext_data_structure: syn::parse_quote!(crate::cst::data_structure),
+                        og_term_trait: syn::parse_quote!(crate::term_trait),
+                    },
+                )
+            },
         )
     };
     let pmsp = term_pattern_match_strategy_provider_gen::generate(

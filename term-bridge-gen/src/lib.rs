@@ -2,7 +2,7 @@ use langspec::{
     langspec::{LangSpec, Name, SortIdOf},
     sublang::Sublang,
 };
-use langspec_gen_util::{AlgebraicsBasePath, HeapType, LsGen};
+use langspec_gen_util::{AlgebraicsBasePath, HeapType, LsGen, byline};
 
 pub struct BasePaths {
     pub ext_data_structure: syn::Path,
@@ -43,11 +43,45 @@ pub fn generate<L: LangSpec>(
         .collect::<Vec<_>>();
     let heap = generate_heap(&camel_names, &image_ty_under_embeddings, bps);
     let owned_impls = generate_owned_impls(&camel_names, &image_ty_under_embeddings, bps);
+    let words_impls = bridge_words_impls(bps, ext_lg);
     let maps_tmf_impls = generate_maps_tmf_impls(ext_lg, &sublang, bps);
     quote::quote! {
         #heap
+        #words_impls
         #owned_impls
         #maps_tmf_impls
+    }
+}
+
+pub(crate) fn bridge_words_impls<L: LangSpec>(
+    BasePaths {
+        ext_data_structure,
+        og_term_trait,
+    }: &BasePaths,
+    elsg: &LsGen<L>,
+) -> syn::ItemMod {
+    let og_words_base_path: syn::Path = syn::parse_quote! {
+        #og_term_trait::words
+    };
+    let impls = elsg
+        .ty_gen_datas(Some(og_words_base_path.clone()))
+        .map(|tgd| -> syn::ItemImpl {
+            let camel_ident = &tgd.camel_ident;
+            let ty: syn::Type = syn::parse_quote! {
+                <#ext_data_structure::Heap as #og_term_trait::Heap>::#camel_ident
+            };
+            syn::parse_quote! {
+                impl words::Implements<#og_words_base_path::L> for #ty {
+                    type LWord = #og_words_base_path::sorts::#camel_ident;
+                }
+            }
+        });
+    let byline = byline!();
+    syn::parse_quote! {
+        #byline
+        pub mod words_impls {
+            #(#impls)*
+        }
     }
 }
 
