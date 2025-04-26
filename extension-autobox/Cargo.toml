@@ -8,5 +8,5 @@ derivative = { workspace = true }
 once_cell = { workspace = true }
 either-id = { path = "../either-id" }
 langspec = { path = "../langspec" }
-langspec-extension = { path = "../langspec-extension" }
+langspec-transparent-extension = { path = "../langspec-transparent-extension" }
 tymetafuncspec-core = { path = "../tymetafuncspec-core" }

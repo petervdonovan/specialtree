@@ -1,3 +1,5 @@
+use functor_derive::Functor;
+
 use crate::langspec::{AlgebraicSortId, LangSpec, Name, SortId, SortIdOf};
 
 pub struct Sublang<'a, SortIdSelf> {
@@ -7,7 +9,7 @@ pub struct Sublang<'a, SortIdSelf> {
     pub map: Box<dyn Fn(&Name) -> SortIdSelf + 'a>,
     pub tems: Vec<TmfEndoMappingNonreflexive<SortIdSelf>>,
 }
-#[derive(Debug)]
+#[derive(Debug, Functor)]
 pub struct TmfEndoMappingNonreflexive<SortIdSelf> {
     pub from: SortIdSelf,
     pub to: SortIdSelf,

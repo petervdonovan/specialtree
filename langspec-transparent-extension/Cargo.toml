@@ -1,0 +1,9 @@
+[package]
+name = "langspec-transparent-extension"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+either-id = { path = "../either-id" }
+langspec = { path = "../langspec" }
+tmfs-join = { path = "../tmfs-join" }

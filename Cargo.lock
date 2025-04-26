@@ -133,7 +133,7 @@ dependencies = [
  "derivative",
  "either-id",
  "langspec",
- "langspec-extension",
+ "langspec-transparent-extension",
  "once_cell",
  "tymetafuncspec-core",
 ]
@@ -272,6 +272,15 @@ dependencies = [
  "syn 2.0.100",
  "term",
  "tymetafuncspec-core",
+]
+
+[[package]]
+name = "langspec-transparent-extension"
+version = "0.1.0"
+dependencies = [
+ "either-id",
+ "langspec",
+ "tmfs-join",
 ]
 
 [[package]]

@@ -1,64 +1,63 @@
 use derivative::Derivative;
 use either_id::Either;
 use langspec::{
-    flat::LangSpecFlat,
     langspec::{AlgebraicSortId, LangSpec, MappedType, Name, SortId, SortIdOf},
     tymetafunc::TyMetaFuncSpec,
 };
-use langspec_extension::{L0Map, LsExtension, l0_as_my_sid};
+use langspec_transparent_extension::{ContextualSortMap, LsSortMapped};
 use tymetafuncspec_core::Core;
 
-pub struct L0M<L0: LangSpec> {
+pub struct Csm<L0: LangSpec> {
     breaks: Vec<CycleBreak<L0>>,
 }
 
-static EMPTY_LANG: once_cell::sync::Lazy<(LangSpecFlat<Core>,)> =
-    once_cell::sync::Lazy::new(|| {
-        (LangSpecFlat::empty(Name {
-            human: "EmptyLang".into(),
-            camel: "EmptyLang".into(),
-            snake: "empty_lang".into(),
-        }),)
-    });
-
-pub fn autobox<L0>(l0: &'_ L0) -> impl LangSpec
+pub fn autobox<L0>(l: &'_ L0) -> impl LangSpec
 where
     L0: LangSpec,
 {
-    let breaks = find_cycle_breaks(l0);
+    let breaks = find_cycle_breaks(l);
     println!("Cycle breaks: {:#?}", breaks);
-    let empty: &'static LangSpecFlat<Core> = &EMPTY_LANG.0;
     let name = Name {
-        human: format!("Autoboxed {}", l0.name().human),
-        camel: format!("Autoboxed{}", l0.name().camel),
-        snake: format!("autoboxed_{}", l0.name().snake),
+        human: format!("Autoboxed {}", l.name().human),
+        camel: format!("Autoboxed{}", l.name().camel),
+        snake: format!("autoboxed_{}", l.name().snake),
     };
-    LsExtension {
+    LsSortMapped {
         name,
-        l0,
-        l1: empty,
-        l0m: L0M { breaks },
+        l,
+        csm: Csm { breaks },
     }
 }
 
-type EmptyLang = LangSpecFlat<Core>;
-
-impl<'a, 'b, L0> L0Map<'a, 'b, L0, LangSpecFlat<Core>> for L0M<L0>
+impl<L0> ContextualSortMap<L0> for Csm<L0>
 where
     L0: LangSpec,
 {
-    fn l0_map(
-        this: &langspec_extension::LsExtension<'a, 'b, L0, EmptyLang, Self>,
-        sid: SortIdOf<L0>,
-    ) -> langspec_extension::SortIdOfExtension<L0, EmptyLang> {
-        if this.l0m.breaks.iter().any(|break_| break_.from == sid) {
-            langspec::langspec::SortId::TyMetaFunc(MappedType {
-                f: Either::Right(tymetafuncspec_core::IDXBOX),
-                a: vec![l0_as_my_sid::<L0, EmptyLang>(sid)],
-            })
-        } else {
-            l0_as_my_sid::<L0, EmptyLang>(sid)
+    type Tmfs = Core;
+
+    fn map(
+        &self,
+        _l: &L0,
+        ctx: &AlgebraicSortId<L0::ProductId, L0::SumId>,
+        sid: &SortIdOf<L0>,
+    ) -> langspec_transparent_extension::SortIdOfExtension<L0, Self::Tmfs> {
+        let fallback = || Self::embed_sort_id(sid.clone());
+        for CycleBreak { from, to } in &self.breaks {
+            match to {
+                SortId::Algebraic(asi) => {
+                    if asi == ctx && from == sid {
+                        return SortId::TyMetaFunc(MappedType {
+                            f: Either::Right(tymetafuncspec_core::IDXBOX),
+                            a: vec![fallback()],
+                        });
+                    } else {
+                        continue;
+                    }
+                }
+                _ => unimplemented!(),
+            }
         }
+        fallback()
     }
 }
 
@@ -125,7 +124,6 @@ fn find_size_depends_on_cycle_from_rec<L: LangSpec>(
     stack: &mut Vec<SortIdOf<L>>,
     visited: &mut std::collections::HashSet<SortIdOf<L>>,
 ) -> Option<Vec<SortIdOf<L>>> {
-    dbg!(&stack);
     if let Some(current) = stack.last() {
         for sid in size_depends_on(ls, current)
             .into_iter()

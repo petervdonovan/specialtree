@@ -196,39 +196,18 @@ mod tests {
                       }
                     },
                     {
-                      "TyMetaFunc": {
-                        "f": 3,
-                        "a": [
-                          {
-                            "Algebraic": {
-                              "Product": "f"
-                            }
-                          }
-                        ]
+                      "Algebraic": {
+                        "Product": "f"
                       }
                     },
                     {
-                      "TyMetaFunc": {
-                        "f": 3,
-                        "a": [
-                          {
-                            "Algebraic": {
-                              "Product": "+"
-                            }
-                          }
-                        ]
+                      "Algebraic": {
+                        "Product": "+"
                       }
                     },
                     {
-                      "TyMetaFunc": {
-                        "f": 3,
-                        "a": [
-                          {
-                            "Algebraic": {
-                              "Product": "∑"
-                            }
-                          }
-                        ]
+                      "Algebraic": {
+                        "Product": "∑"
                       }
                     }
                   ]

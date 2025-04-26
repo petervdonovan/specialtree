@@ -93,22 +93,6 @@ impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::flat::LangSpecFl
         self.sums[id].sorts.iter().cloned()
     }
 
-    fn prod_to_unique_nat(&self, id: Self::ProductId) -> usize {
-        id.0
-    }
-
-    fn prod_from_unique_nat(&self, nat: usize) -> Self::ProductId {
-        crate::flat::ProductId(nat)
-    }
-
-    fn sum_to_unique_nat(&self, id: Self::SumId) -> usize {
-        id.0
-    }
-
-    fn sum_from_unique_nat(&self, nat: usize) -> Self::SumId {
-        crate::flat::SumId(nat)
-    }
-
     fn sublangs(&self) -> Vec<crate::sublang::Sublang<SortIdOf<Self>>> {
         vec![reflexive_sublang(self)]
     }

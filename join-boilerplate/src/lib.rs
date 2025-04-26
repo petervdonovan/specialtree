@@ -1,19 +1,6 @@
 pub use either_id;
 pub use langspec;
 
-pub fn prods_max<L0: langspec::langspec::LangSpec>(l0: &L0) -> usize {
-    l0.products()
-        .map(|pid| l0.prod_to_unique_nat(pid))
-        .max()
-        .unwrap()
-}
-pub fn sums_max<L0: langspec::langspec::LangSpec>(l0: &L0) -> usize {
-    l0.sums()
-        .map(|sid| l0.sum_to_unique_nat(sid))
-        .max()
-        .unwrap()
-}
-
 #[macro_export]
 macro_rules! lsjoin {
     () => {
@@ -58,48 +45,6 @@ macro_rules! lsjoin {
             match id {
                 join_boilerplate::either_id::Either::Left(id) => self.l0.sum_name(id),
                 join_boilerplate::either_id::Either::Right(id) => self.l1.sum_name(id),
-            }
-        }
-
-        fn prod_to_unique_nat(&self, id: Self::ProductId) -> usize {
-            let max = join_boilerplate::prods_max(self.l0);
-            match id {
-                join_boilerplate::either_id::Either::Left(id) => self.l0.prod_to_unique_nat(id),
-                join_boilerplate::either_id::Either::Right(id) => {
-                    self.l1.prod_to_unique_nat(id) + max + 1
-                }
-            }
-        }
-
-        fn prod_from_unique_nat(&self, nat: usize) -> Self::ProductId {
-            let l0_max = join_boilerplate::prods_max(self.l0);
-            if nat <= l0_max {
-                join_boilerplate::either_id::Either::Left(self.l0.prod_from_unique_nat(nat))
-            } else {
-                join_boilerplate::either_id::Either::Right(
-                    self.l1.prod_from_unique_nat(nat - l0_max - 1),
-                )
-            }
-        }
-
-        fn sum_to_unique_nat(&self, id: Self::SumId) -> usize {
-            let max = join_boilerplate::sums_max(self.l0);
-            match id {
-                join_boilerplate::either_id::Either::Left(id) => self.l0.sum_to_unique_nat(id),
-                join_boilerplate::either_id::Either::Right(id) => {
-                    self.l1.sum_to_unique_nat(id) + max + 1
-                }
-            }
-        }
-
-        fn sum_from_unique_nat(&self, nat: usize) -> Self::SumId {
-            let l0_max = join_boilerplate::sums_max(self.l0);
-            if nat <= l0_max {
-                join_boilerplate::either_id::Either::Left(self.l0.sum_from_unique_nat(nat))
-            } else {
-                join_boilerplate::either_id::Either::Right(
-                    self.l1.sum_from_unique_nat(nat - l0_max - 1),
-                )
             }
         }
     };

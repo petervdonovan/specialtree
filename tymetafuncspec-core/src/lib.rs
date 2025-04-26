@@ -286,19 +286,26 @@ impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem: Copy> UnsafeHeapDrop<Heap
         todo!()
     }
 }
-impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem>
+impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem: Copy>
     DirectlyCanonicallyConstructibleFrom<Heap, (Elem, ())> for IdxBox<Heap, Elem>
 {
-    fn construct(_heap: &mut Heap, _t: (Elem, ())) -> Self {
-        todo!()
+    fn construct(heap: &mut Heap, t: (Elem, ())) -> Self {
+        let bak = heap.subheap_mut::<IdxBoxHeapBak<Heap, Elem>>();
+        let idx = bak.elems.insert(t.0);
+        IdxBox {
+            phantom: std::marker::PhantomData,
+            idx: idx as u32,
+        }
     }
 
     fn deconstruct_succeeds(&self, _heap: &Heap) -> bool {
-        todo!()
+        true
     }
 
-    fn deconstruct(self, _heap: &Heap) -> (Elem, ()) {
-        todo!()
+    fn deconstruct(self, heap: &Heap) -> (Elem, ()) {
+        let bak = heap.subheap::<IdxBoxHeapBak<Heap, Elem>>();
+        let elem = bak.elems.get(self.idx as usize).unwrap();
+        (*elem, ())
     }
 }
 #[derive(Derivative)]

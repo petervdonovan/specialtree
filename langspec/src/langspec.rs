@@ -113,10 +113,6 @@ pub trait LangSpec: Sized {
     }
     fn product_sorts(&self, id: Self::ProductId) -> impl Iterator<Item = SortIdOf<Self>>;
     fn sum_sorts(&self, id: Self::SumId) -> impl Iterator<Item = SortIdOf<Self>>;
-    fn prod_to_unique_nat(&self, id: Self::ProductId) -> usize;
-    fn prod_from_unique_nat(&self, nat: usize) -> Self::ProductId;
-    fn sum_to_unique_nat(&self, id: Self::SumId) -> usize;
-    fn sum_from_unique_nat(&self, nat: usize) -> Self::SumId;
 
     fn canonical_into<Bot: TerminalLangSpec<Tmfs = Self::Tmfs>>(&self) -> Bot {
         Bot::canonical_from(self)

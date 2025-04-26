@@ -80,25 +80,6 @@ impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::humanreadable::L
             .unwrap()
     }
 
-    fn prod_to_unique_nat(&self, id: Self::ProductId) -> usize {
-        self.products
-            .iter()
-            .position(|p| p.name.human == id)
-            .unwrap()
-    }
-
-    fn prod_from_unique_nat(&self, nat: usize) -> Self::ProductId {
-        self.products[nat].name.human.clone()
-    }
-
-    fn sum_to_unique_nat(&self, id: Self::SumId) -> usize {
-        self.sums.iter().position(|s| s.name.human == id).unwrap()
-    }
-
-    fn sum_from_unique_nat(&self, nat: usize) -> Self::SumId {
-        self.sums[nat].name.human.clone()
-    }
-
     fn sublangs(&self) -> Vec<crate::sublang::Sublang<crate::langspec::SortIdOf<Self>>> {
         vec![reflexive_sublang(self)]
     }
