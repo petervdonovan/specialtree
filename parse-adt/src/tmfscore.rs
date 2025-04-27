@@ -8,12 +8,13 @@ use crate::{
     return_if_err,
 };
 
-impl<Heap, Pmsp, Amc, DepthFuelUpperBits, DepthFuelLastBit>
+impl<Heap, Pmsp, Amc, DepthFuelUpperBits, DepthFuelLastBit, Fnlut>
     term::co_visit::CoVisitable<
         Parser<'_, Amc>,
         Pmsp,
         Heap,
         typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>,
+        Fnlut,
     >
     for tymetafuncspec_core::Either<
         Heap,
@@ -21,7 +22,7 @@ impl<Heap, Pmsp, Amc, DepthFuelUpperBits, DepthFuelLastBit>
         std_parse_error::ParseError<Heap>,
     >
 {
-    fn co_visit(visitor: &mut Parser<'_, Amc>, _: &mut Heap) -> Self {
+    fn co_visit(visitor: &mut Parser<'_, Amc>, _: &mut Heap, _: Fnlut) -> Self {
         let previous_offset = visitor.position;
         let next_word = visitor.pop_word();
         let n = next_word
@@ -33,12 +34,13 @@ impl<Heap, Pmsp, Amc, DepthFuelUpperBits, DepthFuelLastBit>
     }
 }
 
-impl<'a, Heap, Elem, Pmsp, DepthFuelUpperBits, DepthFuelLastBit>
+impl<'a, Heap, Elem, Pmsp, DepthFuelUpperBits, DepthFuelLastBit, Fnlut: Copy>
     term::co_visit::CoVisitable<
         Parser<'a, ()>,
         Pmsp,
         Heap,
         typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>,
+        Fnlut,
     > for Cstfy<Heap, Set<Heap, Elem>>
 where
     typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>: std::ops::Sub<typenum::B1>,
@@ -47,10 +49,11 @@ where
             Pmsp,
             Heap,
             typenum::Sub1<typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>>,
+            Fnlut,
         >,
     Heap: term::SuperHeap<SetHeapBak<Heap, Elem>>,
 {
-    fn co_visit(visitor: &mut Parser<'_, ()>, heap: &mut Heap) -> Self {
+    fn co_visit(visitor: &mut Parser<'_, ()>, heap: &mut Heap, fnlut: Fnlut) -> Self {
         let mut items = Vec::new();
         let initial_offset = visitor.position;
         dbg!(initial_offset);
@@ -65,7 +68,7 @@ where
         }
         loop {
             println!("dbg: loop");
-            let item = Elem::co_visit(visitor, heap);
+            let item = Elem::co_visit(visitor, heap, fnlut);
             items.push(item);
             match visitor.pop_word() {
                 Some("}") => break,
@@ -84,12 +87,13 @@ where
     }
 }
 
-impl<'a, Heap, Elem, Pmsp, DepthFuelUpperBits, DepthFuelLastBit>
+impl<'a, Heap, Elem, Pmsp, DepthFuelUpperBits, DepthFuelLastBit, Fnlut>
     term::co_visit::CoVisitable<
         Parser<'a, ()>,
         Pmsp,
         Heap,
         typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>,
+        Fnlut,
     > for Cstfy<Heap, IdxBox<Heap, Cstfy<Heap, Elem>>>
 where
     typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>: std::ops::Sub<typenum::B1>,
@@ -99,23 +103,25 @@ where
             Pmsp,
             Heap,
             typenum::Sub1<typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>>,
+            Fnlut,
         >,
     Heap: term::SuperHeap<IdxBoxHeapBak<Heap, Cstfy<Heap, Elem>>>,
 {
-    fn co_visit(visitor: &mut Parser<'_, ()>, heap: &mut Heap) -> Self {
+    fn co_visit(visitor: &mut Parser<'_, ()>, heap: &mut Heap, fnlut: Fnlut) -> Self {
         let initial_offset = visitor.position;
-        let item = Cstfy::<Heap, Elem>::co_visit(visitor, heap);
+        let item = Cstfy::<Heap, Elem>::co_visit(visitor, heap, fnlut);
         let final_offset = visitor.position;
         cstfy_ok(IdxBox::new(heap, item), initial_offset, final_offset)
     }
 }
 
-impl<'a, Heap, Elem, Pmsp, DepthFuelUpperBits, DepthFuelLastBit>
+impl<'a, Heap, Elem, Pmsp, DepthFuelUpperBits, DepthFuelLastBit, Fnlut>
     term::co_visit::CoVisitable<
         Parser<'a, ()>,
         Pmsp,
         Heap,
         typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>,
+        Fnlut,
     > for Cstfy<Heap, IdxBox<Heap, Elem>>
 where
     typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>: std::ops::Sub<typenum::B1>,
@@ -125,11 +131,12 @@ where
             Pmsp,
             Heap,
             typenum::Sub1<typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>>,
+            Fnlut,
         >,
     Heap: term::SuperHeap<IdxBoxHeapBak<Heap, Elem>>,
 {
-    fn co_visit(visitor: &mut Parser<'_, ()>, heap: &mut Heap) -> Self {
-        let item = Cstfy::<Heap, Elem>::co_visit(visitor, heap);
+    fn co_visit(visitor: &mut Parser<'_, ()>, heap: &mut Heap, fnlut: Fnlut) -> Self {
+        let item = Cstfy::<Heap, Elem>::co_visit(visitor, heap, fnlut);
         item.fmap_l_fnmut(|p| p.fmap_l_fnmut(|elem| IdxBox::new(heap, elem)))
     }
 }

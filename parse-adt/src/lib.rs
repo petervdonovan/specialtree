@@ -5,7 +5,8 @@ use cstfy::{Cstfy, CstfyTransparent};
 use parse::{KeywordSequence, UnexpectedTokenError};
 use term::{
     case_split::{AtLeastTwoConsList, ConsList, NonemptyConsList},
-    co_visit::CoVisitor,
+    co_visit::{CoVisitFn, CoVisitor},
+    fnlut::HasFn,
     select::{AcceptingCases, FromSelectCase, SelectCase},
 };
 
@@ -274,40 +275,44 @@ where
     }
 }
 
-// impl<'a, Heap, Pmsp, Lookaheadable>
-//     term::co_visit::CoVisitable<Parser<'a, ()>, Pmsp, Heap, typenum::U0>
-//     for Cstfy<Heap, Lookaheadable>
-// where
-//     Lookaheadable: Lookahead,
-// {
-//     fn co_visit(visitor: &mut Parser<'_, ()>, _heap: &mut Heap) -> Self {
-//         println!("dbg: recursion limit exceeded");
-//         let current_position = visitor.position;
-//         visitor.pop_word();
-//         tymetafuncspec_core::Either::Right(
-//             std_parse_error::ParseError::new(parse::ParseError::RecursionLimitExceeded(
-//                 current_position.into(),
-//             )),
-//             std::marker::PhantomData,
-//         )
-//     }
-// }
+impl<'a, Heap, Pmsp, Lookaheadable, Fnlut>
+    term::co_visit::CoVisitable<Parser<'a, ()>, Pmsp, Heap, typenum::U0, Fnlut>
+    for Cstfy<Heap, Lookaheadable>
+where
+    Lookaheadable: Lookahead,
+    Fnlut: HasFn<Self, CoVisitFn<Self, Parser<'a, ()>, Heap, Fnlut>>,
+{
+    fn co_visit(visitor: &mut Parser<'a, ()>, heap: &mut Heap, fnlut: Fnlut) -> Self {
+        // println!("dbg: recursion limit exceeded");
+        // let current_position = visitor.position;
+        // visitor.pop_word();
+        // tymetafuncspec_core::Either::Right(
+        //     std_parse_error::ParseError::new(parse::ParseError::RecursionLimitExceeded(
+        //         current_position.into(),
+        //     )),
+        //     std::marker::PhantomData,
+        // )
+        fnlut.get::<Self>()(visitor, heap, fnlut)
+    }
+}
 
-// impl<'a, Heap, Pmsp, Lookaheadable>
-//     term::co_visit::CoVisitable<Parser<'a, ()>, Pmsp, Heap, typenum::U0>
-//     for CstfyTransparent<Heap, Lookaheadable>
-// where
-//     Lookaheadable: Lookahead,
-// {
-//     fn co_visit(visitor: &mut Parser<'_, ()>, _heap: &mut Heap) -> Self {
-//         println!("dbg: recursion limit exceeded");
-//         let current_position = visitor.position;
-//         visitor.pop_word();
-//         tymetafuncspec_core::Either::Right(
-//             std_parse_error::ParseError::new(parse::ParseError::RecursionLimitExceeded(
-//                 current_position.into(),
-//             )),
-//             std::marker::PhantomData,
-//         )
-//     }
-// }
+impl<'a, Heap, Pmsp, Lookaheadable, Fnlut>
+    term::co_visit::CoVisitable<Parser<'a, ()>, Pmsp, Heap, typenum::U0, Fnlut>
+    for CstfyTransparent<Heap, Lookaheadable>
+where
+    Lookaheadable: Lookahead,
+    Fnlut: HasFn<Self, CoVisitFn<Self, Parser<'a, ()>, Heap, Fnlut>>,
+{
+    fn co_visit(visitor: &mut Parser<'a, ()>, heap: &mut Heap, fnlut: Fnlut) -> Self {
+        // println!("dbg: recursion limit exceeded");
+        // let current_position = visitor.position;
+        // visitor.pop_word();
+        // tymetafuncspec_core::Either::Right(
+        //     std_parse_error::ParseError::new(parse::ParseError::RecursionLimitExceeded(
+        //         current_position.into(),
+        //     )),
+        //     std::marker::PhantomData,
+        // )
+        fnlut.get::<Self>()(visitor, heap, fnlut)
+    }
+}

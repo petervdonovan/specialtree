@@ -5,11 +5,9 @@ pub trait HasFn<DispatchOn, FnType> {
     where
         T: TypeEquals<Other = DispatchOn>;
 }
-pub struct PanickingFnLut;
-impl<DispatchOn, FnType> HasFn<DispatchOn, FnType> for PanickingFnLut
-where
-    FnType: fn_traits::Fn<DispatchOn>,
-{
+#[derive(Clone, Copy)]
+pub struct PanickingFnlut;
+impl<DispatchOn, FnType> HasFn<DispatchOn, FnType> for PanickingFnlut {
     fn get<T>(&self) -> FnType {
         panic!("no implementation provided");
     }
@@ -17,10 +15,16 @@ where
 
 #[macro_export]
 macro_rules! impl_fn_lut {
-    (witness_name $name:ident ; trait $trai:tt ; fn_name $fn_name:ident ; get $get:ty ; types $($typ_snake_ident:ident = $typ:ty),*) => {
+    (witness_name $name:ident <$($lifetimes:lifetime),*> ; trait $trai:path ; fn_name $fn_name:ident ; get $get:ty ; types $($typ_snake_ident:ident = $typ:ty),*) => {
+        macro_rules! ty_type {
+            ($typ_snake_ident2:ident) => {
+                fn_types::$typ_snake_ident2::Ty
+            }
+        }
+        #[derive(Clone, Copy)]
         pub struct $name {
             $(
-                $typ_snake_ident: fn_types::$typ_snake_ident::Ty,
+                $typ_snake_ident: ty_type!($typ_snake_ident),
             )*
         }
         // macro_rules! ctx_dependent_fn_type {
@@ -28,12 +32,17 @@ macro_rules! impl_fn_lut {
         //         fn($($fn_args),*) -> $fn_ret_type
         //     };
         // }
+        macro_rules! ty_typedef {
+            () => {
+                pub type Ty = $get;
+            }
+        }
         pub mod fn_types {
             $(
                 pub mod $typ_snake_ident {
                     use super::super::*;
                     type This = $typ;
-                    pub type Ty = $get;
+                    ty_typedef!();
                 }
             )*
         }
@@ -51,13 +60,17 @@ macro_rules! impl_fn_lut {
         impl $name
         where
             $(
-                $typ: $trai,
+                $typ: for <'d> $trai,
             )*
         {
             pub fn new() -> Self {
                 Self {
                     $(
-                        $typ_snake_ident: <$typ as $trai>::$fn_name,
+                        $typ_snake_ident: <$typ as term::co_visit::CoVisitable <
+                            parse_adt::Parser < '_, () >, crate
+                            ::pattern_match_strategy::PatternMatchStrategyProvider < crate
+                            ::cst::data_structure::Heap >, crate ::cst::data_structure::Heap,
+                            typenum::U16, crate ::parse::fnlut::ParseWitness, >>::$fn_name,
                     )*
                 }
             }
@@ -80,7 +93,7 @@ mod test {
     pub struct B<T>(T);
 
     impl_fn_lut!(
-        witness_name CloneWitness ;
+        witness_name CloneWitness <> ;
         trait Clone ;
         fn_name clone ;
         get for<'a> fn (&'a This) -> This ;

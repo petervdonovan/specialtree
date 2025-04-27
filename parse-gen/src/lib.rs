@@ -2,13 +2,15 @@ use extension_autobox::autobox;
 use extension_everywhere_alternative::everywhere_alternative;
 use extension_everywhere_maybemore::everywhere_maybemore;
 use langspec::{
-    langspec::{LangSpec, MappedType, Name, SortId},
+    langspec::{LangSpec, MappedType, Name, SortId, SortIdOf},
+    sublang::Sublang,
     tymetafunc::Transparency,
 };
-use langspec_gen_util::{LsGen, TyGenData, byline, proc_macro2};
+use langspec_gen_util::{AlgebraicsBasePath, HeapType, LsGen, TyGenData, byline, proc_macro2};
 use syn::parse_quote;
 
 pub struct BasePaths {
+    pub parse: syn::Path,
     pub data_structure: syn::Path,
     pub term_trait: syn::Path,
     pub words: syn::Path,
@@ -46,6 +48,14 @@ pub fn generate<L: LangSpec>(bps: &BasePaths, lg: &LsGen<L>) -> syn::ItemMod {
             )
         })
     });
+    let fnlut = generate_impl_fn_lut(
+        bps,
+        &lg_cst,
+        cst.sublangs()
+            .iter()
+            .find(|it| &it.name == lg.bak().name())
+            .unwrap(),
+    );
     parse_quote! {
         #byline
         pub mod parse {
@@ -53,34 +63,112 @@ pub fn generate<L: LangSpec>(bps: &BasePaths, lg: &LsGen<L>) -> syn::ItemMod {
             pub mod parsell {
                 #(#parsells)*
             }
+            #fnlut
         }
     }
 }
 
-pub fn generate_parse<LCst: LangSpec>(bps: &BasePaths, cst_tgd: &TyGenData<LCst>) -> syn::Item {
-    let camel_ident = &cst_tgd.camel_ident;
+pub(crate) fn generate_parse<LCst: LangSpec>(
+    bps: &BasePaths,
+    cst_tgd: &TyGenData<LCst>,
+) -> syn::Item {
     let snake_ident = &cst_tgd.snake_ident;
     let cst_data_structure_bp = &bps.cst_data_structure;
+    let my_cstfied_ty = cstfied_ty(&bps.cst_data_structure, cst_tgd);
+    let pattern_match_strategy = &bps.pattern_match_strategy;
+    let cvt = covisitable_trait(
+        &bps.parse,
+        pattern_match_strategy,
+        cst_data_structure_bp,
+        &syn::parse_quote! {'_},
+    );
+    let parse_bp = &bps.parse;
+    let byline = byline!();
+    syn::parse_quote! {
+        #byline
+        pub fn #snake_ident(source: &str) -> (#cst_data_structure_bp::Heap, #my_cstfied_ty) {
+            let mut parser = parse_adt::Parser::new(source);
+            let mut heap = #cst_data_structure_bp::Heap::default();
+            let ret = <#my_cstfied_ty as #cvt>::co_visit(&mut parser, &mut heap, #parse_bp::fnlut::ParseWitness::new());
+            (heap, ret)
+        }
+    }
+}
+
+fn cstfied_ty<LCst: LangSpec>(
+    cst_data_structure_bp: &syn::Path,
+    cst_tgd: &TyGenData<LCst>,
+) -> syn::Type {
+    let camel_ident = &cst_tgd.camel_ident;
+    let transparency = &cst_tgd.transparency;
     let my_cst_ty: syn::Type = syn::parse_quote! { #cst_data_structure_bp::#camel_ident };
-    let cstfication = transparency2cstfication(&cst_tgd.transparency);
-    let my_cstfied_ty: syn::Type = syn::parse_quote! {
+    let cstfication = transparency2cstfication(transparency);
+    syn::parse_quote! {
         parse_adt::cstfy::#cstfication<
             #cst_data_structure_bp::Heap,
             #my_cst_ty,
         >
-    };
-    let pattern_match_strategy = &bps.pattern_match_strategy;
+    }
+}
+
+fn covisitable_trait(
+    parse_bp: &syn::Path,
+    pattern_match_strategy: &syn::Path,
+    cst_data_structure_bp: &syn::Path,
+    lifetime: &syn::Lifetime,
+) -> syn::Type {
     syn::parse_quote! {
-        pub fn #snake_ident(source: &str) -> (#cst_data_structure_bp::Heap, #my_cstfied_ty) {
-            let mut parser = parse_adt::Parser::new(source);
-            let mut heap = #cst_data_structure_bp::Heap::default();
-            let ret = <#my_cstfied_ty as term::co_visit::CoVisitable<
-                parse_adt::Parser<'_, ()>,
-                #pattern_match_strategy::PatternMatchStrategyProvider<#cst_data_structure_bp::Heap>,
-                #cst_data_structure_bp::Heap,
-                typenum::U16,
-            >>::co_visit(&mut parser, &mut heap);
-            (heap, ret)
+        term::co_visit::CoVisitable<
+            parse_adt::Parser<#lifetime, ()>,
+            #pattern_match_strategy::PatternMatchStrategyProvider<#cst_data_structure_bp::Heap>,
+            #cst_data_structure_bp::Heap,
+            typenum::U16,
+            #parse_bp::fnlut::ParseWitness,
+        >
+    }
+}
+
+pub(crate) fn generate_impl_fn_lut<'a, 'b: 'a, LCst: LangSpec + 'b>(
+    bps: &BasePaths,
+    lg: &LsGen<LCst>,
+    sublang: &Sublang<SortIdOf<LCst>>,
+) -> syn::ItemMod {
+    // let my_cstfied_ty = cstfied_ty(&bps.cst_data_structure, cst_tgd);
+    let cvt = covisitable_trait(
+        &bps.parse,
+        &bps.pattern_match_strategy,
+        &bps.cst_data_structure,
+        &syn::parse_quote! {'_},
+    );
+    let cst_data_structure = &bps.cst_data_structure;
+    let bp = &bps.parse;
+    let idents = (0..).map(|i| syn::Ident::new(&format!("a{i}"), proc_macro2::Span::call_site()));
+    let parsable_tys = lg
+        .bak()
+        .all_sort_ids()
+        .filter(|sid| sublang.image.contains(sid))
+        .map(|sid| {
+            lg.sort2rs_ty(
+                sid,
+                &HeapType(syn::parse_quote! {#cst_data_structure::Heap}),
+                &AlgebraicsBasePath::new(quote::quote! {#cst_data_structure::}),
+            )
+        });
+    syn::parse_quote! {
+        pub mod fnlut {
+            term::impl_fn_lut!(
+                witness_name ParseWitness <'c> ;
+                trait #cvt ;
+                fn_name co_visit ;
+                get for<'c> fn(&mut parse_adt::Parser<'c, ()>, &mut #cst_data_structure::Heap, #bp::fnlut::ParseWitness) -> This ;
+                // get for<'c> fn(& mut parse_adt::Parser<'c, ()>, & mut #cst_data_structure::Heap, #bp::fnlut::ParseWitness) -> This ;
+                types
+                // a = A,
+                // b = B<A>
+                #(
+                    #idents = #parsable_tys
+                ),*
+            );
         }
     }
 }
@@ -103,17 +191,17 @@ pub fn generate_parsell<LCst: LangSpec>(bps: &BasePaths, cst_tgd: &TyGenData<LCs
     }
 }
 
-pub fn gen_unparse(
-    snake_ident: &syn::Ident,
-    transparency: &Transparency,
-    cst_bp: &syn::Path,
-    my_ty: &syn::Type,
-    my_cst_ty: &syn::Type,
-    ccftys: &[syn::Type],
-    ccf_idxses: &[Vec<usize>],
-) -> syn::ItemFn {
-    todo!()
-}
+// pub fn gen_unparse(
+//     snake_ident: &syn::Ident,
+//     transparency: &Transparency,
+//     cst_bp: &syn::Path,
+//     my_ty: &syn::Type,
+//     my_cst_ty: &syn::Type,
+//     ccftys: &[syn::Type],
+//     ccf_idxses: &[Vec<usize>],
+// ) -> syn::ItemFn {
+//     todo!()
+// }
 
 fn transparency2cstfication(transparency: &Transparency) -> syn::Ident {
     match transparency {
@@ -208,6 +296,7 @@ pub fn gen_impls<L: LangSpec>(
 pub fn formatted<L: LangSpec>(l: &L) -> String {
     let lg = LsGen::from(l);
     let bps = BasePaths {
+        parse: parse_quote! { crate::parse },
         data_structure: parse_quote! { crate::data_structure },
         term_trait: parse_quote! { crate::term_trait },
         words: parse_quote! { crate::term_trait::words },
@@ -256,20 +345,6 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
         #[test]
         fn test() {
             {
-                println!("test Set");
-                let mut parser = parse_adt::Parser::new("{ 3 }");
-                let mut heap = crate::cst::data_structure::Heap::default();
-                <parse_adt::cstfy::Cstfy<
-                    crate::cst::data_structure::Heap,
-                    tymetafuncspec_core::Set<crate::cst::data_structure::Heap, tymetafuncspec_core::Either<crate::cst::data_structure::Heap, crate::cst::data_structure::Nat, std_parse_error::ParseError<crate::cst::data_structure::Heap>>>,
-                > as term::co_visit::CoVisitable<
-                    parse_adt::Parser<'_, ()>,
-                    crate::pattern_match_strategy::PatternMatchStrategyProvider<crate::cst::data_structure::Heap>,
-                    crate::cst::data_structure::Heap,
-                    typenum::U2,
-                >>::co_visit(&mut parser, &mut heap);
-            }
-            {
                 println!("test Sum");
                 crate::parse::sum("sum { 3 }");
             }
@@ -292,20 +367,6 @@ pub fn formatted<L: LangSpec>(l: &L) -> String {
             {
                 println!("test Plus");
                 crate::parse::plus("plus left_operand 3 right_operand 4");
-            }
-            {
-                println!("test IdxBox");
-                let mut parser = parse_adt::Parser::new("plus left_operand 3 right_operand 4");
-                let mut heap = crate::cst::data_structure::Heap::default();
-                <parse_adt::cstfy::Cstfy<
-                    cds::Heap,
-                    tymetafuncspec_core::IdxBox<cds::Heap, parse_adt::cstfy::Cstfy<cds::Heap, cds::Plus>>,
-                > as term::co_visit::CoVisitable<
-                    Parser<'_, ()>,
-                    crate::pattern_match_strategy::PatternMatchStrategyProvider<cds::Heap>,
-                    cds::Heap,
-                    typenum::U5,
-                >>::co_visit(&mut parser, &mut heap);
             }
             {
                 println!("test Nat");
