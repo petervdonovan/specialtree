@@ -161,10 +161,7 @@ pub(crate) fn generate_impl_fn_lut<'a, 'b: 'a, LCst: LangSpec + 'b>(
                 trait #cvt ;
                 fn_name co_visit ;
                 get for <'a, 'b> fn(&'a mut parse_adt::Parser<'c, ()>, &'b mut #cst_data_structure::Heap, #bp::fnlut::ParseWitness<'c>) -> This ;
-                // get for<'c> fn(& mut parse_adt::Parser<'c, ()>, & mut #cst_data_structure::Heap, #bp::fnlut::ParseWitness) -> This ;
                 types
-                // a = A,
-                // b = B<A>
                 #(
                     #idents = #parsable_tys
                 ),*

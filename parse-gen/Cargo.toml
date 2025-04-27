@@ -29,7 +29,6 @@ typenum = { workspace = true }
 miette = { workspace = true }
 parse = { path = "../parse" }
 term = { path = "../term" }
-
 langspec-examples = { path = "../langspec-examples" }
 parse-adt = { path = "../parse-adt" }
 tymetafuncspec-core = { path = "../tymetafuncspec-core" }

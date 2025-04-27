@@ -32,7 +32,7 @@ members = [
     "term-pattern-match-strategy-provider-gen",
     "langspec-transparent-extension",
     "enumerate-random",
-    "unparse-adt",
+    "unparse-adt", "unparse-gen",
 ]
 
 [profile.release]

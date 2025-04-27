@@ -948,6 +948,24 @@ name = "unparse-adt"
 version = "0.1.0"
 
 [[package]]
+name = "unparse-gen"
+version = "0.1.0"
+dependencies = [
+ "extension-autobox",
+ "langspec",
+ "langspec-gen-util",
+ "parse",
+ "syn 2.0.100",
+ "syn-insert-use",
+ "term-pattern-match-strategy-provider-gen",
+ "term-pattern-match-strategy-provider-impl-gen",
+ "term-specialized-gen",
+ "term-specialized-impl-gen",
+ "term-trait-gen",
+ "words",
+]
+
+[[package]]
 name = "version_check"
 version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
