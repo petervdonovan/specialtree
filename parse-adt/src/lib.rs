@@ -5,7 +5,7 @@ use cstfy::{Cstfy, CstfyTransparent};
 use parse::{KeywordSequence, UnexpectedTokenError};
 use term::{
     case_split::{AtLeastTwoConsList, ConsList, NonemptyConsList},
-    co_visit::{CoVisitFn, CoVisitor},
+    co_visit::CoVisitor,
     fnlut::HasFn,
     select::{AcceptingCases, FromSelectCase, SelectCase},
 };
@@ -275,28 +275,16 @@ where
     }
 }
 
-// see https://github.com/rust-lang/rust/issues/70263
 impl<'a, Heap, Pmsp, Lookaheadable, Fnlut>
     term::co_visit::CoVisitable<Parser<'a, ()>, Pmsp, Heap, typenum::U0, Fnlut>
     for Cstfy<Heap, Lookaheadable>
 where
     Lookaheadable: Lookahead,
-    // Fnlut: HasFn<Self, CoVisitFn<Self, Parser<'a, ()>, Heap, Fnlut>>,
-    Fnlut: HasFn<Self> + 'a,
-    // Fnlut::FnType: Fn(&mut Parser<'a, ()>, &mut Heap, Fnlut) -> Self,
-    // Fnlut: HasFn<Self, FnType = fn(&mut Parser<'a, ()>, &mut Heap, Fnlut) -> Self>,
+    Fnlut: HasFn<Self, FnType = fn(&mut Parser<'a, ()>, &mut Heap, Fnlut) -> Self>,
 {
     fn co_visit(visitor: &mut Parser<'a, ()>, heap: &mut Heap, fnlut: Fnlut) -> Self {
-        println!("dbg: recursion limit exceeded");
-        let current_position = visitor.position;
-        visitor.pop_word();
-        tymetafuncspec_core::Either::Right(
-            std_parse_error::ParseError::new(parse::ParseError::RecursionLimitExceeded(
-                current_position.into(),
-            )),
-            std::marker::PhantomData,
-        )
-        // fnlut.get::<Self>()(visitor, heap, fnlut)
+        println!("dbg: recursion limit reached for cstfy; restarting");
+        fnlut.get::<Self>()(visitor, heap, fnlut)
     }
 }
 
@@ -305,18 +293,10 @@ impl<'a, Heap, Pmsp, Lookaheadable, Fnlut>
     for CstfyTransparent<Heap, Lookaheadable>
 where
     Lookaheadable: Lookahead,
-    // Fnlut: HasFn<Self, CoVisitFn<Self, Parser<'a, ()>, Heap, Fnlut>>,
+    Fnlut: HasFn<Self, FnType = fn(&mut Parser<'a, ()>, &mut Heap, Fnlut) -> Self>,
 {
     fn co_visit(visitor: &mut Parser<'a, ()>, heap: &mut Heap, fnlut: Fnlut) -> Self {
-        println!("dbg: recursion limit exceeded");
-        let current_position = visitor.position;
-        visitor.pop_word();
-        tymetafuncspec_core::Either::Right(
-            std_parse_error::ParseError::new(parse::ParseError::RecursionLimitExceeded(
-                current_position.into(),
-            )),
-            std::marker::PhantomData,
-        )
-        // fnlut.get::<Self>()(visitor, heap, fnlut)
+        println!("dbg: recursion limit reached for cstfy transparent; restarting");
+        fnlut.get::<Self>()(visitor, heap, fnlut)
     }
 }

@@ -2,7 +2,6 @@ use crate::{
     Heaped,
     case_split::ConsList,
     co_case_split::{AdmitNoMatchingCase, CoCallable, CoCaseSplittable},
-    fnlut::HasFn,
     select::{AcceptingCases, FromSelectCase, SelectCase},
 };
 

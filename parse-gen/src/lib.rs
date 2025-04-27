@@ -122,7 +122,7 @@ fn covisitable_trait(
             parse_adt::Parser<#lifetime, ()>,
             #pattern_match_strategy::PatternMatchStrategyProvider<#cst_data_structure_bp::Heap>,
             #cst_data_structure_bp::Heap,
-            typenum::U16,
+            typenum::U8,
             #parse_bp::fnlut::ParseWitness<#lifetime>,
         >
     }
