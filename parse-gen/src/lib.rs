@@ -123,7 +123,7 @@ fn covisitable_trait(
             #pattern_match_strategy::PatternMatchStrategyProvider<#cst_data_structure_bp::Heap>,
             #cst_data_structure_bp::Heap,
             typenum::U16,
-            #parse_bp::fnlut::ParseWitness,
+            #parse_bp::fnlut::ParseWitness<#lifetime>,
         >
     }
 }
@@ -138,7 +138,7 @@ pub(crate) fn generate_impl_fn_lut<'a, 'b: 'a, LCst: LangSpec + 'b>(
         &bps.parse,
         &bps.pattern_match_strategy,
         &bps.cst_data_structure,
-        &syn::parse_quote! {'_},
+        &syn::parse_quote! {'c},
     );
     let cst_data_structure = &bps.cst_data_structure;
     let bp = &bps.parse;
@@ -160,7 +160,7 @@ pub(crate) fn generate_impl_fn_lut<'a, 'b: 'a, LCst: LangSpec + 'b>(
                 witness_name ParseWitness <'c> ;
                 trait #cvt ;
                 fn_name co_visit ;
-                get for<'c> fn(&mut parse_adt::Parser<'c, ()>, &mut #cst_data_structure::Heap, #bp::fnlut::ParseWitness) -> This ;
+                get for <'a, 'b> fn(&'a mut parse_adt::Parser<'c, ()>, &'b mut #cst_data_structure::Heap, #bp::fnlut::ParseWitness<'c>) -> This ;
                 // get for<'c> fn(& mut parse_adt::Parser<'c, ()>, & mut #cst_data_structure::Heap, #bp::fnlut::ParseWitness) -> This ;
                 types
                 // a = A,

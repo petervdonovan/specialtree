@@ -56,7 +56,7 @@ pub mod parse {
             pms::PatternMatchStrategyProvider<cds::Heap>,
             cds::Heap,
             U16,
-            pf::ParseWitness,
+            pf::ParseWitness<'_>,
         >>::co_visit(&mut parser, &mut heap, crate::parse::fnlut::ParseWitness::new());
         (heap, ret)
     }
@@ -72,7 +72,7 @@ pub mod parse {
             pms::PatternMatchStrategyProvider<cds::Heap>,
             cds::Heap,
             U16,
-            pf::ParseWitness,
+            pf::ParseWitness<'_>,
         >>::co_visit(&mut parser, &mut heap, crate::parse::fnlut::ParseWitness::new());
         (heap, ret)
     }
@@ -90,7 +90,7 @@ pub mod parse {
             pms::PatternMatchStrategyProvider<cds::Heap>,
             cds::Heap,
             U16,
-            pf::ParseWitness,
+            pf::ParseWitness<'_>,
         >>::co_visit(&mut parser, &mut heap, crate::parse::fnlut::ParseWitness::new());
         (heap, ret)
     }
@@ -108,7 +108,7 @@ pub mod parse {
             pms::PatternMatchStrategyProvider<cds::Heap>,
             cds::Heap,
             U16,
-            pf::ParseWitness,
+            pf::ParseWitness<'_>,
         >>::co_visit(&mut parser, &mut heap, crate::parse::fnlut::ParseWitness::new());
         (heap, ret)
     }
@@ -124,7 +124,7 @@ pub mod parse {
             pms::PatternMatchStrategyProvider<cds::Heap>,
             cds::Heap,
             U16,
-            pf::ParseWitness,
+            pf::ParseWitness<'_>,
         >>::co_visit(&mut parser, &mut heap, crate::parse::fnlut::ParseWitness::new());
         (heap, ret)
     }
@@ -140,7 +140,7 @@ pub mod parse {
             pms::PatternMatchStrategyProvider<cds::Heap>,
             cds::Heap,
             U16,
-            pf::ParseWitness,
+            pf::ParseWitness<'_>,
         >>::co_visit(&mut parser, &mut heap, crate::parse::fnlut::ParseWitness::new());
         (heap, ret)
     }
@@ -193,57 +193,57 @@ pub mod parse {
     pub mod fnlut {
         term::impl_fn_lut!(
             witness_name ParseWitness < 'c >; trait term::co_visit::CoVisitable <
-            parse_adt::Parser < '_, () >, crate
+            parse_adt::Parser < 'c, () >, crate
             ::pattern_match_strategy::PatternMatchStrategyProvider < crate
             ::cst::data_structure::Heap >, crate ::cst::data_structure::Heap,
-            typenum::U16, crate ::parse::fnlut::ParseWitness, >; fn_name co_visit; get
-            for < 'c > fn (& mut parse_adt::Parser < 'c, () >, & mut crate
-            ::cst::data_structure::Heap, crate ::parse::fnlut::ParseWitness) -> This;
-            types a0 = tymetafuncspec_core::Either < crate ::cst::data_structure::Heap,
-            crate ::cst::data_structure::Nat, std_parse_error::ParseError < crate
-            ::cst::data_structure::Heap, >, >, a1 = tymetafuncspec_core::Either < crate
-            ::cst::data_structure::Heap, tymetafuncspec_core::Pair < crate
-            ::cst::data_structure::Heap, crate ::cst::data_structure::LeftOperand,
-            tymetafuncspec_core::Maybe < crate ::cst::data_structure::Heap,
-            std_parse_metadata::ParseMetadata < crate ::cst::data_structure::Heap, >, >,
-            >, std_parse_error::ParseError < crate ::cst::data_structure::Heap, >, >, a2
-            = tymetafuncspec_core::Either < crate ::cst::data_structure::Heap,
+            typenum::U16, crate ::parse::fnlut::ParseWitness < 'c >, >; fn_name co_visit;
+            get for < 'a, 'b > fn (& 'a mut parse_adt::Parser < 'c, () >, & 'b mut crate
+            ::cst::data_structure::Heap, crate ::parse::fnlut::ParseWitness < 'c >) ->
+            This; types a0 = tymetafuncspec_core::Either < crate
+            ::cst::data_structure::Heap, crate ::cst::data_structure::Nat,
+            std_parse_error::ParseError < crate ::cst::data_structure::Heap, >, >, a1 =
+            tymetafuncspec_core::Either < crate ::cst::data_structure::Heap,
             tymetafuncspec_core::Pair < crate ::cst::data_structure::Heap, crate
-            ::cst::data_structure::RightOperand, tymetafuncspec_core::Maybe < crate
+            ::cst::data_structure::LeftOperand, tymetafuncspec_core::Maybe < crate
             ::cst::data_structure::Heap, std_parse_metadata::ParseMetadata < crate
             ::cst::data_structure::Heap, >, >, >, std_parse_error::ParseError < crate
-            ::cst::data_structure::Heap, >, >, a3 = tymetafuncspec_core::Either < crate
+            ::cst::data_structure::Heap, >, >, a2 = tymetafuncspec_core::Either < crate
             ::cst::data_structure::Heap, tymetafuncspec_core::Pair < crate
-            ::cst::data_structure::Heap, tymetafuncspec_core::Set < crate
-            ::cst::data_structure::Heap, tymetafuncspec_core::Either < crate
-            ::cst::data_structure::Heap, crate ::cst::data_structure::Nat,
-            std_parse_error::ParseError < crate ::cst::data_structure::Heap, >, >, >,
+            ::cst::data_structure::Heap, crate ::cst::data_structure::RightOperand,
             tymetafuncspec_core::Maybe < crate ::cst::data_structure::Heap,
             std_parse_metadata::ParseMetadata < crate ::cst::data_structure::Heap, >, >,
-            >, std_parse_error::ParseError < crate ::cst::data_structure::Heap, >, >, a4
+            >, std_parse_error::ParseError < crate ::cst::data_structure::Heap, >, >, a3
             = tymetafuncspec_core::Either < crate ::cst::data_structure::Heap,
             tymetafuncspec_core::Pair < crate ::cst::data_structure::Heap,
-            tymetafuncspec_core::BoundedNat < crate ::cst::data_structure::Heap, >,
-            tymetafuncspec_core::Maybe < crate ::cst::data_structure::Heap,
-            std_parse_metadata::ParseMetadata < crate ::cst::data_structure::Heap, >, >,
-            >, std_parse_error::ParseError < crate ::cst::data_structure::Heap, >, >, a5
-            = tymetafuncspec_core::Either < crate ::cst::data_structure::Heap,
-            tymetafuncspec_core::Pair < crate ::cst::data_structure::Heap, crate
-            ::cst::data_structure::F, tymetafuncspec_core::Maybe < crate
+            tymetafuncspec_core::Set < crate ::cst::data_structure::Heap,
+            tymetafuncspec_core::Either < crate ::cst::data_structure::Heap, crate
+            ::cst::data_structure::Nat, std_parse_error::ParseError < crate
+            ::cst::data_structure::Heap, >, >, >, tymetafuncspec_core::Maybe < crate
             ::cst::data_structure::Heap, std_parse_metadata::ParseMetadata < crate
             ::cst::data_structure::Heap, >, >, >, std_parse_error::ParseError < crate
-            ::cst::data_structure::Heap, >, >, a6 = tymetafuncspec_core::Either < crate
+            ::cst::data_structure::Heap, >, >, a4 = tymetafuncspec_core::Either < crate
             ::cst::data_structure::Heap, tymetafuncspec_core::Pair < crate
-            ::cst::data_structure::Heap, crate ::cst::data_structure::Plus,
-            tymetafuncspec_core::Maybe < crate ::cst::data_structure::Heap,
-            std_parse_metadata::ParseMetadata < crate ::cst::data_structure::Heap, >, >,
-            >, std_parse_error::ParseError < crate ::cst::data_structure::Heap, >, >, a7
-            = tymetafuncspec_core::Either < crate ::cst::data_structure::Heap,
-            tymetafuncspec_core::Pair < crate ::cst::data_structure::Heap, crate
-            ::cst::data_structure::Sum, tymetafuncspec_core::Maybe < crate
+            ::cst::data_structure::Heap, tymetafuncspec_core::BoundedNat < crate
+            ::cst::data_structure::Heap, >, tymetafuncspec_core::Maybe < crate
             ::cst::data_structure::Heap, std_parse_metadata::ParseMetadata < crate
             ::cst::data_structure::Heap, >, >, >, std_parse_error::ParseError < crate
-            ::cst::data_structure::Heap, >, >
+            ::cst::data_structure::Heap, >, >, a5 = tymetafuncspec_core::Either < crate
+            ::cst::data_structure::Heap, tymetafuncspec_core::Pair < crate
+            ::cst::data_structure::Heap, crate ::cst::data_structure::F,
+            tymetafuncspec_core::Maybe < crate ::cst::data_structure::Heap,
+            std_parse_metadata::ParseMetadata < crate ::cst::data_structure::Heap, >, >,
+            >, std_parse_error::ParseError < crate ::cst::data_structure::Heap, >, >, a6
+            = tymetafuncspec_core::Either < crate ::cst::data_structure::Heap,
+            tymetafuncspec_core::Pair < crate ::cst::data_structure::Heap, crate
+            ::cst::data_structure::Plus, tymetafuncspec_core::Maybe < crate
+            ::cst::data_structure::Heap, std_parse_metadata::ParseMetadata < crate
+            ::cst::data_structure::Heap, >, >, >, std_parse_error::ParseError < crate
+            ::cst::data_structure::Heap, >, >, a7 = tymetafuncspec_core::Either < crate
+            ::cst::data_structure::Heap, tymetafuncspec_core::Pair < crate
+            ::cst::data_structure::Heap, crate ::cst::data_structure::Sum,
+            tymetafuncspec_core::Maybe < crate ::cst::data_structure::Heap,
+            std_parse_metadata::ParseMetadata < crate ::cst::data_structure::Heap, >, >,
+            >, std_parse_error::ParseError < crate ::cst::data_structure::Heap, >, >
         );
     }
 }

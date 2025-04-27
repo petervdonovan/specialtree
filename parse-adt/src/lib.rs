@@ -280,19 +280,19 @@ impl<'a, Heap, Pmsp, Lookaheadable, Fnlut>
     for Cstfy<Heap, Lookaheadable>
 where
     Lookaheadable: Lookahead,
-    Fnlut: HasFn<Self, CoVisitFn<Self, Parser<'a, ()>, Heap, Fnlut>>,
+    // Fnlut: HasFn<Self, CoVisitFn<Self, Parser<'a, ()>, Heap, Fnlut>>,
 {
     fn co_visit(visitor: &mut Parser<'a, ()>, heap: &mut Heap, fnlut: Fnlut) -> Self {
-        // println!("dbg: recursion limit exceeded");
-        // let current_position = visitor.position;
-        // visitor.pop_word();
-        // tymetafuncspec_core::Either::Right(
-        //     std_parse_error::ParseError::new(parse::ParseError::RecursionLimitExceeded(
-        //         current_position.into(),
-        //     )),
-        //     std::marker::PhantomData,
-        // )
-        fnlut.get::<Self>()(visitor, heap, fnlut)
+        println!("dbg: recursion limit exceeded");
+        let current_position = visitor.position;
+        visitor.pop_word();
+        tymetafuncspec_core::Either::Right(
+            std_parse_error::ParseError::new(parse::ParseError::RecursionLimitExceeded(
+                current_position.into(),
+            )),
+            std::marker::PhantomData,
+        )
+        // fnlut.get::<Self>()(visitor, heap, fnlut)
     }
 }
 
@@ -301,18 +301,18 @@ impl<'a, Heap, Pmsp, Lookaheadable, Fnlut>
     for CstfyTransparent<Heap, Lookaheadable>
 where
     Lookaheadable: Lookahead,
-    Fnlut: HasFn<Self, CoVisitFn<Self, Parser<'a, ()>, Heap, Fnlut>>,
+    // Fnlut: HasFn<Self, CoVisitFn<Self, Parser<'a, ()>, Heap, Fnlut>>,
 {
     fn co_visit(visitor: &mut Parser<'a, ()>, heap: &mut Heap, fnlut: Fnlut) -> Self {
-        // println!("dbg: recursion limit exceeded");
-        // let current_position = visitor.position;
-        // visitor.pop_word();
-        // tymetafuncspec_core::Either::Right(
-        //     std_parse_error::ParseError::new(parse::ParseError::RecursionLimitExceeded(
-        //         current_position.into(),
-        //     )),
-        //     std::marker::PhantomData,
-        // )
-        fnlut.get::<Self>()(visitor, heap, fnlut)
+        println!("dbg: recursion limit exceeded");
+        let current_position = visitor.position;
+        visitor.pop_word();
+        tymetafuncspec_core::Either::Right(
+            std_parse_error::ParseError::new(parse::ParseError::RecursionLimitExceeded(
+                current_position.into(),
+            )),
+            std::marker::PhantomData,
+        )
+        // fnlut.get::<Self>()(visitor, heap, fnlut)
     }
 }

@@ -26,12 +26,13 @@ impl<CV, Ctx, Heap, StrategyProvider, DepthFuel, Fnlut: Copy, FieldsCar, FieldsC
     AllCoVisitable<Heap, CV, Ctx, StrategyProvider, DepthFuel, Fnlut>
     for (FieldsCar, (FieldsCdrCar, FieldsCdrCdr))
 where
-    // FieldsCar: CoVisitable<CV, StrategyProvider, Heap, DepthFuel, Fnlut>,
-    Fnlut: HasFn<FieldsCar, for<'a, 'b> fn(&'a mut CV, &'b mut Heap, Fnlut) -> FieldsCar>,
+    FieldsCar: CoVisitable<CV, StrategyProvider, Heap, DepthFuel, Fnlut>,
+    // Fnlut: HasFn<FieldsCar, for<'a, 'b> fn(&'a mut CV, &'b mut Heap, Fnlut) -> FieldsCar>,
     (FieldsCdrCar, FieldsCdrCdr): AllCoVisitable<Heap, CV, Ctx, StrategyProvider, DepthFuel, Fnlut>,
 {
     fn all_co_visit(visitor: &mut CV, heap: &mut Heap, fnlut: Fnlut) -> Self {
-        let car = (fnlut.get::<FieldsCar>())(visitor, heap, fnlut);
+        // let car = (fnlut.get::<FieldsCar>())(visitor, heap, fnlut);
+        let car = FieldsCar::co_visit(visitor, heap, fnlut);
         // visitor.co_proceed();
         let cdr = <(FieldsCdrCar, FieldsCdrCdr)>::all_co_visit(visitor, heap, fnlut);
         (car, cdr)

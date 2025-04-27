@@ -18,11 +18,11 @@ macro_rules! impl_fn_lut {
     (witness_name $name:ident <$($lifetimes:lifetime),*> ; trait $trai:path ; fn_name $fn_name:ident ; get $get:ty ; types $($typ_snake_ident:ident = $typ:ty),*) => {
         macro_rules! ty_type {
             ($typ_snake_ident2:ident) => {
-                fn_types::$typ_snake_ident2::Ty
+                fn_types::$typ_snake_ident2::Ty<$($lifetimes),*>
             }
         }
         #[derive(Clone, Copy)]
-        pub struct $name {
+        pub struct $name<$($lifetimes),*> {
             $(
                 $typ_snake_ident: ty_type!($typ_snake_ident),
             )*
@@ -34,7 +34,7 @@ macro_rules! impl_fn_lut {
         // }
         macro_rules! ty_typedef {
             () => {
-                pub type Ty = $get;
+                pub type Ty<$($lifetimes),*> = $get;
             }
         }
         pub mod fn_types {
@@ -48,7 +48,7 @@ macro_rules! impl_fn_lut {
         }
         macro_rules! impl_for_one {
             ($typ2:ty, $typ_snake_ident2:ident) => {
-                impl $crate::fnlut::HasFn<$typ2, super::fn_types::$typ_snake_ident2::Ty> for $name
+                impl<$($lifetimes),*> $crate::fnlut::HasFn<$typ2, super::fn_types::$typ_snake_ident2::Ty<$($lifetimes),*>> for $name<$($lifetimes),*>
                 {
                     #[allow(refining_impl_trait_reachable)]
                     fn get<T>(&self) -> $get {
@@ -57,20 +57,16 @@ macro_rules! impl_fn_lut {
                 }
             };
         }
-        impl $name
-        where
-            $(
-                $typ: for <'d> $trai,
-            )*
+        impl<$($lifetimes),*> $name<$($lifetimes),*>
+        // where
+        //     $(
+        //         $typ: $trai,
+        //     )*
         {
             pub fn new() -> Self {
                 Self {
                     $(
-                        $typ_snake_ident: <$typ as term::co_visit::CoVisitable <
-                            parse_adt::Parser < '_, () >, crate
-                            ::pattern_match_strategy::PatternMatchStrategyProvider < crate
-                            ::cst::data_structure::Heap >, crate ::cst::data_structure::Heap,
-                            typenum::U16, crate ::parse::fnlut::ParseWitness, >>::$fn_name,
+                        $typ_snake_ident: <$typ as $trai>::$fn_name,
                     )*
                 }
             }
