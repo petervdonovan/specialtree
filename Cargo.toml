@@ -31,7 +31,8 @@ members = [
     "extension-autobox",
     "term-pattern-match-strategy-provider-gen",
     "langspec-transparent-extension",
-    "enumerate",
+    "enumerate-random",
+    "unparse-adt",
 ]
 
 [profile.release]

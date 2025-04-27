@@ -1,5 +1,5 @@
 [package]
-name = "enumerate"
+name = "enumerate-random"
 version.workspace = true
 edition.workspace = true
 
