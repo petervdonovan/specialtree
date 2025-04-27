@@ -1,17 +1,18 @@
 use type_equals::TypeEquals;
 
-pub trait HasFn<DispatchOn, FnType> {
-    fn get<T>(&self) -> FnType
+pub trait HasFn<DispatchOn> {
+    type FnType;
+    fn get<T>(&self) -> Self::FnType
     where
         T: TypeEquals<Other = DispatchOn>;
 }
-#[derive(Clone, Copy)]
-pub struct PanickingFnlut;
-impl<DispatchOn, FnType> HasFn<DispatchOn, FnType> for PanickingFnlut {
-    fn get<T>(&self) -> FnType {
-        panic!("no implementation provided");
-    }
-}
+// #[derive(Clone, Copy)]
+// pub struct PanickingFnlut;
+// impl<DispatchOn, FnType> HasFn<DispatchOn, FnType> for PanickingFnlut {
+//     fn get<T>(&self) -> FnType {
+//         panic!("no implementation provided");
+//     }
+// }
 
 #[macro_export]
 macro_rules! impl_fn_lut {
@@ -48,8 +49,9 @@ macro_rules! impl_fn_lut {
         }
         macro_rules! impl_for_one {
             ($typ2:ty, $typ_snake_ident2:ident) => {
-                impl<$($lifetimes),*> $crate::fnlut::HasFn<$typ2, super::fn_types::$typ_snake_ident2::Ty<$($lifetimes),*>> for $name<$($lifetimes),*>
+                impl<$($lifetimes),*> $crate::fnlut::HasFn<$typ2> for $name<$($lifetimes),*>
                 {
+                    type FnType = super::fn_types::$typ_snake_ident2::Ty<$($lifetimes),*>;
                     #[allow(refining_impl_trait_reachable)]
                     fn get<T>(&self) -> $get {
                         self.$typ_snake_ident2

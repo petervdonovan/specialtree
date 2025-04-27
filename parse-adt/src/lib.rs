@@ -282,7 +282,9 @@ impl<'a, Heap, Pmsp, Lookaheadable, Fnlut>
 where
     Lookaheadable: Lookahead,
     // Fnlut: HasFn<Self, CoVisitFn<Self, Parser<'a, ()>, Heap, Fnlut>>,
-    Fnlut: HasFn<Self, fn(&mut Parser<'a, ()>, &mut Heap, Fnlut) -> Self>,
+    Fnlut: HasFn<Self> + 'a,
+    // Fnlut::FnType: Fn(&mut Parser<'a, ()>, &mut Heap, Fnlut) -> Self,
+    // Fnlut: HasFn<Self, FnType = fn(&mut Parser<'a, ()>, &mut Heap, Fnlut) -> Self>,
 {
     fn co_visit(visitor: &mut Parser<'a, ()>, heap: &mut Heap, fnlut: Fnlut) -> Self {
         println!("dbg: recursion limit exceeded");
