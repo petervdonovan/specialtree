@@ -82,7 +82,7 @@ pub trait ParseLL {
 }
 
 pub trait Lookahead {
-    fn matches<T>(parser: &Parser<'_, T>) -> bool;
+    fn matches<'a, T>(parser: &Parser<'a, T>) -> bool;
 }
 
 impl<T> Lookahead for T
@@ -110,7 +110,7 @@ impl<'a, Cases> FromSelectCase for Parser<'a, Cases> {
     type ShortCircuitsTo = Parser<'a, ()>;
 }
 
-impl<AllCurrentCases> AcceptingCases<()> for Parser<'_, AllCurrentCases>
+impl<'a, AllCurrentCases> AcceptingCases<()> for Parser<'a, AllCurrentCases>
 where
     AllCurrentCases: NonemptyConsList,
 {
@@ -275,12 +275,14 @@ where
     }
 }
 
+// see https://github.com/rust-lang/rust/issues/70263
 impl<'a, Heap, Pmsp, Lookaheadable, Fnlut>
     term::co_visit::CoVisitable<Parser<'a, ()>, Pmsp, Heap, typenum::U0, Fnlut>
     for Cstfy<Heap, Lookaheadable>
 where
     Lookaheadable: Lookahead,
     // Fnlut: HasFn<Self, CoVisitFn<Self, Parser<'a, ()>, Heap, Fnlut>>,
+    Fnlut: HasFn<Self, fn(&mut Parser<'a, ()>, &mut Heap, Fnlut) -> Self>,
 {
     fn co_visit(visitor: &mut Parser<'a, ()>, heap: &mut Heap, fnlut: Fnlut) -> Self {
         println!("dbg: recursion limit exceeded");

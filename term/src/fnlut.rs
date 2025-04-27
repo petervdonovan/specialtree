@@ -24,7 +24,7 @@ macro_rules! impl_fn_lut {
         #[derive(Clone, Copy)]
         pub struct $name<$($lifetimes),*> {
             $(
-                $typ_snake_ident: ty_type!($typ_snake_ident),
+                pub $typ_snake_ident: ty_type!($typ_snake_ident),
             )*
         }
         // macro_rules! ctx_dependent_fn_type {
