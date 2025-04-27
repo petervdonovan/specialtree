@@ -31,6 +31,7 @@ members = [
     "extension-autobox",
     "term-pattern-match-strategy-provider-gen",
     "langspec-transparent-extension",
+    "enumerate",
 ]
 
 [profile.release]
@@ -52,6 +53,8 @@ miette = { version = "7.5.0", features = ["serde"] }
 prettyplease = "0.2.32"
 proc-macro2 = "1.0.95"
 quote = "1.0.40"
+rand = "0.9.1"
+rand_distr = "0.5.1"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
 serde_yml = "0.0.12"

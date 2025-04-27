@@ -117,7 +117,7 @@ where
     type AcceptingRemainingCases = Self;
 
     fn try_case(self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
-        todo!()
+        panic!()
     }
 }
 

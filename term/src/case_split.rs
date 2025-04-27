@@ -8,11 +8,13 @@ pub trait Adt: Sized {
 pub trait ConsList {
     type Car;
     type Cdr: ConsList;
+    const LENGTH: u32;
     fn deconstruct(self) -> (Self::Car, Self::Cdr);
 }
 impl ConsList for () {
     type Car = ();
     type Cdr = ();
+    const LENGTH: u32 = 0;
     fn deconstruct(self) -> (Self::Car, Self::Cdr) {
         ((), ())
     }
@@ -29,6 +31,7 @@ where
 {
     type Car = T;
     type Cdr = Cdr;
+    const LENGTH: u32 = Cdr::LENGTH + 1;
     fn deconstruct(self) -> (Self::Car, Self::Cdr) {
         self
     }

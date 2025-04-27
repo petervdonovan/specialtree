@@ -1,0 +1,12 @@
+[package]
+name = "enumerate"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+derivative.workspace = true
+rand.workspace = true
+rand_distr.workspace = true
+typenum.workspace = true
+term.path = "../term"
+tymetafuncspec-core.path = "../tymetafuncspec-core"
