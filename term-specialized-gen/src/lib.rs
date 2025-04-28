@@ -1,10 +1,4 @@
-use extension_autobox::autobox;
-use langspec::{
-    flat::LangSpecFlat,
-    humanreadable::LangSpecHuman,
-    langspec::{AlgebraicSortId, LangSpec, TerminalLangSpec},
-    tymetafunc::TyMetaFuncSpec,
-};
+use langspec::langspec::{AlgebraicSortId, LangSpec};
 use langspec_gen_util::{AlgebraicsBasePath, HeapType, HeapbakGenData, LsGen, TyGenData, byline};
 use syn::parse_quote;
 
@@ -218,12 +212,29 @@ pub(crate) fn gen_heaped_impls<L: LangSpec>(base_path: &syn::Path, lg: &LsGen<L>
     }
 }
 
-pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
-    let lsf: LangSpecFlat<Tmfs> = LangSpecFlat::canonical_from(lsh);
-    let lsf_boxed = autobox(&lsf);
-    let lg = LsGen::from(&lsf_boxed);
-    let m = generate(&parse_quote!(crate::data_structure), &lg, false);
-    prettyplease::unparse(&syn::parse_quote! {
-        #m
-    })
+pub mod targets {
+    use codegen_component::{CgDepList, CodegenInstance, bumpalo};
+    use extension_autobox::autobox;
+    use langspec_gen_util::kebab_id;
+
+    pub fn default<'langs, L: super::LangSpec>(
+        _: &'langs bumpalo::Bump,
+        codegen_deps: CgDepList<'langs>,
+        l: &'langs L,
+    ) -> CodegenInstance<'langs> {
+        CodegenInstance {
+            id: kebab_id!(l),
+            generate: {
+                let self_path = codegen_deps.self_path();
+                Box::new(move |_| {
+                    let lsf_boxed = autobox(l);
+                    let lg = super::LsGen::from(&lsf_boxed);
+                    super::generate(&syn::parse_quote! {#self_path::data_structure}, &lg, false)
+                })
+            },
+            external_deps: vec![],
+            workspace_deps: vec!["term", "term-specialized-gen"],
+            codegen_deps,
+        }
+    }
 }

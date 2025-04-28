@@ -1,6 +1,9 @@
 [dependencies.term]
 path = "../../term"
 
+[dependencies.term-specialized-gen]
+path = "../../term-specialized-gen"
+
 [dependencies.term-trait-gen]
 path = "../../term-trait-gen"
 

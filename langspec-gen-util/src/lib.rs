@@ -25,7 +25,7 @@ macro_rules! kebab_id {
             "{}-{}",
             $crate::function!()
                 .split(":")
-                .last()
+                .next()
                 .unwrap()
                 .replace("_", "-"),
             $l.name().snake.replace("_", "-")

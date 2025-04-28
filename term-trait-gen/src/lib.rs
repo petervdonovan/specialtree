@@ -126,7 +126,7 @@ pub mod targets {
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
     use langspec_gen_util::kebab_id;
 
-    pub fn term_trait<'langs, L: super::LangSpec>(
+    pub fn default<'langs, L: super::LangSpec>(
         _: &'langs bumpalo::Bump,
         codegen_deps: CgDepList<'langs>,
         l: &'langs L,

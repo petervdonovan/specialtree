@@ -12,7 +12,9 @@ pub fn main() {
         provides: vec![
             words::targets::words_mod(&arena, root_cgd.subtree(), &fib),
             words::targets::words_impls(&arena, root_cgd.subtree(), &fib),
-            term_trait_gen::targets::term_trait(&arena, root_cgd.subtree(), &fib),
+            term_trait_gen::targets::default(&arena, root_cgd.subtree(), &fib),
+            term_specialized_gen::targets::default(&arena, root_cgd.subtree(), &fib),
+            term_specialized_impl_gen::targets::default(&arena, root_cgd.subtree(), &fib),
         ],
         global_workspace_deps: &["tymetafuncspec-core"],
     };
