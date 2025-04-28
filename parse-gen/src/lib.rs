@@ -278,7 +278,6 @@ pub fn gen_impls<L: LangSpec>(
         &syn::parse_quote! { #base_path::term_trait::words },
         &syn::parse_quote! { #base_path::data_structure },
         lsg,
-        lsg,
     );
     quote::quote! {
         #ds

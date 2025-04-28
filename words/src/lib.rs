@@ -25,12 +25,11 @@ pub fn words_impls<L: LangSpec>(
     words_path: &syn::Path,
     sorts_path: &syn::Path,
     lg_impl_for: &LsGen<L>,
-    lg_words_source: &LsGen<L>,
 ) -> syn::ItemMod {
     let sort_camel_idents = lg_impl_for
         .ty_gen_datas(None)
         .filter(|it| {
-            lg_words_source
+            lg_impl_for
                 .ty_gen_datas(None) // FIXME: comparing idents
                 .any(|other| other.snake_ident == it.snake_ident)
         })
@@ -44,6 +43,49 @@ pub fn words_impls<L: LangSpec>(
                     type LWord = #words_path::sorts::#sort_camel_idents;
                 }
             )*
+        }
+    }
+}
+
+pub mod targets {
+    use codegen_component::{CgDepList, CodegenInstance, bumpalo};
+    use langspec_gen_util::kebab_id;
+
+    pub fn words_mod<'langs, L: super::LangSpec>(
+        _: &'langs bumpalo::Bump,
+        codegen_deps: CgDepList<'langs>,
+        l: &'langs L,
+    ) -> CodegenInstance<'langs> {
+        CodegenInstance {
+            id: kebab_id!(l),
+            external_deps: vec![],
+            workspace_deps: vec![],
+            codegen_deps,
+            generate: Box::new(move |_| super::words_mod(&super::LsGen::from(l))),
+        }
+    }
+
+    pub fn words_impls<'langs, LImplFor: super::LangSpec>(
+        arena: &'langs bumpalo::Bump,
+        mut codegen_deps: CgDepList<'langs>,
+        lif: &'langs LImplFor,
+    ) -> CodegenInstance<'langs> {
+        CodegenInstance {
+            id: kebab_id!(lif),
+            generate: {
+                let words_path =
+                    codegen_deps.add(words_mod::<LImplFor>(arena, codegen_deps.subtree(), lif));
+                Box::new(move |c| {
+                    let words_path = words_path(c);
+                    let sorts_path = syn::parse_quote! {
+                        #words_path::sorts
+                    };
+                    super::words_impls(&words_path, &sorts_path, &super::LsGen::from(lif))
+                })
+            },
+            external_deps: vec![],
+            workspace_deps: vec!["words"],
+            codegen_deps,
         }
     }
 }

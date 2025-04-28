@@ -58,7 +58,7 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
     let m = generate(&bps, &lsg);
     let tt = term_trait_gen::generate(&term_trait_bp, &lsf);
     let ds = term_specialized_gen::generate(&bps.data_structure, &lsg_box, false);
-    let words_impls = words::words_impls(&bps.words, &bps.data_structure, &lsg, &lsg);
+    let words_impls = words::words_impls(&bps.words, &bps.data_structure, &lsg);
     let tpmsp = term_pattern_match_strategy_provider_gen::generate(
         &term_pattern_match_strategy_provider_gen::BasePaths {
             term_trait: term_trait_bp.clone(),

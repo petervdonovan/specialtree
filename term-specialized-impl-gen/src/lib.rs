@@ -400,7 +400,6 @@ pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
         &syn::parse_quote!(crate::term_trait::words),
         &bps.data_structure,
         &lsg,
-        &lsg,
     );
     prettyplease::unparse(&syn_insert_use::insert_use(syn::parse_quote! {
         #m

@@ -5,3 +5,10 @@ edition = { workspace = true }
 
 [dependencies]
 cargo_metadata = { workspace = true }
+bumpalo.workspace = true
+syn = { workspace = true }
+term-trait-gen = { path = "../term-trait-gen" }
+codegen-component = { path = "../codegen-component" }
+langspec-examples.path = "../langspec-examples"
+langspec.path = "../langspec"
+words.path = "../words"

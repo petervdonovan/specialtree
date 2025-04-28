@@ -65,6 +65,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
+name = "codegen-component"
+version = "0.1.0"
+dependencies = [
+ "bumpalo",
+ "prettyplease",
+ "proc-macro2",
+ "serde",
+ "syn 2.0.100",
+ "syn-insert-use",
+ "toml",
+]
+
+[[package]]
 name = "convert_case"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -177,6 +190,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "fib"
+version = "0.0.0"
+dependencies = [
+ "term",
+ "term-trait-gen",
+ "tymetafuncspec-core",
+ "words",
+]
+
+[[package]]
 name = "fn-traits"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -209,7 +232,14 @@ dependencies = [
 name = "generate-tests"
 version = "0.1.0"
 dependencies = [
+ "bumpalo",
  "cargo_metadata",
+ "codegen-component",
+ "langspec",
+ "langspec-examples",
+ "syn 2.0.100",
+ "term-trait-gen",
+ "words",
 ]
 
 [[package]]
@@ -634,6 +664,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde_spanned"
+version = "0.6.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "87607cb1398ed59d48732e575a4c28a7a8ebf2454b964fe3f224f2afc07909e1"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "serde_yml"
 version = "0.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -828,6 +867,7 @@ dependencies = [
 name = "term-trait-gen"
 version = "0.1.0"
 dependencies = [
+ "codegen-component",
  "expect-test",
  "langspec",
  "langspec-examples",
@@ -889,6 +929,47 @@ dependencies = [
  "langspec",
  "syn 2.0.100",
 ]
+
+[[package]]
+name = "toml"
+version = "0.8.21"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "900f6c86a685850b1bc9f6223b20125115ee3f31e01207d81655bbcc0aea9231"
+dependencies = [
+ "serde",
+ "serde_spanned",
+ "toml_datetime",
+ "toml_edit",
+]
+
+[[package]]
+name = "toml_datetime"
+version = "0.6.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3da5db5a963e24bc68be8b17b6fa82814bb22ee8660f192bb182771d498f09a3"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "toml_edit"
+version = "0.22.25"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "10558ed0bd2a1562e630926a2d1f0b98c827da99fabd3fe20920a59642504485"
+dependencies = [
+ "indexmap",
+ "serde",
+ "serde_spanned",
+ "toml_datetime",
+ "toml_write",
+ "winnow",
+]
+
+[[package]]
+name = "toml_write"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "28391a4201ba7eb1984cfeb6862c0b3ea2cfe23332298967c749dddc0d6cd976"
 
 [[package]]
 name = "tymetafuncspec-core"
@@ -981,6 +1062,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "winnow"
+version = "0.7.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6cb8234a863ea0e8cd7284fcdd4f145233eb00fee02bbdd9861aec44e6477bc5"
+dependencies = [
+ "memchr",
+]
+
+[[package]]
 name = "wit-bindgen-rt"
 version = "0.39.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -993,6 +1083,7 @@ dependencies = [
 name = "words"
 version = "0.1.0"
 dependencies = [
+ "codegen-component",
  "langspec",
  "langspec-gen-util",
  "syn 2.0.100",

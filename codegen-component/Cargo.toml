@@ -1,0 +1,13 @@
+[package]
+name = "codegen-component"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+bumpalo.workspace = true
+prettyplease.workspace = true
+proc-macro2.workspace = true
+serde.workspace = true
+syn.workspace = true
+syn-insert-use.path = "../syn-insert-use"
+toml.workspace = true

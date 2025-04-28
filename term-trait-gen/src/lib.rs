@@ -3,9 +3,7 @@ use langspec_gen_util::HeapType;
 use langspec_gen_util::{LsGen, byline, transpose};
 use syn::parse_quote;
 
-use langspec_gen_util::{
-    AlgebraicsBasePath, CanonicallyConstructibleFromGenData, TyGenData,
-};
+use langspec_gen_util::{AlgebraicsBasePath, CanonicallyConstructibleFromGenData, TyGenData};
 
 pub fn generate<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::ItemMod {
     let lg = LsGen::from(ls);
@@ -124,16 +122,24 @@ mod owned {
     }
 }
 
-pub fn formatted(
-    lsh: &langspec::humanreadable::LangSpecHuman<tymetafuncspec_core::Core>,
-) -> String {
-    let lsf: langspec::flat::LangSpecFlat<tymetafuncspec_core::Core> = <langspec::flat::LangSpecFlat<
-        tymetafuncspec_core::Core,
-    > as langspec::langspec::TerminalLangSpec>::canonical_from(
-        lsh
-    );
-    let gen_result = generate(&syn::parse_quote!(crate::term_trait), &lsf);
-    prettyplease::unparse(&syn_insert_use::insert_use(syn::parse_quote! {
-        #gen_result
-    }))
+pub mod targets {
+    use codegen_component::{CgDepList, CodegenInstance, bumpalo};
+    use langspec_gen_util::kebab_id;
+
+    pub fn term_trait<'langs, L: super::LangSpec>(
+        _: &'langs bumpalo::Bump,
+        codegen_deps: CgDepList<'langs>,
+        l: &'langs L,
+    ) -> CodegenInstance<'langs> {
+        CodegenInstance {
+            id: kebab_id!(l),
+            generate: {
+                let self_path = codegen_deps.self_path();
+                Box::new(move |_| super::generate(&syn::parse_quote! {#self_path::term_trait}, l))
+            },
+            external_deps: vec![],
+            workspace_deps: vec!["term", "term-trait-gen"],
+            codegen_deps,
+        }
+    }
 }
