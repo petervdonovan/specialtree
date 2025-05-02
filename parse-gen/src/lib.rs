@@ -24,7 +24,7 @@ pub fn generate<L: LangSpec>(bps: &BasePaths, lg: &LsGen<L>) -> syn::ItemMod {
     let byline = byline!();
     let arena = bumpalo::Bump::new();
     let cst = cst(&arena, lg.bak());
-    let lg_cst = LsGen::from(&cst);
+    let lg_cst = LsGen::from(cst);
     let cst_tgds = lg_cst.ty_gen_datas(None).collect::<Vec<_>>();
     let parsells = lg.ty_gen_datas(None).filter_map(|tgd| {
         tgd.id.as_ref().map(|_| {
@@ -210,7 +210,7 @@ fn transparency2cstfication(transparency: &Transparency) -> syn::Ident {
 pub(crate) fn cst<'a, 'b: 'a, L: LangSpec>(
     arena: &'a bumpalo::Bump,
     l: &'b L,
-) -> impl LangSpec + 'a {
+) -> &'a (impl LangSpec + 'a) {
     let errlang = arena.alloc(std_parse_error::parse_error());
     let fallible_ast = arena.alloc(everywhere_alternative(
         Name {
@@ -226,7 +226,7 @@ pub(crate) fn cst<'a, 'b: 'a, L: LangSpec>(
         }),
     ));
     let parse_metadata = arena.alloc(std_parse_metadata::parse_metadata());
-    everywhere_maybemore(
+    arena.alloc(everywhere_maybemore(
         Name {
             human: "Cst".into(),
             camel: "Cst".into(),
@@ -238,147 +238,240 @@ pub(crate) fn cst<'a, 'b: 'a, L: LangSpec>(
             f: std_parse_metadata::ParseMetadataTmfId(),
             a: vec![],
         }),
-    )
+    ))
 }
 
-pub fn gen_impls<L: LangSpec>(
-    base_path: &syn::Path,
-    lsg: &LsGen<L>,
-    important_sublangs: &[Name],
-) -> proc_macro2::TokenStream {
-    let ds =
-        term_specialized_gen::generate(&syn::parse_quote!(#base_path::data_structure), lsg, false);
-    let tt = term_trait_gen::generate(&syn::parse_quote!(#base_path::term_trait), lsg.bak());
-    let tpmsp = term_pattern_match_strategy_provider_gen::generate(
-        &term_pattern_match_strategy_provider_gen::BasePaths {
-            term_trait: syn::parse_quote!(#base_path::term_trait),
-            data_structure: syn::parse_quote!(#base_path::data_structure),
-            words: syn::parse_quote!(#base_path::term_trait::words),
-            strategy_provider: syn::parse_quote!(#base_path::pattern_match_strategy),
-        },
-        lsg,
-    );
-    let tpmspi = term_pattern_match_strategy_provider_impl_gen::generate(
-        &term_pattern_match_strategy_provider_impl_gen::BasePaths {
-            data_structure: syn::parse_quote!(#base_path::data_structure),
-            words: syn::parse_quote!(#base_path::term_trait::words),
-            strategy_provider: syn::parse_quote!(#base_path::pattern_match_strategy),
-        },
-        lsg,
-    );
-    let tt_impl = term_specialized_impl_gen::generate(
-        &term_specialized_impl_gen::BasePaths {
-            data_structure: syn::parse_quote!(#base_path::data_structure),
-            term_trait: syn::parse_quote!(#base_path::term_trait),
-        },
-        lsg,
-        important_sublangs,
-    );
-    let tt_words_impl = words::words_impls(
-        &syn::parse_quote! { #base_path::term_trait::words },
-        &syn::parse_quote! { #base_path::data_structure },
-        lsg,
-    );
-    quote::quote! {
-        #ds
-        #tt
-        #tpmsp
-        #tpmspi
-        #tt_words_impl
-        #tt_impl
+pub mod targets {
+    use std::path::Path;
+
+    use codegen_component::{CgDepList, CodegenInstance, bumpalo};
+    use langspec_gen_util::kebab_id;
+
+    pub fn default<'langs, L: super::LangSpec>(
+        arena: &'langs bumpalo::Bump,
+        mut codegen_deps: CgDepList<'langs>,
+        l: &'langs L,
+    ) -> CodegenInstance<'langs> {
+        CodegenInstance {
+            id: kebab_id!(l),
+            generate: {
+                let self_path = codegen_deps.self_path();
+                let words =
+                    codegen_deps.add(words::targets::words_mod(arena, codegen_deps.subtree(), l));
+                let data_structure = codegen_deps.add(term_specialized_gen::targets::default(
+                    arena,
+                    codegen_deps.subtree(),
+                    l,
+                ));
+                let _ = codegen_deps.add(
+                    term_pattern_match_strategy_provider_impl_gen::targets::words_impls(
+                        arena,
+                        codegen_deps.subtree(),
+                        l,
+                    ),
+                );
+                let term_trait = codegen_deps.add(term_trait_gen::targets::default(
+                    arena,
+                    codegen_deps.subtree(),
+                    l,
+                ));
+                let pattern_match_strategy =
+                    codegen_deps.add(term_pattern_match_strategy_provider_gen::targets::default(
+                        arena,
+                        codegen_deps.subtree(),
+                        l,
+                    ));
+                let cst = super::cst(arena, arena.alloc(super::autobox(l)));
+                let cst_data_structure = codegen_deps.add(term_specialized_gen::targets::default(
+                    arena,
+                    codegen_deps.subtree(),
+                    cst,
+                ));
+                let cst_term_trait = codegen_deps.add(term_trait_gen::targets::default(
+                    arena,
+                    codegen_deps.subtree(),
+                    cst,
+                ));
+                let cst_words = codegen_deps.add(words::targets::words_mod(
+                    arena,
+                    codegen_deps.subtree(),
+                    cst,
+                ));
+                let _ = codegen_deps.add(term_bridge_gen::targets::default(
+                    arena,
+                    codegen_deps.subtree(),
+                    cst,
+                    l,
+                ));
+                Box::new(move |c2sp| {
+                    let lg = super::LsGen::from(l);
+                    super::generate(
+                        &crate::BasePaths {
+                            data_structure: data_structure(c2sp),
+                            words: words(c2sp),
+                            parse: syn::parse_quote! {#self_path::parse},
+                            term_trait: term_trait(c2sp),
+                            pattern_match_strategy: pattern_match_strategy(c2sp),
+                            cst_data_structure: cst_data_structure(c2sp),
+                            cst_term_trait: cst_term_trait(c2sp),
+                            cst_words: cst_words(c2sp),
+                        },
+                        &lg,
+                    )
+                })
+            },
+            external_deps: vec!["typenum"],
+            workspace_deps: vec![
+                ("parse-gen", Path::new(".")),
+                ("std-parse-metadata", Path::new("langspec-std")),
+                ("std-parse-error", Path::new("langspec-std")),
+                ("term", Path::new(".")),
+                ("parse-adt", Path::new(".")),
+                ("parse", Path::new(".")),
+            ],
+            codegen_deps,
+        }
     }
 }
 
-pub fn formatted<L: LangSpec>(l: &L) -> String {
-    let lg = LsGen::from(l);
-    let bps = BasePaths {
-        parse: parse_quote! { crate::parse },
-        data_structure: parse_quote! { crate::data_structure },
-        term_trait: parse_quote! { crate::term_trait },
-        words: parse_quote! { crate::term_trait::words },
-        pattern_match_strategy: parse_quote! { crate::pattern_match_strategy },
-        cst_data_structure: parse_quote! { crate::cst::data_structure },
-        cst_term_trait: parse_quote! { crate::cst::term_trait },
-        cst_words: parse_quote! { crate::cst::words },
-    };
-    let m = generate(&bps, &lg);
-    let (cst_impls, bridge) = {
-        let arena = bumpalo::Bump::new();
-        let autoboxed = autobox(l);
-        let cst = cst(&arena, &autoboxed);
-        let ext_lg = LsGen::from(&cst);
-        (
-            gen_impls(
-                &syn::parse_quote! { crate::cst },
-                &ext_lg,
-                &[cst.name().clone(), l.name().clone()],
-            ),
-            {
-                term_bridge_gen::generate(
-                    &ext_lg,
-                    lg.bak().name(),
-                    &term_bridge_gen::BasePaths {
-                        ext_data_structure: syn::parse_quote!(crate::cst::data_structure),
-                        og_term_trait: syn::parse_quote!(crate::term_trait),
-                    },
-                )
-            },
-        )
-    };
-    let pmsp = term_pattern_match_strategy_provider_gen::generate(
-        &term_pattern_match_strategy_provider_gen::BasePaths {
-            term_trait: syn::parse_quote!(crate::term_trait),
-            data_structure: syn::parse_quote!(crate::data_structure),
-            words: syn::parse_quote!(crate::term_trait::words),
-            strategy_provider: syn::parse_quote!(crate::pattern_match_strategy),
-        },
-        &lg,
-    );
-    let tt = term_trait_gen::generate(&syn::parse_quote!(crate::term_trait), lg.bak());
-    let byline = byline!();
-    let f: syn::File = syn::parse_quote! {
-        #byline
-        #[test]
-        fn test() {
-            {
-                println!("test Sum");
-                crate::parse::sum("sum { 3 }");
-            }
-            {
-                println!("test Nat");
-                crate::parse::nat("3");
-            }
-            {
-                println!("test Nat");
-                crate::parse::nat("f 3");
-            }
-            {
-                println!("test Sum");
-                crate::parse::sum("sum { 3 }");
-            }
-            {
-                println!("test F");
-                crate::parse::f("f 3");
-            }
-            {
-                println!("test Plus");
-                crate::parse::plus("plus left_operand 3 right_operand 4");
-            }
-            {
-                println!("test Nat");
-                crate::parse::nat("sum { f 3, f plus left_operand f 1 right_operand 4 }");
-            }
-        }
-        #m
-        #byline
-        pub mod cst {
-            #cst_impls
-        }
-        pub mod bridge {
-            #bridge
-        }
-        #pmsp
-        #tt
-    };
-    prettyplease::unparse(&syn_insert_use::insert_use(f))
-}
+// pub fn gen_impls<L: LangSpec>(
+//     base_path: &syn::Path,
+//     lsg: &LsGen<L>,
+//     important_sublangs: &[Name],
+// ) -> proc_macro2::TokenStream {
+//     let ds =
+//         term_specialized_gen::generate(&syn::parse_quote!(#base_path::data_structure), lsg, false);
+//     let tt = term_trait_gen::generate(&syn::parse_quote!(#base_path::term_trait), lsg.bak());
+//     let tpmsp = term_pattern_match_strategy_provider_gen::generate(
+//         &term_pattern_match_strategy_provider_gen::BasePaths {
+//             term_trait: syn::parse_quote!(#base_path::term_trait),
+//             data_structure: syn::parse_quote!(#base_path::data_structure),
+//             words: syn::parse_quote!(#base_path::term_trait::words),
+//             strategy_provider: syn::parse_quote!(#base_path::pattern_match_strategy),
+//         },
+//         lsg,
+//     );
+//     let tpmspi = term_pattern_match_strategy_provider_impl_gen::generate(
+//         &term_pattern_match_strategy_provider_impl_gen::BasePaths {
+//             data_structure: syn::parse_quote!(#base_path::data_structure),
+//             words: syn::parse_quote!(#base_path::term_trait::words),
+//             strategy_provider: syn::parse_quote!(#base_path::pattern_match_strategy),
+//         },
+//         lsg,
+//     );
+//     let tt_impl = term_specialized_impl_gen::generate(
+//         &term_specialized_impl_gen::BasePaths {
+//             data_structure: syn::parse_quote!(#base_path::data_structure),
+//             term_trait: syn::parse_quote!(#base_path::term_trait),
+//         },
+//         lsg,
+//         important_sublangs,
+//     );
+//     let tt_words_impl = words::words_impls(
+//         &syn::parse_quote! { #base_path::term_trait::words },
+//         &syn::parse_quote! { #base_path::data_structure },
+//         lsg,
+//     );
+//     quote::quote! {
+//         #ds
+//         #tt
+//         #tpmsp
+//         #tpmspi
+//         #tt_words_impl
+//         #tt_impl
+//     }
+// }
+
+// pub fn formatted<L: LangSpec>(l: &L) -> String {
+//     let lg = LsGen::from(l);
+//     let bps = BasePaths {
+//         parse: parse_quote! { crate::parse },
+//         data_structure: parse_quote! { crate::data_structure },
+//         term_trait: parse_quote! { crate::term_trait },
+//         words: parse_quote! { crate::term_trait::words },
+//         pattern_match_strategy: parse_quote! { crate::pattern_match_strategy },
+//         cst_data_structure: parse_quote! { crate::cst::data_structure },
+//         cst_term_trait: parse_quote! { crate::cst::term_trait },
+//         cst_words: parse_quote! { crate::cst::words },
+//     };
+//     let m = generate(&bps, &lg);
+//     let (cst_impls, bridge) = {
+//         let arena = bumpalo::Bump::new();
+//         let autoboxed = autobox(l);
+//         let cst = cst(&arena, &autoboxed);
+//         let ext_lg = LsGen::from(&cst);
+//         (
+//             gen_impls(
+//                 &syn::parse_quote! { crate::cst },
+//                 &ext_lg,
+//                 &[cst.name().clone(), l.name().clone()],
+//             ),
+//             {
+//                 term_bridge_gen::generate(
+//                     &ext_lg,
+//                     lg.bak().name(),
+//                     &term_bridge_gen::BasePaths {
+//                         ext_data_structure: syn::parse_quote!(crate::cst::data_structure),
+//                         og_term_trait: syn::parse_quote!(crate::term_trait),
+//                     },
+//                 )
+//             },
+//         )
+//     };
+//     let pmsp = term_pattern_match_strategy_provider_gen::generate(
+//         &term_pattern_match_strategy_provider_gen::BasePaths {
+//             term_trait: syn::parse_quote!(crate::term_trait),
+//             data_structure: syn::parse_quote!(crate::data_structure),
+//             words: syn::parse_quote!(crate::term_trait::words),
+//             strategy_provider: syn::parse_quote!(crate::pattern_match_strategy),
+//         },
+//         &lg,
+//     );
+//     let tt = term_trait_gen::generate(&syn::parse_quote!(crate::term_trait), lg.bak());
+//     let byline = byline!();
+//     let f: syn::File = syn::parse_quote! {
+//         #byline
+//         #[test]
+//         fn test() {
+//             {
+//                 println!("test Sum");
+//                 crate::parse::sum("sum { 3 }");
+//             }
+//             {
+//                 println!("test Nat");
+//                 crate::parse::nat("3");
+//             }
+//             {
+//                 println!("test Nat");
+//                 crate::parse::nat("f 3");
+//             }
+//             {
+//                 println!("test Sum");
+//                 crate::parse::sum("sum { 3 }");
+//             }
+//             {
+//                 println!("test F");
+//                 crate::parse::f("f 3");
+//             }
+//             {
+//                 println!("test Plus");
+//                 crate::parse::plus("plus left_operand 3 right_operand 4");
+//             }
+//             {
+//                 println!("test Nat");
+//                 crate::parse::nat("sum { f 3, f plus left_operand f 1 right_operand 4 }");
+//             }
+//         }
+//         #m
+//         #byline
+//         pub mod cst {
+//             #cst_impls
+//         }
+//         pub mod bridge {
+//             #bridge
+//         }
+//         #pmsp
+//         #tt
+//     };
+//     prettyplease::unparse(&syn_insert_use::insert_use(f))
+// }

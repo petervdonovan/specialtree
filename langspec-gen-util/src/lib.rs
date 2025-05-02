@@ -21,15 +21,19 @@ macro_rules! byline {
 #[macro_export]
 macro_rules! kebab_id {
     ($l:ident) => {
-        codegen_component::KebabCodegenId(format!(
-            "{}-{}",
-            $crate::function!()
-                .split(":")
-                .next()
-                .unwrap()
-                .replace("_", "-"),
-            $l.name().snake.replace("_", "-")
-        ))
+        codegen_component::KebabCodegenId({
+            let func = $crate::function!();
+            let id = if func.ends_with("::default") {
+                func.split(":").next().unwrap()
+            } else {
+                func.split("::").last().unwrap()
+            };
+            format!(
+                "{}-{}",
+                id.replace("_", "-"),
+                $l.name().snake.replace("_", "-")
+            )
+        })
     };
 }
 #[macro_export]

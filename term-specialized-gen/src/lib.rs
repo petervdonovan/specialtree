@@ -233,7 +233,10 @@ pub mod targets {
                 })
             },
             external_deps: vec![],
-            workspace_deps: vec!["term", "term-specialized-gen"],
+            workspace_deps: vec![
+                ("term", std::path::Path::new(".")),
+                ("term-specialized-gen", std::path::Path::new(".")),
+            ],
             codegen_deps,
         }
     }

@@ -7,16 +7,18 @@ use langspec_gen_util::{AlgebraicsBasePath, HeapType, LsGen, byline};
 pub struct BasePaths {
     pub ext_data_structure: syn::Path,
     pub og_term_trait: syn::Path,
+    pub og_words_base_path: syn::Path,
 }
 
 pub fn generate<L: LangSpec>(
     ext_lg: &LsGen<L>,
     sublang_name: &Name,
     bps: &BasePaths,
-) -> proc_macro2::TokenStream {
+) -> syn::ItemMod {
     let BasePaths {
         ext_data_structure,
         og_term_trait: _,
+        og_words_base_path: _,
     } = bps;
     let sublang = ext_lg
         .bak()
@@ -45,11 +47,13 @@ pub fn generate<L: LangSpec>(
     let owned_impls = generate_owned_impls(&camel_names, &image_ty_under_embeddings, bps);
     let words_impls = bridge_words_impls(bps, ext_lg);
     let maps_tmf_impls = generate_maps_tmf_impls(ext_lg, &sublang, bps);
-    quote::quote! {
-        #heap
-        #words_impls
-        #owned_impls
-        #maps_tmf_impls
+    syn::parse_quote! {
+        mod bridge {
+            #heap
+            #owned_impls
+            #words_impls
+            #maps_tmf_impls
+        }
     }
 }
 
@@ -57,12 +61,10 @@ pub(crate) fn bridge_words_impls<L: LangSpec>(
     BasePaths {
         ext_data_structure,
         og_term_trait,
+        og_words_base_path,
     }: &BasePaths,
     elsg: &LsGen<L>,
 ) -> syn::ItemMod {
-    let og_words_base_path: syn::Path = syn::parse_quote! {
-        #og_term_trait::words
-    };
     let impls = elsg
         .ty_gen_datas(Some(og_words_base_path.clone()))
         .map(|tgd| -> syn::ItemImpl {
@@ -91,6 +93,7 @@ pub(crate) fn generate_heap(
     BasePaths {
         ext_data_structure,
         og_term_trait,
+        og_words_base_path: _,
     }: &BasePaths,
 ) -> syn::ItemImpl {
     let byline = langspec_gen_util::byline!();
@@ -110,6 +113,7 @@ pub(crate) fn generate_owned_impls(
     BasePaths {
         ext_data_structure: _,
         og_term_trait,
+        og_words_base_path: _,
     }: &BasePaths,
 ) -> syn::ItemMod {
     let byline = langspec_gen_util::byline!();
@@ -128,7 +132,8 @@ pub(crate) fn generate_maps_tmf_impls<L: LangSpec>(
     sublang: &Sublang<SortIdOf<L>>,
     BasePaths {
         ext_data_structure,
-        og_term_trait,
+        og_term_trait: _,
+        og_words_base_path,
     }: &BasePaths,
 ) -> syn::ItemMod {
     let byline = langspec_gen_util::byline!();
@@ -153,10 +158,66 @@ pub(crate) fn generate_maps_tmf_impls<L: LangSpec>(
         #byline
         pub mod maps_tmf_impls {
             #(
-                impl term::MapsTmf<#og_term_trait::words::L, #ogtys> for #ext_data_structure::Heap {
+                impl term::MapsTmf<#og_words_base_path::L, #ogtys> for #ext_data_structure::Heap {
                     type Tmf = #mapped_tys;
                 }
             )*
+        }
+    }
+}
+
+pub mod targets {
+    use std::path::Path;
+
+    use codegen_component::{CgDepList, CodegenInstance, bumpalo};
+    use langspec_gen_util::kebab_id;
+
+    pub fn default<'langs, L: super::LangSpec, LSub: super::LangSpec>(
+        arena: &'langs bumpalo::Bump,
+        mut codegen_deps: CgDepList<'langs>,
+        l: &'langs L,
+        lsublang: &'langs LSub,
+    ) -> CodegenInstance<'langs> {
+        let ext_lg = super::LsGen::from(l);
+        CodegenInstance {
+            id: kebab_id!(l),
+            generate: {
+                let sublang_name = lsublang.name().clone();
+                let ext_data_structure = codegen_deps.add(term_specialized_gen::targets::default(
+                    arena,
+                    codegen_deps.subtree(),
+                    l,
+                ));
+                let og_term_trait = codegen_deps.add(term_trait_gen::targets::default(
+                    arena,
+                    codegen_deps.subtree(),
+                    lsublang,
+                ));
+                let og_words_base_path =
+                    codegen_deps.add(words::targets::words_mod(arena, codegen_deps.subtree(), l));
+                // let _ = codegen_deps.add(term_specialized_impl_gen::targets::default(
+                //     arena,
+                //     codegen_deps.subtree(),
+                //     lsublang,
+                // ));
+                Box::new(move |c2sp| {
+                    super::generate(
+                        &ext_lg,
+                        &sublang_name,
+                        &crate::BasePaths {
+                            ext_data_structure: ext_data_structure(c2sp),
+                            og_term_trait: og_term_trait(c2sp),
+                            og_words_base_path: og_words_base_path(c2sp),
+                        },
+                    )
+                })
+            },
+            external_deps: vec![],
+            workspace_deps: vec![
+                ("term-bridge-gen", Path::new(".")),
+                ("words", Path::new(".")),
+            ],
+            codegen_deps,
         }
     }
 }

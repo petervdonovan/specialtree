@@ -1,17 +1,23 @@
 [dependencies.term]
-path = "../../term"
+path = "../.././term"
+
+[dependencies.term-pattern-match-strategy-provider-gen]
+path = "../.././term-pattern-match-strategy-provider-gen"
+
+[dependencies.term-pattern-match-strategy-provider-impl-gen]
+path = "../.././term-pattern-match-strategy-provider-impl-gen"
 
 [dependencies.term-specialized-gen]
-path = "../../term-specialized-gen"
+path = "../.././term-specialized-gen"
 
 [dependencies.term-trait-gen]
-path = "../../term-trait-gen"
+path = "../.././term-trait-gen"
 
 [dependencies.tymetafuncspec-core]
-path = "../../tymetafuncspec-core"
+path = "../.././tymetafuncspec-core"
 
 [dependencies.words]
-path = "../../words"
+path = "../.././words"
 
 [package]
 edition = "2024"

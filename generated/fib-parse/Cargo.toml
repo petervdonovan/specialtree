@@ -1,0 +1,31 @@
+[dependencies.fib]
+path = "../fib"
+
+[dependencies.parse]
+path = "../.././parse"
+
+[dependencies.parse-adt]
+path = "../.././parse-adt"
+
+[dependencies.parse-gen]
+path = "../.././parse-gen"
+
+[dependencies.std-parse-error]
+path = "../../langspec-std/std-parse-error"
+
+[dependencies.std-parse-metadata]
+path = "../../langspec-std/std-parse-metadata"
+
+[dependencies.term]
+path = "../.././term"
+
+[dependencies.tymetafuncspec-core]
+path = "../.././tymetafuncspec-core"
+
+[dependencies.typenum]
+workspace = true
+
+[package]
+edition = "2024"
+name = "fib-parse"
+version = "0.0.0"

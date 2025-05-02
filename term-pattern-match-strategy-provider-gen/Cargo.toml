@@ -4,6 +4,7 @@ version = { workspace = true }
 edition = { workspace = true }
 
 [dependencies]
+codegen-component = { path = "../codegen-component" }
 langspec-gen-util = { path = "../langspec-gen-util" }
 langspec = { path = "../langspec" }
 term-trait-gen = { path = "../term-trait-gen" }

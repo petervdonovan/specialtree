@@ -5,29 +5,35 @@ use syn::parse_quote;
 
 use langspec_gen_util::{AlgebraicsBasePath, CanonicallyConstructibleFromGenData, TyGenData};
 
-pub fn generate<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::ItemMod {
+pub fn generate<L: LangSpec>(
+    base_path: &syn::Path,
+    words_path: &syn::Path,
+    ls: &L,
+) -> syn::ItemMod {
     let lg = LsGen::from(ls);
-    let owned = owned::generate(base_path, &lg);
-    let heap_trait = heap_trait(base_path, &lg);
+    let owned = owned::generate(base_path, words_path, &lg);
+    let heap_trait = heap_trait(base_path, words_path, &lg);
     let byline = byline!();
-    let words = words::words_mod(&lg);
     parse_quote!(
         #byline
         pub mod term_trait {
             #heap_trait
             #owned
-            #words
         }
     )
 }
-pub(crate) fn heap_trait<L: LangSpec>(base_path: &syn::Path, ls: &LsGen<L>) -> syn::ItemTrait {
+pub(crate) fn heap_trait<L: LangSpec>(
+    base_path: &syn::Path,
+    words_path: &syn::Path,
+    ls: &LsGen<L>,
+) -> syn::ItemTrait {
     transpose!(
-        ls.ty_gen_datas(Some(syn::parse_quote! {#base_path::words})),
+        ls.ty_gen_datas(Some(syn::parse_quote! {#words_path})),
         camel_ident
     );
     let byline = byline!();
     let superheap_bounds = generate_superheap_bounds(ls);
-    let maps_tmf_bounds = generate_maps_tmf_bounds(base_path, ls);
+    let maps_tmf_bounds = generate_maps_tmf_bounds(words_path, ls);
     parse_quote! {
         #byline
         pub trait Heap: Sized #(+ #maps_tmf_bounds)* #(+ #superheap_bounds)* {
@@ -60,7 +66,7 @@ fn generate_superheap_bounds<L: LangSpec>(ls: &LsGen<L>) -> Vec<syn::TraitBound>
 }
 
 fn generate_maps_tmf_bounds<L: LangSpec>(
-    base_path: &syn::Path,
+    words_path: &syn::Path,
     ls: &LsGen<L>,
 ) -> impl Iterator<Item = syn::TraitBound> {
     let mut bounds = vec![];
@@ -71,7 +77,7 @@ fn generate_maps_tmf_bounds<L: LangSpec>(
             &AlgebraicsBasePath::new(quote::quote! {Self::}),
         );
         bounds.push(syn::parse_quote! {
-            term::MapsTmf<#base_path::words::L, #tmf>
+            term::MapsTmf<#words_path::L, #tmf>
         });
     });
     bounds.into_iter()
@@ -80,36 +86,38 @@ fn generate_maps_tmf_bounds<L: LangSpec>(
 mod owned {
 
     use super::*;
-    pub fn generate<L: LangSpec>(base_path: &syn::Path, ls: &LsGen<L>) -> syn::ItemMod {
-        let traits = ls
-            .ty_gen_datas(Some(syn::parse_quote! {#base_path::words}))
-            .map(
-                |TyGenData {
-                     camel_ident,
-                     ccf: CanonicallyConstructibleFromGenData { ccf_sort_tys, .. },
-                     ..
-                 }|
-                 -> syn::ItemTrait {
-                    let path = quote::quote! {
-                        <<Self as term::Heaped>::Heap as #base_path::Heap>
-                    };
-                    let ccf_sort_tys = ccf_sort_tys(
-                        HeapType(syn::parse_quote! {<Self as term::Heaped>::Heap}),
-                        AlgebraicsBasePath::new(quote::quote! { #path:: }),
-                    );
-                    let ccf_bounds = ccf_sort_tys.iter().map(|ccf| -> syn::TraitBound {
-                        syn::parse_quote! {
-                            term::CanonicallyConstructibleFrom<<Self as term::Heaped>::Heap, #ccf>
-                        }
-                    });
-                    parse_quote! {
-                        pub trait #camel_ident: term::Heaped #(+ #ccf_bounds )*
-                        where <Self as term::Heaped>::Heap: #base_path::Heap,
-                        {
-                        }
+    pub fn generate<L: LangSpec>(
+        base_path: &syn::Path,
+        words_path: &syn::Path,
+        ls: &LsGen<L>,
+    ) -> syn::ItemMod {
+        let traits = ls.ty_gen_datas(Some(syn::parse_quote! {#words_path})).map(
+            |TyGenData {
+                 camel_ident,
+                 ccf: CanonicallyConstructibleFromGenData { ccf_sort_tys, .. },
+                 ..
+             }|
+             -> syn::ItemTrait {
+                let path = quote::quote! {
+                    <<Self as term::Heaped>::Heap as #base_path::Heap>
+                };
+                let ccf_sort_tys = ccf_sort_tys(
+                    HeapType(syn::parse_quote! {<Self as term::Heaped>::Heap}),
+                    AlgebraicsBasePath::new(quote::quote! { #path:: }),
+                );
+                let ccf_bounds = ccf_sort_tys.iter().map(|ccf| -> syn::TraitBound {
+                    syn::parse_quote! {
+                        term::CanonicallyConstructibleFrom<<Self as term::Heaped>::Heap, #ccf>
                     }
-                },
-            );
+                });
+                parse_quote! {
+                    pub trait #camel_ident: term::Heaped #(+ #ccf_bounds )*
+                    where <Self as term::Heaped>::Heap: #base_path::Heap,
+                    {
+                    }
+                }
+            },
+        );
         let byline = byline!();
         parse_quote! {
             #byline
@@ -123,22 +131,32 @@ mod owned {
 }
 
 pub mod targets {
+    use std::path::Path;
+
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
     use langspec_gen_util::kebab_id;
 
     pub fn default<'langs, L: super::LangSpec>(
-        _: &'langs bumpalo::Bump,
-        codegen_deps: CgDepList<'langs>,
+        arena: &'langs bumpalo::Bump,
+        mut codegen_deps: CgDepList<'langs>,
         l: &'langs L,
     ) -> CodegenInstance<'langs> {
         CodegenInstance {
             id: kebab_id!(l),
             generate: {
                 let self_path = codegen_deps.self_path();
-                Box::new(move |_| super::generate(&syn::parse_quote! {#self_path::term_trait}, l))
+                let words_path =
+                    codegen_deps.add(words::targets::words_mod(arena, codegen_deps.subtree(), l));
+                Box::new(move |c| {
+                    super::generate(
+                        &syn::parse_quote! {#self_path::term_trait},
+                        &words_path(c),
+                        l,
+                    )
+                })
             },
             external_deps: vec![],
-            workspace_deps: vec!["term", "term-trait-gen"],
+            workspace_deps: vec![("term", Path::new(".")), ("term-trait-gen", Path::new("."))],
             codegen_deps,
         }
     }

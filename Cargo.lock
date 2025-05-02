@@ -194,10 +194,27 @@ name = "fib"
 version = "0.0.0"
 dependencies = [
  "term",
+ "term-pattern-match-strategy-provider-gen",
+ "term-pattern-match-strategy-provider-impl-gen",
  "term-specialized-gen",
  "term-trait-gen",
  "tymetafuncspec-core",
  "words",
+]
+
+[[package]]
+name = "fib-parse"
+version = "0.0.0"
+dependencies = [
+ "fib",
+ "parse",
+ "parse-adt",
+ "parse-gen",
+ "std-parse-error",
+ "std-parse-metadata",
+ "term",
+ "tymetafuncspec-core",
+ "typenum",
 ]
 
 [[package]]
@@ -238,7 +255,10 @@ dependencies = [
  "codegen-component",
  "langspec",
  "langspec-examples",
+ "parse-gen",
  "syn 2.0.100",
+ "term-pattern-match-strategy-provider-gen",
+ "term-pattern-match-strategy-provider-impl-gen",
  "term-specialized-gen",
  "term-specialized-impl-gen",
  "term-trait-gen",
@@ -471,6 +491,7 @@ name = "parse-gen"
 version = "0.1.0"
 dependencies = [
  "bumpalo",
+ "codegen-component",
  "extension-autobox",
  "extension-everywhere-alternative",
  "extension-everywhere-maybemore",
@@ -785,17 +806,23 @@ dependencies = [
 name = "term-bridge-gen"
 version = "0.1.0"
 dependencies = [
+ "codegen-component",
  "langspec",
  "langspec-gen-util",
  "proc-macro2",
  "quote",
  "syn 2.0.100",
+ "term-specialized-gen",
+ "term-specialized-impl-gen",
+ "term-trait-gen",
+ "words",
 ]
 
 [[package]]
 name = "term-pattern-match-strategy-provider-gen"
 version = "0.1.0"
 dependencies = [
+ "codegen-component",
  "langspec",
  "langspec-examples",
  "langspec-gen-util",
@@ -814,6 +841,7 @@ dependencies = [
 name = "term-pattern-match-strategy-provider-impl-gen"
 version = "0.1.0"
 dependencies = [
+ "codegen-component",
  "extension-autobox",
  "langspec",
  "langspec-examples",

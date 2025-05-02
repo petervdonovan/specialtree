@@ -64,28 +64,4 @@ pub mod targets {
             generate: Box::new(move |_| super::words_mod(&super::LsGen::from(l))),
         }
     }
-
-    pub fn words_impls<'langs, LImplFor: super::LangSpec>(
-        arena: &'langs bumpalo::Bump,
-        mut codegen_deps: CgDepList<'langs>,
-        lif: &'langs LImplFor,
-    ) -> CodegenInstance<'langs> {
-        CodegenInstance {
-            id: kebab_id!(lif),
-            generate: {
-                let words_path =
-                    codegen_deps.add(words_mod::<LImplFor>(arena, codegen_deps.subtree(), lif));
-                Box::new(move |c| {
-                    let words_path = words_path(c);
-                    let sorts_path = syn::parse_quote! {
-                        #words_path::sorts
-                    };
-                    super::words_impls(&words_path, &sorts_path, &super::LsGen::from(lif))
-                })
-            },
-            external_deps: vec![],
-            workspace_deps: vec!["words"],
-            codegen_deps,
-        }
-    }
 }

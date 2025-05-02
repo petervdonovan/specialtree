@@ -2,10 +2,8 @@
 #![rustfmt::skip]
 #![allow(warnings)]
 #![allow(unknown_lints)]
+pub mod data_structure;
 pub mod words;
 pub mod term_trait;
-pub mod data_structure;
-pub mod term_impls;
-pub mod pattern_match_strategy;
-pub mod words_impls;
-pub mod pattern_match_strategy_impls;
+pub mod bridge;
+pub mod parse;

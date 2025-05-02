@@ -63,3 +63,50 @@ pub(crate) fn impl_has_pattern_match_strategy_for(
         }
     }
 }
+
+pub mod targets {
+    use std::path::Path;
+
+    use codegen_component::{CgDepList, CodegenInstance, bumpalo};
+    use langspec_gen_util::kebab_id;
+
+    pub fn default<'langs, L: super::LangSpec>(
+        arena: &'langs bumpalo::Bump,
+        mut codegen_deps: CgDepList<'langs>,
+        l: &'langs L,
+    ) -> CodegenInstance<'langs> {
+        CodegenInstance {
+            id: kebab_id!(l),
+            generate: {
+                let self_path = codegen_deps.self_path();
+                let words =
+                    codegen_deps.add(words::targets::words_mod(arena, codegen_deps.subtree(), l));
+                let data_structure = codegen_deps.add(term_specialized_gen::targets::default(
+                    arena,
+                    codegen_deps.subtree(),
+                    l,
+                ));
+                let term_trait = codegen_deps.add(term_trait_gen::targets::default(
+                    arena,
+                    codegen_deps.subtree(),
+                    l,
+                ));
+                Box::new(move |c2sp| {
+                    let lg = super::LsGen::from(l);
+                    super::generate(
+                        &crate::BasePaths {
+                            data_structure: data_structure(c2sp),
+                            term_trait: term_trait(c2sp),
+                            words: words(c2sp),
+                            strategy_provider: syn::parse_quote! {#self_path::pattern_match_strategy},
+                        },
+                        &lg,
+                    )
+                })
+            },
+            external_deps: vec![],
+            workspace_deps: vec![("term-pattern-match-strategy-provider-gen", Path::new("."))],
+            codegen_deps,
+        }
+    }
+}

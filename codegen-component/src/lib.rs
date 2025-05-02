@@ -31,14 +31,14 @@ pub struct CodegenInstance<'langs> {
     pub id: KebabCodegenId,
     pub generate: Box<dyn for<'a> Fn(&'a Component2SynPath) -> syn::ItemMod + 'langs>,
     pub external_deps: Vec<&'static str>,
-    pub workspace_deps: Vec<&'static str>,
+    pub workspace_deps: Vec<(&'static str, &'static Path)>,
     pub codegen_deps: CgDepList<'langs>,
 }
 
 pub struct Crate<'langs> {
     pub id: KebabCodegenId,
     pub provides: Vec<CodegenInstance<'langs>>,
-    pub global_workspace_deps: &'static [&'static str],
+    pub global_workspace_deps: Vec<(&'static str, &'static Path)>,
 }
 
 #[must_use]
@@ -58,9 +58,11 @@ impl<'langs> CgDepList<'langs> {
     ) -> Box<dyn for<'a> Fn(&'a Component2SynPath) -> syn::Path + 'static> {
         let id = dep.id.clone();
         self.codegen_deps.push(dep);
-        // let next_segment = syn::Ident::new(&id.0.replace("-", "_"), proc_macro2::Span::call_site());
         Box::new(move |c2sp| {
-            let path = c2sp.0.get(&id).unwrap();
+            let path = c2sp
+                .0
+                .get(&id)
+                .expect("dependency was not listed in the global dependency list");
             syn::parse_quote! {
                 #path
             }
@@ -83,7 +85,7 @@ impl<'langs> Default for CgDepList<'langs> {
 }
 
 const WORKSPACE_ROOT_RELPATH: &str = "../..";
-// const SIBLING_CRATES_RELPATH: &str = "..";
+const SIBLING_CRATES_RELPATH: &str = "..";
 
 fn write_if_changed(path: &Path, content: &str) {
     if path.exists() {
@@ -95,12 +97,12 @@ fn write_if_changed(path: &Path, content: &str) {
     std::fs::write(path, content).unwrap();
 }
 impl<'langs> Crate<'langs> {
-    pub fn generate(&self, base_path: &Path, c2sp: &mut Component2SynPath) {
+    pub fn generate(&self, base_path: &Path, c2sp: &mut Component2SynPath, other_crates: &[Crate]) {
         let crate_path = base_path.join(self.crate_relpath());
         std::fs::create_dir_all(&crate_path).unwrap();
         {
             let cargo_toml_path = crate_path.join("Cargo.toml");
-            let cargo_toml_content = self.generate_cargo_toml();
+            let cargo_toml_content = self.generate_cargo_toml(other_crates);
             write_if_changed(&cargo_toml_path, &cargo_toml_content);
         }
         {
@@ -144,28 +146,49 @@ impl<'langs> Crate<'langs> {
             );
         }
     }
+    pub fn provides(&self, id: &KebabCodegenId) -> bool {
+        self.provides.iter().any(|it| it.id == *id)
+    }
     fn generate_dep_contents(&self, c2sp: &mut Component2SynPath) -> Vec<syn::ItemMod> {
         let mut current_c2sp = Component2SynPath(c2sp.0.clone());
         let mut contents = vec![];
         for dep in self.provides.iter() {
-            let m = (dep.generate)(&current_c2sp);
-            let dep_ident = &m.ident;
-            current_c2sp.0.insert(
-                dep.id.clone(),
-                syn::parse_quote! {
-                    crate::#dep_ident
-                },
-            );
-            let crate_ident = self.crate_ident();
-            c2sp.0.insert(
-                dep.id.clone(),
-                syn::parse_quote! {
-                    #crate_ident::#dep_ident
-                },
-            );
-            contents.push(m);
+            self.generate_single_dep_contents(dep, &mut current_c2sp, c2sp, &mut contents);
         }
         contents
+    }
+    fn generate_single_dep_contents(
+        &self,
+        dep: &CodegenInstance<'_>,
+        current_c2sp: &mut Component2SynPath,
+        global_c2sp: &mut Component2SynPath,
+        contents: &mut Vec<syn::ItemMod>,
+    ) {
+        dbg!(&dep.id);
+        if current_c2sp.0.contains_key(&dep.id) {
+            return;
+        }
+        for depdep in dep.codegen_deps.codegen_deps.iter() {
+            println!("dep: {} -> {}", dep.id, depdep.id);
+            self.generate_single_dep_contents(depdep, current_c2sp, global_c2sp, contents);
+        }
+        let m = (dep.generate)(current_c2sp);
+        let dep_ident = &m.ident;
+        current_c2sp.0.insert(
+            dep.id.clone(),
+            syn::parse_quote! {
+                crate::#dep_ident
+            },
+        );
+        let crate_ident = self.crate_ident();
+        global_c2sp.0.insert(
+            dep.id.clone(),
+            syn::parse_quote! {
+                #crate_ident::#dep_ident
+            },
+        );
+        dbg!(&m.ident);
+        contents.push(m);
     }
     fn crate_ident(&self) -> syn::Ident {
         syn::Ident::new(&self.id.0.replace("-", "_"), proc_macro2::Span::call_site())
@@ -173,16 +196,27 @@ impl<'langs> Crate<'langs> {
     fn crate_relpath(&self) -> PathBuf {
         self.id.0.as_str().into()
     }
-    fn generate_cargo_toml(&self) -> String {
-        let workspace_dep2entry = |dep: &&str| {
+    fn generate_cargo_toml(&self, other_crates: &[Crate]) -> String {
+        let depends_on_crates = other_crates
+            .iter()
+            .filter(|it| {
+                self.provides
+                    .iter()
+                    .flat_map(|it| it.codegen_deps.codegen_deps.iter())
+                    .any(|dep| it.provides(&dep.id))
+                    && it.id != self.id
+            })
+            .collect::<Vec<_>>();
+        let workspace_dep2entry = |dep: &(&str, &Path)| {
             (
-                dep.to_string(),
+                dep.0.to_string(),
                 toml::Value::Table(
                     [(
                         "path".into(),
                         toml::Value::String(
                             PathBuf::from(WORKSPACE_ROOT_RELPATH)
-                                .join(dep)
+                                .join(dep.1)
+                                .join(dep.0)
                                 .to_string_lossy()
                                 .into(),
                         ),
@@ -224,25 +258,25 @@ impl<'langs> Crate<'langs> {
                                         ),
                                     )
                                 })
-                                // .chain(it.codegen_deps.codegen_deps.iter().map(|dep| {
-                                //     (
-                                //         dep.id.0.clone(),
-                                //         toml::Value::Table(
-                                //             [(
-                                //                 "path".into(),
-                                //                 toml::Value::String(
-                                //                     PathBuf::from(SIBLING_CRATES_RELPATH)
-                                //                         .join(dep.crate_relpath())
-                                //                         .to_string_lossy()
-                                //                         .into(),
-                                //                 ),
-                                //             )]
-                                //             .into_iter()
-                                //             .collect::<toml::Table>(),
-                                //         ),
-                                //     )
-                                // }))
                                 .chain(it.workspace_deps.iter().map(workspace_dep2entry))
+                        }))
+                        .chain(depends_on_crates.iter().map(|dep| {
+                            (
+                                dep.id.to_string(),
+                                toml::Value::Table(
+                                    [(
+                                        "path".into(),
+                                        toml::Value::String(
+                                            PathBuf::from(SIBLING_CRATES_RELPATH)
+                                                .join(dep.crate_relpath())
+                                                .to_string_lossy()
+                                                .into(),
+                                        ),
+                                    )]
+                                    .into_iter()
+                                    .collect::<toml::Table>(),
+                                ),
+                            )
                         }))
                         .collect::<toml::Table>(),
                 ),

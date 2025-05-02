@@ -4,8 +4,13 @@ version = { workspace = true }
 edition = { workspace = true }
 
 [dependencies]
+codegen-component = { version = "0.1.0", path = "../codegen-component" }
 langspec = { path = "../langspec" }
 langspec-gen-util = { path = "../langspec-gen-util" }
 proc-macro2 = { workspace = true }
 quote = { workspace = true }
 syn = { workspace = true }
+term-specialized-gen = { version = "0.1.0", path = "../term-specialized-gen" }
+term-specialized-impl-gen = { version = "0.1.0", path = "../term-specialized-impl-gen" }
+term-trait-gen = { version = "0.1.0", path = "../term-trait-gen" }
+words = { version = "0.1.0", path = "../words" }

@@ -16,7 +16,6 @@ where
     L0: LangSpec,
 {
     let breaks = find_cycle_breaks(l);
-    println!("Cycle breaks: {:#?}", breaks);
     let name = Name {
         human: format!("Autoboxed {}", l.name().human),
         camel: format!("Autoboxed{}", l.name().camel),

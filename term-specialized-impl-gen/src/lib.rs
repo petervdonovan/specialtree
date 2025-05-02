@@ -12,6 +12,7 @@ use langspec_gen_util::{
 pub struct BasePaths {
     pub data_structure: syn::Path,
     pub term_trait: syn::Path,
+    pub words: syn::Path,
 }
 
 pub fn generate<L: LangSpec>(
@@ -22,7 +23,7 @@ pub fn generate<L: LangSpec>(
     let owned_mod = gen_owned_mod(bps, lsg);
     let ccf_mod = gen_ccf_mod(bps, lsg);
     let transitive_ccf_mod = gen_transitive_ccf_mod(&bps.data_structure, lsg, important_sublangs);
-    let ccf_auto_impls = gen_ccf_auto_impls(&bps.data_structure, &bps.term_trait, lsg);
+    let ccf_auto_impls = gen_ccf_auto_impls(&bps.data_structure, &bps.words, lsg);
     let heap_impl = gen_heap_impl(bps, lsg, lsg);
     let maps_tmf_impls = gen_maps_tmf(bps);
     let byline = byline!();
@@ -59,14 +60,15 @@ pub fn generate_bridge<L: LangSpec>(
 pub(crate) fn gen_maps_tmf(
     BasePaths {
         data_structure,
-        term_trait,
+        term_trait: _,
+        words,
     }: &BasePaths,
 ) -> syn::ItemMod {
     let byline = byline!();
     syn::parse_quote! {
         #byline
         pub mod maps_tmf_impls {
-            impl<TmfMonomorphization> term::MapsTmf<#term_trait::words::L, TmfMonomorphization>
+            impl<TmfMonomorphization> term::MapsTmf<#words::L, TmfMonomorphization>
                 for #data_structure::Heap
             where
                 TmfMonomorphization: term::CanonicallyConstructibleFrom<Self, (TmfMonomorphization, ())>
@@ -81,11 +83,12 @@ pub(crate) fn gen_owned_mod<L: LangSpec>(
     BasePaths {
         data_structure,
         term_trait,
+        words,
     }: &BasePaths,
     data_structure_lsg: &LsGen<L>,
 ) -> syn::ItemMod {
     let camels = data_structure_lsg
-        .ty_gen_datas(Some(syn::parse_quote!(#term_trait::words)))
+        .ty_gen_datas(Some(syn::parse_quote!(#words)))
         .map(|td| td.camel_ident.clone());
     let byline = byline!();
     syn::parse_quote! {
@@ -97,9 +100,9 @@ pub(crate) fn gen_owned_mod<L: LangSpec>(
 }
 
 pub(crate) fn gen_ccf_mod<L: LangSpec>(bps: &BasePaths, term_trait_lsg: &LsGen<L>) -> syn::ItemMod {
-    let term_trait = &bps.term_trait;
+    let words = &bps.words;
     let ccf_impls = term_trait_lsg
-        .ty_gen_datas(Some(syn::parse_quote!(#term_trait::words)))
+        .ty_gen_datas(Some(syn::parse_quote!(#words)))
         .map(|tgd| gen_ccf_impls(bps, &tgd));
     let byline = byline!();
     syn::parse_quote! {
@@ -112,11 +115,11 @@ pub(crate) fn gen_ccf_mod<L: LangSpec>(bps: &BasePaths, term_trait_lsg: &LsGen<L
 
 pub(crate) fn gen_ccf_auto_impls<L: LangSpec>(
     ds_base_path: &syn::Path,
-    term_trait_base_path: &syn::Path,
+    words_path: &syn::Path,
     term_trait_lsg: &LsGen<L>,
 ) -> syn::ItemMod {
     let ccf_impls = term_trait_lsg
-        .ty_gen_datas(Some(syn::parse_quote!(#term_trait_base_path::words)))
+        .ty_gen_datas(Some(syn::parse_quote!(#words_path)))
         .map(|tgd| -> syn::ItemMacro {
             let camel_ident = &tgd.camel_ident;
             syn::parse_quote! {
@@ -277,6 +280,7 @@ pub(crate) fn gen_ccf_impl_prod(
     BasePaths {
         data_structure,
         term_trait: _,
+        words: _,
     }: &BasePaths,
     camel: &syn::Ident,
     ccf_ty: &syn::Type,
@@ -324,6 +328,7 @@ pub(crate) fn gen_ccf_impl_sum(
     BasePaths {
         data_structure,
         term_trait: _,
+        words: _,
     }: &BasePaths,
     camel: &syn::Ident,
     ccf_ty: &syn::Type,
@@ -369,13 +374,14 @@ pub(crate) fn gen_heap_impl<L: LangSpec>(
     BasePaths {
         data_structure,
         term_trait,
+        words,
     }: &BasePaths,
     _data_structure_lsg: &LsGen<L>,
     term_trait_lsg: &LsGen<L>,
 ) -> syn::ItemImpl {
     let byline = byline!();
     let camels = term_trait_lsg
-        .ty_gen_datas(Some(syn::parse_quote!(#term_trait::words)))
+        .ty_gen_datas(Some(syn::parse_quote!(#words)))
         .map(|td| td.camel_ident.clone());
     syn::parse_quote! {
         #byline
@@ -385,31 +391,9 @@ pub(crate) fn gen_heap_impl<L: LangSpec>(
     }
 }
 
-pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
-    let lsf: LangSpecFlat<Tmfs> = LangSpecFlat::canonical_from(lsh);
-    let lsf_boxed = autobox(&lsf);
-    let lsg = LsGen::from(&lsf_boxed);
-    let bps = BasePaths {
-        data_structure: syn::parse_quote!(crate::data_structure),
-        term_trait: syn::parse_quote!(crate::term_trait),
-    };
-    let m = generate(&bps, &lsg, &[lsf.name().clone()]);
-    let ds = term_specialized_gen::generate(&bps.data_structure, &lsg, false);
-    let tt = term_trait_gen::generate(&bps.term_trait, &lsf);
-    let words_impls = words::words_impls(
-        &syn::parse_quote!(crate::term_trait::words),
-        &bps.data_structure,
-        &lsg,
-    );
-    prettyplease::unparse(&syn_insert_use::insert_use(syn::parse_quote! {
-        #m
-        #ds
-        #tt
-        #words_impls
-    }))
-}
-
 pub mod targets {
+    use std::path::Path;
+
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
     use extension_autobox::autobox;
     use langspec_gen_util::kebab_id;
@@ -419,7 +403,6 @@ pub mod targets {
         mut codegen_deps: CgDepList<'langs>,
         l: &'langs L,
     ) -> CodegenInstance<'langs> {
-        dbg!(kebab_id!(l));
         CodegenInstance {
             id: kebab_id!(l),
             generate: {
@@ -433,6 +416,8 @@ pub mod targets {
                     codegen_deps.subtree(),
                     l,
                 ));
+                let words =
+                    codegen_deps.add(words::targets::words_mod(arena, codegen_deps.subtree(), l));
                 Box::new(move |c2sp| {
                     let lsf_boxed = autobox(l);
                     let lg = super::LsGen::from(&lsf_boxed);
@@ -440,6 +425,7 @@ pub mod targets {
                         &crate::BasePaths {
                             data_structure: data_structure(c2sp),
                             term_trait: term_trait(c2sp),
+                            words: words(c2sp),
                         },
                         &lg,
                         &[l.name().clone()],
@@ -447,7 +433,10 @@ pub mod targets {
                 })
             },
             external_deps: vec![],
-            workspace_deps: vec!["term", "term-specialized-gen"],
+            workspace_deps: vec![
+                ("term", Path::new(".")),
+                ("term-specialized-gen", Path::new(".")),
+            ],
             codegen_deps,
         }
     }

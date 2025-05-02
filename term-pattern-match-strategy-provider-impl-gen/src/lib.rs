@@ -44,44 +44,77 @@ pub(crate) fn impl_adt_for(
     }
 }
 
-pub fn formatted<Tmfs: TyMetaFuncSpec>(lsh: &LangSpecHuman<Tmfs>) -> String {
-    let lsf: LangSpecFlat<Tmfs> = LangSpecFlat::canonical_from(lsh);
-    let lsf_box = autobox(&lsf);
-    let lsg = LsGen::from(&lsf);
-    let lsg_box = LsGen::from(&lsf_box);
-    let term_trait_bp = syn::parse_quote!(crate::term_trait);
-    let bps = BasePaths {
-        strategy_provider: syn::parse_quote!(crate::pattern_match_strategy),
-        data_structure: syn::parse_quote!(crate::data_structure),
-        words: syn::parse_quote!(crate::term_trait::words),
-    };
-    let m = generate(&bps, &lsg);
-    let tt = term_trait_gen::generate(&term_trait_bp, &lsf);
-    let ds = term_specialized_gen::generate(&bps.data_structure, &lsg_box, false);
-    let words_impls = words::words_impls(&bps.words, &bps.data_structure, &lsg);
-    let tpmsp = term_pattern_match_strategy_provider_gen::generate(
-        &term_pattern_match_strategy_provider_gen::BasePaths {
-            term_trait: term_trait_bp.clone(),
-            data_structure: bps.data_structure.clone(),
-            words: bps.words.clone(),
-            strategy_provider: bps.strategy_provider.clone(),
-        },
-        &lsg,
-    );
-    let ttimpl = term_specialized_impl_gen::generate(
-        &term_specialized_impl_gen::BasePaths {
-            data_structure: bps.data_structure.clone(),
-            term_trait: term_trait_bp.clone(),
-        },
-        &lsg_box,
-        &[lsf.name().clone()],
-    );
-    prettyplease::unparse(&syn_insert_use::insert_use(syn::parse_quote! {
-        #m
-        #tpmsp
-        #tt
-        #ds
-        #words_impls
-        #ttimpl
-    }))
+pub mod targets {
+    use std::path::Path;
+
+    use codegen_component::{CgDepList, CodegenInstance, bumpalo};
+    use langspec_gen_util::kebab_id;
+
+    pub fn default<'langs, L: super::LangSpec>(
+        arena: &'langs bumpalo::Bump,
+        mut codegen_deps: CgDepList<'langs>,
+        l: &'langs L,
+    ) -> CodegenInstance<'langs> {
+        CodegenInstance {
+            id: kebab_id!(l),
+            generate: {
+                let self_path = codegen_deps.self_path();
+                let words =
+                    codegen_deps.add(words::targets::words_mod(arena, codegen_deps.subtree(), l));
+                let data_structure = codegen_deps.add(term_specialized_gen::targets::default(
+                    arena,
+                    codegen_deps.subtree(),
+                    l,
+                ));
+                let _ = codegen_deps.add(words_impls(arena, codegen_deps.subtree(), l));
+                Box::new(move |c2sp| {
+                    let lg = super::LsGen::from(l);
+                    super::generate(
+                        &crate::BasePaths {
+                            data_structure: data_structure(c2sp),
+                            words: words(c2sp),
+                            strategy_provider: syn::parse_quote! {#self_path::pattern_match_strategy},
+                        },
+                        &lg,
+                    )
+                })
+            },
+            external_deps: vec![],
+            workspace_deps: vec![(
+                "term-pattern-match-strategy-provider-impl-gen",
+                Path::new("."),
+            )],
+            codegen_deps,
+        }
+    }
+
+    pub fn words_impls<'langs, LImplFor: super::LangSpec>(
+        arena: &'langs bumpalo::Bump,
+        mut codegen_deps: CgDepList<'langs>,
+        lif: &'langs LImplFor,
+    ) -> CodegenInstance<'langs> {
+        CodegenInstance {
+            id: kebab_id!(lif),
+            generate: {
+                let words_path = codegen_deps.add(words::targets::words_mod::<LImplFor>(
+                    arena,
+                    codegen_deps.subtree(),
+                    lif,
+                ));
+                let data_structure = codegen_deps.add(term_specialized_gen::targets::default(
+                    arena,
+                    codegen_deps.subtree(),
+                    lif,
+                ));
+                Box::new(move |c| {
+                    let words_path = words_path(c);
+                    let sorts_path = data_structure(c);
+                    words::words_impls(&words_path, &sorts_path, &super::LsGen::from(lif))
+                })
+            },
+            external_deps: vec![],
+            workspace_deps: vec![("words", Path::new("."))],
+            codegen_deps,
+        }
+    }
 }
