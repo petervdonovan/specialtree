@@ -93,14 +93,15 @@ const WORKSPACE_ROOT_RELPATH: &str = "../..";
 const SIBLING_CRATES_RELPATH: &str = "..";
 
 fn write_if_changed(path: &Path, content: &str, files_created: &mut Vec<PathBuf>) {
-    files_created.push(path.canonicalize().unwrap().to_path_buf());
     if path.exists() {
         let existing_content = std::fs::read_to_string(path).unwrap();
+        files_created.push(path.canonicalize().unwrap().to_path_buf());
         if existing_content == content {
             return;
         }
     }
     std::fs::write(path, content).unwrap();
+    files_created.push(path.canonicalize().unwrap().to_path_buf());
 }
 fn delete_files_not_created(base_path: &Path, files_created: &[PathBuf]) {
     let mut files_to_delete = vec![];

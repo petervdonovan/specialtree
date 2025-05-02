@@ -24,7 +24,8 @@ macro_rules! kebab_id {
         codegen_component::KebabCodegenId({
             let func = $crate::function!();
             let id = if func.ends_with("::default") {
-                func.split(":").next().unwrap()
+                let segment = func.split(":").next().unwrap();
+                segment.strip_suffix("_gen").unwrap_or(segment)
             } else {
                 func.split("::").last().unwrap()
             };
