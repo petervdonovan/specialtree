@@ -6,7 +6,7 @@ use langspec::{
 };
 
 use serde::{Deserialize, Serialize};
-use term::{DirectlyCanonicallyConstructibleFrom, Heaped, SuperHeap, drop::UnsafeHeapDrop};
+use term::{DirectlyCanonicallyConstructibleFrom, Heaped, SuperHeap};
 
 pub struct Core;
 #[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize, Hash, PartialOrd, Ord)]
@@ -208,9 +208,9 @@ pub struct BoundedNat<Heap> {
 impl<Heap> Heaped for BoundedNat<Heap> {
     type Heap = Heap;
 }
-impl<Heap> UnsafeHeapDrop<Heap> for BoundedNat<Heap> {
-    unsafe fn unsafe_heap_drop(self, _: &mut Heap) {}
-}
+// impl<Heap> UnsafeHeapDrop<Heap> for BoundedNat<Heap> {
+//     unsafe fn unsafe_heap_drop(self, _: &mut Heap) {}
+// }
 impl<Heap> BoundedNat<Heap> {
     pub fn new(n: usize) -> Self {
         BoundedNat {
@@ -237,12 +237,12 @@ pub struct SetHeapBak<Heap: ?Sized, Elem> {
     phantom: std::marker::PhantomData<Heap>,
     vecs: slab::Slab<std::vec::Vec<Elem>>,
 }
-impl<Heap: SuperHeap<SetHeapBak<Heap, Elem>>, Elem> UnsafeHeapDrop<Heap> for Set<Heap, Elem> {
-    unsafe fn unsafe_heap_drop(self, _heap: &mut Heap) {
-        // let mut subheap = heap.subheap_mut::<SetHeapBak<Heap, Elem>>();
-        todo!()
-    }
-}
+// impl<Heap: SuperHeap<SetHeapBak<Heap, Elem>>, Elem> UnsafeHeapDrop<Heap> for Set<Heap, Elem> {
+//     unsafe fn unsafe_heap_drop(self, _heap: &mut Heap) {
+//         // let mut subheap = heap.subheap_mut::<SetHeapBak<Heap, Elem>>();
+//         todo!()
+//     }
+// }
 impl<Heap, Elem> Set<Heap, Elem>
 where
     Heap: SuperHeap<SetHeapBak<Heap, Elem>>,
@@ -277,15 +277,15 @@ pub struct IdxBox<Heap, Elem> {
 impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem> Heaped for IdxBox<Heap, Elem> {
     type Heap = Heap;
 }
-impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem: Copy> UnsafeHeapDrop<Heap>
-    for IdxBox<Heap, Elem>
-{
-    unsafe fn unsafe_heap_drop(self, _heap: &mut Heap) {
-        // let elem = heap.subheap_mut::<IdxBoxHeapBak<Heap, Elem>>().elems[self.idx as usize];
-        // drop(Owned::new(elem));
-        todo!()
-    }
-}
+// impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem: Copy> UnsafeHeapDrop<Heap>
+//     for IdxBox<Heap, Elem>
+// {
+//     unsafe fn unsafe_heap_drop(self, _heap: &mut Heap) {
+//         // let elem = heap.subheap_mut::<IdxBoxHeapBak<Heap, Elem>>().elems[self.idx as usize];
+//         // drop(Owned::new(elem));
+//         todo!()
+//     }
+// }
 impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem: Copy>
     DirectlyCanonicallyConstructibleFrom<Heap, (Elem, ())> for IdxBox<Heap, Elem>
 {

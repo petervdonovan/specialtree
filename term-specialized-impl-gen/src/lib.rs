@@ -94,7 +94,7 @@ pub(crate) fn gen_owned_mod<L: LangSpec>(
     syn::parse_quote! {
         #byline
         pub mod owned_impls {
-            #(impl #term_trait::owned::#camels for #data_structure::#camels {})*
+            #(impl #term_trait::owned::#camels<#data_structure::Heap> for #data_structure::#camels {})*
         }
     }
 }
@@ -396,15 +396,41 @@ pub mod targets {
 
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
     use extension_autobox::autobox;
-    use langspec_gen_util::kebab_id;
+    use langspec::langspec::Name;
 
     pub fn default<'langs, L: super::LangSpec>(
         arena: &'langs bumpalo::Bump,
-        mut codegen_deps: CgDepList<'langs>,
+        codegen_deps: CgDepList<'langs>,
         l: &'langs L,
     ) -> CodegenInstance<'langs> {
+        term_specialized_impl(arena, codegen_deps, l, &[l.name().clone()])
+    }
+
+    pub fn term_specialized_impl<'langs, L: super::LangSpec>(
+        arena: &'langs bumpalo::Bump,
+        mut codegen_deps: CgDepList<'langs>,
+        l: &'langs L,
+        sublang_names: &[Name],
+    ) -> CodegenInstance<'langs> {
+        let sublang_names_dedup =
+            std::iter::once(l.name())
+                .chain(sublang_names.iter())
+                .fold(Vec::new(), |mut acc, l| {
+                    if !acc.contains(l) {
+                        acc.push(l.clone());
+                    }
+                    acc
+                });
+        let kebab = sublang_names_dedup.iter().fold(String::new(), |acc, l| {
+            let kebab = l.snake.replace("_", "-");
+            if acc.is_empty() {
+                kebab
+            } else {
+                format!("{}-{}", acc, kebab)
+            }
+        });
         CodegenInstance {
-            id: kebab_id!(l),
+            id: codegen_component::KebabCodegenId(format!("term-specialized-impl-{}", kebab,)),
             generate: {
                 let data_structure = codegen_deps.add(term_specialized_gen::targets::default(
                     arena,
@@ -418,7 +444,7 @@ pub mod targets {
                 ));
                 let words =
                     codegen_deps.add(words::targets::words_mod(arena, codegen_deps.subtree(), l));
-                Box::new(move |c2sp| {
+                Box::new(move |c2sp, _| {
                     let lsf_boxed = autobox(l);
                     let lg = super::LsGen::from(&lsf_boxed);
                     super::generate(
@@ -428,14 +454,14 @@ pub mod targets {
                             words: words(c2sp),
                         },
                         &lg,
-                        &[l.name().clone()],
+                        &sublang_names_dedup.as_slice(),
                     )
                 })
             },
             external_deps: vec![],
             workspace_deps: vec![
                 ("term", Path::new(".")),
-                ("term-specialized-gen", Path::new(".")),
+                ("term-specialized-impl-gen", Path::new(".")),
             ],
             codegen_deps,
         }

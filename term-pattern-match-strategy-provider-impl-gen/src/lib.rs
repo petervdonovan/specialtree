@@ -58,7 +58,6 @@ pub mod targets {
         CodegenInstance {
             id: kebab_id!(l),
             generate: {
-                let self_path = codegen_deps.self_path();
                 let words =
                     codegen_deps.add(words::targets::words_mod(arena, codegen_deps.subtree(), l));
                 let data_structure = codegen_deps.add(term_specialized_gen::targets::default(
@@ -66,14 +65,20 @@ pub mod targets {
                     codegen_deps.subtree(),
                     l,
                 ));
+                let strategy_provider =
+                    codegen_deps.add(term_pattern_match_strategy_provider_gen::targets::default(
+                        arena,
+                        codegen_deps.subtree(),
+                        l,
+                    ));
                 let _ = codegen_deps.add(words_impls(arena, codegen_deps.subtree(), l));
-                Box::new(move |c2sp| {
+                Box::new(move |c2sp, _| {
                     let lg = super::LsGen::from(l);
                     super::generate(
                         &crate::BasePaths {
                             data_structure: data_structure(c2sp),
                             words: words(c2sp),
-                            strategy_provider: syn::parse_quote! {#self_path::pattern_match_strategy},
+                            strategy_provider: strategy_provider(c2sp),
                         },
                         &lg,
                     )
@@ -106,7 +111,7 @@ pub mod targets {
                     codegen_deps.subtree(),
                     lif,
                 ));
-                Box::new(move |c| {
+                Box::new(move |c, _| {
                     let words_path = words_path(c);
                     let sorts_path = data_structure(c);
                     words::words_impls(&words_path, &sorts_path, &super::LsGen::from(lif))

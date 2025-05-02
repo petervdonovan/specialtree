@@ -197,6 +197,7 @@ dependencies = [
  "term-pattern-match-strategy-provider-gen",
  "term-pattern-match-strategy-provider-impl-gen",
  "term-specialized-gen",
+ "term-specialized-impl-gen",
  "term-trait-gen",
  "tymetafuncspec-core",
  "words",
@@ -213,8 +214,14 @@ dependencies = [
  "std-parse-error",
  "std-parse-metadata",
  "term",
+ "term-bridge-gen",
+ "term-pattern-match-strategy-provider-gen",
+ "term-specialized-gen",
+ "term-specialized-impl-gen",
+ "term-trait-gen",
  "tymetafuncspec-core",
  "typenum",
+ "words",
 ]
 
 [[package]]

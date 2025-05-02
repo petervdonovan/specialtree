@@ -1,4 +1,4 @@
-use term::{Heaped, case_split::Adt, co_case_split::AdmitNoMatchingCase, co_visit::CoVisitor};
+use term::{case_split::Adt, co_case_split::AdmitNoMatchingCase, co_visit::CoVisitor};
 
 use crate::{ChoosingEnumerator, Enumerator};
 
@@ -22,14 +22,10 @@ where
     }
 }
 
-impl<Ctx, AllCurrentCases, Dp> AdmitNoMatchingCase<Ctx> for ChoosingEnumerator<AllCurrentCases, Dp>
-where
-    Ctx: Heaped,
+impl<Ctx, Heap, AllCurrentCases, Dp> AdmitNoMatchingCase<Heap, Ctx>
+    for ChoosingEnumerator<AllCurrentCases, Dp>
 {
-    fn no_matching_case(
-        &self,
-        _heap: &mut <Ctx as term::Heaped>::Heap,
-    ) -> (Ctx, Self::ShortCircuitsTo) {
+    fn no_matching_case(&self, _heap: &mut Heap) -> (Ctx, Self::ShortCircuitsTo) {
         unreachable!()
     }
 }

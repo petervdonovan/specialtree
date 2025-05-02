@@ -4,6 +4,11 @@ pub use bumpalo;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct KebabCodegenId(pub String);
+impl KebabCodegenId {
+    pub fn to_snake_ident(&self) -> syn::Ident {
+        syn::Ident::new(&self.0.replace("-", "_"), proc_macro2::Span::call_site())
+    }
+}
 impl From<String> for KebabCodegenId {
     fn from(s: String) -> Self {
         KebabCodegenId(s)
@@ -29,7 +34,7 @@ pub struct Component2SynPath(std::collections::HashMap<KebabCodegenId, syn::Path
 
 pub struct CodegenInstance<'langs> {
     pub id: KebabCodegenId,
-    pub generate: Box<dyn for<'a> Fn(&'a Component2SynPath) -> syn::ItemMod + 'langs>,
+    pub generate: Box<dyn for<'a> Fn(&'a Component2SynPath, syn::Path) -> syn::ItemMod + 'langs>,
     pub external_deps: Vec<&'static str>,
     pub workspace_deps: Vec<(&'static str, &'static Path)>,
     pub codegen_deps: CgDepList<'langs>,
@@ -68,9 +73,9 @@ impl<'langs> CgDepList<'langs> {
             }
         })
     }
-    pub fn self_path(&self) -> syn::Path {
-        syn::parse_quote! {crate}
-    }
+    // pub fn self_path(&self) -> Box<dyn for<'a> Fn(&'a Component2SynPath) -> syn::Path + 'static> {
+
+    // }
     pub fn subtree(&self) -> CgDepList<'langs> {
         CgDepList {
             codegen_deps: vec![],
@@ -87,7 +92,8 @@ impl<'langs> Default for CgDepList<'langs> {
 const WORKSPACE_ROOT_RELPATH: &str = "../..";
 const SIBLING_CRATES_RELPATH: &str = "..";
 
-fn write_if_changed(path: &Path, content: &str) {
+fn write_if_changed(path: &Path, content: &str, files_created: &mut Vec<PathBuf>) {
+    files_created.push(path.canonicalize().unwrap().to_path_buf());
     if path.exists() {
         let existing_content = std::fs::read_to_string(path).unwrap();
         if existing_content == content {
@@ -96,14 +102,34 @@ fn write_if_changed(path: &Path, content: &str) {
     }
     std::fs::write(path, content).unwrap();
 }
+fn delete_files_not_created(base_path: &Path, files_created: &[PathBuf]) {
+    let mut files_to_delete = vec![];
+    for entry in std::fs::read_dir(base_path).unwrap() {
+        let entry = entry.unwrap();
+        let path = entry.path().canonicalize().unwrap();
+        if path.is_file() && !files_created.contains(&path) {
+            files_to_delete.push(path.clone());
+        }
+        if path.is_dir() {
+            delete_files_not_created(&path, files_created);
+            if path.read_dir().unwrap().count() == 0 {
+                std::fs::remove_dir(path).unwrap();
+            }
+        }
+    }
+    for path in files_to_delete {
+        std::fs::remove_file(path).unwrap();
+    }
+}
 impl<'langs> Crate<'langs> {
     pub fn generate(&self, base_path: &Path, c2sp: &mut Component2SynPath, other_crates: &[Crate]) {
         let crate_path = base_path.join(self.crate_relpath());
         std::fs::create_dir_all(&crate_path).unwrap();
+        let mut files_created = vec![];
         {
             let cargo_toml_path = crate_path.join("Cargo.toml");
             let cargo_toml_content = self.generate_cargo_toml(other_crates);
-            write_if_changed(&cargo_toml_path, &cargo_toml_content);
+            write_if_changed(&cargo_toml_path, &cargo_toml_content, &mut files_created);
         }
         {
             let src = crate_path.join("src");
@@ -132,6 +158,7 @@ impl<'langs> Crate<'langs> {
                 write_if_changed(
                     &file_path,
                     &prettyplease::unparse(&syn_insert_use::insert_use(file)),
+                    &mut files_created,
                 );
             }
             let file_path = src.join("lib.rs");
@@ -143,8 +170,10 @@ impl<'langs> Crate<'langs> {
             write_if_changed(
                 &file_path,
                 &prettyplease::unparse(&syn_insert_use::insert_use(lib)),
+                &mut files_created,
             );
         }
+        delete_files_not_created(&crate_path, &files_created);
     }
     pub fn provides(&self, id: &KebabCodegenId) -> bool {
         self.provides.iter().any(|it| it.id == *id)
@@ -164,7 +193,6 @@ impl<'langs> Crate<'langs> {
         global_c2sp: &mut Component2SynPath,
         contents: &mut Vec<syn::ItemMod>,
     ) {
-        dbg!(&dep.id);
         if current_c2sp.0.contains_key(&dep.id) {
             return;
         }
@@ -172,8 +200,7 @@ impl<'langs> Crate<'langs> {
             println!("dep: {} -> {}", dep.id, depdep.id);
             self.generate_single_dep_contents(depdep, current_c2sp, global_c2sp, contents);
         }
-        let m = (dep.generate)(current_c2sp);
-        let dep_ident = &m.ident;
+        let dep_ident = &dep.id.to_snake_ident();
         current_c2sp.0.insert(
             dep.id.clone(),
             syn::parse_quote! {
@@ -187,14 +214,41 @@ impl<'langs> Crate<'langs> {
                 #crate_ident::#dep_ident
             },
         );
-        dbg!(&m.ident);
+        let mut m = (dep.generate)(current_c2sp, current_c2sp.0.get(&dep.id).unwrap().clone());
+        m.ident = dep_ident.clone();
         contents.push(m);
     }
     fn crate_ident(&self) -> syn::Ident {
-        syn::Ident::new(&self.id.0.replace("-", "_"), proc_macro2::Span::call_site())
+        self.id.to_snake_ident()
     }
     fn crate_relpath(&self) -> PathBuf {
         self.id.0.as_str().into()
+    }
+    fn all_external_deps(&self) -> Vec<&'static str> {
+        fn all_external_deps<'a, 'b>(
+            provides: &'a CodegenInstance<'b>,
+        ) -> Box<dyn Iterator<Item = &'static str> + 'a> {
+            let transitive = provides
+                .codegen_deps
+                .codegen_deps
+                .iter()
+                .flat_map(all_external_deps);
+            Box::new(provides.external_deps.iter().copied().chain(transitive))
+        }
+        self.provides.iter().flat_map(all_external_deps).collect()
+    }
+    fn all_workspace_deps(&self) -> Vec<(&'static str, &'static Path)> {
+        fn all_workspace_deps<'a, 'b>(
+            provides: &'a CodegenInstance<'b>,
+        ) -> Box<dyn Iterator<Item = (&'static str, &'static Path)> + 'a> {
+            let transitive = provides
+                .codegen_deps
+                .codegen_deps
+                .iter()
+                .flat_map(all_workspace_deps);
+            Box::new(provides.workspace_deps.iter().copied().chain(transitive))
+        }
+        self.provides.iter().flat_map(all_workspace_deps).collect()
     }
     fn generate_cargo_toml(&self, other_crates: &[Crate]) -> String {
         let depends_on_crates = other_crates
@@ -245,20 +299,16 @@ impl<'langs> Crate<'langs> {
                     self.global_workspace_deps
                         .iter()
                         .map(workspace_dep2entry)
-                        .chain(self.provides.iter().flat_map(|it| {
-                            it.external_deps
-                                .iter()
-                                .map(|dep| {
-                                    (
-                                        dep.to_string(),
-                                        toml::Value::Table(
-                                            [("workspace".into(), toml::Value::Boolean(true))]
-                                                .into_iter()
-                                                .collect::<toml::Table>(),
-                                        ),
-                                    )
-                                })
-                                .chain(it.workspace_deps.iter().map(workspace_dep2entry))
+                        .chain(self.all_workspace_deps().iter().map(workspace_dep2entry))
+                        .chain(self.all_external_deps().iter().map(|dep| {
+                            (
+                                dep.to_string(),
+                                toml::Value::Table(
+                                    [("workspace".into(), toml::Value::Boolean(true))]
+                                        .into_iter()
+                                        .collect::<toml::Table>(),
+                                ),
+                            )
                         }))
                         .chain(depends_on_crates.iter().map(|dep| {
                             (

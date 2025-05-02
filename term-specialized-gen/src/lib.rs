@@ -225,11 +225,10 @@ pub mod targets {
         CodegenInstance {
             id: kebab_id!(l),
             generate: {
-                let self_path = codegen_deps.self_path();
-                Box::new(move |_| {
+                Box::new(move |_, sp| {
                     let lsf_boxed = autobox(l);
                     let lg = super::LsGen::from(&lsf_boxed);
-                    super::generate(&syn::parse_quote! {#self_path::data_structure}, &lg, false)
+                    super::generate(&sp, &lg, false)
                 })
             },
             external_deps: vec![],

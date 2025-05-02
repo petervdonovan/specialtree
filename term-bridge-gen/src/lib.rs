@@ -73,7 +73,7 @@ pub(crate) fn bridge_words_impls<L: LangSpec>(
                 <#ext_data_structure::Heap as #og_term_trait::Heap>::#camel_ident
             };
             syn::parse_quote! {
-                impl words::Implements<#og_words_base_path::L> for #ty {
+                impl words::Implements<#ext_data_structure::Heap, #og_words_base_path::L> for #ty {
                     type LWord = #og_words_base_path::sorts::#camel_ident;
                 }
             }
@@ -111,7 +111,7 @@ pub(crate) fn generate_owned_impls(
     camel_names: &[syn::Ident],
     image_ty_under_embeddings: &[syn::Type],
     BasePaths {
-        ext_data_structure: _,
+        ext_data_structure,
         og_term_trait,
         og_words_base_path: _,
     }: &BasePaths,
@@ -121,7 +121,7 @@ pub(crate) fn generate_owned_impls(
         #byline
         pub mod owned_impls {
             #(
-                impl #og_term_trait::owned::#camel_names for #image_ty_under_embeddings {}
+                impl #og_term_trait::owned::#camel_names<#ext_data_structure::Heap> for #image_ty_under_embeddings {}
             )*
         }
     }
@@ -193,14 +193,24 @@ pub mod targets {
                     codegen_deps.subtree(),
                     lsublang,
                 ));
-                let og_words_base_path =
-                    codegen_deps.add(words::targets::words_mod(arena, codegen_deps.subtree(), l));
+                let og_words_base_path = codegen_deps.add(words::targets::words_mod(
+                    arena,
+                    codegen_deps.subtree(),
+                    lsublang,
+                ));
                 // let _ = codegen_deps.add(term_specialized_impl_gen::targets::default(
                 //     arena,
                 //     codegen_deps.subtree(),
-                //     lsublang,
+                //     l,
                 // ));
-                Box::new(move |c2sp| {
+                let _ =
+                    codegen_deps.add(term_specialized_impl_gen::targets::term_specialized_impl(
+                        arena,
+                        codegen_deps.subtree(),
+                        l,
+                        &[l.name().clone(), lsublang.name().clone()],
+                    ));
+                Box::new(move |c2sp, _| {
                     super::generate(
                         &ext_lg,
                         &sublang_name,

@@ -1,7 +1,7 @@
 use langspec::langspec::LangSpec;
 use langspec_gen_util::LsGen;
 
-pub trait Implements<L> {
+pub trait Implements<Heap, L> {
     type LWord;
 }
 
@@ -39,7 +39,7 @@ pub fn words_impls<L: LangSpec>(
         #byline
         pub mod words_impls {
             #(
-                impl words::Implements<#words_path::L> for #sorts_path::#sort_camel_idents {
+                impl words::Implements<#sorts_path::Heap, #words_path::L> for #sorts_path::#sort_camel_idents {
                     type LWord = #words_path::sorts::#sort_camel_idents;
                 }
             )*
@@ -61,7 +61,7 @@ pub mod targets {
             external_deps: vec![],
             workspace_deps: vec![],
             codegen_deps,
-            generate: Box::new(move |_| super::words_mod(&super::LsGen::from(l))),
+            generate: Box::new(move |_, _| super::words_mod(&super::LsGen::from(l))),
         }
     }
 }

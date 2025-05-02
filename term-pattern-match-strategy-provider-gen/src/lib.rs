@@ -18,16 +18,17 @@ pub fn generate<L: LangSpec>(base_paths: &BasePaths, ls: &LsGen<L>) -> syn::Item
     });
     let term_trait = &base_paths.term_trait;
     let words = &base_paths.words;
+    // let data_structure = &base_paths.data_structure;
     syn::parse_quote! {
         #byline
         pub mod pattern_match_strategy {
             impl<Heap: #term_trait::Heap, T> term::case_split::HasPatternMatchStrategyFor<T> for PatternMatchStrategyProvider<Heap>
             where
-                T: words::Implements<#words::L>,
-                PatternMatchStrategyProvider<Heap>: term::case_split::HasPatternMatchStrategyFor<T::LWord>
+                T: words::Implements<Heap, #words::L>,
+                PatternMatchStrategyProvider<Heap>: term::case_split::HasPatternMatchStrategyForWord<T::LWord>
             {
                 type Strategy = <
-                    PatternMatchStrategyProvider<Heap> as term::case_split::HasPatternMatchStrategyFor<
+                    PatternMatchStrategyProvider<Heap> as term::case_split::HasPatternMatchStrategyForWord<
                         T::LWord,
                     >>::Strategy;
             }
@@ -58,7 +59,7 @@ pub(crate) fn impl_has_pattern_match_strategy_for(
     );
     syn::parse_quote! {
         #byline
-        impl<Heap: #term_trait::Heap> term::case_split::HasPatternMatchStrategyFor<#words::sorts::#camel_ident> for PatternMatchStrategyProvider<Heap> {
+        impl<Heap: #term_trait::Heap> term::case_split::HasPatternMatchStrategyForWord<#words::sorts::#camel_ident> for PatternMatchStrategyProvider<Heap> {
             type Strategy = #strategy;
         }
     }
@@ -78,7 +79,6 @@ pub mod targets {
         CodegenInstance {
             id: kebab_id!(l),
             generate: {
-                let self_path = codegen_deps.self_path();
                 let words =
                     codegen_deps.add(words::targets::words_mod(arena, codegen_deps.subtree(), l));
                 let data_structure = codegen_deps.add(term_specialized_gen::targets::default(
@@ -91,14 +91,14 @@ pub mod targets {
                     codegen_deps.subtree(),
                     l,
                 ));
-                Box::new(move |c2sp| {
+                Box::new(move |c2sp, sp| {
                     let lg = super::LsGen::from(l);
                     super::generate(
                         &crate::BasePaths {
                             data_structure: data_structure(c2sp),
                             term_trait: term_trait(c2sp),
                             words: words(c2sp),
-                            strategy_provider: syn::parse_quote! {#self_path::pattern_match_strategy},
+                            strategy_provider: sp,
                         },
                         &lg,
                     )

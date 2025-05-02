@@ -1,4 +1,3 @@
-#![feature(negative_impls)]
 #![feature(fundamental)]
 
 use cstfy::{Cstfy, CstfyTransparent};
@@ -221,7 +220,7 @@ where
     }
 }
 
-impl<A, Heap, AllCurrentCases> term::co_case_split::AdmitNoMatchingCase<Cstfy<Heap, A>>
+impl<A, Heap, AllCurrentCases> term::co_case_split::AdmitNoMatchingCase<Heap, Cstfy<Heap, A>>
     for Parser<'_, AllCurrentCases>
 where
     A: ParseLL,
@@ -248,7 +247,8 @@ where
     }
 }
 
-impl<A, Heap, AllCurrentCases> term::co_case_split::AdmitNoMatchingCase<CstfyTransparent<Heap, A>>
+impl<A, Heap, AllCurrentCases>
+    term::co_case_split::AdmitNoMatchingCase<Heap, CstfyTransparent<Heap, A>>
     for Parser<'_, AllCurrentCases>
 where
     A: ParseLL,

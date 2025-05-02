@@ -1,5 +1,4 @@
 use crate::{
-    Heaped,
     case_split::ConsList,
     co_case_split::{AdmitNoMatchingCase, CoCallable, CoCaseSplittable},
     select::{AcceptingCases, FromSelectCase, SelectCase},
@@ -67,11 +66,11 @@ impl<CV, MatchedType, StrategyProvider, DepthFuel, Fnlut>
     }
 }
 
-impl<V: Heaped, MatchedType, StrategyProvider, DepthFuel, Fnlut> Heaped
-    for CoCallablefyCoVisitor<V, MatchedType, StrategyProvider, DepthFuel, Fnlut>
-{
-    type Heap = V::Heap;
-}
+// impl<V: Heaped, MatchedType, StrategyProvider, DepthFuel, Fnlut> Heaped
+//     for CoCallablefyCoVisitor<V, MatchedType, StrategyProvider, DepthFuel, Fnlut>
+// {
+//     type Heap = V::Heap;
+// }
 
 impl<V, MatchedType, Heap, CaseCar, CaseCdr, StrategyProvider, DepthFuel, Fnlut: Copy>
     CoCallable<Heap, (CaseCar, CaseCdr)>
@@ -86,13 +85,12 @@ where
     }
 }
 
-impl<T, V, M, S, D, F> AdmitNoMatchingCase<T> for CoCallablefyCoVisitor<V, M, S, D, F>
+impl<Heap, T, V, M, S, D, F> AdmitNoMatchingCase<Heap, T> for CoCallablefyCoVisitor<V, M, S, D, F>
 where
-    V: AdmitNoMatchingCase<T>,
-    T: Heaped,
+    V: AdmitNoMatchingCase<Heap, T>,
     F: Copy,
 {
-    fn no_matching_case(&self, heap: &mut <T as Heaped>::Heap) -> (T, Self::ShortCircuitsTo) {
+    fn no_matching_case(&self, heap: &mut Heap) -> (T, Self::ShortCircuitsTo) {
         let (t, short) = self.cv.no_matching_case(heap);
         (t, CoCallablefyCoVisitor::new(short, self.fnlut))
     }
@@ -151,8 +149,7 @@ impl<Heap, CV, PatternMatchStrategyProvider, T, DepthFuelUpperBits, DepthFuelLas
     > for T
 where
     typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>: std::ops::Sub<typenum::B1>,
-    T: Heaped<Heap = Heap>
-        + CoCaseSplittable<
+    T: CoCaseSplittable<
             CoCallablefyCoVisitor<
                 CV::AC<PatternMatchStrategyProvider::Strategy>,
                 T,
@@ -160,10 +157,11 @@ where
                 typenum::Sub1<typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>>,
                 Fnlut,
             >,
+            Heap,
             PatternMatchStrategyProvider::Strategy,
         > + Copy,
     CV: CoVisitor<T> + SelectCase + Default,
-    CV::AC<PatternMatchStrategyProvider::Strategy>: AdmitNoMatchingCase<T>,
+    CV::AC<PatternMatchStrategyProvider::Strategy>: AdmitNoMatchingCase<Heap, T>,
     PatternMatchStrategyProvider: crate::case_split::HasPatternMatchStrategyFor<T>,
 {
     fn co_visit(visitor: &mut CV, heap: &mut Heap, fnlut: Fnlut) -> Self {
@@ -176,7 +174,7 @@ where
             fnlut,
             phantom: std::marker::PhantomData,
         };
-        let (new_ret, short) = <T as CoCaseSplittable<_, _>>::co_case_split(callable, heap);
+        let (new_ret, short) = <T as CoCaseSplittable<_, _, _>>::co_case_split(callable, heap);
         *visitor = short.cv;
         // });
         visitor.co_pop();

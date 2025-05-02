@@ -50,7 +50,7 @@ pub trait TransitivelyAllCcf<Heap, T> {
 impl<Heap, T, U> CanonicallyConstructibleFrom<Heap, (T, ())> for U
 where
     U: Copy,
-    U: TransitivelyUnitCcf<Heap, T> + Heaped<Heap = Heap>,
+    U: TransitivelyUnitCcf<Heap, T>,
     U: DirectlyCanonicallyConstructibleFrom<Heap, (U::Intermediary, ())>,
     U::Intermediary: CanonicallyConstructibleFrom<Heap, (T, ())>,
 {
@@ -136,12 +136,12 @@ where
 
 #[repr(transparent)]
 pub struct Owned<T>(std::mem::ManuallyDrop<T>);
-impl<T> Heaped for Owned<T>
-where
-    T: Heaped,
-{
-    type Heap = T::Heap;
-}
+// impl<T> Heaped for Owned<T>
+// where
+//     T: Heaped,
+// {
+//     type Heap = T::Heap;
+// }
 impl<Heap, TOwned: AllOwned, U: CanonicallyConstructibleFrom<Heap, TOwned::Bak>>
     CanonicallyConstructibleFrom<Heap, (TOwned, ())> for Owned<U>
 {
@@ -214,12 +214,12 @@ macro_rules! impl_superheap {
         }
     };
 }
-pub trait CanonicallyMaybeConvertibleTo<'heap, T: Heaped, Fallibility>
-where
-    Self: Heaped<Heap = T::Heap>,
-{
-    fn maybe_convert(self, heap: &'heap Self::Heap) -> Result<T, Fallibility>;
-}
+// pub trait CanonicallyMaybeConvertibleTo<'heap, T: Heaped, Fallibility>
+// where
+//     Self: Heaped<Heap = T::Heap>,
+// {
+//     fn maybe_convert(self, heap: &'heap Self::Heap) -> Result<T, Fallibility>;
+// }
 #[derive(PartialEq, Eq, Hash, Clone, Debug, PartialOrd, Ord)]
 pub struct CcfRelation<SortId> {
     pub from: Vec<SortId>,

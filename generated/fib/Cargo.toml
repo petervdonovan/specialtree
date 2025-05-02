@@ -10,6 +10,9 @@ path = "../.././term-pattern-match-strategy-provider-impl-gen"
 [dependencies.term-specialized-gen]
 path = "../.././term-specialized-gen"
 
+[dependencies.term-specialized-impl-gen]
+path = "../.././term-specialized-impl-gen"
+
 [dependencies.term-trait-gen]
 path = "../.././term-trait-gen"
 

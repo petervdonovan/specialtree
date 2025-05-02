@@ -38,7 +38,7 @@ pub(crate) fn heap_trait<L: LangSpec>(
         #byline
         pub trait Heap: Sized #(+ #maps_tmf_bounds)* #(+ #superheap_bounds)* {
             #(
-                type #camel_ident: #base_path::owned::#camel_ident<Heap = Self>;
+                type #camel_ident: #base_path::owned::#camel_ident<Self>;
             )*
         }
     }
@@ -99,20 +99,20 @@ mod owned {
              }|
              -> syn::ItemTrait {
                 let path = quote::quote! {
-                    <<Self as term::Heaped>::Heap as #base_path::Heap>
+                    <Heap as #base_path::Heap>
                 };
                 let ccf_sort_tys = ccf_sort_tys(
-                    HeapType(syn::parse_quote! {<Self as term::Heaped>::Heap}),
+                    HeapType(syn::parse_quote! {Heap}),
                     AlgebraicsBasePath::new(quote::quote! { #path:: }),
                 );
                 let ccf_bounds = ccf_sort_tys.iter().map(|ccf| -> syn::TraitBound {
                     syn::parse_quote! {
-                        term::CanonicallyConstructibleFrom<<Self as term::Heaped>::Heap, #ccf>
+                        term::CanonicallyConstructibleFrom<Heap, #ccf>
                     }
                 });
                 parse_quote! {
-                    pub trait #camel_ident: term::Heaped #(+ #ccf_bounds )*
-                    where <Self as term::Heaped>::Heap: #base_path::Heap,
+                    pub trait #camel_ident<Heap>: #(#ccf_bounds )+*
+                    where Heap: #base_path::Heap,
                     {
                     }
                 }
@@ -144,16 +144,9 @@ pub mod targets {
         CodegenInstance {
             id: kebab_id!(l),
             generate: {
-                let self_path = codegen_deps.self_path();
                 let words_path =
                     codegen_deps.add(words::targets::words_mod(arena, codegen_deps.subtree(), l));
-                Box::new(move |c| {
-                    super::generate(
-                        &syn::parse_quote! {#self_path::term_trait},
-                        &words_path(c),
-                        l,
-                    )
-                })
+                Box::new(move |c, sp| super::generate(&sp, &words_path(c), l))
             },
             external_deps: vec![],
             workspace_deps: vec![("term", Path::new(".")), ("term-trait-gen", Path::new("."))],

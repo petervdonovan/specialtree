@@ -36,11 +36,8 @@ where
         self
     }
 }
-pub trait CaseSplittable<F: HasBorrowedHeapRef, CcfConsList: ConsList>: Sized + Heaped
-where
-    F: Heaped<Heap = <Self as Heaped>::Heap>,
-{
-    fn case_split(&self, callable: &mut F, heap: &mut F::Borrowed<'_, Self::Heap>);
+pub trait CaseSplittable<F: HasBorrowedHeapRef, Heap, CcfConsList: ConsList>: Sized {
+    fn case_split(&self, callable: &mut F, heap: &mut F::Borrowed<'_, Heap>);
 }
 pub trait HasBorrowedHeapRef {
     type Borrowed<'a, Heap: 'a>: 'a;
@@ -49,56 +46,61 @@ pub trait HasBorrowedHeapRef {
         f: F,
     ) -> T;
 }
-pub trait AdmitNoMatchingCase<T>: Heaped + HasBorrowedHeapRef {
-    fn no_matching_case(&self, t: &T, heap: &mut Self::Borrowed<'_, Self::Heap>);
+pub trait AdmitNoMatchingCase<Heap, T>: HasBorrowedHeapRef {
+    fn no_matching_case(&self, t: &T, heap: &mut Self::Borrowed<'_, Heap>);
 }
-pub trait Callable<Case>: Heaped + HasBorrowedHeapRef {
-    fn call(&mut self, t: Case, heap: &mut Self::Borrowed<'_, Self::Heap>);
+pub trait Callable<Heap, Case>: HasBorrowedHeapRef {
+    fn call(&mut self, t: Case, heap: &mut Self::Borrowed<'_, Heap>);
 }
-impl<F: AdmitNoMatchingCase<T> + Heaped<Heap = T::Heap>, T: Heaped> CaseSplittable<F, ()> for T {
-    fn case_split(&self, callable: &mut F, heap: &mut F::Borrowed<'_, Self::Heap>) {
+impl<Heap, T, F: AdmitNoMatchingCase<Heap, T> + Heaped<Heap = Heap>> CaseSplittable<F, Heap, ()>
+    for T
+{
+    fn case_split(&self, callable: &mut F, heap: &mut F::Borrowed<'_, Heap>) {
         callable.no_matching_case(self, heap);
     }
 }
-impl<F, T: Heaped, CasesCar, CasesCdr: ConsList> CaseSplittable<F, (CasesCar, CasesCdr)> for T
+impl<F, Heap, T, CasesCar, CasesCdr: ConsList> CaseSplittable<F, Heap, (CasesCar, CasesCdr)> for T
 where
-    F: Callable<CasesCar> + Heaped<Heap = T::Heap>,
-    T: CanonicallyConstructibleFrom<T::Heap, CasesCar>,
-    T: CaseSplittable<F, CasesCdr>,
+    F: Callable<Heap, CasesCar> + Heaped<Heap = Heap>,
+    T: CanonicallyConstructibleFrom<Heap, CasesCar>,
+    T: CaseSplittable<F, Heap, CasesCdr>,
     T: Copy,
 {
     fn case_split(
         &self,
         callable: &mut F,
-        heap: &mut <F as HasBorrowedHeapRef>::Borrowed<'_, Self::Heap>,
+        heap: &mut <F as HasBorrowedHeapRef>::Borrowed<'_, Heap>,
     ) {
         if <F as HasBorrowedHeapRef>::with_decayed_heapref(heap, |hr| {
-            <Self as CanonicallyConstructibleFrom<T::Heap, CasesCar>>::deconstruct_succeeds(
-                self, hr,
-            )
+            <Self as CanonicallyConstructibleFrom<Heap, CasesCar>>::deconstruct_succeeds(self, hr)
         }) {
             let t = <F as HasBorrowedHeapRef>::with_decayed_heapref(heap, |hr| {
-                <Self as CanonicallyConstructibleFrom<T::Heap, CasesCar>>::deconstruct(*self, hr)
+                <Self as CanonicallyConstructibleFrom<Heap, CasesCar>>::deconstruct(*self, hr)
             });
             callable.call(t, heap);
         } else {
-            <Self as CaseSplittable<F, CasesCdr>>::case_split(self, callable, heap);
+            <Self as CaseSplittable<F, Heap, CasesCdr>>::case_split(self, callable, heap);
         }
     }
 }
 pub trait HasPatternMatchStrategyFor<T> {
     type Strategy: ConsList;
 }
-pub trait PatternMatchable<F: HasBorrowedHeapRef, Strategies>: Heaped {
-    fn do_match(&self, callable: &mut F, heap: &mut F::Borrowed<'_, <Self as Heaped>::Heap>);
+pub trait HasPatternMatchStrategyForWord<T> {
+    type Strategy: ConsList;
 }
-impl<F, T, StrategyProvider> PatternMatchable<F, StrategyProvider> for T
+pub trait PatternMatchable<F: HasBorrowedHeapRef, Heap, Strategies> {
+    fn do_match(&self, callable: &mut F, heap: &mut F::Borrowed<'_, Heap>);
+}
+impl<F, Heap, T, StrategyProvider> PatternMatchable<F, Heap, StrategyProvider> for T
 where
     StrategyProvider: HasPatternMatchStrategyFor<T>,
-    F: HasBorrowedHeapRef + Heaped<Heap = T::Heap>,
-    T: CaseSplittable<F, StrategyProvider::Strategy>,
+    F: HasBorrowedHeapRef + Heaped<Heap = Heap>,
+    T: CaseSplittable<F, Heap, StrategyProvider::Strategy>,
 {
-    fn do_match(&self, callable: &mut F, heap: &mut F::Borrowed<'_, <Self as Heaped>::Heap>) {
-        <Self as CaseSplittable<F, StrategyProvider::Strategy>>::case_split(self, callable, heap);
+    fn do_match(&self, callable: &mut F, heap: &mut F::Borrowed<'_, Heap>) {
+        <Self as CaseSplittable<F, Heap, StrategyProvider::Strategy>>::case_split(
+            self, callable, heap,
+        );
     }
 }
