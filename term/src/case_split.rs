@@ -86,9 +86,19 @@ where
 pub trait HasPatternMatchStrategyFor<T> {
     type Strategy: ConsList;
 }
-pub trait HasPatternMatchStrategyForWord<T> {
+// pub trait HasPatternMatchStrategyForWord<T> {
+//     type Strategy: ConsList;
+// }
+pub trait NamesPatternMatchStrategyGivenContext<Heap> {
     type Strategy: ConsList;
 }
+// impl<Heap, T, U> HasPatternMatchStrategyFor<T> for U
+// where
+//     T: Implements<Heap, wmf::L>,
+//     U: HasPatternMatchStrategyForWord<T::LWord>,
+// {
+//     type Strategy = <U as HasPatternMatchStrategyForWord<T::LWord>>::Strategy;
+// }
 pub trait PatternMatchable<F: HasBorrowedHeapRef, Heap, Strategies> {
     fn do_match(&self, callable: &mut F, heap: &mut F::Borrowed<'_, Heap>);
 }

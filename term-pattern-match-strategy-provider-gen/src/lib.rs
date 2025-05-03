@@ -25,12 +25,9 @@ pub fn generate<L: LangSpec>(base_paths: &BasePaths, ls: &LsGen<L>) -> syn::Item
             impl<Heap: #term_trait::Heap, T> term::case_split::HasPatternMatchStrategyFor<T> for PatternMatchStrategyProvider<Heap>
             where
                 T: words::Implements<Heap, #words::L>,
-                PatternMatchStrategyProvider<Heap>: term::case_split::HasPatternMatchStrategyForWord<T::LWord>
+                T::LWord: term::case_split::NamesPatternMatchStrategyGivenContext<Heap>,
             {
-                type Strategy = <
-                    PatternMatchStrategyProvider<Heap> as term::case_split::HasPatternMatchStrategyForWord<
-                        T::LWord,
-                    >>::Strategy;
+                type Strategy = <T::LWord as term::case_split::NamesPatternMatchStrategyGivenContext<Heap>>::Strategy;
             }
             pub struct PatternMatchStrategyProvider<Heap>(std::marker::PhantomData<Heap>);
             #(#impls)*
@@ -59,7 +56,7 @@ pub(crate) fn impl_has_pattern_match_strategy_for(
     );
     syn::parse_quote! {
         #byline
-        impl<Heap: #term_trait::Heap> term::case_split::HasPatternMatchStrategyForWord<#words::sorts::#camel_ident> for PatternMatchStrategyProvider<Heap> {
+        impl<Heap: #term_trait::Heap> term::case_split::NamesPatternMatchStrategyGivenContext<Heap> for #words::sorts::#camel_ident {
             type Strategy = #strategy;
         }
     }
