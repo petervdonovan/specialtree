@@ -4,3 +4,7 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
+bumpalo.workspace = true
+term = { version = "0.1.0", path = "../term" }
+tymetafuncspec-core = { version = "0.1.0", path = "../tymetafuncspec-core" }
+typenum.workspace = true

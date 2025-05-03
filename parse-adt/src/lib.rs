@@ -1,7 +1,6 @@
-#![feature(fundamental)]
-
 use cstfy::{Cstfy, CstfyTransparent};
 use parse::{KeywordSequence, UnexpectedTokenError};
+use take_mut::Poisonable;
 use term::{
     case_split::{AtLeastTwoConsList, ConsList, NonemptyConsList},
     co_visit::CoVisitor,
@@ -17,12 +16,11 @@ pub struct Parser<'a, AllCurrentCases> {
     position: miette::SourceOffset,
     phantom: std::marker::PhantomData<AllCurrentCases>,
 }
-impl<'a, AllCurrentCases> Default for Parser<'a, AllCurrentCases> {
-    fn default() -> Self {
-        // todo: eliminate the need for this
+impl<'a, AllCurrentCases> Poisonable for Parser<'a, AllCurrentCases> {
+    fn poisoned() -> Self {
         Self {
             source: "",
-            position: miette::SourceOffset::from(0),
+            position: miette::SourceOffset::from(usize::MAX),
             phantom: std::marker::PhantomData,
         }
     }

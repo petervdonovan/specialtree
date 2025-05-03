@@ -487,6 +487,7 @@ dependencies = [
  "parse",
  "std-parse-error",
  "std-parse-metadata",
+ "take-mut",
  "term",
  "tymetafuncspec-core",
  "typenum",
@@ -794,17 +795,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "take_mut"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f764005d11ee5f36500a149ace24e00e3da98b0158b3e2d53a7495660d3f4d60"
+name = "take-mut"
+version = "0.1.0"
 
 [[package]]
 name = "term"
 version = "0.1.0"
 dependencies = [
  "fn-traits",
- "take_mut",
+ "take-mut",
  "type-equals",
  "typenum",
 ]
@@ -1067,6 +1066,12 @@ checksum = "7dd6e30e90baa6f72411720665d41d89b9a3d039dc45b8faea1ddd07f617f6af"
 [[package]]
 name = "unparse-adt"
 version = "0.1.0"
+dependencies = [
+ "bumpalo",
+ "term",
+ "tymetafuncspec-core",
+ "typenum",
+]
 
 [[package]]
 name = "unparse-gen"

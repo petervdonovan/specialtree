@@ -1,3 +1,5 @@
+use take_mut::Poisonable;
+
 use crate::{
     case_split::ConsList,
     co_case_split::{AdmitNoMatchingCase, CoCallable, CoCaseSplittable},
@@ -160,23 +162,25 @@ where
             Heap,
             PatternMatchStrategyProvider::Strategy,
         > + Copy,
-    CV: CoVisitor<T> + SelectCase + Default,
+    CV: CoVisitor<T> + SelectCase + Poisonable,
     CV::AC<PatternMatchStrategyProvider::Strategy>: AdmitNoMatchingCase<Heap, T>,
     PatternMatchStrategyProvider: crate::case_split::HasPatternMatchStrategyFor<T>,
 {
+    // todo: consider optimizing by adding a type parameter that provides the fnlut.
+    // you would need to verify experimentally that this enables the compiler to
+    // optimize out and inline the function pointer.
     fn co_visit(visitor: &mut CV, heap: &mut Heap, fnlut: Fnlut) -> Self {
         visitor.co_push();
-        let visitor_owned = std::mem::take(visitor);
-        // take_mut::take(visitor, |visitor| {
-        let visitor_co = visitor_owned.start_cases();
-        let callable = CoCallablefyCoVisitor {
-            cv: visitor_co,
-            fnlut,
-            phantom: std::marker::PhantomData,
-        };
-        let (new_ret, short) = <T as CoCaseSplittable<_, _, _>>::co_case_split(callable, heap);
-        *visitor = short.cv;
-        // });
+        let new_ret = take_mut::take(visitor, move |visitor| {
+            let visitor_co = visitor.start_cases();
+            let callable = CoCallablefyCoVisitor {
+                cv: visitor_co,
+                fnlut,
+                phantom: std::marker::PhantomData,
+            };
+            let (new_ret, short) = <T as CoCaseSplittable<_, _, _>>::co_case_split(callable, heap);
+            (short.cv, new_ret)
+        });
         visitor.co_pop();
         new_ret
     }
