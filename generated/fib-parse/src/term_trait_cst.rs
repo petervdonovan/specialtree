@@ -55,14 +55,28 @@ pub trait Heap: Sized + MapsTmf<
         Pair<Self, Self::RightOperand, Maybe<Self, ParseMetadata<Self>>>,
     > + MapsTmf<
         wmc::L,
-        Either<Self, Self::Nat, ParseError<Self>>,
+        Either<
+            Self,
+            Pair<Self, Self::Nat, Maybe<Self, ParseMetadata<Self>>>,
+            ParseError<Self>,
+        >,
+    > + MapsTmf<
+        wmc::L,
+        Pair<Self, Self::Nat, Maybe<Self, ParseMetadata<Self>>>,
     > + MapsTmf<
         wmc::L,
         Either<
             Self,
             Pair<
                 Self,
-                Set<Self, Either<Self, Self::Nat, ParseError<Self>>>,
+                Set<
+                    Self,
+                    Either<
+                        Self,
+                        Pair<Self, Self::Nat, Maybe<Self, ParseMetadata<Self>>>,
+                        ParseError<Self>,
+                    >,
+                >,
                 Maybe<Self, ParseMetadata<Self>>,
             >,
             ParseError<Self>,
@@ -71,12 +85,26 @@ pub trait Heap: Sized + MapsTmf<
         wmc::L,
         Pair<
             Self,
-            Set<Self, Either<Self, Self::Nat, ParseError<Self>>>,
+            Set<
+                Self,
+                Either<
+                    Self,
+                    Pair<Self, Self::Nat, Maybe<Self, ParseMetadata<Self>>>,
+                    ParseError<Self>,
+                >,
+            >,
             Maybe<Self, ParseMetadata<Self>>,
         >,
     > + MapsTmf<
         wmc::L,
-        Set<Self, Either<Self, Self::Nat, ParseError<Self>>>,
+        Set<
+            Self,
+            Either<
+                Self,
+                Pair<Self, Self::Nat, Maybe<Self, ParseMetadata<Self>>>,
+                ParseError<Self>,
+            >,
+        >,
     > + MapsTmf<
         wmc::L,
         Either<
@@ -227,13 +255,26 @@ pub trait Heap: Sized + MapsTmf<
     > + SuperHeap<
         PairHeapBak<Self, Self::RightOperand, Maybe<Self, ParseMetadata<Self>>>,
     > + SuperHeap<
-        EitherHeapBak<Self, Self::Nat, ParseError<Self>>,
+        EitherHeapBak<
+            Self,
+            Pair<Self, Self::Nat, Maybe<Self, ParseMetadata<Self>>>,
+            ParseError<Self>,
+        >,
+    > + SuperHeap<
+        PairHeapBak<Self, Self::Nat, Maybe<Self, ParseMetadata<Self>>>,
     > + SuperHeap<
         EitherHeapBak<
             Self,
             Pair<
                 Self,
-                Set<Self, Either<Self, Self::Nat, ParseError<Self>>>,
+                Set<
+                    Self,
+                    Either<
+                        Self,
+                        Pair<Self, Self::Nat, Maybe<Self, ParseMetadata<Self>>>,
+                        ParseError<Self>,
+                    >,
+                >,
                 Maybe<Self, ParseMetadata<Self>>,
             >,
             ParseError<Self>,
@@ -241,11 +282,25 @@ pub trait Heap: Sized + MapsTmf<
     > + SuperHeap<
         PairHeapBak<
             Self,
-            Set<Self, Either<Self, Self::Nat, ParseError<Self>>>,
+            Set<
+                Self,
+                Either<
+                    Self,
+                    Pair<Self, Self::Nat, Maybe<Self, ParseMetadata<Self>>>,
+                    ParseError<Self>,
+                >,
+            >,
             Maybe<Self, ParseMetadata<Self>>,
         >,
     > + SuperHeap<
-        SetHeapBak<Self, Either<Self, Self::Nat, ParseError<Self>>>,
+        SetHeapBak<
+            Self,
+            Either<
+                Self,
+                Pair<Self, Self::Nat, Maybe<Self, ParseMetadata<Self>>>,
+                ParseError<Self>,
+            >,
+        >,
     > + SuperHeap<
         EitherHeapBak<
             Self,
@@ -422,7 +477,15 @@ pub mod owned {
             (
                 <Heap as MapsTmf<
                     wmc::L,
-                    Either<Heap, <Heap as ttc::Heap>::Nat, ParseError<Heap>>,
+                    Either<
+                        Heap,
+                        Pair<
+                            Heap,
+                            <Heap as ttc::Heap>::Nat,
+                            Maybe<Heap, ParseMetadata<Heap>>,
+                        >,
+                        ParseError<Heap>,
+                    >,
                 >>::Tmf,
                 (),
             ),
@@ -437,7 +500,15 @@ pub mod owned {
             (
                 <Heap as MapsTmf<
                     wmc::L,
-                    Either<Heap, <Heap as ttc::Heap>::Nat, ParseError<Heap>>,
+                    Either<
+                        Heap,
+                        Pair<
+                            Heap,
+                            <Heap as ttc::Heap>::Nat,
+                            Maybe<Heap, ParseMetadata<Heap>>,
+                        >,
+                        ParseError<Heap>,
+                    >,
                 >>::Tmf,
                 (),
             ),
@@ -452,7 +523,15 @@ pub mod owned {
             (
                 <Heap as MapsTmf<
                     wmc::L,
-                    Either<Heap, <Heap as ttc::Heap>::Nat, ParseError<Heap>>,
+                    Either<
+                        Heap,
+                        Pair<
+                            Heap,
+                            <Heap as ttc::Heap>::Nat,
+                            Maybe<Heap, ParseMetadata<Heap>>,
+                        >,
+                        ParseError<Heap>,
+                    >,
                 >>::Tmf,
                 (),
             ),
@@ -473,7 +552,15 @@ pub mod owned {
                             Heap,
                             Set<
                                 Heap,
-                                Either<Heap, <Heap as ttc::Heap>::Nat, ParseError<Heap>>,
+                                Either<
+                                    Heap,
+                                    Pair<
+                                        Heap,
+                                        <Heap as ttc::Heap>::Nat,
+                                        Maybe<Heap, ParseMetadata<Heap>>,
+                                    >,
+                                    ParseError<Heap>,
+                                >,
                             >,
                             Maybe<Heap, ParseMetadata<Heap>>,
                         >,

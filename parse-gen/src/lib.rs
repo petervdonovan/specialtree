@@ -26,17 +26,17 @@ pub fn generate<L: LangSpec>(bps: &BasePaths, lg: &LsGen<L>) -> syn::ItemMod {
     let cst = cst(&arena, lg.bak());
     let lg_cst = LsGen::from(cst);
     let cst_tgds = lg_cst.ty_gen_datas(None).collect::<Vec<_>>();
-    let parsells = lg.ty_gen_datas(None).filter_map(|tgd| {
-        tgd.id.as_ref().map(|_| {
-            generate_parsell(
-                bps,
-                cst_tgds
-                    .iter()
-                    .find(|cst_tgd| cst_tgd.snake_ident == tgd.snake_ident)
-                    .unwrap(),
-            )
-        })
-    });
+    // let parsells = lg.ty_gen_datas(None).filter_map(|tgd| {
+    //     tgd.id.as_ref().map(|_| {
+    //         generate_parsell(
+    //             bps,
+    //             cst_tgds
+    //                 .iter()
+    //                 .find(|cst_tgd| cst_tgd.snake_ident == tgd.snake_ident)
+    //                 .unwrap(),
+    //         )
+    //     })
+    // });
     let parses = lg.ty_gen_datas(None).filter_map(|tgd| {
         tgd.id.as_ref().map(|_| {
             generate_parse(
@@ -60,13 +60,42 @@ pub fn generate<L: LangSpec>(bps: &BasePaths, lg: &LsGen<L>) -> syn::ItemMod {
         #byline
         pub mod parse {
             #(#parses)*
-            pub mod parsell {
-                #(#parsells)*
-            }
+            // pub mod parsell {
+            //     #(#parsells)*
+            // }
             #fnlut
         }
     }
 }
+
+// pub(crate) fn generate_parsells<L: LangSpec>(
+//     arena: bumpalo::Bump,
+//     bps: &BasePaths,
+//     l: &L,
+// ) -> syn::Item {
+//     let byline = byline!();
+//     let lg = LsGen::from(l);
+//     let cst = cst(&arena, l);
+//     let lg_cst = LsGen::from(cst);
+//     let cst_tgds = lg_cst.ty_gen_datas(None).collect::<Vec<_>>();
+//     let parsells = lg.ty_gen_datas(None).filter_map(|tgd| {
+//         tgd.id.as_ref().map(|_| {
+//             generate_parsell(
+//                 bps,
+//                 cst_tgds
+//                     .iter()
+//                     .find(|cst_tgd| cst_tgd.snake_ident == tgd.snake_ident)
+//                     .unwrap(),
+//             )
+//         })
+//     });
+//     syn::parse_quote! {
+//         #byline
+//         pub mod parsell {
+//             #(#parsells)*
+//         }
+//     }
+// }
 
 pub(crate) fn generate_parse<LCst: LangSpec>(
     bps: &BasePaths,
@@ -80,6 +109,7 @@ pub(crate) fn generate_parse<LCst: LangSpec>(
         &bps.parse,
         pattern_match_strategy,
         cst_data_structure_bp,
+        &bps.words,
         &syn::parse_quote! {'_},
     );
     let parse_bp = &bps.parse;
@@ -115,11 +145,12 @@ fn covisitable_trait(
     parse_bp: &syn::Path,
     pattern_match_strategy: &syn::Path,
     cst_data_structure_bp: &syn::Path,
+    og_words_bp: &syn::Path,
     lifetime: &syn::Lifetime,
 ) -> syn::Type {
     syn::parse_quote! {
         term::co_visit::CoVisitable<
-            parse_adt::Parser<#lifetime, ()>,
+            parse_adt::Parser<#lifetime, #og_words_bp::L, ()>,
             #pattern_match_strategy::PatternMatchStrategyProvider<#cst_data_structure_bp::Heap>,
             #cst_data_structure_bp::Heap,
             typenum::U8,
@@ -138,6 +169,7 @@ pub(crate) fn generate_impl_fn_lut<'a, 'b: 'a, LCst: LangSpec + 'b>(
         &bps.parse,
         &bps.pattern_match_strategy,
         &bps.cst_data_structure,
+        &bps.words,
         &syn::parse_quote! {'c},
     );
     let cst_data_structure = &bps.cst_data_structure;
@@ -154,13 +186,16 @@ pub(crate) fn generate_impl_fn_lut<'a, 'b: 'a, LCst: LangSpec + 'b>(
                 &AlgebraicsBasePath::new(quote::quote! {#cst_data_structure::}),
             )
         });
+    let og_words_bp = &bps.words;
+    let byline = byline!();
     syn::parse_quote! {
+        #byline
         pub mod fnlut {
             term::impl_fn_lut!(
                 witness_name ParseWitness <'c> ;
                 trait #cvt ;
                 fn_name co_visit ;
-                get for <'a, 'b> fn(&'a mut parse_adt::Parser<'c, ()>, &'b mut #cst_data_structure::Heap, #bp::fnlut::ParseWitness<'c>) -> This ;
+                get for <'a, 'b> fn(&'a mut parse_adt::Parser<'c, #og_words_bp::L, ()>, &'b mut #cst_data_structure::Heap, #bp::fnlut::ParseWitness<'c>) -> This ;
                 types
                 #(
                     #idents = #parsable_tys
@@ -170,13 +205,19 @@ pub(crate) fn generate_impl_fn_lut<'a, 'b: 'a, LCst: LangSpec + 'b>(
     }
 }
 
-pub fn generate_parsell<LCst: LangSpec>(bps: &BasePaths, cst_tgd: &TyGenData<LCst>) -> syn::Item {
+pub(crate) fn generate_parsell<LCst: LangSpec>(
+    og_words_bp: &syn::Path,
+    cst_tgd: &TyGenData<LCst>,
+) -> syn::Item {
     let camel_ident = &cst_tgd.camel_ident;
     let snake_ident = &cst_tgd.snake_ident;
-    let cst_data_structure_bp = &bps.cst_data_structure;
-    let my_cst_ty: syn::Type = syn::parse_quote! { #cst_data_structure_bp::#camel_ident };
+    // let cst_data_structure_bp = &bps.cst_data_structure;
+    // let my_cst_ty: syn::Type = syn::parse_quote! { #cst_data_structure_bp::#camel_ident };
+    // let og_words_bp = &bps.words;
+    let byline = byline!();
     syn::parse_quote! {
-        impl parse_adt::ParseLL for #my_cst_ty {
+        #byline
+        impl parse_adt::NamesParseLL for #og_words_bp::sorts::#camel_ident {
             const START: parse::KeywordSequence = parse::KeywordSequence(
                 &[parse::Keyword::new(stringify!(#snake_ident))],
             );
@@ -201,10 +242,11 @@ pub fn generate_parsell<LCst: LangSpec>(bps: &BasePaths, cst_tgd: &TyGenData<LCs
 // }
 
 fn transparency2cstfication(transparency: &Transparency) -> syn::Ident {
-    match transparency {
-        Transparency::Transparent => syn::parse_quote! { CstfyTransparent },
-        Transparency::Visible => syn::parse_quote! { Cstfy },
-    }
+    // match transparency {
+    //     Transparency::Transparent => syn::parse_quote! { CstfyTransparent },
+    //     Transparency::Visible => syn::parse_quote! { Cstfy },
+    // }
+    syn::parse_quote! { Cstfy }
 }
 
 pub(crate) fn cst<'a, 'b: 'a, L: LangSpec>(
@@ -281,6 +323,19 @@ pub mod targets {
                         l,
                     ));
                 let cst = super::cst(arena, arena.alloc(super::autobox(l)));
+                let _ =
+                    codegen_deps.add(term_pattern_match_strategy_provider_gen::targets::default(
+                        arena,
+                        codegen_deps.subtree(),
+                        cst,
+                    ));
+                let _ = codegen_deps.add(
+                    term_pattern_match_strategy_provider_impl_gen::targets::default(
+                        arena,
+                        codegen_deps.subtree(),
+                        cst,
+                    ),
+                );
                 let cst_data_structure = codegen_deps.add(term_specialized_gen::targets::default(
                     arena,
                     codegen_deps.subtree(),
@@ -327,6 +382,64 @@ pub mod targets {
                 ("term", Path::new(".")),
                 ("parse-adt", Path::new(".")),
                 ("parse", Path::new(".")),
+            ],
+            codegen_deps,
+        }
+    }
+    pub fn parsells<'langs, L: super::LangSpec>(
+        arena: &'langs bumpalo::Bump,
+        mut codegen_deps: CgDepList<'langs>,
+        l: &'langs L,
+    ) -> CodegenInstance<'langs> {
+        CodegenInstance {
+            id: kebab_id!(l),
+            generate: {
+                let byline = super::byline!();
+                let words =
+                    codegen_deps.add(words::targets::words_mod(arena, codegen_deps.subtree(), l));
+                Box::new(move |c2sp, _| {
+                    // let lg = super::LsGen::from(l);
+                    // super::generate_parsells(
+                    //     &crate::BasePaths {
+                    //         data_structure: data_structure(c2sp),
+                    //         words: words(c2sp),
+                    //         parse: sp,
+                    //         term_trait: term_trait(c2sp),
+                    //         pattern_match_strategy: pattern_match_strategy(c2sp),
+                    //         cst_data_structure: cst_data_structure(c2sp),
+                    //         cst_term_trait: cst_term_trait(c2sp),
+                    //         cst_words: cst_words(c2sp),
+                    //     },
+                    //     &lg,
+                    // )
+                    let lg = super::LsGen::from(l);
+                    let cst = super::cst(&arena, l);
+                    let lg_cst = super::LsGen::from(cst);
+                    let cst_tgds = lg_cst.ty_gen_datas(None).collect::<Vec<_>>();
+                    let parsells = lg.ty_gen_datas(None).filter_map(|tgd| {
+                        tgd.id.as_ref().map(|_| {
+                            super::generate_parsell(
+                                &words(c2sp),
+                                cst_tgds
+                                    .iter()
+                                    .find(|cst_tgd| cst_tgd.snake_ident == tgd.snake_ident)
+                                    .unwrap(),
+                            )
+                        })
+                    });
+                    syn::parse_quote! {
+                        #byline
+                        pub mod parsell {
+                            #(#parsells)*
+                        }
+                    }
+                })
+            },
+            external_deps: vec!["typenum"],
+            workspace_deps: vec![
+                ("parse-gen", Path::new(".")),
+                ("parse", Path::new(".")),
+                ("parse-adt", Path::new(".")),
             ],
             codegen_deps,
         }

@@ -3,8 +3,8 @@ use core::panic;
 use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Maybe, Pair, Set, SetHeapBak};
 
 use crate::{
-    Lookahead, LookaheadImplementor, Parser,
-    cstfy::{Cstfy, CstfyTransparent, cstfy_ok},
+    Lookahead, Parser,
+    cstfy::{Cstfy, cstfy_ok},
     return_if_err,
 };
 
@@ -125,7 +125,7 @@ impl<'a, Heap, L, Elem, Pmsp, DepthFuelUpperBits, DepthFuelLastBit, Fnlut>
     > for Cstfy<Heap, IdxBox<Heap, Elem>>
 where
     typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>: std::ops::Sub<typenum::B1>,
-    Elem: Lookahead<Heap, L>,
+    Elem: Lookahead<Heap, L> + term::case_split::Adt, // FIXME: should this case really exist?
     Cstfy<Heap, Elem>: term::co_visit::CoVisitable<
             Parser<'a, L, ()>,
             Pmsp,
@@ -140,7 +140,6 @@ where
         item.fmap_l_fnmut(|p| p.fmap_l_fnmut(|elem| IdxBox::new(heap, elem)))
     }
 }
-impl<Heap> LookaheadImplementor for BoundedNat<Heap> {}
 impl<Heap, L> Lookahead<Heap, L> for BoundedNat<Heap> {
     fn matches<T>(parser: &Parser<'_, L, T>) -> bool {
         parser
@@ -148,10 +147,6 @@ impl<Heap, L> Lookahead<Heap, L> for BoundedNat<Heap> {
             .next()
             .is_some_and(|word| word.1.parse::<usize>().is_ok())
     }
-}
-impl<Heap, Elem> LookaheadImplementor for IdxBox<Heap, Cstfy<Heap, Elem>> where
-    Elem: LookaheadImplementor
-{
 }
 impl<Heap, L, Elem> Lookahead<Heap, L> for IdxBox<Heap, Cstfy<Heap, Elem>>
 where
@@ -162,20 +157,19 @@ where
         Elem::matches(parser)
     }
 }
-impl<Heap, Elem> LookaheadImplementor for IdxBox<Heap, CstfyTransparent<Heap, Elem>> where
-    Elem: LookaheadImplementor
-{
-}
-impl<Heap, L, Elem> Lookahead<Heap, L> for IdxBox<Heap, CstfyTransparent<Heap, Elem>>
-where
-    Elem: Lookahead<Heap, L>,
-{
-    fn matches<T>(parser: &Parser<'_, L, T>) -> bool {
-        println!("dbg: checking if matches Idxbox CstfyTransparent");
-        Elem::matches(parser)
-    }
-}
-impl<Heap, Elem> LookaheadImplementor for Set<Heap, Elem> {}
+// impl<Heap, Elem> LookaheadImplementor for IdxBox<Heap, CstfyTransparent<Heap, Elem>> where
+//     Elem: LookaheadImplementor
+// {
+// }
+// impl<Heap, L, Elem> Lookahead<Heap, L> for IdxBox<Heap, CstfyTransparent<Heap, Elem>>
+// where
+//     Elem: Lookahead<Heap, L>,
+// {
+//     fn matches<T>(parser: &Parser<'_, L, T>) -> bool {
+//         println!("dbg: checking if matches Idxbox CstfyTransparent");
+//         Elem::matches(parser)
+//     }
+// }
 impl<Heap, L, Elem> Lookahead<Heap, L> for Set<Heap, Elem> {
     fn matches<T>(parser: &Parser<'_, L, T>) -> bool {
         println!("dbg: checking if matches Set");

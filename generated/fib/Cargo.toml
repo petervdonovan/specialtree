@@ -1,3 +1,12 @@
+[dependencies.parse]
+path = "../.././parse"
+
+[dependencies.parse-adt]
+path = "../.././parse-adt"
+
+[dependencies.parse-gen]
+path = "../.././parse-gen"
+
 [dependencies.term]
 path = "../.././term"
 
@@ -18,6 +27,9 @@ path = "../.././term-trait-gen"
 
 [dependencies.tymetafuncspec-core]
 path = "../.././tymetafuncspec-core"
+
+[dependencies.typenum]
+workspace = true
 
 [dependencies.words]
 path = "../.././words"

@@ -25,6 +25,9 @@ path = "../.././term-bridge-gen"
 [dependencies.term-pattern-match-strategy-provider-gen]
 path = "../.././term-pattern-match-strategy-provider-gen"
 
+[dependencies.term-pattern-match-strategy-provider-impl-gen]
+path = "../.././term-pattern-match-strategy-provider-impl-gen"
+
 [dependencies.term-specialized-gen]
 path = "../.././term-specialized-gen"
 

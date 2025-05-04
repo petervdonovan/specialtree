@@ -30,6 +30,7 @@ pub fn main() {
                     root_cgd.subtree(),
                     &fib,
                 ),
+                parse_gen::targets::parsells(&arena, root_cgd.subtree(), &fib),
             ],
             global_workspace_deps: vec![("tymetafuncspec-core", Path::new("."))],
         },

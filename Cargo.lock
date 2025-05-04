@@ -193,6 +193,9 @@ dependencies = [
 name = "fib"
 version = "0.0.0"
 dependencies = [
+ "parse",
+ "parse-adt",
+ "parse-gen",
  "term",
  "term-pattern-match-strategy-provider-gen",
  "term-pattern-match-strategy-provider-impl-gen",
@@ -200,6 +203,7 @@ dependencies = [
  "term-specialized-impl-gen",
  "term-trait-gen",
  "tymetafuncspec-core",
+ "typenum",
  "words",
 ]
 
@@ -216,6 +220,7 @@ dependencies = [
  "term",
  "term-bridge-gen",
  "term-pattern-match-strategy-provider-gen",
+ "term-pattern-match-strategy-provider-impl-gen",
  "term-specialized-gen",
  "term-specialized-impl-gen",
  "term-trait-gen",

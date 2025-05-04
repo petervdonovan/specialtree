@@ -21,14 +21,12 @@ fn maybemorefy<L0: LangSpec, L1: LangSpec>(
         a: vec![l0_as_my_sid::<L0, L1>(sid), maybefy::<L0, L1>(maybe_sid)],
     })
 }
-fn maybemorefy_if_product<L0: LangSpec, L1: LangSpec>(
+fn maybemorefy_if_algebraic<L0: LangSpec, L1: LangSpec>(
     sid: langspec::langspec::SortIdOf<L0>,
     maybe_sid: langspec::langspec::SortIdOf<L1>,
 ) -> SortIdOfExtension<L0, L1> {
     match sid {
-        langspec::langspec::SortId::Algebraic(langspec::langspec::AlgebraicSortId::Product(_)) => {
-            maybemorefy::<L0, L1>(sid, maybe_sid)
-        }
+        langspec::langspec::SortId::Algebraic(_) => maybemorefy::<L0, L1>(sid, maybe_sid),
         langspec::langspec::SortId::TyMetaFunc(mt) => l0_tmfmap::<L0, L1>(maybe_sid, mt),
         _ => l0_as_my_sid::<L0, L1>(sid),
     }
@@ -44,7 +42,7 @@ fn l0_tmfmap<L0: LangSpec, L1: LangSpec>(
     let rec = langspec::langspec::SortId::TyMetaFunc(langspec::langspec::MappedType {
         f: Either::Left(Either::Left(f.clone())),
         a: a.into_iter()
-            .map(|a| maybemorefy_if_product::<L0, L1>(a, maybe_sid.clone()))
+            .map(|a| maybemorefy_if_algebraic::<L0, L1>(a, maybe_sid.clone()))
             .collect(),
     });
     match <<L0 as LangSpec>::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(&f).transparency {
@@ -56,6 +54,10 @@ fn l0_tmfmap<L0: LangSpec, L1: LangSpec>(
         }
         Transparency::Transparent => rec,
     }
+    // langspec::langspec::SortId::TyMetaFunc(langspec::langspec::MappedType {
+    //     f: Either::Right(tymetafuncspec_core::PAIR),
+    //     a: vec![rec, maybefy::<L0, L1>(maybe_sid)],
+    // })
 }
 
 use langspec_extension::{L0Map, LsExtension, SortIdOfExtension, l0_as_my_sid, l1_as_my_sid};
@@ -72,7 +74,7 @@ where
         this: &LsExtension<'a, 'b, L0, L1, Self>,
         sid: SortIdOf<L0>,
     ) -> SortIdOfExtension<L0, L1> {
-        maybemorefy_if_product::<L0, L1>(sid, this.l0m.l1_root.clone())
+        maybemorefy_if_algebraic::<L0, L1>(sid, this.l0m.l1_root.clone())
     }
 }
 
