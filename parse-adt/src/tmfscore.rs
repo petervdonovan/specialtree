@@ -3,14 +3,14 @@ use core::panic;
 use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Maybe, Pair, Set, SetHeapBak};
 
 use crate::{
-    Lookahead, Parser,
+    Lookahead, LookaheadImplementor, Parser,
     cstfy::{Cstfy, CstfyTransparent, cstfy_ok},
     return_if_err,
 };
 
-impl<Heap, Pmsp, Amc, DepthFuelUpperBits, DepthFuelLastBit, Fnlut>
+impl<Heap, Pmsp, L, Amc, DepthFuelUpperBits, DepthFuelLastBit, Fnlut>
     term::co_visit::CoVisitable<
-        Parser<'_, Amc>,
+        Parser<'_, L, Amc>,
         Pmsp,
         Heap,
         typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>,
@@ -22,7 +22,7 @@ impl<Heap, Pmsp, Amc, DepthFuelUpperBits, DepthFuelLastBit, Fnlut>
         std_parse_error::ParseError<Heap>,
     >
 {
-    fn co_visit(visitor: &mut Parser<'_, Amc>, _: &mut Heap, _: Fnlut) -> Self {
+    fn co_visit(visitor: &mut Parser<'_, L, Amc>, _: &mut Heap, _: Fnlut) -> Self {
         let previous_offset = visitor.position;
         let next_word = visitor.pop_word();
         let n = next_word
@@ -34,9 +34,9 @@ impl<Heap, Pmsp, Amc, DepthFuelUpperBits, DepthFuelLastBit, Fnlut>
     }
 }
 
-impl<'a, Heap, Elem, Pmsp, DepthFuelUpperBits, DepthFuelLastBit, Fnlut: Copy>
+impl<'a, Heap, L, Elem, Pmsp, DepthFuelUpperBits, DepthFuelLastBit, Fnlut: Copy>
     term::co_visit::CoVisitable<
-        Parser<'a, ()>,
+        Parser<'a, L, ()>,
         Pmsp,
         Heap,
         typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>,
@@ -45,7 +45,7 @@ impl<'a, Heap, Elem, Pmsp, DepthFuelUpperBits, DepthFuelLastBit, Fnlut: Copy>
 where
     typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>: std::ops::Sub<typenum::B1>,
     Elem: term::co_visit::CoVisitable<
-            Parser<'a, ()>,
+            Parser<'a, L, ()>,
             Pmsp,
             Heap,
             typenum::Sub1<typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>>,
@@ -53,7 +53,7 @@ where
         >,
     Heap: term::SuperHeap<SetHeapBak<Heap, Elem>>,
 {
-    fn co_visit(visitor: &mut Parser<'a, ()>, heap: &mut Heap, fnlut: Fnlut) -> Self {
+    fn co_visit(visitor: &mut Parser<'a, L, ()>, heap: &mut Heap, fnlut: Fnlut) -> Self {
         let mut items = Vec::new();
         let initial_offset = visitor.position;
         dbg!(initial_offset);
@@ -87,9 +87,9 @@ where
     }
 }
 
-impl<'a, Heap, Elem, Pmsp, DepthFuelUpperBits, DepthFuelLastBit, Fnlut>
+impl<'a, Heap, L, Elem, Pmsp, DepthFuelUpperBits, DepthFuelLastBit, Fnlut>
     term::co_visit::CoVisitable<
-        Parser<'a, ()>,
+        Parser<'a, L, ()>,
         Pmsp,
         Heap,
         typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>,
@@ -97,9 +97,9 @@ impl<'a, Heap, Elem, Pmsp, DepthFuelUpperBits, DepthFuelLastBit, Fnlut>
     > for Cstfy<Heap, IdxBox<Heap, Cstfy<Heap, Elem>>>
 where
     typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>: std::ops::Sub<typenum::B1>,
-    Elem: Lookahead,
+    Elem: Lookahead<Heap, L>,
     Cstfy<Heap, Elem>: term::co_visit::CoVisitable<
-            Parser<'a, ()>,
+            Parser<'a, L, ()>,
             Pmsp,
             Heap,
             typenum::Sub1<typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>>,
@@ -107,7 +107,7 @@ where
         >,
     Heap: term::SuperHeap<IdxBoxHeapBak<Heap, Cstfy<Heap, Elem>>>,
 {
-    fn co_visit(visitor: &mut Parser<'a, ()>, heap: &mut Heap, fnlut: Fnlut) -> Self {
+    fn co_visit(visitor: &mut Parser<'a, L, ()>, heap: &mut Heap, fnlut: Fnlut) -> Self {
         let initial_offset = visitor.position;
         let item = Cstfy::<Heap, Elem>::co_visit(visitor, heap, fnlut);
         let final_offset = visitor.position;
@@ -115,9 +115,9 @@ where
     }
 }
 
-impl<'a, Heap, Elem, Pmsp, DepthFuelUpperBits, DepthFuelLastBit, Fnlut>
+impl<'a, Heap, L, Elem, Pmsp, DepthFuelUpperBits, DepthFuelLastBit, Fnlut>
     term::co_visit::CoVisitable<
-        Parser<'a, ()>,
+        Parser<'a, L, ()>,
         Pmsp,
         Heap,
         typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>,
@@ -125,9 +125,9 @@ impl<'a, Heap, Elem, Pmsp, DepthFuelUpperBits, DepthFuelLastBit, Fnlut>
     > for Cstfy<Heap, IdxBox<Heap, Elem>>
 where
     typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>: std::ops::Sub<typenum::B1>,
-    Elem: Lookahead,
+    Elem: Lookahead<Heap, L>,
     Cstfy<Heap, Elem>: term::co_visit::CoVisitable<
-            Parser<'a, ()>,
+            Parser<'a, L, ()>,
             Pmsp,
             Heap,
             typenum::Sub1<typenum::UInt<DepthFuelUpperBits, DepthFuelLastBit>>,
@@ -135,40 +135,49 @@ where
         >,
     Heap: term::SuperHeap<IdxBoxHeapBak<Heap, Elem>>,
 {
-    fn co_visit(visitor: &mut Parser<'a, ()>, heap: &mut Heap, fnlut: Fnlut) -> Self {
+    fn co_visit(visitor: &mut Parser<'a, L, ()>, heap: &mut Heap, fnlut: Fnlut) -> Self {
         let item = Cstfy::<Heap, Elem>::co_visit(visitor, heap, fnlut);
         item.fmap_l_fnmut(|p| p.fmap_l_fnmut(|elem| IdxBox::new(heap, elem)))
     }
 }
-
-impl<Heap> Lookahead for BoundedNat<Heap> {
-    fn matches<T>(parser: &Parser<'_, T>) -> bool {
+impl<Heap> LookaheadImplementor for BoundedNat<Heap> {}
+impl<Heap, L> Lookahead<Heap, L> for BoundedNat<Heap> {
+    fn matches<T>(parser: &Parser<'_, L, T>) -> bool {
         parser
             .peek_words()
             .next()
             .is_some_and(|word| word.1.parse::<usize>().is_ok())
     }
 }
-impl<Heap, Elem> Lookahead for IdxBox<Heap, Cstfy<Heap, Elem>>
-where
-    Elem: Lookahead,
+impl<Heap, Elem> LookaheadImplementor for IdxBox<Heap, Cstfy<Heap, Elem>> where
+    Elem: LookaheadImplementor
 {
-    fn matches<T>(parser: &Parser<'_, T>) -> bool {
+}
+impl<Heap, L, Elem> Lookahead<Heap, L> for IdxBox<Heap, Cstfy<Heap, Elem>>
+where
+    Elem: Lookahead<Heap, L>,
+{
+    fn matches<T>(parser: &Parser<'_, L, T>) -> bool {
         println!("dbg: checking if matches Idxbox Cstfy");
         Elem::matches(parser)
     }
 }
-impl<Heap, Elem> Lookahead for IdxBox<Heap, CstfyTransparent<Heap, Elem>>
-where
-    Elem: Lookahead,
+impl<Heap, Elem> LookaheadImplementor for IdxBox<Heap, CstfyTransparent<Heap, Elem>> where
+    Elem: LookaheadImplementor
 {
-    fn matches<T>(parser: &Parser<'_, T>) -> bool {
+}
+impl<Heap, L, Elem> Lookahead<Heap, L> for IdxBox<Heap, CstfyTransparent<Heap, Elem>>
+where
+    Elem: Lookahead<Heap, L>,
+{
+    fn matches<T>(parser: &Parser<'_, L, T>) -> bool {
         println!("dbg: checking if matches Idxbox CstfyTransparent");
         Elem::matches(parser)
     }
 }
-impl<Heap, Elem> Lookahead for Set<Heap, Elem> {
-    fn matches<T>(parser: &Parser<'_, T>) -> bool {
+impl<Heap, Elem> LookaheadImplementor for Set<Heap, Elem> {}
+impl<Heap, L, Elem> Lookahead<Heap, L> for Set<Heap, Elem> {
+    fn matches<T>(parser: &Parser<'_, L, T>) -> bool {
         println!("dbg: checking if matches Set");
         parser.peek_words().next().is_some_and(|word| word.1 == "{")
     }

@@ -1,6 +1,6 @@
+#![feature(fundamental)]
 use langspec::langspec::LangSpec;
 use langspec_gen_util::LsGen;
-
 pub trait Implements<Heap, L> {
     type LWord;
 }

@@ -492,6 +492,7 @@ dependencies = [
  "tymetafuncspec-core",
  "typenum",
  "unicode-segmentation",
+ "words",
 ]
 
 [[package]]

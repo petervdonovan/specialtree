@@ -13,3 +13,4 @@ miette = { workspace = true }
 typenum = { workspace = true }
 unicode-segmentation = { workspace = true }
 take-mut = { version = "0.1.0", path = "../take-mut" }
+words.path = "../words"
