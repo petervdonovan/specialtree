@@ -16,3 +16,4 @@ term-specialized-gen = { path = "../term-specialized-gen" }
 term-specialized-impl-gen = { path = "../term-specialized-impl-gen" }
 term-trait-gen = { path = "../term-trait-gen" }
 words = { path = "../words" }
+codegen-component = { version = "0.1.0", path = "../codegen-component" }

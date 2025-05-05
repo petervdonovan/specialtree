@@ -1,6 +1,9 @@
 [dependencies.fib]
 path = "../fib"
 
+[dependencies.fib-ds]
+path = "../fib-ds"
+
 [dependencies.parse]
 path = "../.././parse"
 

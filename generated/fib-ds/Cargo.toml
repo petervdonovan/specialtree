@@ -1,11 +1,5 @@
-[dependencies.parse]
-path = "../.././parse"
-
-[dependencies.parse-adt]
-path = "../.././parse-adt"
-
-[dependencies.parse-gen]
-path = "../.././parse-gen"
+[dependencies.fib]
+path = "../fib"
 
 [dependencies.term]
 path = "../.././term"
@@ -13,19 +7,25 @@ path = "../.././term"
 [dependencies.term-pattern-match-strategy-provider-gen]
 path = "../.././term-pattern-match-strategy-provider-gen"
 
+[dependencies.term-pattern-match-strategy-provider-impl-gen]
+path = "../.././term-pattern-match-strategy-provider-impl-gen"
+
+[dependencies.term-specialized-gen]
+path = "../.././term-specialized-gen"
+
+[dependencies.term-specialized-impl-gen]
+path = "../.././term-specialized-impl-gen"
+
 [dependencies.term-trait-gen]
 path = "../.././term-trait-gen"
 
 [dependencies.tymetafuncspec-core]
 path = "../.././tymetafuncspec-core"
 
-[dependencies.typenum]
-workspace = true
-
 [dependencies.words]
 path = "../.././words"
 
 [package]
 edition = "2024"
-name = "fib"
+name = "fib-ds"
 version = "0.0.0"

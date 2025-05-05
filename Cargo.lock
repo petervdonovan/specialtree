@@ -198,12 +198,24 @@ dependencies = [
  "parse-gen",
  "term",
  "term-pattern-match-strategy-provider-gen",
+ "term-trait-gen",
+ "tymetafuncspec-core",
+ "typenum",
+ "words",
+]
+
+[[package]]
+name = "fib-ds"
+version = "0.0.0"
+dependencies = [
+ "fib",
+ "term",
+ "term-pattern-match-strategy-provider-gen",
  "term-pattern-match-strategy-provider-impl-gen",
  "term-specialized-gen",
  "term-specialized-impl-gen",
  "term-trait-gen",
  "tymetafuncspec-core",
- "typenum",
  "words",
 ]
 
@@ -212,6 +224,7 @@ name = "fib-parse"
 version = "0.0.0"
 dependencies = [
  "fib",
+ "fib-ds",
  "parse",
  "parse-adt",
  "parse-gen",
@@ -1074,15 +1087,18 @@ name = "unparse-adt"
 version = "0.1.0"
 dependencies = [
  "bumpalo",
+ "parse-adt",
  "term",
  "tymetafuncspec-core",
  "typenum",
+ "words",
 ]
 
 [[package]]
 name = "unparse-gen"
 version = "0.1.0"
 dependencies = [
+ "codegen-component",
  "extension-autobox",
  "langspec",
  "langspec-gen-util",

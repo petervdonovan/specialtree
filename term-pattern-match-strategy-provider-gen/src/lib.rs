@@ -5,7 +5,6 @@ use langspec_gen_util::{
 
 pub struct BasePaths {
     pub term_trait: syn::Path,
-    pub data_structure: syn::Path,
     pub words: syn::Path,
     pub strategy_provider: syn::Path,
 }
@@ -38,7 +37,6 @@ pub fn generate<L: LangSpec>(base_paths: &BasePaths, ls: &LsGen<L>) -> syn::Item
 pub(crate) fn impl_has_pattern_match_strategy_for(
     BasePaths {
         term_trait,
-        data_structure: _,
         words,
         strategy_provider: _,
     }: &BasePaths,
@@ -78,11 +76,6 @@ pub mod targets {
             generate: {
                 let words =
                     codegen_deps.add(words::targets::words_mod(arena, codegen_deps.subtree(), l));
-                let data_structure = codegen_deps.add(term_specialized_gen::targets::default(
-                    arena,
-                    codegen_deps.subtree(),
-                    l,
-                ));
                 let term_trait = codegen_deps.add(term_trait_gen::targets::default(
                     arena,
                     codegen_deps.subtree(),
@@ -92,7 +85,6 @@ pub mod targets {
                     let lg = super::LsGen::from(l);
                     super::generate(
                         &crate::BasePaths {
-                            data_structure: data_structure(c2sp),
                             term_trait: term_trait(c2sp),
                             words: words(c2sp),
                             strategy_provider: sp,
@@ -102,7 +94,10 @@ pub mod targets {
                 })
             },
             external_deps: vec![],
-            workspace_deps: vec![("term-pattern-match-strategy-provider-gen", Path::new("."))],
+            workspace_deps: vec![
+                ("term-pattern-match-strategy-provider-gen", Path::new(".")),
+                ("words", Path::new(".")),
+            ],
             codegen_deps,
         }
     }

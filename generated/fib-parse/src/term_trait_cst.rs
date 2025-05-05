@@ -468,7 +468,7 @@ pub mod owned {
             ),
         >
     where
-        Heap: ttc::Heap,
+        Heap: crate::term_trait_cst::Heap,
     {}
     pub trait LeftOperand<
         Heap,
@@ -491,7 +491,7 @@ pub mod owned {
             ),
         >
     where
-        Heap: ttc::Heap,
+        Heap: crate::term_trait_cst::Heap,
     {}
     pub trait RightOperand<
         Heap,
@@ -514,7 +514,7 @@ pub mod owned {
             ),
         >
     where
-        Heap: ttc::Heap,
+        Heap: crate::term_trait_cst::Heap,
     {}
     pub trait F<
         Heap,
@@ -537,7 +537,7 @@ pub mod owned {
             ),
         >
     where
-        Heap: ttc::Heap,
+        Heap: crate::term_trait_cst::Heap,
     {}
     pub trait Sum<
         Heap,
@@ -571,7 +571,7 @@ pub mod owned {
             ),
         >
     where
-        Heap: ttc::Heap,
+        Heap: crate::term_trait_cst::Heap,
     {}
     pub trait Nat<
         Heap,
@@ -663,6 +663,6 @@ pub mod owned {
             ),
         >
     where
-        Heap: ttc::Heap,
+        Heap: crate::term_trait_cst::Heap,
     {}
 }

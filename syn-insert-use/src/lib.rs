@@ -6,15 +6,23 @@ pub fn insert_use(f: syn::File) -> syn::File {
     let mut pv = PathVisitor::<Recursive>::new();
     pv.visit_file(&f);
     let pv = pv.sorted();
-    let (_, cp) = use_declarations(pv);
+    let mut gp = GenericParamVisitor::new(); // todo: populate top-level gp
+    gp.visit_file(&f);
+    // dbg!(&gp.generic_params);
+    let (_, cp) = use_declarations(pv, &gp);
+    dbg!(&cp.collisions);
     let mut tersified_file = f.clone();
     InsertUseInModuleAsNeeded.visit_file_mut(&mut tersified_file);
-    TersifyingPathsVisitor { collisions: cp }.visit_file_mut(&mut tersified_file);
+    TersifyingPathsVisitor {
+        collisions: cp,
+        generic_params: &gp,
+    }
+    .visit_file_mut(&mut tersified_file);
     let (mut top_level_use, _) = {
         let mut pv = PathVisitor::<NonRecursive>::new();
         pv.visit_file(&f);
         let pv = pv.sorted();
-        use_declarations(pv)
+        use_declarations(pv, &gp)
     };
     top_level_use.sort_by(|a, b| {
         let a = a.to_string();
@@ -49,7 +57,7 @@ impl VisitMut for InsertUseInModuleAsNeeded {
                 pv.visit_item(item);
             }
             let pv = pv.sorted();
-            let mut sorted_declarations = use_declarations(pv).0;
+            let mut sorted_declarations = use_declarations(pv, &GenericParamVisitor::new()).0;
             sorted_declarations.sort_by(|a, b| {
                 let a = a.to_string();
                 let b = b.to_string();
@@ -100,6 +108,27 @@ impl<T> PathVisitor<T> {
             external_paths,
         }
     }
+}
+
+struct GenericParamVisitor {
+    generic_params: Vec<syn::Ident>,
+}
+impl GenericParamVisitor {
+    fn new() -> Self {
+        Self {
+            generic_params: vec![],
+        }
+    }
+}
+impl<'ast> syn::visit::Visit<'ast> for GenericParamVisitor {
+    fn visit_generic_param(&mut self, item: &syn::GenericParam) {
+        if let syn::GenericParam::Type(type_param) = item {
+            self.generic_params.push(type_param.ident.clone());
+        }
+    }
+    // fn visit_item_mod(&mut self, _: &'ast syn::ItemMod) {
+    //     // don't recurse
+    // }
 }
 
 fn to_segments(path: &[syn::PathSegment]) -> Vec<syn::Ident> {
@@ -273,7 +302,10 @@ struct CollidingPaths {
     collisions: Vec<Vec<syn::Ident>>,
 }
 
-fn use_declarations(paths: PathVisitorSorted) -> (Vec<UseDeclaration>, CollidingPaths) {
+fn use_declarations(
+    paths: PathVisitorSorted,
+    generic_params: &GenericParamVisitor,
+) -> (Vec<UseDeclaration>, CollidingPaths) {
     let uses = paths
         .crate_paths
         .iter()
@@ -311,7 +343,9 @@ fn use_declarations(paths: PathVisitorSorted) -> (Vec<UseDeclaration>, Colliding
     let mut cp = CollidingPaths { collisions: vec![] };
     let mut deduplicated = HashSet::new();
     for use_decl in &uses {
-        if unique_uses.contains_key(&use_decl.1) && unique_uses[&use_decl.1] != use_decl.2 {
+        if (unique_uses.contains_key(&use_decl.1) && unique_uses[&use_decl.1] != use_decl.2)
+            || generic_params.generic_params.contains(&use_decl.1)
+        {
             cp.collisions.push(use_decl.2.clone());
             continue;
         }
@@ -321,11 +355,12 @@ fn use_declarations(paths: PathVisitorSorted) -> (Vec<UseDeclaration>, Colliding
     (deduplicated.into_iter().collect(), cp)
 }
 
-struct TersifyingPathsVisitor {
+struct TersifyingPathsVisitor<'a> {
     collisions: CollidingPaths,
+    generic_params: &'a GenericParamVisitor,
 }
 
-impl VisitMut for TersifyingPathsVisitor {
+impl<'a> VisitMut for TersifyingPathsVisitor<'a> {
     fn visit_type_path_mut(&mut self, type_path: &mut syn::TypePath) {
         let (head, tail) = split_type_path(type_path);
         let segments = to_segments(&head);
@@ -335,6 +370,10 @@ impl VisitMut for TersifyingPathsVisitor {
             .iter()
             .any(|path| path == &segments)
             || head.is_empty()
+            || self
+                .generic_params
+                .generic_params
+                .contains(&tail.last().unwrap().ident)
         {
             syn::visit_mut::visit_type_path_mut(self, type_path);
             return;
@@ -345,6 +384,9 @@ impl VisitMut for TersifyingPathsVisitor {
         } else {
             vec![]
         };
+        // if tail.last().unwrap().ident == "Heap" {
+        //     dbg!(&segments);
+        // }
         if let Some(qself) = &mut type_path.qself {
             qself.position = new_path.len() + 1;
         }
@@ -362,7 +404,12 @@ impl VisitMut for TersifyingPathsVisitor {
             .iter()
             .any(|path| path == &segments)
             || head.is_empty()
+            || self
+                .generic_params
+                .generic_params
+                .contains(&tail.last().unwrap().ident)
         {
+            dbg!(&segments);
             syn::visit_mut::visit_trait_bound_mut(self, i);
             return;
         }
@@ -372,6 +419,10 @@ impl VisitMut for TersifyingPathsVisitor {
         } else {
             vec![]
         };
+        if tail.last().unwrap().ident == "Heap" {
+            dbg!(&self.collisions.collisions);
+            dbg!(&segments);
+        }
         i.path = syn::parse_quote! {
             #(#new_path::)*#(#tail)::*
         };

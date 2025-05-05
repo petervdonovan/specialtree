@@ -13,13 +13,20 @@ pub fn main() {
             provides: vec![
                 words::targets::words_mod(&arena, root_cgd.subtree(), &fib),
                 term_trait_gen::targets::default(&arena, root_cgd.subtree(), &fib),
-                term_specialized_gen::targets::default(&arena, root_cgd.subtree(), &fib),
-                term_specialized_impl_gen::targets::default(&arena, root_cgd.subtree(), &fib),
+                parse_gen::targets::parsells(&arena, root_cgd.subtree(), &fib),
                 term_pattern_match_strategy_provider_gen::targets::default(
                     &arena,
                     root_cgd.subtree(),
                     &fib,
                 ),
+            ],
+            global_workspace_deps: vec![("tymetafuncspec-core", Path::new("."))],
+        },
+        Crate {
+            id: "fib-ds".into(),
+            provides: vec![
+                term_specialized_gen::targets::default(&arena, root_cgd.subtree(), &fib),
+                term_specialized_impl_gen::targets::default(&arena, root_cgd.subtree(), &fib),
                 term_pattern_match_strategy_provider_impl_gen::targets::words_impls(
                     &arena,
                     root_cgd.subtree(),
@@ -30,7 +37,6 @@ pub fn main() {
                     root_cgd.subtree(),
                     &fib,
                 ),
-                parse_gen::targets::parsells(&arena, root_cgd.subtree(), &fib),
             ],
             global_workspace_deps: vec![("tymetafuncspec-core", Path::new("."))],
         },

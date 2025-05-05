@@ -41,23 +41,23 @@ pub mod owned {
             (<Heap as ttf::Heap>::LeftOperand, (<Heap as ttf::Heap>::RightOperand, ())),
         >
     where
-        Heap: ttf::Heap,
+        Heap: crate::term_trait_fib::Heap,
     {}
     pub trait LeftOperand<
         Heap,
     >: CanonicallyConstructibleFrom<Heap, (<Heap as ttf::Heap>::Nat, ())>
     where
-        Heap: ttf::Heap,
+        Heap: crate::term_trait_fib::Heap,
     {}
     pub trait RightOperand<
         Heap,
     >: CanonicallyConstructibleFrom<Heap, (<Heap as ttf::Heap>::Nat, ())>
     where
-        Heap: ttf::Heap,
+        Heap: crate::term_trait_fib::Heap,
     {}
     pub trait F<Heap>: CanonicallyConstructibleFrom<Heap, (<Heap as ttf::Heap>::Nat, ())>
     where
-        Heap: ttf::Heap,
+        Heap: crate::term_trait_fib::Heap,
     {}
     pub trait Sum<
         Heap,
@@ -66,7 +66,7 @@ pub mod owned {
             (<Heap as MapsTmf<wmf::L, Set<Heap, <Heap as ttf::Heap>::Nat>>>::Tmf, ()),
         >
     where
-        Heap: ttf::Heap,
+        Heap: crate::term_trait_fib::Heap,
     {}
     pub trait Nat<
         Heap,
@@ -81,6 +81,6 @@ pub mod owned {
             (<Heap as ttf::Heap>::Plus, ()),
         > + CanonicallyConstructibleFrom<Heap, (<Heap as ttf::Heap>::Sum, ())>
     where
-        Heap: ttf::Heap,
+        Heap: crate::term_trait_fib::Heap,
     {}
 }

@@ -5,6 +5,8 @@ edition.workspace = true
 
 [dependencies]
 bumpalo.workspace = true
+parse-adt = { version = "0.1.0", path = "../parse-adt" }
 term = { version = "0.1.0", path = "../term" }
 tymetafuncspec-core = { version = "0.1.0", path = "../tymetafuncspec-core" }
 typenum.workspace = true
+words = { version = "0.1.0", path = "../words" }
