@@ -15,6 +15,39 @@ pub fn generate<L: LangSpec>(bps: &BasePaths, lg: &LsGen<L>) -> syn::ItemMod {
     }
 }
 
+pub(crate) fn generate_base_cases() -> syn::ItemMod {
+    // syn::parse_quote! {
+    //     mod base_cases {
+    //         impl Visitable for #camel
+    //         ...
+    //     }
+    // }
+    todo!()
+}
+
+pub(crate) fn generate_impl_fn_lut() -> syn::ItemMod {
+    syn::parse_quote! {
+        mod impl_fn_lut {
+            term::impl_fn_lut!(
+                witness_name CloneWitness <> ;
+                trait Clone ;
+                fn_name clone ;
+                get for<'a> fn (&'a This) -> This ;
+                types
+                a = A,
+                b = B<A>
+            );
+        }
+    }
+}
+
+pub(crate) fn generate_unparse() -> syn::ItemMod {
+    syn::parse_quote! {
+        pub mod unparse {
+        }
+    }
+}
+
 pub mod targets {
     use std::path::Path;
 
