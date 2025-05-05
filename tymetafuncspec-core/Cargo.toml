@@ -12,3 +12,4 @@ serde = { workspace = true }
 syn = { workspace = true }
 derivative = { workspace = true }
 slab = { workspace = true }
+ccf = { version = "0.1.0", path = "../ccf" }

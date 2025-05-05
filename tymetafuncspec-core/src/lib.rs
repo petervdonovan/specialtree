@@ -5,8 +5,9 @@ use langspec::{
     tymetafunc::{ArgId, IdentifiedBy, RustTyMap, Transparency, TyMetaFuncData, TyMetaFuncSpec},
 };
 
+use ccf::DirectlyCanonicallyConstructibleFrom;
 use serde::{Deserialize, Serialize};
-use term::{DirectlyCanonicallyConstructibleFrom, Heaped, SuperHeap};
+use term::{Heaped, SuperHeap};
 
 pub struct Core;
 #[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize, Hash, PartialOrd, Ord)]

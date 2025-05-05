@@ -1,10 +1,4 @@
-use crate::CanonicallyConstructibleFrom;
-
-pub trait DirectlyCanonicallyConstructibleFrom<Heap, T>: Sized {
-    fn construct(heap: &mut Heap, t: T) -> Self;
-    fn deconstruct_succeeds(&self, heap: &Heap) -> bool;
-    fn deconstruct(self, heap: &Heap) -> T;
-}
+use crate::{CanonicallyConstructibleFrom, DirectlyCanonicallyConstructibleFrom};
 
 pub trait TransitivelyUnitCcf<Heap, T> {
     type Intermediary;

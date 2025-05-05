@@ -29,38 +29,38 @@ macro_rules! auto_impl_ccf {
     };
 }
 
-#[repr(transparent)]
-pub struct Owned<T>(std::mem::ManuallyDrop<T>);
-// impl<T> Heaped for Owned<T>
-// where
-//     T: Heaped,
+// #[repr(transparent)]
+// pub struct Owned<T>(std::mem::ManuallyDrop<T>);
+// // impl<T> Heaped for Owned<T>
+// // where
+// //     T: Heaped,
+// // {
+// //     type Heap = T::Heap;
+// // }
+// impl<Heap, TOwned: AllOwned, U: CanonicallyConstructibleFrom<Heap, TOwned::Bak>>
+//     CanonicallyConstructibleFrom<Heap, (TOwned, ())> for Owned<U>
 // {
-//     type Heap = T::Heap;
+//     fn construct(heap: &mut Heap, t: (TOwned, ())) -> Self {
+//         // safe because bak and construct are inverse to each other wrt freeing
+//         unsafe {
+//             let bak = t.0.bak();
+//             let u = U::construct(heap, bak);
+//             Owned(std::mem::ManuallyDrop::new(u))
+//         }
+//     }
+
+//     fn deconstruct_succeeds(&self, heap: &Heap) -> bool {
+//         self.0.deconstruct_succeeds(heap)
+//     }
+
+//     fn deconstruct(self, heap: &Heap) -> (TOwned, ()) {
+//         // safe because .0 and new are inverse to each other wrt freeing
+//         unsafe {
+//             let bak = std::mem::ManuallyDrop::<U>::into_inner(self.0).deconstruct(heap);
+//             (TOwned::new(bak), ())
+//         }
+//     }
 // }
-impl<Heap, TOwned: AllOwned, U: CanonicallyConstructibleFrom<Heap, TOwned::Bak>>
-    CanonicallyConstructibleFrom<Heap, (TOwned, ())> for Owned<U>
-{
-    fn construct(heap: &mut Heap, t: (TOwned, ())) -> Self {
-        // safe because bak and construct are inverse to each other wrt freeing
-        unsafe {
-            let bak = t.0.bak();
-            let u = U::construct(heap, bak);
-            Owned(std::mem::ManuallyDrop::new(u))
-        }
-    }
-
-    fn deconstruct_succeeds(&self, heap: &Heap) -> bool {
-        self.0.deconstruct_succeeds(heap)
-    }
-
-    fn deconstruct(self, heap: &Heap) -> (TOwned, ()) {
-        // safe because .0 and new are inverse to each other wrt freeing
-        unsafe {
-            let bak = std::mem::ManuallyDrop::<U>::into_inner(self.0).deconstruct(heap);
-            (TOwned::new(bak), ())
-        }
-    }
-}
 
 pub trait Heaped {
     type Heap;
@@ -120,16 +120,16 @@ pub struct CcfRelation<SortId> {
     pub from: Vec<SortId>,
     pub to: SortId,
 }
-pub trait MutableCollection<'a, 'heap: 'a>:
-    Heaped
-    + IntoIterator<Item = <Self as MutableCollection<'a, 'heap>>::Item>
-    + FromIterator<<Self as MutableCollection<'a, 'heap>>::Item>
-{
-    type Item;
-    fn insert(&mut self, item: <Self as MutableCollection<'a, 'heap>>::Item);
-    // type Cursor: Cursor<'a, 'heap, C = Self>;
-    // fn start(self, heap: &'heap Self::Heap) -> Self::Cursor;
-}
+// pub trait MutableCollection<'a, 'heap: 'a>:
+//     Heaped
+//     + IntoIterator<Item = <Self as MutableCollection<'a, 'heap>>::Item>
+//     + FromIterator<<Self as MutableCollection<'a, 'heap>>::Item>
+// {
+//     type Item;
+//     fn insert(&mut self, item: <Self as MutableCollection<'a, 'heap>>::Item);
+//     // type Cursor: Cursor<'a, 'heap, C = Self>;
+//     // fn start(self, heap: &'heap Self::Heap) -> Self::Cursor;
+// }
 // pub trait Cursor<'a, 'heap: 'a> {
 //     type C: MutableCollection<'a, 'heap>;
 //     fn following<'b>(
@@ -219,31 +219,31 @@ pub trait MutableCollection<'a, 'heap: 'a>:
 // pub type IsoClassExpansionMaybeConversionFallibility = !; // cannot fail
 // pub type ExpansionMaybeConversionFallibility = (); // failure is inhabited
 
-pub trait AllOwned {
-    type Bak;
-    /// # Safety
-    /// Leaks if result is not converted back to Owned and then dropped
-    unsafe fn bak(self) -> Self::Bak;
-    /// # Safety
-    /// Use-after-free if `bak` involves a shared reference
-    unsafe fn new(bak: Self::Bak) -> Self;
-}
-macro_rules! impl_to_refs {
-    ($arg:ident $(,)? $($args:ident),*) => {
-        #[allow(non_snake_case)]
-        impl<T, $($args),*> AllOwned for (Owned<T>, $($args),*) {
-            type Bak = (T, $($args),*);
-            unsafe fn bak(self) -> Self::Bak {
-                let (Owned(t), $($args),*) = self;
-                (std::mem::ManuallyDrop::<T>::into_inner(t), $($args),*)
-            }
-            unsafe fn new(bak: Self::Bak) -> Self {
-                let (t, $($args),*) = bak;
-                (Owned(std::mem::ManuallyDrop::new(t)), $($args),*)
-            }
-        }
-        impl_to_refs!($($args),*);
-    };
-    () => {};
-}
-impl_to_refs!(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11);
+// pub trait AllOwned {
+//     type Bak;
+//     /// # Safety
+//     /// Leaks if result is not converted back to Owned and then dropped
+//     unsafe fn bak(self) -> Self::Bak;
+//     /// # Safety
+//     /// Use-after-free if `bak` involves a shared reference
+//     unsafe fn new(bak: Self::Bak) -> Self;
+// }
+// macro_rules! impl_to_refs {
+//     ($arg:ident $(,)? $($args:ident),*) => {
+//         #[allow(non_snake_case)]
+//         impl<T, $($args),*> AllOwned for (Owned<T>, $($args),*) {
+//             type Bak = (T, $($args),*);
+//             unsafe fn bak(self) -> Self::Bak {
+//                 let (Owned(t), $($args),*) = self;
+//                 (std::mem::ManuallyDrop::<T>::into_inner(t), $($args),*)
+//             }
+//             unsafe fn new(bak: Self::Bak) -> Self {
+//                 let (t, $($args),*) = bak;
+//                 (Owned(std::mem::ManuallyDrop::new(t)), $($args),*)
+//             }
+//         }
+//         impl_to_refs!($($args),*);
+//     };
+//     () => {};
+// }
+// impl_to_refs!(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11);
