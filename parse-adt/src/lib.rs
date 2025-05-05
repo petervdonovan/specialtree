@@ -54,7 +54,6 @@ impl<'a, L, AllCurrentCases> Parser<'a, L, AllCurrentCases> {
         let mut iter = self.peek_words();
         if let Some(word) = iter.next() {
             self.position = (self.position.offset() + word.0 + word.1.len()).into();
-            dbg!(word.1);
             Some(word.1)
         } else {
             None

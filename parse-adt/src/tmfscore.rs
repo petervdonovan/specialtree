@@ -56,7 +56,6 @@ where
     fn co_visit(visitor: &mut Parser<'a, L, ()>, heap: &mut Heap, fnlut: Fnlut) -> Self {
         let mut items = Vec::new();
         let initial_offset = visitor.position;
-        dbg!(initial_offset);
         match visitor.pop_word() {
             Some("{") => {}
             Some(word) => {

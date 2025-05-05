@@ -8,9 +8,7 @@ pub fn insert_use(f: syn::File) -> syn::File {
     let pv = pv.sorted();
     let mut gp = GenericParamVisitor::new(); // todo: populate top-level gp
     gp.visit_file(&f);
-    // dbg!(&gp.generic_params);
     let (_, cp) = use_declarations(pv, &gp);
-    dbg!(&cp.collisions);
     let mut tersified_file = f.clone();
     InsertUseInModuleAsNeeded.visit_file_mut(&mut tersified_file);
     TersifyingPathsVisitor {
@@ -384,9 +382,6 @@ impl<'a> VisitMut for TersifyingPathsVisitor<'a> {
         } else {
             vec![]
         };
-        // if tail.last().unwrap().ident == "Heap" {
-        //     dbg!(&segments);
-        // }
         if let Some(qself) = &mut type_path.qself {
             qself.position = new_path.len() + 1;
         }
@@ -409,7 +404,6 @@ impl<'a> VisitMut for TersifyingPathsVisitor<'a> {
                 .generic_params
                 .contains(&tail.last().unwrap().ident)
         {
-            dbg!(&segments);
             syn::visit_mut::visit_trait_bound_mut(self, i);
             return;
         }
@@ -419,10 +413,6 @@ impl<'a> VisitMut for TersifyingPathsVisitor<'a> {
         } else {
             vec![]
         };
-        if tail.last().unwrap().ident == "Heap" {
-            dbg!(&self.collisions.collisions);
-            dbg!(&segments);
-        }
         i.path = syn::parse_quote! {
             #(#new_path::)*#(#tail)::*
         };
