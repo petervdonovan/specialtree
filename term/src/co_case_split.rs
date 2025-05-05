@@ -1,14 +1,14 @@
 use crate::{
     CanonicallyConstructibleFrom, Heaped,
     case_split::ConsList,
-    select::{AcceptingCases, FromSelectCase},
+    select::{AcceptingCases, InSelectCase},
 };
 
 pub trait CoCaseSplittable<F, Heap, CcfConsList>: Sized
 where
-    F: FromSelectCase,
+    F: InSelectCase,
 {
-    fn co_case_split(callable: F, heap: &mut Heap) -> (Self, F::ShortCircuitsTo);
+    fn co_case_split(callable: F, heap: &mut Heap) -> (Self, F::EndSelectCase);
 }
 
 pub trait CoCallable<Heap, Case> {
@@ -16,15 +16,15 @@ pub trait CoCallable<Heap, Case> {
 }
 pub trait AdmitNoMatchingCase<Heap, T>
 where
-    Self: FromSelectCase,
+    Self: InSelectCase,
 {
-    fn no_matching_case(&self, heap: &mut Heap) -> (T, Self::ShortCircuitsTo);
+    fn no_matching_case(&self, heap: &mut Heap) -> (T, Self::EndSelectCase);
 }
 impl<F, Heap, T> CoCaseSplittable<F, Heap, ()> for T
 where
-    F: AdmitNoMatchingCase<Heap, T> + FromSelectCase,
+    F: AdmitNoMatchingCase<Heap, T> + InSelectCase,
 {
-    fn co_case_split(callable: F, heap: &mut Heap) -> (Self, F::ShortCircuitsTo) {
+    fn co_case_split(callable: F, heap: &mut Heap) -> (Self, F::EndSelectCase) {
         callable.no_matching_case(heap)
     }
 }
@@ -36,14 +36,14 @@ where
     T: CanonicallyConstructibleFrom<Heap, CasesCar>,
     F: AdmitNoMatchingCase<Heap, T>,
     F: AcceptingCases<(CasesCar, CasesCdr)>,
-    <F as FromSelectCase>::ShortCircuitsTo: CoCallable<Heap, CasesCar>, //  + AcceptingCases<(CasesCar, CasesCdr)>
+    <F as InSelectCase>::EndSelectCase: CoCallable<Heap, CasesCar>, //  + AcceptingCases<(CasesCar, CasesCdr)>
     T: CoCaseSplittable<
             <F as AcceptingCases<(CasesCar, CasesCdr)>>::AcceptingRemainingCases,
             Heap,
             CasesCdr,
         >,
 {
-    fn co_case_split(callable: F, heap: &mut Heap) -> (Self, F::ShortCircuitsTo) {
+    fn co_case_split(callable: F, heap: &mut Heap) -> (Self, F::EndSelectCase) {
         match <F as AcceptingCases<(CasesCar, CasesCdr)>>::try_case(callable) {
             Ok(mut short_circuited) => {
                 let ok = short_circuited.call(heap);

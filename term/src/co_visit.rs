@@ -3,7 +3,7 @@ use take_mut::Poisonable;
 use crate::{
     case_split::ConsList,
     co_case_split::{AdmitNoMatchingCase, CoCallable, CoCaseSplittable},
-    select::{AcceptingCases, FromSelectCase, SelectCase},
+    select::{AcceptingCases, InSelectCase, SelectCase},
 };
 
 pub trait CoVisitor<T> {
@@ -92,31 +92,26 @@ where
     V: AdmitNoMatchingCase<Heap, T>,
     F: Copy,
 {
-    fn no_matching_case(&self, heap: &mut Heap) -> (T, Self::ShortCircuitsTo) {
+    fn no_matching_case(&self, heap: &mut Heap) -> (T, Self::EndSelectCase) {
         let (t, short) = self.cv.no_matching_case(heap);
         (t, CoCallablefyCoVisitor::new(short, self.fnlut))
     }
 }
 
-impl<CV, T, PatternMatchStrategyProvider, DepthFuel, Fnlut> FromSelectCase
+impl<CV, T, PatternMatchStrategyProvider, DepthFuel, Fnlut> InSelectCase
     for CoCallablefyCoVisitor<CV, T, PatternMatchStrategyProvider, DepthFuel, Fnlut>
 where
-    CV: FromSelectCase,
+    CV: InSelectCase,
 {
-    type ShortCircuitsTo = CoCallablefyCoVisitor<
-        CV::ShortCircuitsTo,
-        T,
-        PatternMatchStrategyProvider,
-        DepthFuel,
-        Fnlut,
-    >;
+    type EndSelectCase =
+        CoCallablefyCoVisitor<CV::EndSelectCase, T, PatternMatchStrategyProvider, DepthFuel, Fnlut>;
 }
 
 impl<CV, T, PatternMatchStrategyProvider, Cases, DepthFuel, Fnlut> AcceptingCases<Cases>
     for CoCallablefyCoVisitor<CV, T, PatternMatchStrategyProvider, DepthFuel, Fnlut>
 where
     Cases: ConsList,
-    CV: AcceptingCases<Cases> + FromSelectCase,
+    CV: AcceptingCases<Cases> + InSelectCase,
 {
     type AcceptingRemainingCases = CoCallablefyCoVisitor<
         CV::AcceptingRemainingCases,
@@ -126,7 +121,7 @@ where
         Fnlut,
     >;
 
-    fn try_case(self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
+    fn try_case(self) -> Result<Self::EndSelectCase, Self::AcceptingRemainingCases> {
         match self.cv.try_case() {
             Ok(short_circuited) => Ok(CoCallablefyCoVisitor::new(short_circuited, self.fnlut)),
             Err(remaining_cases) => {

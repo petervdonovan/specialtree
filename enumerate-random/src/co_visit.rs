@@ -25,7 +25,7 @@ where
 impl<Ctx, Heap, AllCurrentCases, Dp> AdmitNoMatchingCase<Heap, Ctx>
     for ChoosingEnumerator<AllCurrentCases, Dp>
 {
-    fn no_matching_case(&self, _heap: &mut Heap) -> (Ctx, Self::ShortCircuitsTo) {
+    fn no_matching_case(&self, _heap: &mut Heap) -> (Ctx, Self::EndSelectCase) {
         unreachable!()
     }
 }

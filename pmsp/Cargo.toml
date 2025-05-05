@@ -1,11 +1,8 @@
 [package]
-name = "covisit"
+name = "pmsp"
 version.workspace = true
 edition.workspace = true
 
 [dependencies]
-ccf = { version = "0.1.0", path = "../ccf" }
 conslist = { version = "0.1.0", path = "../conslist" }
-pmsp = { version = "0.1.0", path = "../pmsp" }
-take-mut = { version = "0.1.0", path = "../take-mut" }
 words = { version = "0.1.0", path = "../words" }

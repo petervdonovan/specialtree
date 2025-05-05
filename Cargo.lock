@@ -59,6 +59,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "ccf"
+version = "0.1.0"
+
+[[package]]
 name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -78,6 +82,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "conslist"
+version = "0.1.0"
+
+[[package]]
 name = "convert_case"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -86,6 +94,13 @@ checksum = "6245d59a3e82a7fc217c5828a6692dbc6dfb63a0c8c90495621f7b9d79704a0e"
 [[package]]
 name = "covisit"
 version = "0.1.0"
+dependencies = [
+ "ccf",
+ "conslist",
+ "pmsp",
+ "take-mut",
+ "words",
+]
 
 [[package]]
 name = "derivative"
@@ -561,6 +576,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
 
 [[package]]
+name = "pmsp"
+version = "0.1.0"
+dependencies = [
+ "conslist",
+ "words",
+]
+
+[[package]]
 name = "ppv-lite86"
 version = "0.2.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -829,6 +852,7 @@ version = "0.1.0"
 name = "term"
 version = "0.1.0"
 dependencies = [
+ "ccf",
  "fn-traits",
  "take-mut",
  "type-equals",

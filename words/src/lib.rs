@@ -5,6 +5,8 @@ pub trait Implements<Heap, L> {
     type LWord;
 }
 
+pub trait Adt {}
+
 pub fn words_mod<L: LangSpec>(lg: &LsGen<L>) -> syn::ItemMod {
     let sort_camel_idents = lg.ty_gen_datas(None).map(|it| it.camel_ident);
     let byline = langspec_gen_util::byline!();

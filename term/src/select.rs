@@ -4,16 +4,16 @@ pub trait SelectCase
 where
     Self: Sized,
 {
-    type AC<CasesConsList: ConsList>: FromSelectCase<ShortCircuitsTo = Self>;
+    type AC<CasesConsList: ConsList>: InSelectCase<EndSelectCase = Self>;
     fn start_cases<CasesConsList: ConsList>(self) -> Self::AC<CasesConsList>;
 }
-pub trait FromSelectCase {
-    type ShortCircuitsTo;
+pub trait InSelectCase {
+    type EndSelectCase;
 }
-pub trait AcceptingCases<CasesConsList>: FromSelectCase
+pub trait AcceptingCases<CasesConsList>: InSelectCase
 where
     CasesConsList: ConsList,
 {
-    type AcceptingRemainingCases: AcceptingCases<CasesConsList::Cdr, ShortCircuitsTo = Self::ShortCircuitsTo>;
-    fn try_case(self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases>;
+    type AcceptingRemainingCases: AcceptingCases<CasesConsList::Cdr, EndSelectCase = Self::EndSelectCase>;
+    fn try_case(self) -> Result<Self::EndSelectCase, Self::AcceptingRemainingCases>;
 }

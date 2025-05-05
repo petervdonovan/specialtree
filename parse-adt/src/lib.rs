@@ -6,7 +6,7 @@ use term::{
     case_split::{AtLeastTwoConsList, ConsList, NonemptyConsList},
     co_visit::CoVisitor,
     fnlut::HasFn,
-    select::{AcceptingCases, FromSelectCase, SelectCase},
+    select::{AcceptingCases, InSelectCase, SelectCase},
 };
 use words::Implements;
 
@@ -158,8 +158,8 @@ impl<'a, L> SelectCase for Parser<'a, L, ()> {
     }
 }
 
-impl<'a, L, Cases> FromSelectCase for Parser<'a, L, Cases> {
-    type ShortCircuitsTo = Parser<'a, L, ()>;
+impl<'a, L, Cases> InSelectCase for Parser<'a, L, Cases> {
+    type EndSelectCase = Parser<'a, L, ()>;
 }
 
 impl<'a, L, AllCurrentCases> AcceptingCases<()> for Parser<'a, L, AllCurrentCases>
@@ -168,7 +168,7 @@ where
 {
     type AcceptingRemainingCases = Self;
 
-    fn try_case(self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
+    fn try_case(self) -> Result<Self::EndSelectCase, Self::AcceptingRemainingCases> {
         panic!()
     }
 }
@@ -181,12 +181,12 @@ impl<'a, Heap, L, RemainingCasesUnwrappedCarCar, RemainingCasesCdr, AllCurrentCa
 where
     AllCurrentCases: AtLeastTwoConsList,
     RemainingCasesCdr: ConsList,
-    Self: AcceptingCases<RemainingCasesCdr, ShortCircuitsTo = Parser<'a, L, ()>>,
+    Self: AcceptingCases<RemainingCasesCdr, EndSelectCase = Parser<'a, L, ()>>,
     RemainingCasesUnwrappedCarCar: Lookahead<Heap, L>,
 {
     type AcceptingRemainingCases = Self;
 
-    fn try_case(self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
+    fn try_case(self) -> Result<Self::EndSelectCase, Self::AcceptingRemainingCases> {
         if RemainingCasesUnwrappedCarCar::matches(&self) {
             Ok(self.convert_to())
         } else {
@@ -216,7 +216,7 @@ where
 impl<'a, L, Car> AcceptingCases<(Car, ())> for Parser<'a, L, (Car, ())> {
     type AcceptingRemainingCases = Self;
 
-    fn try_case(self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
+    fn try_case(self) -> Result<Self::EndSelectCase, Self::AcceptingRemainingCases> {
         println!("assuming the only case at: {:?}", self.position);
         Ok(Parser {
             source: self.source,
@@ -303,7 +303,7 @@ impl<A, Heap, L, AllCurrentCases> term::co_case_split::AdmitNoMatchingCase<Heap,
     fn no_matching_case(
         &self,
         _heap: &mut <Cstfy<Heap, A> as term::Heaped>::Heap,
-    ) -> (Cstfy<Heap, A>, Self::ShortCircuitsTo) {
+    ) -> (Cstfy<Heap, A>, Self::EndSelectCase) {
         (
             tymetafuncspec_core::Either::Right(
                 std_parse_error::ParseError::new(parse::ParseError::UnexpectedToken(

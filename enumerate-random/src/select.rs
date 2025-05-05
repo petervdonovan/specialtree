@@ -1,7 +1,7 @@
 use rand::Rng as _;
 use term::{
     case_split::ConsList,
-    select::{AcceptingCases, FromSelectCase, SelectCase},
+    select::{AcceptingCases, InSelectCase, SelectCase},
 };
 
 use crate::{ChoosingEnumerator, Enumerator};
@@ -20,8 +20,8 @@ impl<Dp> SelectCase for Enumerator<Dp> {
     }
 }
 
-impl<AllCurrentCases, Dp> FromSelectCase for ChoosingEnumerator<AllCurrentCases, Dp> {
-    type ShortCircuitsTo = Enumerator<Dp>;
+impl<AllCurrentCases, Dp> InSelectCase for ChoosingEnumerator<AllCurrentCases, Dp> {
+    type EndSelectCase = Enumerator<Dp>;
 }
 
 impl<AllCurrentCases, Dp> AcceptingCases<()> for ChoosingEnumerator<AllCurrentCases, Dp>
@@ -30,7 +30,7 @@ where
 {
     type AcceptingRemainingCases = Self;
 
-    fn try_case(self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
+    fn try_case(self) -> Result<Self::EndSelectCase, Self::AcceptingRemainingCases> {
         panic!()
     }
 }
@@ -41,11 +41,11 @@ impl<RemainingCasesCar, RemainingCasesCdr, AllCurrentCases, Dp>
 where
     AllCurrentCases: ConsList,
     RemainingCasesCdr: ConsList,
-    Self: AcceptingCases<RemainingCasesCdr, ShortCircuitsTo = Enumerator<Dp>>,
+    Self: AcceptingCases<RemainingCasesCdr, EndSelectCase = Enumerator<Dp>>,
 {
     type AcceptingRemainingCases = Self;
 
-    fn try_case(self) -> Result<Self::ShortCircuitsTo, Self::AcceptingRemainingCases> {
+    fn try_case(self) -> Result<Self::EndSelectCase, Self::AcceptingRemainingCases> {
         if RemainingCasesCdr::LENGTH == self.chosen_case {
             Ok(self.bak)
         } else {
