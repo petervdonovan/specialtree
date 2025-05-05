@@ -35,7 +35,7 @@ members = [
     "unparse-adt",
     "unparse-gen",
     "codegen-component",
-    "generated/*", "take-mut",
+    "generated/*", "take-mut", "covisit",
 ]
 
 [profile.release]
