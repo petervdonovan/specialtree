@@ -14,3 +14,6 @@ typenum = { workspace = true }
 unicode-segmentation = { workspace = true }
 take-mut = { version = "0.1.0", path = "../take-mut" }
 words.path = "../words"
+covisit = { version = "0.1.0", path = "../covisit" }
+pmsp = { version = "0.1.0", path = "../pmsp" }
+conslist = { version = "0.1.0", path = "../conslist" }

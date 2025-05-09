@@ -1,11 +1,11 @@
+[dependencies.ccf]
+path = "../.././ccf"
+
 [dependencies.fib]
 path = "../fib"
 
 [dependencies.term]
 path = "../.././term"
-
-[dependencies.term-pattern-match-strategy-provider-gen]
-path = "../.././term-pattern-match-strategy-provider-gen"
 
 [dependencies.term-pattern-match-strategy-provider-impl-gen]
 path = "../.././term-pattern-match-strategy-provider-impl-gen"

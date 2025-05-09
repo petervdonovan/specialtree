@@ -428,11 +428,11 @@ pub mod owned {
     use tymetafuncspec_core::Either;
     use tymetafuncspec_core::BoundedNat;
     use term::MapsTmf;
-    use term::CanonicallyConstructibleFrom;
     use std_parse_metadata::ParseMetadata;
     use std_parse_error::ParseError;
     use crate::words_mod_cst as wmc;
     use crate::term_trait_cst as ttc;
+    use ccf::CanonicallyConstructibleFrom;
     pub trait Plus<
         Heap,
     >: CanonicallyConstructibleFrom<

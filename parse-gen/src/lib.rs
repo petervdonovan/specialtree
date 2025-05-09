@@ -48,14 +48,14 @@ pub fn generate<L: LangSpec>(bps: &BasePaths, lg: &LsGen<L>) -> syn::ItemMod {
             )
         })
     });
-    let fnlut = generate_impl_fn_lut(
-        bps,
-        &lg_cst,
-        cst.sublangs()
-            .iter()
-            .find(|it| &it.name == lg.bak().name())
-            .unwrap(),
-    );
+    // let fnlut = generate_impl_fn_lut(
+    //     bps,
+    //     &lg_cst,
+    //     cst.sublangs()
+    //         .iter()
+    //         .find(|it| &it.name == lg.bak().name())
+    //         .unwrap(),
+    // );
     parse_quote! {
         #byline
         pub mod parse {
@@ -63,7 +63,7 @@ pub fn generate<L: LangSpec>(bps: &BasePaths, lg: &LsGen<L>) -> syn::ItemMod {
             // pub mod parsell {
             //     #(#parsells)*
             // }
-            #fnlut
+            // #fnlut
         }
     }
 }
@@ -114,12 +114,14 @@ pub(crate) fn generate_parse<LCst: LangSpec>(
     );
     let parse_bp = &bps.parse;
     let byline = byline!();
+    let words = &bps.words;
     syn::parse_quote! {
         #byline
         pub fn #snake_ident(source: &str) -> (#cst_data_structure_bp::Heap, #my_cstfied_ty) {
             let mut parser = parse_adt::Parser::new(source);
             let mut heap = #cst_data_structure_bp::Heap::default();
-            let ret = <#my_cstfied_ty as #cvt>::co_visit(&mut parser, &mut heap, #parse_bp::fnlut::ParseWitness::new());
+            // let ret = <#my_cstfied_ty as #cvt>::co_visit(&mut parser, &mut heap, #parse_bp::fnlut::ParseWitness::new());
+            let ret = <parse_adt::Parser<'_, #words::L, ()> as covisit::Covisit<#my_cstfied_ty, #cst_data_structure_bp::Heap, #words::L>>::covisit(&mut parser, &mut heap);
             (heap, ret)
         }
     }
@@ -205,9 +207,10 @@ pub(crate) fn generate_impl_fn_lut<'a, 'b: 'a, LCst: LangSpec + 'b>(
     }
 }
 
-pub(crate) fn generate_parsell<LCst: LangSpec>(
+pub(crate) fn generate_parsell<L: LangSpec, LCst: LangSpec>(
     og_words_bp: &syn::Path,
     cst_tgd: &TyGenData<LCst>,
+    tgd: &TyGenData<L>,
 ) -> syn::Item {
     let camel_ident = &cst_tgd.camel_ident;
     let snake_ident = &cst_tgd.snake_ident;
@@ -215,16 +218,31 @@ pub(crate) fn generate_parsell<LCst: LangSpec>(
     // let my_cst_ty: syn::Type = syn::parse_quote! { #cst_data_structure_bp::#camel_ident };
     // let og_words_bp = &bps.words;
     let byline = byline!();
-    syn::parse_quote! {
-        #byline
-        impl parse_adt::NamesParseLL for #og_words_bp::sorts::#camel_ident {
-            const START: parse::KeywordSequence = parse::KeywordSequence(
-                &[parse::Keyword::new(stringify!(#snake_ident))],
-            );
-            const PROCEED: &'static [parse::KeywordSequence] = &[];
-            const END: parse::KeywordSequence = parse::KeywordSequence(
-                &[],
-            );
+    if tgd.transparency == Transparency::Transparent {
+        syn::parse_quote! {
+            #byline
+            impl parse_adt::NamesParseLL for #og_words_bp::sorts::#camel_ident {
+                const START: parse::KeywordSequence = parse::KeywordSequence(
+                    &[],
+                );
+                const PROCEED: &'static [parse::KeywordSequence] = &[];
+                const END: parse::KeywordSequence = parse::KeywordSequence(
+                    &[],
+                );
+            }
+        }
+    } else {
+        syn::parse_quote! {
+            #byline
+            impl parse_adt::NamesParseLL for #og_words_bp::sorts::#camel_ident {
+                const START: parse::KeywordSequence = parse::KeywordSequence(
+                    &[parse::Keyword::new(stringify!(#snake_ident))],
+                );
+                const PROCEED: &'static [parse::KeywordSequence] = &[];
+                const END: parse::KeywordSequence = parse::KeywordSequence(
+                    &[],
+                );
+            }
         }
     }
 }
@@ -287,6 +305,7 @@ pub mod targets {
     use std::path::Path;
 
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
+    use langspec::langspec::LangSpec as _;
     use langspec_gen_util::kebab_id;
 
     pub fn default<'langs, L: super::LangSpec>(
@@ -357,6 +376,7 @@ pub mod targets {
                     cst,
                     l,
                 ));
+                // let _ = codegen_deps.add(term_pattern_match_strategy_provider_impl_gen::targets::uses_strategy_for_traversal_impls(arena, codegen_deps.subtree(), cst, &[cst.name().clone(), l.name().clone()]));
                 Box::new(move |c2sp, sp| {
                     let lg = super::LsGen::from(l);
                     super::generate(
@@ -382,6 +402,7 @@ pub mod targets {
                 ("term", Path::new(".")),
                 ("parse-adt", Path::new(".")),
                 ("parse", Path::new(".")),
+                ("covisit", Path::new(".")),
             ],
             codegen_deps,
         }
@@ -424,6 +445,7 @@ pub mod targets {
                                     .iter()
                                     .find(|cst_tgd| cst_tgd.snake_ident == tgd.snake_ident)
                                     .unwrap(),
+                                &tgd,
                             )
                         })
                     });

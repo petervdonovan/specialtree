@@ -15,20 +15,20 @@ pub fn generate<L: LangSpec>(base_paths: &BasePaths, ls: &LsGen<L>) -> syn::Item
         let camel_ident = tgd.camel_ident;
         impl_has_pattern_match_strategy_for(base_paths, &camel_ident, tgd.ccf)
     });
-    let term_trait = &base_paths.term_trait;
-    let words = &base_paths.words;
+    // let term_trait = &base_paths.term_trait;
+    // let words = &base_paths.words;
     // let data_structure = &base_paths.data_structure;
     syn::parse_quote! {
         #byline
         pub mod pattern_match_strategy {
-            impl<Heap: #term_trait::Heap, T> term::case_split::HasPatternMatchStrategyFor<T> for PatternMatchStrategyProvider<Heap>
-            where
-                T: words::Implements<Heap, #words::L>,
-                T::LWord: term::case_split::NamesPatternMatchStrategyGivenContext<Heap>,
-            {
-                type Strategy = <T::LWord as term::case_split::NamesPatternMatchStrategyGivenContext<Heap>>::Strategy;
-            }
-            pub struct PatternMatchStrategyProvider<Heap>(std::marker::PhantomData<Heap>);
+            // impl<Heap: #term_trait::Heap, T> term::case_split::HasPatternMatchStrategyFor<T> for PatternMatchStrategyProvider<Heap>
+            // where
+            //     T: words::Implements<Heap, #words::L>,
+            //     T::LWord: pmsp::NamesPatternMatchStrategyGivenContext<Heap>,
+            // {
+            //     type Strategy = <T::LWord as pmsp::NamesPatternMatchStrategyGivenContext<Heap>>::Strategy;
+            // }
+            // pub struct PatternMatchStrategyProvider<Heap>(std::marker::PhantomData<Heap>);
             #(#impls)*
         }
     }
@@ -54,7 +54,7 @@ pub(crate) fn impl_has_pattern_match_strategy_for(
     );
     syn::parse_quote! {
         #byline
-        impl<Heap: #term_trait::Heap> term::case_split::NamesPatternMatchStrategyGivenContext<Heap> for #words::sorts::#camel_ident {
+        impl<Heap: #term_trait::Heap> pmsp::NamesPatternMatchStrategyGivenContext<Heap> for #words::sorts::#camel_ident {
             type Strategy = #strategy;
         }
     }
@@ -97,6 +97,7 @@ pub mod targets {
             workspace_deps: vec![
                 ("term-pattern-match-strategy-provider-gen", Path::new(".")),
                 ("words", Path::new(".")),
+                ("pmsp", Path::new(".")),
             ],
             codegen_deps,
         }

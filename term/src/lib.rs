@@ -13,7 +13,7 @@ pub mod visit;
 #[macro_export]
 macro_rules! auto_impl_ccf {
     ($heapty:ty, $ty:ty) => {
-        impl term::CanonicallyConstructibleFrom<$heapty, ($ty, ())> for $ty {
+        impl ccf::CanonicallyConstructibleFrom<$heapty, ($ty, ())> for $ty {
             fn construct(heap: &mut $heapty, t: ($ty, ())) -> Self {
                 t.0
             }

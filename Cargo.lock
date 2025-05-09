@@ -212,9 +212,11 @@ dependencies = [
 name = "fib"
 version = "0.0.0"
 dependencies = [
+ "ccf",
  "parse",
  "parse-adt",
  "parse-gen",
+ "pmsp",
  "term",
  "term-pattern-match-strategy-provider-gen",
  "term-trait-gen",
@@ -227,9 +229,9 @@ dependencies = [
 name = "fib-ds"
 version = "0.0.0"
 dependencies = [
+ "ccf",
  "fib",
  "term",
- "term-pattern-match-strategy-provider-gen",
  "term-pattern-match-strategy-provider-impl-gen",
  "term-specialized-gen",
  "term-specialized-impl-gen",
@@ -245,11 +247,14 @@ dependencies = [
 name = "fib-parse"
 version = "0.0.0"
 dependencies = [
+ "ccf",
+ "covisit",
  "fib",
  "fib-ds",
  "parse",
  "parse-adt",
  "parse-gen",
+ "pmsp",
  "std-parse-error",
  "std-parse-metadata",
  "term",
@@ -339,6 +344,13 @@ checksum = "cea70ddb795996207ad57735b50c5982d8844f38ba9ee5f1aedcfb708a2aa11e"
 dependencies = [
  "equivalent",
  "hashbrown",
+]
+
+[[package]]
+name = "integration-tests"
+version = "0.1.0"
+dependencies = [
+ "fib-parse",
 ]
 
 [[package]]
@@ -524,8 +536,11 @@ dependencies = [
 name = "parse-adt"
 version = "0.1.0"
 dependencies = [
+ "conslist",
+ "covisit",
  "miette",
  "parse",
+ "pmsp",
  "std-parse-error",
  "std-parse-metadata",
  "take-mut",

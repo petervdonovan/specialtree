@@ -21,5 +21,5 @@ pub trait AdmitNoMatchingCase<Heap, T>
 where
     Self: AcceptingCases<()>,
 {
-    fn admit(&self, heap: &mut Heap) -> (Self::Done, T);
+    fn admit(self, heap: &mut Heap) -> (Self::Done, T);
 }

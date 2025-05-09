@@ -107,7 +107,7 @@ mod owned {
                 );
                 let ccf_bounds = ccf_sort_tys.iter().map(|ccf| -> syn::TraitBound {
                     syn::parse_quote! {
-                        term::CanonicallyConstructibleFrom<Heap, #ccf>
+                        ccf::CanonicallyConstructibleFrom<Heap, #ccf>
                     }
                 });
                 parse_quote! {
@@ -149,7 +149,11 @@ pub mod targets {
                 Box::new(move |c, sp| super::generate(&sp, &words_path(c), l))
             },
             external_deps: vec![],
-            workspace_deps: vec![("term", Path::new(".")), ("term-trait-gen", Path::new("."))],
+            workspace_deps: vec![
+                ("term", Path::new(".")),
+                ("term-trait-gen", Path::new(".")),
+                ("ccf", Path::new(".")),
+            ],
             codegen_deps,
         }
     }

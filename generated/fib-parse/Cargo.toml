@@ -1,3 +1,9 @@
+[dependencies.ccf]
+path = "../.././ccf"
+
+[dependencies.covisit]
+path = "../.././covisit"
+
 [dependencies.fib]
 path = "../fib"
 
@@ -12,6 +18,9 @@ path = "../.././parse-adt"
 
 [dependencies.parse-gen]
 path = "../.././parse-gen"
+
+[dependencies.pmsp]
+path = "../.././pmsp"
 
 [dependencies.std-parse-error]
 path = "../../langspec-std/std-parse-error"

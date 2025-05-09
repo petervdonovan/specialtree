@@ -1,3 +1,6 @@
+[dependencies.ccf]
+path = "../.././ccf"
+
 [dependencies.parse]
 path = "../.././parse"
 
@@ -6,6 +9,9 @@ path = "../.././parse-adt"
 
 [dependencies.parse-gen]
 path = "../.././parse-gen"
+
+[dependencies.pmsp]
+path = "../.././pmsp"
 
 [dependencies.term]
 path = "../.././term"

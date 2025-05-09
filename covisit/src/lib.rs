@@ -1,6 +1,7 @@
 // see https://github.com/rust-lang/rust/pull/108033
 #![allow(internal_features)] // this is research-quality software!
 #![feature(rustc_attrs)]
+#![feature(fundamental)]
 
 // want: foreign crates can implement covisit for their concrete type and for a specific covisitor (no generics required), and
 // foreign crates can implement a specific covisitor for all ADTs
@@ -26,7 +27,7 @@ pub(crate) mod helper_traits {
 mod impls {
     use ccf::CanonicallyConstructibleFrom;
     use conslist::{ConsList, NonemptyConsList};
-    use pmsp::{NonemptyStrategy, Strategy, StrategyOf};
+    use pmsp::{NonemptyStrategy, Strategy, StrategyOf, UsesStrategyForTraversal};
     use take_mut::Poisonable;
 
     use crate::Covisit;
@@ -36,9 +37,9 @@ mod impls {
 
     impl<Covisitor, T, Heap, L> Covisit<T, Heap, L> for Covisitor
     where
-        T: words::Implements<Heap, L>,
+        T: words::Implements<Heap, L> + UsesStrategyForTraversal<Covisitor>,
         <T as words::Implements<Heap, L>>::LWord: pmsp::NamesPatternMatchStrategyGivenContext<Heap>,
-        Covisitor: Covisit<<StrategyOf<T, Heap, L> as Strategy>::Cdr, Heap, L>,
+        // Covisitor: Covisit<<StrategyOf<T, Heap, L> as Strategy>::Cdr, Heap, L>,
         Covisitor: Poisonable,
         Covisitor: SelectCase,
         <Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L>>: EachCovisit<
@@ -120,9 +121,11 @@ mod impls {
     }
     mod base_cases {
         use crate::{
+            Covisit,
             helper_traits::{AllCovisit, EachCovisit},
             select::{AdmitNoMatchingCase, FromSelectCase},
         };
+        // impl<Covisitor, Heap, L> Covisit<(), Heap, L> for Covisitor {}
 
         impl<Covisitor, T, Heap, L> AllCovisit<T, (), Heap, L> for Covisitor {
             fn all_covisit(&mut self, _: &mut Heap) {}

@@ -24,7 +24,7 @@ pub struct TyMetaFuncData {
     pub size_depends_on: Box<[ArgId]>,
     pub transparency: Transparency,
 }
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 pub enum Transparency {
     Transparent,
     Visible,

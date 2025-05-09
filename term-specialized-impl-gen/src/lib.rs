@@ -71,7 +71,7 @@ pub(crate) fn gen_maps_tmf(
             impl<TmfMonomorphization> term::MapsTmf<#words::L, TmfMonomorphization>
                 for #data_structure::Heap
             where
-                TmfMonomorphization: term::CanonicallyConstructibleFrom<Self, (TmfMonomorphization, ())>
+                TmfMonomorphization: ccf::CanonicallyConstructibleFrom<Self, (TmfMonomorphization, ())>
             {
                 type Tmf = TmfMonomorphization;
             }
@@ -189,7 +189,7 @@ pub(crate) fn tuc_impls<'a, 'b, 'c, L: LangSpec>(
         let byline = byline!();
         syn::parse_quote! {
             #byline
-            impl term::TransitivelyUnitCcf<#ds_base_path::Heap, #from> for #to {
+            impl ccf::transitivity::TransitivelyUnitCcf<#ds_base_path::Heap, #from> for #to {
                 type Intermediary = #intermediary;
             }
         }
@@ -219,7 +219,7 @@ pub(crate) fn tac_impls<'a, 'b, 'c, L: LangSpec>(
         let byline = byline!();
         syn::parse_quote! {
             #byline
-            impl term::TransitivelyAllCcf<#ds_base_path::Heap, #froms_cons_list> for #to {
+            impl ccf::transitivity::TransitivelyAllCcf<#ds_base_path::Heap, #froms_cons_list> for #to {
                 type Intermediary = #intermediary;
                 type Intermediaries = #intermediary_cons_list;
             }
@@ -294,7 +294,7 @@ pub(crate) fn gen_ccf_impl_prod(
     let ret = quote::quote! {
         #byline
         impl
-            term::DirectlyCanonicallyConstructibleFrom<<Self as term::Heaped>::Heap, #ccf_ty> for #data_structure::#camel
+            ccf::DirectlyCanonicallyConstructibleFrom<<Self as term::Heaped>::Heap, #ccf_ty> for #data_structure::#camel
         {
             fn construct(
                 heap: &mut <Self as term::Heaped>::Heap,
@@ -338,7 +338,7 @@ pub(crate) fn gen_ccf_impl_sum(
     syn::parse_quote! {
         #byline
         impl
-            term::DirectlyCanonicallyConstructibleFrom<<Self as term::Heaped>::Heap, #ccf_ty> for #data_structure::#camel
+            ccf::DirectlyCanonicallyConstructibleFrom<<Self as term::Heaped>::Heap, #ccf_ty> for #data_structure::#camel
         {
             fn construct(
                 heap: &mut <Self as term::Heaped>::Heap,
@@ -462,6 +462,7 @@ pub mod targets {
             workspace_deps: vec![
                 ("term", Path::new(".")),
                 ("term-specialized-impl-gen", Path::new(".")),
+                ("ccf", Path::new(".")),
             ],
             codegen_deps,
         }

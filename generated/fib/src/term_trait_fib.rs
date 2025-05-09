@@ -31,9 +31,9 @@ pub mod owned {
     use tymetafuncspec_core::Set;
     use tymetafuncspec_core::BoundedNat;
     use term::MapsTmf;
-    use term::CanonicallyConstructibleFrom;
     use crate::words_mod_fib as wmf;
     use crate::term_trait_fib as ttf;
+    use ccf::CanonicallyConstructibleFrom;
     pub trait Plus<
         Heap,
     >: CanonicallyConstructibleFrom<
