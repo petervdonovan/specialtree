@@ -32,9 +32,12 @@ pub struct Component2SynPath(std::collections::HashMap<KebabCodegenId, syn::Path
 //     pub targets: Vec<CodegenInstance>,
 // }
 
+pub type GenerateFn<'langs> =
+    dyn for<'a> Fn(&'a Component2SynPath, syn::Path) -> syn::ItemMod + 'langs;
+
 pub struct CodegenInstance<'langs> {
     pub id: KebabCodegenId,
-    pub generate: Box<dyn for<'a> Fn(&'a Component2SynPath, syn::Path) -> syn::ItemMod + 'langs>,
+    pub generate: Box<GenerateFn<'langs>>,
     pub external_deps: Vec<&'static str>,
     pub workspace_deps: Vec<(&'static str, &'static Path)>,
     pub codegen_deps: CgDepList<'langs>,

@@ -1,11 +1,5 @@
-use extension_autobox::autobox;
-use langspec::{
-    flat::LangSpecFlat,
-    humanreadable::LangSpecHuman,
-    langspec::{LangSpec, Name, TerminalLangSpec},
-    tymetafunc::TyMetaFuncSpec,
-};
-use langspec_gen_util::{AlgebraicsBasePath, HeapType, LsGen};
+use langspec::langspec::LangSpec;
+use langspec_gen_util::LsGen;
 
 pub struct BasePaths {
     pub data_structure: syn::Path,
@@ -31,49 +25,14 @@ pub(crate) fn impl_adt_for(data_structure: &syn::Path, camel_ident: &syn::Ident)
     let byline = langspec_gen_util::byline!();
     syn::parse_quote! {
         #byline
-        impl words::Adt for #data_structure::#camel_ident {
-            // type PatternMatchStrategyProvider = #strategy_provider::PatternMatchStrategyProvider<#data_structure::Heap>;
-        }
+        impl words::Adt for #data_structure::#camel_ident {}
     }
 }
-
-// pub fn uses_strategy_for_traversal<L: LangSpec>(
-//     data_structure: &syn::Path,
-//     words_path: &syn::Path,
-//     ls: &LsGen<L>,
-//     important_sublangs: &[Name],
-// ) -> syn::ItemMod {
-//     let impls = ls
-//         .bak()
-//         .sublangs()
-//         .into_iter()
-//         .filter(|it| important_sublangs.contains(&it.name))
-//         .flat_map(|it| it.image)
-//         .map(|sid| {
-//             ls.sort2tmfmapped_rs_ty(
-//                 sid,
-//                 &HeapType(syn::parse_quote! {#data_structure::Heap}),
-//                 &AlgebraicsBasePath::new(quote::quote! {#data_structure::}),
-//                 words_path,
-//             )
-//         })
-//         .map(|ty| -> syn::ItemImpl{ syn::parse_quote! {
-//             impl<VisitorOrCovisitor> pmsp::UsesStrategyForTraversal<VisitorOrCovisitor> for #ty {}
-//         }});
-//     let byline = langspec_gen_util::byline!();
-//     syn::parse_quote! {
-//         #byline
-//         pub mod uses_strategy_for_traversal {
-//             #(#impls)*
-//         }
-//     }
-// }
 
 pub mod targets {
     use std::path::Path;
 
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
-    use langspec::langspec::Name;
     use langspec_gen_util::kebab_id;
 
     pub fn default<'langs, L: super::LangSpec>(
@@ -103,39 +62,6 @@ pub mod targets {
             codegen_deps,
         }
     }
-
-    // pub fn uses_strategy_for_traversal_impls<'langs, L: super::LangSpec>(
-    //     arena: &'langs bumpalo::Bump,
-    //     mut codegen_deps: CgDepList<'langs>,
-    //     l: &'langs L,
-    //     important_sublangs: &[Name],
-    // ) -> CodegenInstance<'langs> {
-    //     CodegenInstance {
-    //         id: kebab_id!(l),
-    //         generate: {
-    //             let words =
-    //                 codegen_deps.add(words::targets::words_mod(arena, codegen_deps.subtree(), l));
-    //             let data_structure = codegen_deps.add(term_specialized_gen::targets::default(
-    //                 arena,
-    //                 codegen_deps.subtree(),
-    //                 l,
-    //             ));
-    //             let important_sublangs = important_sublangs.to_vec();
-    //             Box::new(move |c2sp, _| {
-    //                 let lg = super::LsGen::from(l);
-    //                 super::uses_strategy_for_traversal(
-    //                     &data_structure(c2sp),
-    //                     &words(c2sp),
-    //                     &lg,
-    //                     important_sublangs.as_slice(),
-    //                 )
-    //             })
-    //         },
-    //         external_deps: vec![],
-    //         workspace_deps: vec![("pmsp", Path::new(".")), ("words", Path::new("."))],
-    //         codegen_deps,
-    //     }
-    // }
 
     pub fn words_impls<'langs, LImplFor: super::LangSpec>(
         arena: &'langs bumpalo::Bump,

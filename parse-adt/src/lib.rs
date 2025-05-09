@@ -5,7 +5,7 @@ use covisit::{
 };
 use cstfy::Cstfy;
 use parse::{KeywordSequence, UnexpectedTokenError};
-use pmsp::{AtLeastTwoStrategy, NonemptyStrategy, Strategy, UsesStrategyForTraversal};
+use pmsp::{AtLeastTwoStrategy, Strategy, UsesStrategyForTraversal};
 use take_mut::Poisonable;
 use words::Implements;
 
@@ -89,7 +89,6 @@ pub trait Lookahead<Heap, L> {
 }
 impl<T, Heap, L> Lookahead<Heap, L> for T
 where
-    // T: ParseLL<Heap, L> + LookaheadImplementor,
     T: words::Adt,
     Cstfy<Heap, T>: words::Implements<Heap, L>,
     <Cstfy<Heap, T> as words::Implements<Heap, L>>::LWord: NamesParseLL,
@@ -116,46 +115,9 @@ impl<'a, L> SelectCase for Parser<'a, L, ()> {
     }
 }
 
-// impl<'a, L, Cases> InSelectCase for Parser<'a, L, Cases> {
-//     type EndSelectCase = Parser<'a, L, ()>;
-// }
-
 impl<'a, L, Cases> FromSelectCase for Parser<'a, L, Cases> {
     type Done = Parser<'a, L, ()>;
 }
-
-// impl<'a, L, AllCurrentCases> AcceptingCases<()> for Parser<'a, L, AllCurrentCases>
-// where
-//     AllCurrentCases: NonemptyConsList,
-// {
-//     type AcceptingRemainingCases = Self;
-
-//     fn try_case(self) -> Result<Self::EndSelectCase, Self::AcceptingRemainingCases> {
-//         panic!()
-//     }
-// }
-
-// impl<'a, Heap, L, RemainingCasesUnwrappedCarCar, RemainingCasesCdr, AllCurrentCases>
-//     AcceptingCases<(
-//         (Cstfy<Heap, RemainingCasesUnwrappedCarCar>, ()),
-//         RemainingCasesCdr,
-//     )> for Parser<'a, L, AllCurrentCases>
-// where
-//     AllCurrentCases: AtLeastTwoConsList,
-//     RemainingCasesCdr: ConsList,
-//     Self: AcceptingCases<RemainingCasesCdr, EndSelectCase = Parser<'a, L, ()>>,
-//     RemainingCasesUnwrappedCarCar: Lookahead<Heap, L>,
-// {
-//     type AcceptingRemainingCases = Self;
-
-//     fn try_case(self) -> Result<Self::EndSelectCase, Self::AcceptingRemainingCases> {
-//         if RemainingCasesUnwrappedCarCar::matches(&self) {
-//             Ok(self.convert_to())
-//         } else {
-//             Err(self)
-//         }
-//     }
-// }
 
 impl<'a, Heap, A, L, Cases, AllCurrentCases> AcceptingCases<Cases>
     for Parser<'a, L, AllCurrentCases>
@@ -178,8 +140,6 @@ where
 impl<'a, L, Case, AllCurrentCases> AcceptingCases<(Case, ())> for Parser<'a, L, AllCurrentCases>
 where
     Case: ConsList,
-    // Self: AcceptingCases<Cases::Cdr, Done = Parser<'a, L, ()>>,
-    // A: Lookahead<Heap, L>,
 {
     type AcceptingRemainingCases = Self;
 
@@ -193,68 +153,13 @@ where
     }
 }
 
-impl<'a, L, AllCurrentCases> AcceptingCases<()> for Parser<'a, L, AllCurrentCases>
-where
-// Cases: NonemptyStrategy<Car = Cstfy<Heap, A>>,
-// Self: AcceptingCases<(), Done = Parser<'a, L, ()>>,
-// A: Lookahead<Heap, L>,
-{
+impl<'a, L, AllCurrentCases> AcceptingCases<()> for Parser<'a, L, AllCurrentCases> {
     type AcceptingRemainingCases = Self;
 
     fn try_case(self) -> Result<Self::Done, Self::AcceptingRemainingCases> {
         panic!()
     }
 }
-
-// impl<A, Heap, L, AllCurrentCases> CoVisitor<Cstfy<Heap, A>> for Parser<'_, L, AllCurrentCases>
-// where
-//     A: term::case_split::Adt,
-//     Cstfy<Heap, A>: Implements<Heap, L>,
-//     <Cstfy<Heap, A> as Implements<Heap, L>>::LWord: NamesParseLL,
-// {
-//     fn co_push(&mut self) {
-//         self.position = self
-//             .match_keywords(
-//                 &<<Cstfy<Heap, A> as Implements<Heap, L>>::LWord as NamesParseLL>::START,
-//             )
-//             .unwrap_or_else(|| {
-//                 panic!(
-//                     "Expected start keyword \"{}\" but got \"{}\"",
-//                     &<<Cstfy<Heap, A> as Implements<Heap, L>>::LWord as NamesParseLL>::START.0[0]
-//                         .get(),
-//                     &self.source[self.position.offset()..]
-//                 );
-//             });
-//         println!("co_push: {:?}", self.position);
-//     }
-
-//     fn co_proceed(&mut self) {
-//         self.position = self
-//             .match_keywords(
-//                 &<<Cstfy<Heap, A> as Implements<Heap, L>>::LWord as NamesParseLL>::PROCEED[0],
-//             )
-//             .unwrap_or_else(|| {
-//                 panic!(
-//                     "Expected proceed keyword: {:?}",
-//                     &<<Cstfy<Heap, A> as Implements<Heap, L>>::LWord as NamesParseLL>::PROCEED[0].0
-//                         [0]
-//                 );
-//             }); // todo: do not use 0
-//         println!("co_proceed: {:?}", self.position);
-//     }
-
-//     fn co_pop(&mut self) {
-//         self.position = self
-//             .match_keywords(&<<Cstfy<Heap, A> as Implements<Heap, L>>::LWord as NamesParseLL>::END)
-//             .unwrap_or_else(|| {
-//                 panic!(
-//                     "Expected end keyword: {:?}",
-//                     &<<Cstfy<Heap, A> as Implements<Heap, L>>::LWord as NamesParseLL>::END.0[0]
-//                 );
-//             });
-//         println!("co_pop: {:?}", self.position);
-//     }
-// }
 
 impl<Heap, A, L> CovisitEventSink<Cstfy<Heap, A>> for Parser<'_, L, ()>
 where
@@ -314,35 +219,8 @@ where
     }
 }
 
-// impl<A, Heap, L, AllCurrentCases> term::co_case_split::AdmitNoMatchingCase<Heap, Cstfy<Heap, A>>
-//     for Parser<'_, L, AllCurrentCases>
-// {
-//     fn no_matching_case(
-//         &self,
-//         _heap: &mut <Cstfy<Heap, A> as term::Heaped>::Heap,
-//     ) -> (Cstfy<Heap, A>, Self::EndSelectCase) {
-//         (
-//             tymetafuncspec_core::Either::Right(
-//                 std_parse_error::ParseError::new(parse::ParseError::UnexpectedToken(
-//                     UnexpectedTokenError {
-//                         at: self.position.into(),
-//                     },
-//                 )),
-//                 std::marker::PhantomData,
-//             ),
-//             Parser {
-//                 source: self.source,
-//                 position: self.position,
-//                 phantom: std::marker::PhantomData,
-//             },
-//         )
-//     }
-// }
-
 impl<Heap, A, L, AllCases> AdmitNoMatchingCase<Heap, Cstfy<Heap, A>> for Parser<'_, L, AllCases>
 where
-    // Cases: Strategy<Car = Cstfy<Heap, A>>,
-    // Self: AcceptingCases<Cases::Cdr, Done = Parser<'a, L, ()>>,
     A: Lookahead<Heap, L>,
 {
     fn admit(self, _: &mut Heap) -> (Self::Done, Cstfy<Heap, A>) {
@@ -358,18 +236,6 @@ where
     }
 }
 
-// impl<'a, Heap, L, Pmsp, Lookaheadable, Fnlut>
-//     term::co_visit::CoVisitable<Parser<'a, L, ()>, Pmsp, Heap, typenum::U0, Fnlut>
-//     for Cstfy<Heap, Lookaheadable>
-// where
-//     Lookaheadable: Lookahead<Heap, L>,
-//     Fnlut: HasFn<Self, FnType = fn(&mut Parser<'a, L, ()>, &mut Heap, Fnlut) -> Self>,
-// {
-//     fn co_visit(visitor: &mut Parser<'a, L, ()>, heap: &mut Heap, fnlut: Fnlut) -> Self {
-//         println!("dbg: recursion limit reached for cstfy; restarting");
-//         fnlut.get::<Self>()(visitor, heap, fnlut)
-//     }
-// }
 impl<'a, L, Cases, Heap, T> UsesStrategyForTraversal<Parser<'a, L, Cases>> for Cstfy<Heap, T> where
     T: UsesStrategyForTraversal<Parser<'a, L, Cases>>
 {

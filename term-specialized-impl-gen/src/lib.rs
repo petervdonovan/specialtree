@@ -1,10 +1,4 @@
-use extension_autobox::autobox;
-use langspec::{
-    flat::LangSpecFlat,
-    humanreadable::LangSpecHuman,
-    langspec::{AlgebraicSortId, LangSpec, Name, SortId, SortIdOf, TerminalLangSpec as _},
-    tymetafunc::TyMetaFuncSpec,
-};
+use langspec::langspec::{AlgebraicSortId, LangSpec, Name, SortId, SortIdOf};
 use langspec_gen_util::{
     AlgebraicsBasePath, CcfPaths, HeapType, LsGen, TyGenData, byline, cons_list_index_range,
 };
@@ -454,7 +448,7 @@ pub mod targets {
                             words: words(c2sp),
                         },
                         &lg,
-                        &sublang_names_dedup.as_slice(),
+                        sublang_names_dedup.as_slice(),
                     )
                 })
             },

@@ -1,7 +1,7 @@
 use core::panic;
 
 use covisit::Covisit;
-use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Maybe, Pair, Set, SetHeapBak};
+use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Set, SetHeapBak};
 
 use crate::{
     Lookahead, Parser,
@@ -59,21 +59,6 @@ where
         cstfy_ok(Set::new(heap, items), initial_offset, final_offset)
     }
 }
-
-// impl<'a, Heap, L, Elem> Covisit<Cstfy<Heap, IdxBox<Heap, Cstfy<Heap, Elem>>>, Heap, L>
-//     for Parser<'a, L, ()>
-// where
-//     Elem: Lookahead<Heap, L> + words::Adt,
-//     Self: Covisit<Cstfy<Heap, Elem>, Heap, L>,
-//     Heap: term::SuperHeap<IdxBoxHeapBak<Heap, Cstfy<Heap, Elem>>>,
-// {
-//     fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, IdxBox<Heap, Cstfy<Heap, Elem>>> {
-//         let initial_offset = self.position;
-//         let item: Cstfy<Heap, Elem> = Self::covisit(self, heap);
-//         let final_offset = self.position;
-//         cstfy_ok(IdxBox::new(heap, item), initial_offset, final_offset)
-//     }
-// }
 
 impl<'a, Heap, L, Elem> Covisit<Cstfy<Heap, IdxBox<Heap, Elem>>, Heap, L> for Parser<'a, L, ()>
 where

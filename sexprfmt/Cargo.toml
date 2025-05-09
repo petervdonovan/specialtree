@@ -1,8 +1,0 @@
-[package]
-name = "sexprfmt"
-version = { workspace = true }
-edition = { workspace = true }
-
-[dependencies]
-expect-test = { workspace = true }
-lexpr = "0.2.7"

@@ -27,7 +27,7 @@ pub(crate) mod helper_traits {
 mod impls {
     use ccf::CanonicallyConstructibleFrom;
     use conslist::{ConsList, NonemptyConsList};
-    use pmsp::{NonemptyStrategy, Strategy, StrategyOf, UsesStrategyForTraversal};
+    use pmsp::{NonemptyStrategy, StrategyOf, UsesStrategyForTraversal};
     use take_mut::Poisonable;
 
     use crate::Covisit;
@@ -121,11 +121,9 @@ mod impls {
     }
     mod base_cases {
         use crate::{
-            Covisit,
             helper_traits::{AllCovisit, EachCovisit},
             select::{AdmitNoMatchingCase, FromSelectCase},
         };
-        // impl<Covisitor, Heap, L> Covisit<(), Heap, L> for Covisitor {}
 
         impl<Covisitor, T, Heap, L> AllCovisit<T, (), Heap, L> for Covisitor {
             fn all_covisit(&mut self, _: &mut Heap) {}

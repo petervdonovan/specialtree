@@ -28,7 +28,6 @@ fn maybemorefy_if_algebraic<L0: LangSpec, L1: LangSpec>(
     match sid {
         langspec::langspec::SortId::Algebraic(_) => maybemorefy::<L0, L1>(sid, maybe_sid),
         langspec::langspec::SortId::TyMetaFunc(mt) => l0_tmfmap::<L0, L1>(maybe_sid, mt),
-        _ => l0_as_my_sid::<L0, L1>(sid),
     }
 }
 fn l0_tmfmap<L0: LangSpec, L1: LangSpec>(
@@ -54,10 +53,6 @@ fn l0_tmfmap<L0: LangSpec, L1: LangSpec>(
         }
         Transparency::Transparent => rec,
     }
-    // langspec::langspec::SortId::TyMetaFunc(langspec::langspec::MappedType {
-    //     f: Either::Right(tymetafuncspec_core::PAIR),
-    //     a: vec![rec, maybefy::<L0, L1>(maybe_sid)],
-    // })
 }
 
 use langspec_extension::{L0Map, LsExtension, SortIdOfExtension, l0_as_my_sid, l1_as_my_sid};
