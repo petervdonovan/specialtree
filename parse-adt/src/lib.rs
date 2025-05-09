@@ -12,42 +12,45 @@ use words::Implements;
 pub mod cstfy;
 mod tmfscore;
 
-pub struct Parser<'a, L, AllCurrentCases> {
-    source: &'a str,
-    position: miette::SourceOffset,
+pub struct Parser<'a, L> {
+    pc: ParseCursor<'a>,
     current_covisit_idx: usize,
+    phantom: std::marker::PhantomData<L>,
+}
+pub struct ParserSelecting<'a, L, AllCurrentCases> {
+    pc: ParseCursor<'a>,
     phantom: std::marker::PhantomData<(L, AllCurrentCases)>,
 }
-impl<'a, L, AllCurrentCases> Poisonable for Parser<'a, L, AllCurrentCases> {
+pub struct ParseCursor<'a> {
+    source: &'a str,
+    position: miette::SourceOffset,
+}
+impl<'a, L> Poisonable for Parser<'a, L> {
     fn poisoned() -> Self {
         Self {
-            source: "",
-            position: miette::SourceOffset::from(usize::MAX),
+            pc: ParseCursor {
+                source: "",
+                position: miette::SourceOffset::from(usize::MAX),
+            },
             current_covisit_idx: usize::MAX,
             phantom: std::marker::PhantomData,
         }
     }
 }
-impl<'a, L, AllCurrentCases> Parser<'a, L, AllCurrentCases> {
+impl<'a, L> Parser<'a, L> {
     pub fn new(source: &'a str) -> Self {
         Self {
-            source,
-            position: miette::SourceOffset::from(0),
+            pc: ParseCursor {
+                source,
+                position: miette::SourceOffset::from(0),
+            },
             current_covisit_idx: 0,
             phantom: std::marker::PhantomData,
         }
     }
-    pub fn convert_to<To>(self) -> Parser<'a, L, To> {
-        Parser {
-            source: self.source,
-            position: self.position,
-            current_covisit_idx: self.current_covisit_idx,
-            phantom: std::marker::PhantomData,
-        }
-    }
-    pub fn peek_words(
-        &self,
-    ) -> impl Iterator<Item = (usize, &'a str)> + use<'a, AllCurrentCases, L> {
+}
+impl<'a> ParseCursor<'a> {
+    pub fn peek_words(&self) -> impl Iterator<Item = (usize, &'a str)> + use<'a> {
         unicode_segmentation::UnicodeSegmentation::split_word_bound_indices(
             &self.source[self.position.offset()..],
         )
@@ -77,7 +80,15 @@ impl<'a, L, AllCurrentCases> Parser<'a, L, AllCurrentCases> {
         Some(last_offset)
     }
 }
-
+impl<'a, L, AllCurrentCases> ParserSelecting<'a, L, AllCurrentCases> {
+    fn done(self) -> Parser<'a, L> {
+        Parser {
+            pc: self.pc,
+            current_covisit_idx: 0,
+            phantom: std::marker::PhantomData,
+        }
+    }
+}
 pub trait NamesParseLL {
     const START: KeywordSequence;
     const PROCEED: &'static [KeywordSequence];
@@ -85,7 +96,7 @@ pub trait NamesParseLL {
 }
 
 pub trait Lookahead<Heap, L> {
-    fn matches<'a, T>(parser: &Parser<'a, L, T>) -> bool;
+    fn matches<'a>(parser: &ParseCursor<'a>) -> bool;
 }
 impl<T, Heap, L> Lookahead<Heap, L> for T
 where
@@ -93,7 +104,7 @@ where
     Cstfy<Heap, T>: words::Implements<Heap, L>,
     <Cstfy<Heap, T> as words::Implements<Heap, L>>::LWord: NamesParseLL,
 {
-    fn matches<C>(parser: &Parser<'_, L, C>) -> bool {
+    fn matches(parser: &ParseCursor<'_>) -> bool {
         parser
             .match_keywords(
                 &<<Cstfy<Heap, T> as words::Implements<Heap, L>>::LWord as NamesParseLL>::START,
@@ -102,58 +113,52 @@ where
     }
 }
 
-impl<'a, L> SelectCase for Parser<'a, L, ()> {
-    type AC<CasesConsList: Strategy> = Parser<'a, L, CasesConsList>;
+impl<'a, L> SelectCase for Parser<'a, L> {
+    type AC<CasesConsList: Strategy> = ParserSelecting<'a, L, CasesConsList>;
 
     fn start_cases<CasesConsList: Strategy>(self) -> Self::AC<CasesConsList> {
-        Parser {
-            source: self.source,
-            position: self.position,
-            current_covisit_idx: 0, // fixme: meaningless
+        ParserSelecting {
+            pc: self.pc,
             phantom: std::marker::PhantomData,
         }
     }
 }
 
-impl<'a, L, Cases> FromSelectCase for Parser<'a, L, Cases> {
-    type Done = Parser<'a, L, ()>;
+impl<'a, L, Cases> FromSelectCase for ParserSelecting<'a, L, Cases> {
+    type Done = Parser<'a, L>;
 }
 
 impl<'a, Heap, A, L, Cases, AllCurrentCases> AcceptingCases<Cases>
-    for Parser<'a, L, AllCurrentCases>
+    for ParserSelecting<'a, L, AllCurrentCases>
 where
     Cases: AtLeastTwoStrategy<Car = (Cstfy<Heap, A>, ())>,
-    Self: AcceptingCases<Cases::Cdr, Done = Parser<'a, L, ()>>,
+    Self: AcceptingCases<Cases::Cdr, Done = Parser<'a, L>>,
     A: Lookahead<Heap, L>,
 {
     type AcceptingRemainingCases = Self;
 
     fn try_case(self) -> Result<Self::Done, Self::AcceptingRemainingCases> {
-        if A::matches(&self) {
-            Ok(self.convert_to())
+        if A::matches(&self.pc) {
+            Ok(self.done())
         } else {
             Err(self)
         }
     }
 }
 
-impl<'a, L, Case, AllCurrentCases> AcceptingCases<(Case, ())> for Parser<'a, L, AllCurrentCases>
+impl<'a, L, Case, AllCurrentCases> AcceptingCases<(Case, ())>
+    for ParserSelecting<'a, L, AllCurrentCases>
 where
     Case: ConsList,
 {
     type AcceptingRemainingCases = Self;
 
     fn try_case(self) -> Result<Self::Done, Self::AcceptingRemainingCases> {
-        Ok(Parser {
-            source: self.source,
-            position: self.position,
-            current_covisit_idx: 0, // fixme: meaningless
-            phantom: std::marker::PhantomData,
-        })
+        Ok(self.done())
     }
 }
 
-impl<'a, L, AllCurrentCases> AcceptingCases<()> for Parser<'a, L, AllCurrentCases> {
+impl<'a, L, AllCurrentCases> AcceptingCases<()> for ParserSelecting<'a, L, AllCurrentCases> {
     type AcceptingRemainingCases = Self;
 
     fn try_case(self) -> Result<Self::Done, Self::AcceptingRemainingCases> {
@@ -161,14 +166,15 @@ impl<'a, L, AllCurrentCases> AcceptingCases<()> for Parser<'a, L, AllCurrentCase
     }
 }
 
-impl<Heap, A, L> CovisitEventSink<Cstfy<Heap, A>> for Parser<'_, L, ()>
+impl<Heap, A, L> CovisitEventSink<Cstfy<Heap, A>> for Parser<'_, L>
 where
     A: words::Adt,
     Cstfy<Heap, A>: Implements<Heap, L>,
     <Cstfy<Heap, A> as Implements<Heap, L>>::LWord: NamesParseLL,
 {
     fn push(&mut self) {
-        self.position = self
+        self.pc.position = self
+            .pc
             .match_keywords(
                 &<<Cstfy<Heap, A> as Implements<Heap, L>>::LWord as NamesParseLL>::START,
             )
@@ -177,28 +183,28 @@ where
                     "Expected start keyword \"{}\" but got \"{}\"",
                     &<<Cstfy<Heap, A> as Implements<Heap, L>>::LWord as NamesParseLL>::START.0[0]
                         .get(),
-                    &self.source[self.position.offset()..]
+                    &self.pc.source[self.pc.position.offset()..]
                 );
             });
         self.current_covisit_idx = 0;
-        println!("push: {:?}", self.position);
+        println!("push: {:?}", self.pc.position);
     }
 
     fn proceed(&mut self) {
         if let Some(kw) = <<Cstfy<Heap, A> as Implements<Heap, L>>::LWord as NamesParseLL>::PROCEED
             .get(self.current_covisit_idx)
         {
-            self.position = self.match_keywords(kw).unwrap_or_else(|| {
+            self.pc.position = self.pc.match_keywords(kw).unwrap_or_else(|| {
                 panic!("Expected proceed keyword: {:?}", kw.0[0]);
             }); // todo: do not use 0
-            println!("proceed: {:?}", self.position);
+            println!("proceed: {:?}", self.pc.position);
         } else if let Some(kw) =
             <<Cstfy<Heap, A> as Implements<Heap, L>>::LWord as NamesParseLL>::PROCEED.last()
         {
-            self.position = self.match_keywords(kw).unwrap_or_else(|| {
+            self.pc.position = self.pc.match_keywords(kw).unwrap_or_else(|| {
                 panic!("Expected proceed keyword: {:?}", kw.0[0]);
             }); // todo: do not use 0
-            println!("proceed: {:?}", self.position);
+            println!("proceed: {:?}", self.pc.position);
         } else {
             // do nothing
         }
@@ -206,7 +212,8 @@ where
     }
 
     fn pop(&mut self) {
-        self.position = self
+        self.pc.position = self
+            .pc
             .match_keywords(&<<Cstfy<Heap, A> as Implements<Heap, L>>::LWord as NamesParseLL>::END)
             .unwrap_or_else(|| {
                 panic!(
@@ -215,11 +222,12 @@ where
                 );
             });
         self.current_covisit_idx = 0;
-        println!("pop: {:?}", self.position);
+        println!("pop: {:?}", self.pc.position);
     }
 }
 
-impl<Heap, A, L, AllCases> AdmitNoMatchingCase<Heap, Cstfy<Heap, A>> for Parser<'_, L, AllCases>
+impl<Heap, A, L, AllCases> AdmitNoMatchingCase<Heap, Cstfy<Heap, A>>
+    for ParserSelecting<'_, L, AllCases>
 where
     A: Lookahead<Heap, L>,
 {
@@ -227,16 +235,16 @@ where
         let err = tymetafuncspec_core::Either::Right(
             std_parse_error::ParseError::new(parse::ParseError::UnexpectedToken(
                 UnexpectedTokenError {
-                    at: self.position.into(),
+                    at: self.pc.position.into(),
                 },
             )),
             std::marker::PhantomData,
         );
-        (self.convert_to(), err)
+        (self.done(), err)
     }
 }
 
-impl<'a, L, Cases, Heap, T> UsesStrategyForTraversal<Parser<'a, L, Cases>> for Cstfy<Heap, T> where
-    T: UsesStrategyForTraversal<Parser<'a, L, Cases>>
+impl<'a, L, Heap, T> UsesStrategyForTraversal<Parser<'a, L>> for Cstfy<Heap, T> where
+    T: UsesStrategyForTraversal<Parser<'a, L>>
 {
 }

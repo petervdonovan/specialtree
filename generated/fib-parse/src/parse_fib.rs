@@ -14,7 +14,6 @@ pub fn plus(source: &str) -> (tsc::Heap, Cstfy<tsc::Heap, tsc::Plus>) {
     let ret = <Parser<
         '_,
         L,
-        (),
     > as covisit::Covisit<
         Cstfy<tsc::Heap, tsc::Plus>,
         tsc::Heap,
@@ -29,7 +28,6 @@ pub fn left_operand(source: &str) -> (tsc::Heap, Cstfy<tsc::Heap, tsc::LeftOpera
     let ret = <Parser<
         '_,
         L,
-        (),
     > as covisit::Covisit<
         Cstfy<tsc::Heap, tsc::LeftOperand>,
         tsc::Heap,
@@ -44,7 +42,6 @@ pub fn right_operand(source: &str) -> (tsc::Heap, Cstfy<tsc::Heap, tsc::RightOpe
     let ret = <Parser<
         '_,
         L,
-        (),
     > as covisit::Covisit<
         Cstfy<tsc::Heap, tsc::RightOperand>,
         tsc::Heap,
@@ -59,7 +56,6 @@ pub fn f(source: &str) -> (tsc::Heap, Cstfy<tsc::Heap, tsc::F>) {
     let ret = <Parser<
         '_,
         L,
-        (),
     > as covisit::Covisit<
         Cstfy<tsc::Heap, tsc::F>,
         tsc::Heap,
@@ -74,7 +70,6 @@ pub fn sum(source: &str) -> (tsc::Heap, Cstfy<tsc::Heap, tsc::Sum>) {
     let ret = <Parser<
         '_,
         L,
-        (),
     > as covisit::Covisit<
         Cstfy<tsc::Heap, tsc::Sum>,
         tsc::Heap,
@@ -89,7 +84,6 @@ pub fn nat(source: &str) -> (tsc::Heap, Cstfy<tsc::Heap, tsc::Nat>) {
     let ret = <Parser<
         '_,
         L,
-        (),
     > as covisit::Covisit<
         Cstfy<tsc::Heap, tsc::Nat>,
         tsc::Heap,

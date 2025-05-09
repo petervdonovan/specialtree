@@ -121,7 +121,7 @@ pub(crate) fn generate_parse<LCst: LangSpec>(
             let mut parser = parse_adt::Parser::new(source);
             let mut heap = #cst_data_structure_bp::Heap::default();
             // let ret = <#my_cstfied_ty as #cvt>::co_visit(&mut parser, &mut heap, #parse_bp::fnlut::ParseWitness::new());
-            let ret = <parse_adt::Parser<'_, #words::L, ()> as covisit::Covisit<#my_cstfied_ty, #cst_data_structure_bp::Heap, #words::L>>::covisit(&mut parser, &mut heap);
+            let ret = <parse_adt::Parser<'_, #words::L> as covisit::Covisit<#my_cstfied_ty, #cst_data_structure_bp::Heap, #words::L>>::covisit(&mut parser, &mut heap);
             (heap, ret)
         }
     }
@@ -152,7 +152,7 @@ fn covisitable_trait(
 ) -> syn::Type {
     syn::parse_quote! {
         term::co_visit::CoVisitable<
-            parse_adt::Parser<#lifetime, #og_words_bp::L, ()>,
+            parse_adt::Parser<#lifetime, #og_words_bp::L>,
             #pattern_match_strategy::PatternMatchStrategyProvider<#cst_data_structure_bp::Heap>,
             #cst_data_structure_bp::Heap,
             typenum::U8,
@@ -197,7 +197,7 @@ pub(crate) fn generate_impl_fn_lut<'a, 'b: 'a, LCst: LangSpec + 'b>(
                 witness_name ParseWitness <'c> ;
                 trait #cvt ;
                 fn_name co_visit ;
-                get for <'a, 'b> fn(&'a mut parse_adt::Parser<'c, #og_words_bp::L, ()>, &'b mut #cst_data_structure::Heap, #bp::fnlut::ParseWitness<'c>) -> This ;
+                get for <'a, 'b> fn(&'a mut parse_adt::Parser<'c, #og_words_bp::L>, &'b mut #cst_data_structure::Heap, #bp::fnlut::ParseWitness<'c>) -> This ;
                 types
                 #(
                     #idents = #parsable_tys
