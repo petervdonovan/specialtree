@@ -22,12 +22,6 @@ path = "../.././term-trait-gen"
 [dependencies.tymetafuncspec-core]
 path = "../.././tymetafuncspec-core"
 
-[dependencies.typenum]
-workspace = true
-
-[dependencies.unparse-adt]
-path = "../.././unparse-adt"
-
 [dependencies.words]
 path = "../.././words"
 

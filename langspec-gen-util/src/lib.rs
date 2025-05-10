@@ -71,6 +71,7 @@ pub struct TyGenData<'a, L: LangSpec> {
     pub id: Option<AlgebraicSortId<L::ProductId, L::SumId>>,
     pub snake_ident: syn::Ident,
     pub camel_ident: syn::Ident,
+    pub ccf_sortses: Vec<Vec<SortIdOf<L>>>,
     pub ccf: CanonicallyConstructibleFromGenData<'a>,
     pub transparency: Transparency,
 }
@@ -80,10 +81,10 @@ pub struct HeapbakGenData<'a> {
     pub ty_arg_camels: Vec<syn::Ident>,
     pub ty_args: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
 }
-pub struct CanonicallyMaybeToGenData<'a> {
-    pub cmt_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
-    pub algebraic_cmt_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
-}
+// pub struct CanonicallyMaybeToGenData<'a> {
+//     pub cmt_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
+//     pub algebraic_cmt_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
+// }
 #[derive(Clone)]
 pub struct AlgebraicsBasePath(proc_macro2::TokenStream); // a prefix of a syn::TypePath
 impl AlgebraicsBasePath {
@@ -100,6 +101,7 @@ impl AlgebraicsBasePath {
         self.0.clone()
     }
 }
+#[derive(Clone)]
 pub struct HeapType(pub syn::Type);
 pub struct CanonicallyConstructibleFromGenData<'a> {
     pub ccf_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
@@ -227,46 +229,121 @@ impl<L: LangSpec> LsGen<'_, L> {
             .products()
             .map({
                 let sort2rs_ty = sort2rs_ty.clone();
-                move |pid| TyGenData {
-                    id: Some(AlgebraicSortId::Product(pid.clone())),
-                    // fingerprint: pid_fingerprint(self.bak, &pid),
+                move |pid| {
+                    let ccf_sortses = vec![self.bak.product_sorts(pid.clone()).collect()];
+                    TyGenData {
+                        id: Some(AlgebraicSortId::Product(pid.clone())),
+                        // fingerprint: pid_fingerprint(self.bak, &pid),
+                        snake_ident: syn::Ident::new(
+                            &self.bak.product_name(pid.clone()).snake.clone(),
+                            proc_macro2::Span::call_site(),
+                        ),
+                        camel_ident: syn::Ident::new(
+                            &self.bak.product_name(pid.clone()).camel.clone(),
+                            proc_macro2::Span::call_site(),
+                        ),
+                        ccf_sortses,
+                        ccf: CanonicallyConstructibleFromGenData {
+                            ccf_sort_tys: Box::new({
+                                let pid = pid.clone();
+                                let sort2rs_ty = sort2rs_ty.clone();
+                                move |ht, abp| {
+                                    let fields_tys = self
+                                        .bak
+                                        .product_sorts(pid.clone())
+                                        .map(sort2rs_ty(ht, abp));
+                                    vec![cons_list(fields_tys)]
+                                }
+                            }),
+                            ccf_sort_transparencies: {
+                                let pid = pid.clone();
+                                Box::new(move || {
+                                    vec![
+                                        self.bak
+                                            .product_sorts(pid.clone())
+                                            .map(|sort| self.sort2transparency(sort))
+                                            .collect(),
+                                    ]
+                                })
+                            },
+                            heap_sort_tys: Box::new({
+                                let pid = pid.clone();
+                                move |ht, abp| {
+                                    self.bak
+                                        .product_sorts(pid.clone())
+                                        .zip(
+                                            (self.product_heap_sort_camel_idents(&pid).into_iter())
+                                                .zip(self.product_heap_sort_snake_idents(&pid)),
+                                        )
+                                        .filter_map(|(sort, (camel, snake))| {
+                                            self.sort2heap_ty(sort, &ht, &abp).map(|heap_sort_ty| {
+                                                HstData {
+                                                    heap_sort_ty,
+                                                    heap_sort_snake_ident: snake,
+                                                    heap_sort_camel_ident: camel,
+                                                }
+                                            })
+                                        })
+                                        .collect()
+                                }
+                            }),
+                            ccf_sort_tyses: Box::new({
+                                let pid = pid.clone();
+                                let sort2rs_ty = sort2rs_ty.clone();
+                                move |ht, abp| {
+                                    vec![
+                                        self.bak
+                                            .product_sorts(pid.clone())
+                                            .map(sort2rs_ty(ht, abp))
+                                            .collect(),
+                                    ]
+                                }
+                            }),
+                            ccf_sort_camel_idents: Box::new({
+                                let pid = pid.clone();
+                                move || vec![self.product_heap_sort_camel_idents(&pid)]
+                            }),
+                            ccf_sort_snake_idents: Box::new(move || {
+                                vec![self.product_heap_sort_snake_idents(&pid)]
+                            }),
+                        },
+                        transparency: Transparency::Visible,
+                    }
+                }
+            })
+            .chain(self.bak.sums().map(move |sid| {
+                let ccf_sortses = self.bak.sum_sorts(sid.clone()).map(|it| vec![it]).collect();
+                TyGenData {
+                    id: Some(AlgebraicSortId::Sum(sid.clone())),
                     snake_ident: syn::Ident::new(
-                        &self.bak.product_name(pid.clone()).snake.clone(),
+                        &self.bak.sum_name(sid.clone()).snake.clone(),
                         proc_macro2::Span::call_site(),
                     ),
                     camel_ident: syn::Ident::new(
-                        &self.bak.product_name(pid.clone()).camel.clone(),
+                        &self.bak.sum_name(sid.clone()).camel.clone(),
                         proc_macro2::Span::call_site(),
                     ),
+                    ccf_sortses,
                     ccf: CanonicallyConstructibleFromGenData {
                         ccf_sort_tys: Box::new({
-                            let pid = pid.clone();
+                            let sid = sid.clone();
                             let sort2rs_ty = sort2rs_ty.clone();
                             move |ht, abp| {
-                                let fields_tys =
-                                    self.bak.product_sorts(pid.clone()).map(sort2rs_ty(ht, abp));
-                                vec![cons_list(fields_tys)]
+                                self.bak
+                                    .sum_sorts(sid.clone())
+                                    .map(sort2rs_ty(ht, abp))
+                                    .map(|ty| syn::parse_quote! { (#ty,()) })
+                                    .collect()
                             }
                         }),
-                        ccf_sort_transparencies: {
-                            let pid = pid.clone();
-                            Box::new(move || {
-                                vec![
-                                    self.bak
-                                        .product_sorts(pid.clone())
-                                        .map(|sort| self.sort2transparency(sort))
-                                        .collect(),
-                                ]
-                            })
-                        },
                         heap_sort_tys: Box::new({
-                            let pid = pid.clone();
+                            let sid = sid.clone();
                             move |ht, abp| {
                                 self.bak
-                                    .product_sorts(pid.clone())
+                                    .sum_sorts(sid.clone())
                                     .zip(
-                                        (self.product_heap_sort_camel_idents(&pid).into_iter())
-                                            .zip(self.product_heap_sort_snake_idents(&pid)),
+                                        (self.sum_heap_sort_camel_idents(&sid).into_iter())
+                                            .zip(self.sum_heap_sort_snake_idents(&sid)),
                                     )
                                     .filter_map(|(sort, (camel, snake))| {
                                         self.sort2heap_ty(sort, &ht, &abp).map(|heap_sort_ty| {
@@ -280,108 +357,44 @@ impl<L: LangSpec> LsGen<'_, L> {
                                     .collect()
                             }
                         }),
+                        ccf_sort_transparencies: {
+                            let sid = sid.clone();
+                            Box::new(move || {
+                                self.bak
+                                    .sum_sorts(sid.clone())
+                                    .map(|it| vec![self.sort2transparency(it)])
+                                    .collect()
+                            })
+                        },
                         ccf_sort_tyses: Box::new({
-                            let pid = pid.clone();
+                            let sid = sid.clone();
                             let sort2rs_ty = sort2rs_ty.clone();
                             move |ht, abp| {
-                                vec![
-                                    self.bak
-                                        .product_sorts(pid.clone())
-                                        .map(sort2rs_ty(ht, abp))
-                                        .collect(),
-                                ]
+                                self.bak
+                                    .sum_sorts(sid.clone())
+                                    .map(sort2rs_ty(ht, abp))
+                                    .map(|it| vec![it])
+                                    .collect()
                             }
                         }),
                         ccf_sort_camel_idents: Box::new({
-                            let pid = pid.clone();
-                            move || vec![self.product_heap_sort_camel_idents(&pid)]
+                            let sid = sid.clone();
+                            move || {
+                                self.sum_heap_sort_camel_idents(&sid)
+                                    .into_iter()
+                                    .map(|it| vec![it])
+                                    .collect()
+                            }
                         }),
                         ccf_sort_snake_idents: Box::new(move || {
-                            vec![self.product_heap_sort_snake_idents(&pid)]
-                        }),
-                    },
-                    transparency: Transparency::Visible,
-                }
-            })
-            .chain(self.bak.sums().map(move |sid| TyGenData {
-                id: Some(AlgebraicSortId::Sum(sid.clone())),
-                snake_ident: syn::Ident::new(
-                    &self.bak.sum_name(sid.clone()).snake.clone(),
-                    proc_macro2::Span::call_site(),
-                ),
-                camel_ident: syn::Ident::new(
-                    &self.bak.sum_name(sid.clone()).camel.clone(),
-                    proc_macro2::Span::call_site(),
-                ),
-                ccf: CanonicallyConstructibleFromGenData {
-                    ccf_sort_tys: Box::new({
-                        let sid = sid.clone();
-                        let sort2rs_ty = sort2rs_ty.clone();
-                        move |ht, abp| {
-                            self.bak
-                                .sum_sorts(sid.clone())
-                                .map(sort2rs_ty(ht, abp))
-                                .map(|ty| syn::parse_quote! { (#ty,()) })
-                                .collect()
-                        }
-                    }),
-                    heap_sort_tys: Box::new({
-                        let sid = sid.clone();
-                        move |ht, abp| {
-                            self.bak
-                                .sum_sorts(sid.clone())
-                                .zip(
-                                    (self.sum_heap_sort_camel_idents(&sid).into_iter())
-                                        .zip(self.sum_heap_sort_snake_idents(&sid)),
-                                )
-                                .filter_map(|(sort, (camel, snake))| {
-                                    self.sort2heap_ty(sort, &ht, &abp)
-                                        .map(|heap_sort_ty| HstData {
-                                            heap_sort_ty,
-                                            heap_sort_snake_ident: snake,
-                                            heap_sort_camel_ident: camel,
-                                        })
-                                })
-                                .collect()
-                        }
-                    }),
-                    ccf_sort_transparencies: {
-                        let sid = sid.clone();
-                        Box::new(move || {
-                            self.bak
-                                .sum_sorts(sid.clone())
-                                .map(|it| vec![self.sort2transparency(it)])
-                                .collect()
-                        })
-                    },
-                    ccf_sort_tyses: Box::new({
-                        let sid = sid.clone();
-                        let sort2rs_ty = sort2rs_ty.clone();
-                        move |ht, abp| {
-                            self.bak
-                                .sum_sorts(sid.clone())
-                                .map(sort2rs_ty(ht, abp))
-                                .map(|it| vec![it])
-                                .collect()
-                        }
-                    }),
-                    ccf_sort_camel_idents: Box::new({
-                        let sid = sid.clone();
-                        move || {
-                            self.sum_heap_sort_camel_idents(&sid)
+                            self.sum_heap_sort_snake_idents(&sid)
                                 .into_iter()
                                 .map(|it| vec![it])
                                 .collect()
-                        }
-                    }),
-                    ccf_sort_snake_idents: Box::new(move || {
-                        self.sum_heap_sort_snake_idents(&sid)
-                            .into_iter()
-                            .map(|it| vec![it])
-                            .collect()
-                    }),
-                },
-                transparency: Transparency::Transparent,
+                        }),
+                    },
+                    transparency: Transparency::Transparent,
+                }
             }))
     }
     pub fn heapbak_gen_datas(&self) -> Vec<HeapbakGenData> {

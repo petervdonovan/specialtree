@@ -7,7 +7,11 @@ use words::Implements;
 
 pub trait NamesPatternMatchStrategyGivenContext<Heap> {
     type Strategy: Strategy;
+    type TyMetadatas: Strategy;
 }
+
+pub struct TmfMetadata<OgType>(std::marker::PhantomData<OgType>);
+pub struct AdtMetadata;
 
 #[fundamental]
 pub trait UsesStrategyForTraversal<VisitorOrCovisitor> {}

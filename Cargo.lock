@@ -237,8 +237,6 @@ dependencies = [
  "term-specialized-impl-gen",
  "term-trait-gen",
  "tymetafuncspec-core",
- "typenum",
- "unparse-adt",
  "words",
 ]
 
