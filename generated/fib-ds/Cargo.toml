@@ -28,9 +28,6 @@ workspace = true
 [dependencies.unparse-adt]
 path = "../.././unparse-adt"
 
-[dependencies.unparse-gen]
-path = "../.././unparse-gen"
-
 [dependencies.words]
 path = "../.././words"
 

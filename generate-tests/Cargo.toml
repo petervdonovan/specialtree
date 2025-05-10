@@ -17,4 +17,3 @@ langspec-examples.path = "../langspec-examples"
 langspec.path = "../langspec"
 words.path = "../words"
 parse-gen = { version = "0.1.0", path = "../parse-gen" }
-unparse-gen = { version = "0.1.0", path = "../unparse-gen" }

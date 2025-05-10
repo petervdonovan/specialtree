@@ -5,3 +5,7 @@ edition.workspace = true
 
 [dev-dependencies]
 fib-parse = { path = "../generated/fib-parse" }
+
+[dependencies]
+fib = { version = "0.0.0", path = "../generated/fib" }
+unparse-adt = { version = "0.1.0", path = "../unparse-adt" }

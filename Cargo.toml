@@ -32,9 +32,15 @@ members = [
     "langspec-transparent-extension",
     "enumerate-random",
     "unparse-adt",
-    "unparse-gen",
     "codegen-component",
-    "generated/*", "take-mut", "covisit", "conslist", "ccf", "pmsp", "integration-tests",
+    "generated/*",
+    "take-mut",
+    "covisit",
+    "conslist",
+    "ccf",
+    "pmsp",
+    "integration-tests",
+    "visit",
 ]
 
 [profile.release]

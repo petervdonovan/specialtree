@@ -2,7 +2,13 @@
 fn test() {
     {
         println!("test Nat");
-        fib_parse::parse_fib::nat("3");
+        let (mut heap, nat) = fib_parse::parse_fib::nat("3");
+        println!(
+            "unparse: {}",
+            unparse_adt::unparse::<fib_parse::term_specialized_cst::Heap, fib::words_mod_fib::L, _>(
+                &mut heap, &nat
+            )
+        )
     }
     {
         println!("test Nat");

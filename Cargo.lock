@@ -239,7 +239,6 @@ dependencies = [
  "tymetafuncspec-core",
  "typenum",
  "unparse-adt",
- "unparse-gen",
  "words",
 ]
 
@@ -314,7 +313,6 @@ dependencies = [
  "term-specialized-gen",
  "term-specialized-impl-gen",
  "term-trait-gen",
- "unparse-gen",
  "words",
 ]
 
@@ -350,7 +348,9 @@ dependencies = [
 name = "integration-tests"
 version = "0.1.0"
 dependencies = [
+ "fib",
  "fib-parse",
+ "unparse-adt",
 ]
 
 [[package]]
@@ -1107,28 +1107,11 @@ version = "0.1.0"
 dependencies = [
  "bumpalo",
  "parse-adt",
+ "pmsp",
  "term",
  "tymetafuncspec-core",
  "typenum",
- "words",
-]
-
-[[package]]
-name = "unparse-gen"
-version = "0.1.0"
-dependencies = [
- "codegen-component",
- "extension-autobox",
- "langspec",
- "langspec-gen-util",
- "parse",
- "syn 2.0.100",
- "syn-insert-use",
- "term-pattern-match-strategy-provider-gen",
- "term-pattern-match-strategy-provider-impl-gen",
- "term-specialized-gen",
- "term-specialized-impl-gen",
- "term-trait-gen",
+ "visit",
  "words",
 ]
 
@@ -1137,6 +1120,17 @@ name = "version_check"
 version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
+
+[[package]]
+name = "visit"
+version = "0.1.0"
+dependencies = [
+ "ccf",
+ "conslist",
+ "pmsp",
+ "take-mut",
+ "words",
+]
 
 [[package]]
 name = "wasi"

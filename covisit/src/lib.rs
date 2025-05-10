@@ -1,7 +1,6 @@
 // see https://github.com/rust-lang/rust/pull/108033
-#![allow(internal_features)] // this is research-quality software!
+#![allow(internal_features)]
 #![feature(rustc_attrs)]
-#![feature(fundamental)]
 
 // want: foreign crates can implement covisit for their concrete type and for a specific covisitor (no generics required), and
 // foreign crates can implement a specific covisitor for all ADTs
@@ -20,8 +19,8 @@ pub(crate) mod helper_traits {
         fn all_covisit(&mut self, heap: &mut Heap) -> Case;
     }
     #[rustc_coinductive]
-    pub(crate) trait EachCovisit<T, Heap, L, RemainingCases, SelfDone> {
-        fn each_covisit(self, heap: &mut Heap) -> (SelfDone, T);
+    pub(crate) trait AnyCovisit<T, Heap, L, RemainingCases, SelfDone> {
+        fn any_covisit(self, heap: &mut Heap) -> (SelfDone, T);
     }
 }
 mod impls {
@@ -32,7 +31,7 @@ mod impls {
 
     use crate::Covisit;
     use crate::covisiteventsink::CovisitEventSink;
-    use crate::helper_traits::{AllCovisit, EachCovisit};
+    use crate::helper_traits::{AllCovisit, AnyCovisit};
     use crate::select::{AcceptingCases, FromSelectCase, SelectCase};
 
     impl<Covisitor, T, Heap, L> Covisit<T, Heap, L> for Covisitor
@@ -42,7 +41,7 @@ mod impls {
         // Covisitor: Covisit<<StrategyOf<T, Heap, L> as Strategy>::Cdr, Heap, L>,
         Covisitor: Poisonable,
         Covisitor: SelectCase,
-        <Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L>>: EachCovisit<
+        <Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L>>: AnyCovisit<
                 T,
                 Heap,
                 L,
@@ -53,28 +52,28 @@ mod impls {
         fn covisit(&mut self, heap: &mut Heap) -> T {
             take_mut::take(self, |cv| {
                 let ac = cv.start_cases();
-                <<Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L>> as EachCovisit<
+                <<Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L>> as AnyCovisit<
                     T,
                     Heap,
                     L,
                     StrategyOf<T, Heap, L>,
                     <<Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L>> as FromSelectCase>::Done,
-                >>::each_covisit(ac, heap)
+                >>::any_covisit(ac, heap)
             })
         }
     }
     impl<AC, T, Heap, L, RemainingCases>
-        EachCovisit<T, Heap, L, RemainingCases, <AC as FromSelectCase>::Done> for AC
+        AnyCovisit<T, Heap, L, RemainingCases, <AC as FromSelectCase>::Done> for AC
     where
         AC: AcceptingCases<RemainingCases>,
         RemainingCases: NonemptyStrategy,
         <AC as FromSelectCase>::Done: AllCovisit<T, RemainingCases::Car, Heap, L>,
         T: CanonicallyConstructibleFrom<Heap, RemainingCases::Car>,
         AC::AcceptingRemainingCases:
-            EachCovisit<T, Heap, L, RemainingCases::Cdr, <AC as FromSelectCase>::Done>,
+            AnyCovisit<T, Heap, L, RemainingCases::Cdr, <AC as FromSelectCase>::Done>,
         <AC as FromSelectCase>::Done: CovisitEventSink<T>,
     {
-        fn each_covisit(self, heap: &mut Heap) -> (<AC as FromSelectCase>::Done, T) {
+        fn any_covisit(self, heap: &mut Heap) -> (<AC as FromSelectCase>::Done, T) {
             self.try_case()
                 .map(|mut x| {
                     <<AC as FromSelectCase>::Done as CovisitEventSink<T>>::push(&mut x);
@@ -92,13 +91,13 @@ mod impls {
                     (x, ret)
                 })
                 .unwrap_or_else(|remaining| {
-                    <AC::AcceptingRemainingCases as EachCovisit<
+                    <AC::AcceptingRemainingCases as AnyCovisit<
                         T,
                         Heap,
                         L,
                         RemainingCases::Cdr,
                         <AC as FromSelectCase>::Done,
-                    >>::each_covisit(remaining, heap)
+                    >>::any_covisit(remaining, heap)
                 })
         }
     }
@@ -121,18 +120,18 @@ mod impls {
     }
     mod base_cases {
         use crate::{
-            helper_traits::{AllCovisit, EachCovisit},
+            helper_traits::{AllCovisit, AnyCovisit},
             select::{AdmitNoMatchingCase, FromSelectCase},
         };
 
         impl<Covisitor, T, Heap, L> AllCovisit<T, (), Heap, L> for Covisitor {
             fn all_covisit(&mut self, _: &mut Heap) {}
         }
-        impl<AC, T, Heap, L> EachCovisit<T, Heap, L, (), <AC as FromSelectCase>::Done> for AC
+        impl<AC, T, Heap, L> AnyCovisit<T, Heap, L, (), <AC as FromSelectCase>::Done> for AC
         where
             AC: AdmitNoMatchingCase<Heap, T>,
         {
-            fn each_covisit(self, heap: &mut Heap) -> (<AC as FromSelectCase>::Done, T) {
+            fn any_covisit(self, heap: &mut Heap) -> (<AC as FromSelectCase>::Done, T) {
                 self.admit(heap)
             }
         }
