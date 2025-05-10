@@ -9,7 +9,7 @@ pub trait NamesPatternMatchStrategyGivenContext<Heap> {
     type Strategy: Strategy;
     type TyMetadatas: Strategy;
 }
-
+#[fundamental] // opt TmfMetadata out of the "covers" rule for when OgType is a local type
 pub struct TmfMetadata<OgType>(std::marker::PhantomData<OgType>);
 pub struct AdtMetadata;
 
@@ -20,6 +20,13 @@ impl<T, VisitorOrCovisitor> UsesStrategyForTraversal<VisitorOrCovisitor> for T w
 
 pub type StrategyOf<T, Heap, L>
     = <<T as Implements<Heap, L>>::LWord as NamesPatternMatchStrategyGivenContext<Heap>>::Strategy
+where
+    T: Implements<Heap, L>,
+    <T as Implements<Heap, L>>::LWord: NamesPatternMatchStrategyGivenContext<Heap>;
+
+pub type TyMetadataOf<T, Heap, L>
+    =
+    <<T as Implements<Heap, L>>::LWord as NamesPatternMatchStrategyGivenContext<Heap>>::TyMetadatas
 where
     T: Implements<Heap, L>,
     <T as Implements<Heap, L>>::LWord: NamesPatternMatchStrategyGivenContext<Heap>;

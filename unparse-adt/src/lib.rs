@@ -1,5 +1,5 @@
 use parse_adt::NamesParseLL;
-use pmsp::UsesStrategyForTraversal;
+use pmsp::{AdtMetadata, UsesStrategyForTraversal};
 // use parse_adt::NamesParseLL;
 // use term::{
 //     case_split::HasBorrowedHeapRef,
@@ -14,29 +14,27 @@ use visit::{
 pub mod tmfscore;
 pub mod unparse;
 
-pub struct Unparser<'arena, L, CurrentNode> {
+pub struct Unparser<'arena, L> {
     pub unparse: Unparse<'arena>,
-    phantom: std::marker::PhantomData<(CurrentNode, L)>,
+    phantom: std::marker::PhantomData<L>,
 }
 
-impl<'arena, L, Heap, EitherLeft, EitherRight>
-    UsesStrategyForTraversal<
-        Unparser<'arena, L, tymetafuncspec_core::Either<Heap, EitherLeft, EitherRight>>,
-    > for tymetafuncspec_core::Either<Heap, EitherLeft, EitherRight>
+impl<'arena, L, Heap, EitherLeft, EitherRight> UsesStrategyForTraversal<Unparser<'arena, L>>
+    for tymetafuncspec_core::Either<Heap, EitherLeft, EitherRight>
 {
 }
 
 pub fn unparse<Heap, L, T>(heap: &mut Heap, t: &T) -> String
 where
-    for<'a> Unparser<'a, L, T>: Visit<T, Heap, L>,
+    for<'a> Unparser<'a, L>: Visit<AdtMetadata, T, Heap, L>,
 {
     let arena = bumpalo::Bump::new();
     let mut unparser = Unparser::new(&arena);
-    <Unparser<'_, L, T> as Visit<T, Heap, L>>::visit(&mut unparser, heap, &t);
+    <Unparser<'_, L> as Visit<_, _, _, _>>::visit(&mut unparser, heap, &t);
     format!("{:?}", &unparser.unparse)
 }
 
-impl<'arena, L, CurrentNode> Unparser<'arena, L, CurrentNode> {
+impl<'arena, L> Unparser<'arena, L> {
     pub fn new(arena: &'arena bumpalo::Bump) -> Self {
         Unparser {
             unparse: Unparse::new(arena),
@@ -45,8 +43,7 @@ impl<'arena, L, CurrentNode> Unparser<'arena, L, CurrentNode> {
     }
 }
 
-impl<'arena, L, CurrentNode, Heap> VisitEventSink<CurrentNode, Heap>
-    for Unparser<'arena, L, CurrentNode>
+impl<'arena, L, CurrentNode, Heap> VisitEventSink<CurrentNode, Heap> for Unparser<'arena, L>
 where
     CurrentNode: words::Implements<Heap, L>,
     <CurrentNode as words::Implements<Heap, L>>::LWord: NamesParseLL,
@@ -73,51 +70,3 @@ where
         self.unparse.static_text("???");
     }
 }
-
-// impl<'arena, L, C> HasBorrowedHeapRef for Unparser<'arena, L, C> {
-//     type Borrowed<'a, Heap: 'a> = &'a Heap;
-//     fn with_decayed_heapref<Heap, T, F: Fn(&Heap) -> T>(
-//         heap: &mut Self::Borrowed<'_, Heap>,
-//         f: F,
-//     ) -> T {
-//         f(heap)
-//     }
-// }
-
-// impl<'a, Heap, L, CurrentNode> Visitor<Heap, CurrentNode> for Unparser<'a, L, CurrentNode>
-// where
-//     CurrentNode: words::Implements<Heap, L>,
-//     <CurrentNode as words::Implements<Heap, L>>::LWord: NamesParseLL,
-// {
-//     fn push(
-//         &mut self,
-//         _t: CurrentNode,
-//         _heap: &mut Self::Borrowed<'_, Heap>,
-//     ) -> term::visit::MaybeAbortThisSubtree {
-//         for word in <<CurrentNode as words::Implements<Heap, L>>::LWord as NamesParseLL>::START.0 {
-//             self.unparse.static_text(word.get());
-//         }
-//         term::visit::MaybeAbortThisSubtree::Proceed
-//     }
-
-//     fn proceed(&mut self, _t: CurrentNode, _heap: &mut Self::Borrowed<'_, Heap>) {
-//         todo!()
-//     }
-
-//     fn pop(&mut self, _t: CurrentNode, _heap: &mut Self::Borrowed<'_, Heap>) {
-//         todo!()
-//     }
-// }
-
-// // impl<'a, Heap, L, Pmsp, CurrentNode, Fnlut>
-// //     Visitable<Unparser<'a, L, CurrentNode>, Pmsp, Heap, typenum::U0, Fnlut> for CurrentNode
-// // where
-// //     CurrentNode: words::Implements<Heap, L>,
-// //     <CurrentNode as words::Implements<Heap, L>>::LWord: NamesParseLL,
-// //     Fnlut: HasFn<Self, FnType = fn(&mut Unparser<'a, L, CurrentNode>, &mut Heap, Fnlut) -> Self>,
-// // {
-// //     fn visit(&self, visitor: &mut Unparser<'_, L, CurrentNode>, heap: &mut Heap, fnlut: Fnlut) {
-// //         println!("dbg: recursion limit reached for unparse; restarting");
-// //         fnlut.get::<Self>()(visitor, heap, fnlut)
-// //     }
-// // }

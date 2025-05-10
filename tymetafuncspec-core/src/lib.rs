@@ -227,7 +227,7 @@ empty_heap_bak!(BoundedNatHeapBak);
 #[derivative(Copy(bound = ""))]
 pub struct Set<Heap, Elem> {
     heap: std::marker::PhantomData<(Heap, Elem)>,
-    pub items: usize,
+    items: usize,
 }
 impl<Heap, Elem: Heaped<Heap = Heap>> Heaped for Set<Heap, Elem> {
     type Heap = Heap;
@@ -256,6 +256,17 @@ where
                 .insert(elems),
             heap: std::marker::PhantomData,
         }
+    }
+    pub fn iter<'a, 'b>(&'a self, heap: &'b Heap) -> impl Iterator<Item = &'b Elem>
+    where
+        Elem: 'b,
+    {
+        let items = heap
+            .subheap::<SetHeapBak<Heap, Elem>>()
+            .vecs
+            .get(self.items)
+            .unwrap();
+        items.iter()
     }
 }
 #[derive(Debug)]
@@ -326,6 +337,10 @@ where
             phantom: std::marker::PhantomData,
             idx: idx as u32,
         }
+    }
+    pub fn get<'b>(&self, heap: &'b Heap) -> &'b Elem {
+        let subheap = heap.subheap::<IdxBoxHeapBak<Heap, Elem>>();
+        subheap.elems.get(self.idx as usize).unwrap()
     }
 }
 

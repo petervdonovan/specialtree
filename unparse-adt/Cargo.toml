@@ -5,6 +5,7 @@ edition.workspace = true
 
 [dependencies]
 bumpalo.workspace = true
+ccf = { version = "0.1.0", path = "../ccf" }
 parse-adt = { version = "0.1.0", path = "../parse-adt" }
 pmsp = { version = "0.1.0", path = "../pmsp" }
 term = { version = "0.1.0", path = "../term" }

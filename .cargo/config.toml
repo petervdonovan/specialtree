@@ -1,0 +1,3 @@
+[build]
+# coinductive traits do not work in all cases in legacy trait solver
+rustflags = ["-Znext-solver=globally"]

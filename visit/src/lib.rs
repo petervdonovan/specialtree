@@ -5,25 +5,25 @@
 pub mod visiteventsink;
 
 #[rustc_coinductive]
-pub trait Visit<T, Heap, L> {
-    fn visit(&mut self, heap: &mut Heap, t: &T);
+pub trait Visit<TyMetadata, T, Heap, L> {
+    fn visit(&mut self, heap: &Heap, t: &T);
 }
 
 pub(crate) mod helper_traits {
     #[rustc_coinductive]
-    pub(crate) trait AllVisit<T, Case, Heap, L> {
-        fn all_visit(&mut self, heap: &mut Heap, case: &Case);
+    pub(crate) trait AllVisit<T, Heap, L, Case, TyMetadata> {
+        fn all_visit(&mut self, heap: &Heap, case: &Case);
     }
     #[rustc_coinductive]
-    pub(crate) trait AnyVisit<T, Heap, L, RemainingCases> {
-        fn any_visit(&mut self, heap: &mut Heap, t: &T);
+    pub(crate) trait AnyVisit<T, Heap, L, RemainingCases, TyMetadata> {
+        fn any_visit(&mut self, heap: &Heap, t: &T);
     }
 }
 
 mod impls {
     use ccf::CanonicallyConstructibleFrom;
     use conslist::NonemptyConsList;
-    use pmsp::{NonemptyStrategy, StrategyOf, UsesStrategyForTraversal};
+    use pmsp::{AdtMetadata, NonemptyStrategy, StrategyOf, TyMetadataOf, UsesStrategyForTraversal};
 
     use crate::{
         Visit,
@@ -31,26 +31,28 @@ mod impls {
         visiteventsink::VisitEventSink,
     };
 
-    impl<V, T, Heap, L> Visit<T, Heap, L> for V
+    impl<V, T, Heap, L> Visit<AdtMetadata, T, Heap, L> for V
     where
         T: words::Implements<Heap, L> + UsesStrategyForTraversal<V>,
         <T as words::Implements<Heap, L>>::LWord: pmsp::NamesPatternMatchStrategyGivenContext<Heap>,
-        V: AnyVisit<T, Heap, L, StrategyOf<T, Heap, L>>,
+        V: AnyVisit<T, Heap, L, StrategyOf<T, Heap, L>, TyMetadataOf<T, Heap, L>>,
     {
-        fn visit(&mut self, heap: &mut Heap, t: &T) {
-            <V as AnyVisit<_, _, _, _>>::any_visit(self, heap, t)
+        fn visit(&mut self, heap: &Heap, t: &T) {
+            <V as AnyVisit<_, _, _, _, _>>::any_visit(self, heap, t)
         }
     }
 
-    impl<V, T: Copy, Heap, L, RemainingCases> AnyVisit<T, Heap, L, RemainingCases> for V
+    impl<V, T: Copy, Heap, L, RemainingCases, RemainingTyMetadatas>
+        AnyVisit<T, Heap, L, RemainingCases, RemainingTyMetadatas> for V
     where
         T: CanonicallyConstructibleFrom<Heap, RemainingCases::Car>,
         RemainingCases: NonemptyStrategy,
-        V: AnyVisit<T, Heap, L, RemainingCases::Cdr>,
-        V: AllVisit<T, RemainingCases::Car, Heap, L>,
+        RemainingTyMetadatas: NonemptyStrategy,
+        V: AnyVisit<T, Heap, L, RemainingCases::Cdr, RemainingTyMetadatas::Cdr>,
+        V: AllVisit<T, Heap, L, RemainingCases::Car, RemainingTyMetadatas::Car>,
         V: VisitEventSink<T, Heap>,
     {
-        fn any_visit(&mut self, heap: &mut Heap, t: &T) {
+        fn any_visit(&mut self, heap: &Heap, t: &T) {
             if <T as CanonicallyConstructibleFrom<Heap, RemainingCases::Car>>::deconstruct_succeeds(
                 t, heap,
             ) {
@@ -62,19 +64,22 @@ mod impls {
                 self.all_visit(heap, &car);
                 self.pop();
             } else {
-                <V as AnyVisit<T, Heap, L, RemainingCases::Cdr>>::any_visit(self, heap, t);
+                <V as AnyVisit<_, _, _, RemainingCases::Cdr, RemainingTyMetadatas::Cdr>>::any_visit(
+                    self, heap, t,
+                );
             }
         }
     }
 
-    impl<V, T, Case: Copy, Heap, L> AllVisit<T, Case, Heap, L> for V
+    impl<V, T, Case: Copy, Heap, L, TyMetadatas> AllVisit<T, Heap, L, Case, TyMetadatas> for V
     where
         Case: NonemptyConsList,
-        V: AllVisit<T, Case::Cdr, Heap, L>,
-        V: Visit<Case::Car, Heap, L>,
+        TyMetadatas: NonemptyConsList,
+        V: AllVisit<T, Heap, L, Case::Cdr, TyMetadatas::Cdr>,
+        V: Visit<TyMetadatas::Car, Case::Car, Heap, L>,
         V: VisitEventSink<T, Heap>,
     {
-        fn all_visit(&mut self, heap: &mut Heap, case: &Case) {
+        fn all_visit(&mut self, heap: &Heap, case: &Case) {
             let (car, cdr) = case.deconstruct();
             self.visit(heap, &car);
             self.proceed();
@@ -83,21 +88,22 @@ mod impls {
     }
 
     mod base_cases {
+
         use crate::{
             helper_traits::{AllVisit, AnyVisit},
             visiteventsink::VisitEventSink,
         };
 
-        impl<Visitor, T, Heap, L> AllVisit<T, (), Heap, L> for Visitor {
-            fn all_visit(&mut self, _heap: &mut Heap, _case: &()) {
+        impl<Visitor, T, Heap, L> AllVisit<T, Heap, L, (), ()> for Visitor {
+            fn all_visit(&mut self, _heap: &Heap, _case: &()) {
                 // do nothing
             }
         }
-        impl<V, T, Heap, L> AnyVisit<T, Heap, L, ()> for V
+        impl<V, T, Heap, L> AnyVisit<T, Heap, L, (), ()> for V
         where
             V: VisitEventSink<T, Heap>,
         {
-            fn any_visit(&mut self, _heap: &mut Heap, _t: &T) {
+            fn any_visit(&mut self, _heap: &Heap, _t: &T) {
                 self.deconstruction_failure()
             }
         }
