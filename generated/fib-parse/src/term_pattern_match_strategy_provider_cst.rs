@@ -13,6 +13,7 @@ use term::MapsTmf;
 use std_parse_metadata::ParseMetadata;
 use std_parse_error::ParseError;
 use pmsp::TmfMetadata;
+use pmsp::AdtMetadata;
 use crate::words_mod_cst as wmc;
 use crate::words_mod_cst::sorts as wmcs;
 use crate::term_trait_cst as ttc;
@@ -45,21 +46,73 @@ for wmcs::Plus {
     );
     type TyMetadatas = (
         (
-            TmfMetadata<
-                Either<
-                    Heap,
-                    Pair<Heap, Heap::LeftOperand, Maybe<Heap, ParseMetadata<Heap>>>,
-                    ParseError<Heap>,
-                >,
-            >,
             (
                 TmfMetadata<
                     Either<
                         Heap,
-                        Pair<Heap, Heap::RightOperand, Maybe<Heap, ParseMetadata<Heap>>>,
+                        Pair<Heap, Heap::LeftOperand, Maybe<Heap, ParseMetadata<Heap>>>,
                         ParseError<Heap>,
                     >,
                 >,
+                (
+                    (
+                        TmfMetadata<
+                            Pair<
+                                Heap,
+                                Heap::LeftOperand,
+                                Maybe<Heap, ParseMetadata<Heap>>,
+                            >,
+                        >,
+                        (
+                            AdtMetadata,
+                            (
+                                (
+                                    TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
+                                    ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
+                                ),
+                                (),
+                            ),
+                        ),
+                    ),
+                    ((TmfMetadata<ParseError<Heap>>, ()), ()),
+                ),
+            ),
+            (
+                (
+                    TmfMetadata<
+                        Either<
+                            Heap,
+                            Pair<
+                                Heap,
+                                Heap::RightOperand,
+                                Maybe<Heap, ParseMetadata<Heap>>,
+                            >,
+                            ParseError<Heap>,
+                        >,
+                    >,
+                    (
+                        (
+                            TmfMetadata<
+                                Pair<
+                                    Heap,
+                                    Heap::RightOperand,
+                                    Maybe<Heap, ParseMetadata<Heap>>,
+                                >,
+                            >,
+                            (
+                                AdtMetadata,
+                                (
+                                    (
+                                        TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
+                                        ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
+                                    ),
+                                    (),
+                                ),
+                            ),
+                        ),
+                        ((TmfMetadata<ParseError<Heap>>, ()), ()),
+                    ),
+                ),
                 (),
             ),
         ),
@@ -85,13 +138,33 @@ for wmcs::LeftOperand {
     );
     type TyMetadatas = (
         (
-            TmfMetadata<
-                Either<
-                    Heap,
-                    Pair<Heap, Heap::Nat, Maybe<Heap, ParseMetadata<Heap>>>,
-                    ParseError<Heap>,
+            (
+                TmfMetadata<
+                    Either<
+                        Heap,
+                        Pair<Heap, Heap::Nat, Maybe<Heap, ParseMetadata<Heap>>>,
+                        ParseError<Heap>,
+                    >,
                 >,
-            >,
+                (
+                    (
+                        TmfMetadata<
+                            Pair<Heap, Heap::Nat, Maybe<Heap, ParseMetadata<Heap>>>,
+                        >,
+                        (
+                            AdtMetadata,
+                            (
+                                (
+                                    TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
+                                    ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
+                                ),
+                                (),
+                            ),
+                        ),
+                    ),
+                    ((TmfMetadata<ParseError<Heap>>, ()), ()),
+                ),
+            ),
             (),
         ),
         (),
@@ -116,13 +189,33 @@ for wmcs::RightOperand {
     );
     type TyMetadatas = (
         (
-            TmfMetadata<
-                Either<
-                    Heap,
-                    Pair<Heap, Heap::Nat, Maybe<Heap, ParseMetadata<Heap>>>,
-                    ParseError<Heap>,
+            (
+                TmfMetadata<
+                    Either<
+                        Heap,
+                        Pair<Heap, Heap::Nat, Maybe<Heap, ParseMetadata<Heap>>>,
+                        ParseError<Heap>,
+                    >,
                 >,
-            >,
+                (
+                    (
+                        TmfMetadata<
+                            Pair<Heap, Heap::Nat, Maybe<Heap, ParseMetadata<Heap>>>,
+                        >,
+                        (
+                            AdtMetadata,
+                            (
+                                (
+                                    TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
+                                    ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
+                                ),
+                                (),
+                            ),
+                        ),
+                    ),
+                    ((TmfMetadata<ParseError<Heap>>, ()), ()),
+                ),
+            ),
             (),
         ),
         (),
@@ -147,13 +240,33 @@ for wmcs::F {
     );
     type TyMetadatas = (
         (
-            TmfMetadata<
-                Either<
-                    Heap,
-                    Pair<Heap, Heap::Nat, Maybe<Heap, ParseMetadata<Heap>>>,
-                    ParseError<Heap>,
+            (
+                TmfMetadata<
+                    Either<
+                        Heap,
+                        Pair<Heap, Heap::Nat, Maybe<Heap, ParseMetadata<Heap>>>,
+                        ParseError<Heap>,
+                    >,
                 >,
-            >,
+                (
+                    (
+                        TmfMetadata<
+                            Pair<Heap, Heap::Nat, Maybe<Heap, ParseMetadata<Heap>>>,
+                        >,
+                        (
+                            AdtMetadata,
+                            (
+                                (
+                                    TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
+                                    ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
+                                ),
+                                (),
+                            ),
+                        ),
+                    ),
+                    ((TmfMetadata<ParseError<Heap>>, ()), ()),
+                ),
+            ),
             (),
         ),
         (),
@@ -189,24 +302,96 @@ for wmcs::Sum {
     );
     type TyMetadatas = (
         (
-            TmfMetadata<
-                Either<
-                    Heap,
-                    Pair<
+            (
+                TmfMetadata<
+                    Either<
                         Heap,
-                        Set<
+                        Pair<
                             Heap,
-                            Either<
+                            Set<
                                 Heap,
-                                Pair<Heap, Heap::Nat, Maybe<Heap, ParseMetadata<Heap>>>,
-                                ParseError<Heap>,
+                                Either<
+                                    Heap,
+                                    Pair<Heap, Heap::Nat, Maybe<Heap, ParseMetadata<Heap>>>,
+                                    ParseError<Heap>,
+                                >,
+                            >,
+                            Maybe<Heap, ParseMetadata<Heap>>,
+                        >,
+                        ParseError<Heap>,
+                    >,
+                >,
+                (
+                    (
+                        TmfMetadata<
+                            Pair<
+                                Heap,
+                                Set<
+                                    Heap,
+                                    Either<
+                                        Heap,
+                                        Pair<Heap, Heap::Nat, Maybe<Heap, ParseMetadata<Heap>>>,
+                                        ParseError<Heap>,
+                                    >,
+                                >,
+                                Maybe<Heap, ParseMetadata<Heap>>,
                             >,
                         >,
-                        Maybe<Heap, ParseMetadata<Heap>>,
-                    >,
-                    ParseError<Heap>,
-                >,
-            >,
+                        (
+                            (
+                                TmfMetadata<
+                                    Set<
+                                        Heap,
+                                        Either<
+                                            Heap,
+                                            Pair<Heap, Heap::Nat, Maybe<Heap, ParseMetadata<Heap>>>,
+                                            ParseError<Heap>,
+                                        >,
+                                    >,
+                                >,
+                                (
+                                    (
+                                        TmfMetadata<
+                                            Either<
+                                                Heap,
+                                                Pair<Heap, Heap::Nat, Maybe<Heap, ParseMetadata<Heap>>>,
+                                                ParseError<Heap>,
+                                            >,
+                                        >,
+                                        (
+                                            (
+                                                TmfMetadata<
+                                                    Pair<Heap, Heap::Nat, Maybe<Heap, ParseMetadata<Heap>>>,
+                                                >,
+                                                (
+                                                    AdtMetadata,
+                                                    (
+                                                        (
+                                                            TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
+                                                            ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
+                                                        ),
+                                                        (),
+                                                    ),
+                                                ),
+                                            ),
+                                            ((TmfMetadata<ParseError<Heap>>, ()), ()),
+                                        ),
+                                    ),
+                                    (),
+                                ),
+                            ),
+                            (
+                                (
+                                    TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
+                                    ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
+                                ),
+                                (),
+                            ),
+                        ),
+                    ),
+                    ((TmfMetadata<ParseError<Heap>>, ()), ()),
+                ),
+            ),
             (),
         ),
         (),
@@ -292,37 +477,40 @@ for wmcs::Nat {
     );
     type TyMetadatas = (
         (
-            TmfMetadata<
-                Either<
-                    Heap,
-                    Pair<Heap, BoundedNat<Heap>, Maybe<Heap, ParseMetadata<Heap>>>,
-                    ParseError<Heap>,
-                >,
-            >,
-            (),
-        ),
-        (
             (
                 TmfMetadata<
                     Either<
                         Heap,
-                        Pair<
-                            Heap,
-                            IdxBox<
-                                Heap,
-                                Either<
-                                    Heap,
-                                    Pair<Heap, Heap::F, Maybe<Heap, ParseMetadata<Heap>>>,
-                                    ParseError<Heap>,
-                                >,
-                            >,
-                            Maybe<Heap, ParseMetadata<Heap>>,
-                        >,
+                        Pair<Heap, BoundedNat<Heap>, Maybe<Heap, ParseMetadata<Heap>>>,
                         ParseError<Heap>,
                     >,
                 >,
-                (),
+                (
+                    (
+                        TmfMetadata<
+                            Pair<
+                                Heap,
+                                BoundedNat<Heap>,
+                                Maybe<Heap, ParseMetadata<Heap>>,
+                            >,
+                        >,
+                        (
+                            (TmfMetadata<BoundedNat<Heap>>, ()),
+                            (
+                                (
+                                    TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
+                                    ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
+                                ),
+                                (),
+                            ),
+                        ),
+                    ),
+                    ((TmfMetadata<ParseError<Heap>>, ()), ()),
+                ),
             ),
+            (),
+        ),
+        (
             (
                 (
                     TmfMetadata<
@@ -334,7 +522,7 @@ for wmcs::Nat {
                                     Heap,
                                     Either<
                                         Heap,
-                                        Pair<Heap, Heap::Plus, Maybe<Heap, ParseMetadata<Heap>>>,
+                                        Pair<Heap, Heap::F, Maybe<Heap, ParseMetadata<Heap>>>,
                                         ParseError<Heap>,
                                     >,
                                 >,
@@ -343,17 +531,202 @@ for wmcs::Nat {
                             ParseError<Heap>,
                         >,
                     >,
-                    (),
+                    (
+                        (
+                            TmfMetadata<
+                                Pair<
+                                    Heap,
+                                    IdxBox<
+                                        Heap,
+                                        Either<
+                                            Heap,
+                                            Pair<Heap, Heap::F, Maybe<Heap, ParseMetadata<Heap>>>,
+                                            ParseError<Heap>,
+                                        >,
+                                    >,
+                                    Maybe<Heap, ParseMetadata<Heap>>,
+                                >,
+                            >,
+                            (
+                                (
+                                    TmfMetadata<
+                                        IdxBox<
+                                            Heap,
+                                            Either<
+                                                Heap,
+                                                Pair<Heap, Heap::F, Maybe<Heap, ParseMetadata<Heap>>>,
+                                                ParseError<Heap>,
+                                            >,
+                                        >,
+                                    >,
+                                    (
+                                        (
+                                            TmfMetadata<
+                                                Either<
+                                                    Heap,
+                                                    Pair<Heap, Heap::F, Maybe<Heap, ParseMetadata<Heap>>>,
+                                                    ParseError<Heap>,
+                                                >,
+                                            >,
+                                            (
+                                                (
+                                                    TmfMetadata<
+                                                        Pair<Heap, Heap::F, Maybe<Heap, ParseMetadata<Heap>>>,
+                                                    >,
+                                                    (
+                                                        AdtMetadata,
+                                                        (
+                                                            (
+                                                                TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
+                                                                ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
+                                                            ),
+                                                            (),
+                                                        ),
+                                                    ),
+                                                ),
+                                                ((TmfMetadata<ParseError<Heap>>, ()), ()),
+                                            ),
+                                        ),
+                                        (),
+                                    ),
+                                ),
+                                (
+                                    (
+                                        TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
+                                        ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
+                                    ),
+                                    (),
+                                ),
+                            ),
+                        ),
+                        ((TmfMetadata<ParseError<Heap>>, ()), ()),
+                    ),
                 ),
+                (),
+            ),
+            (
                 (
                     (
                         TmfMetadata<
                             Either<
                                 Heap,
-                                Pair<Heap, Heap::Sum, Maybe<Heap, ParseMetadata<Heap>>>,
+                                Pair<
+                                    Heap,
+                                    IdxBox<
+                                        Heap,
+                                        Either<
+                                            Heap,
+                                            Pair<Heap, Heap::Plus, Maybe<Heap, ParseMetadata<Heap>>>,
+                                            ParseError<Heap>,
+                                        >,
+                                    >,
+                                    Maybe<Heap, ParseMetadata<Heap>>,
+                                >,
                                 ParseError<Heap>,
                             >,
                         >,
+                        (
+                            (
+                                TmfMetadata<
+                                    Pair<
+                                        Heap,
+                                        IdxBox<
+                                            Heap,
+                                            Either<
+                                                Heap,
+                                                Pair<Heap, Heap::Plus, Maybe<Heap, ParseMetadata<Heap>>>,
+                                                ParseError<Heap>,
+                                            >,
+                                        >,
+                                        Maybe<Heap, ParseMetadata<Heap>>,
+                                    >,
+                                >,
+                                (
+                                    (
+                                        TmfMetadata<
+                                            IdxBox<
+                                                Heap,
+                                                Either<
+                                                    Heap,
+                                                    Pair<Heap, Heap::Plus, Maybe<Heap, ParseMetadata<Heap>>>,
+                                                    ParseError<Heap>,
+                                                >,
+                                            >,
+                                        >,
+                                        (
+                                            (
+                                                TmfMetadata<
+                                                    Either<
+                                                        Heap,
+                                                        Pair<Heap, Heap::Plus, Maybe<Heap, ParseMetadata<Heap>>>,
+                                                        ParseError<Heap>,
+                                                    >,
+                                                >,
+                                                (
+                                                    (
+                                                        TmfMetadata<
+                                                            Pair<Heap, Heap::Plus, Maybe<Heap, ParseMetadata<Heap>>>,
+                                                        >,
+                                                        (
+                                                            AdtMetadata,
+                                                            (
+                                                                (
+                                                                    TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
+                                                                    ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
+                                                                ),
+                                                                (),
+                                                            ),
+                                                        ),
+                                                    ),
+                                                    ((TmfMetadata<ParseError<Heap>>, ()), ()),
+                                                ),
+                                            ),
+                                            (),
+                                        ),
+                                    ),
+                                    (
+                                        (
+                                            TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
+                                            ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
+                                        ),
+                                        (),
+                                    ),
+                                ),
+                            ),
+                            ((TmfMetadata<ParseError<Heap>>, ()), ()),
+                        ),
+                    ),
+                    (),
+                ),
+                (
+                    (
+                        (
+                            TmfMetadata<
+                                Either<
+                                    Heap,
+                                    Pair<Heap, Heap::Sum, Maybe<Heap, ParseMetadata<Heap>>>,
+                                    ParseError<Heap>,
+                                >,
+                            >,
+                            (
+                                (
+                                    TmfMetadata<
+                                        Pair<Heap, Heap::Sum, Maybe<Heap, ParseMetadata<Heap>>>,
+                                    >,
+                                    (
+                                        AdtMetadata,
+                                        (
+                                            (
+                                                TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
+                                                ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
+                                            ),
+                                            (),
+                                        ),
+                                    ),
+                                ),
+                                ((TmfMetadata<ParseError<Heap>>, ()), ()),
+                            ),
+                        ),
                         (),
                     ),
                     (),

@@ -59,19 +59,11 @@ pub(crate) fn impl_has_pattern_match_strategy_for<L: LangSpec>(
             .into_iter()
             .map(|it| cons_list(it.into_iter())),
     );
-    let tymetadatas: syn::Type = cons_list(ccf_sortses.iter().map(|it| {
-        cons_list(it.iter().map(|sid| match sid {
-            langspec::langspec::SortId::Algebraic(_) => syn::parse_quote! {
-                pmsp::AdtMetadata
-            },
-            langspec::langspec::SortId::TyMetaFunc(_) => {
-                let rs_ty = lg.sort2rs_ty(sid.clone(), &ht, &abp);
-                syn::parse_quote! {
-                    pmsp::TmfMetadata<#rs_ty>
-                }
-            }
-        }))
-    }));
+    let tymetadatas: syn::Type = cons_list(
+        ccf_sortses
+            .iter()
+            .map(|ccf_sorts| tymetadatas(lg, ccf_sorts.as_slice(), &ht, &abp)),
+    );
     syn::parse_quote! {
         #byline
         impl<Heap: #term_trait::Heap> pmsp::NamesPatternMatchStrategyGivenContext<Heap> for #words::sorts::#camel_ident {
@@ -79,6 +71,26 @@ pub(crate) fn impl_has_pattern_match_strategy_for<L: LangSpec>(
             type TyMetadatas = #tymetadatas;
         }
     }
+}
+
+fn tymetadatas<L: LangSpec>(
+    lg: &LsGen<L>,
+    sids: &[SortIdOf<L>],
+    ht: &HeapType,
+    abp: &AlgebraicsBasePath,
+) -> syn::Type {
+    cons_list(sids.iter().map(|sid| match sid {
+        langspec::langspec::SortId::Algebraic(_) => syn::parse_quote! {
+            pmsp::AdtMetadata
+        },
+        langspec::langspec::SortId::TyMetaFunc(mappedtype) => {
+            let ccf_sortses_tmfs = tymetadatas(lg, mappedtype.a.as_slice(), ht, abp);
+            let rs_ty = lg.sort2rs_ty(sid.clone(), ht, abp);
+            syn::parse_quote! {
+                (pmsp::TmfMetadata<#rs_ty>, #ccf_sortses_tmfs)
+            }
+        }
+    }))
 }
 
 pub mod targets {

@@ -30,7 +30,7 @@ where
 {
     let arena = bumpalo::Bump::new();
     let mut unparser = Unparser::new(&arena);
-    <Unparser<'_, L> as Visit<_, _, _, _>>::visit(&mut unparser, heap, &t);
+    <Unparser<'_, L> as Visit<_, _, _, _>>::visit(&mut unparser, heap, t);
     format!("{:?}", &unparser.unparse)
 }
 
@@ -63,7 +63,7 @@ where
     }
 
     fn pop(&mut self) {
-        // todo
+        self.unparse.group_end();
     }
 
     fn deconstruction_failure(&mut self) {
