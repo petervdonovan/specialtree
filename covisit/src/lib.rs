@@ -9,24 +9,24 @@ pub mod covisiteventsink;
 pub mod select;
 
 #[rustc_coinductive]
-pub trait Covisit<T, Heap, L> {
+pub trait Covisit<TyMetadata, T, Heap, L> {
     fn covisit(&mut self, heap: &mut Heap) -> T;
 }
 
 pub(crate) mod helper_traits {
     #[rustc_coinductive]
-    pub(crate) trait AllCovisit<T, Case, Heap, L> {
-        fn all_covisit(&mut self, heap: &mut Heap) -> Case;
+    pub(crate) trait AllCovisit<T, Heap, L, Case, TyMetadata> {
+        fn all_covisit(&mut self, heap: &mut Heap, idx: u32) -> Case;
     }
     #[rustc_coinductive]
-    pub(crate) trait AnyCovisit<T, Heap, L, RemainingCases, SelfDone> {
+    pub(crate) trait AnyCovisit<T, Heap, L, RemainingCases, RemainingTyMetadata, SelfDone> {
         fn any_covisit(self, heap: &mut Heap) -> (SelfDone, T);
     }
 }
 mod impls {
     use ccf::CanonicallyConstructibleFrom;
     use conslist::{ConsList, NonemptyConsList};
-    use pmsp::{NonemptyStrategy, StrategyOf, UsesStrategyForTraversal};
+    use pmsp::{AdtMetadata, NonemptyStrategy, StrategyOf, TyMetadataOf};
     use take_mut::Poisonable;
 
     use crate::Covisit;
@@ -34,9 +34,9 @@ mod impls {
     use crate::helper_traits::{AllCovisit, AnyCovisit};
     use crate::select::{AcceptingCases, FromSelectCase, SelectCase};
 
-    impl<Covisitor, T, Heap, L> Covisit<T, Heap, L> for Covisitor
+    impl<Covisitor, T, Heap, L> Covisit<AdtMetadata, T, Heap, L> for Covisitor
     where
-        T: words::Implements<Heap, L> + UsesStrategyForTraversal<Covisitor>,
+        T: words::Implements<Heap, L>,
         <T as words::Implements<Heap, L>>::LWord: pmsp::NamesPatternMatchStrategyGivenContext<Heap>,
         // Covisitor: Covisit<<StrategyOf<T, Heap, L> as Strategy>::Cdr, Heap, L>,
         Covisitor: Poisonable,
@@ -46,6 +46,7 @@ mod impls {
                 Heap,
                 L,
                 StrategyOf<T, Heap, L>,
+                TyMetadataOf<T, Heap, L>,
                 <<Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L>> as FromSelectCase>::Done,
             >,
     {
@@ -53,36 +54,44 @@ mod impls {
             take_mut::take(self, |cv| {
                 let ac = cv.start_cases();
                 <<Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L>> as AnyCovisit<
-                    T,
-                    Heap,
-                    L,
-                    StrategyOf<T, Heap, L>,
-                    <<Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L>> as FromSelectCase>::Done,
+                    _,
+                    _,
+                    _,
+                    _,
+                    _,
+                    _,
                 >>::any_covisit(ac, heap)
             })
         }
     }
-    impl<AC, T, Heap, L, RemainingCases>
-        AnyCovisit<T, Heap, L, RemainingCases, <AC as FromSelectCase>::Done> for AC
+    impl<AC, T, Heap, L, RemainingCases, RemainingTyMetadata>
+        AnyCovisit<T, Heap, L, RemainingCases, RemainingTyMetadata, <AC as FromSelectCase>::Done>
+        for AC
     where
         AC: AcceptingCases<RemainingCases>,
         RemainingCases: NonemptyStrategy,
-        <AC as FromSelectCase>::Done: AllCovisit<T, RemainingCases::Car, Heap, L>,
+        RemainingTyMetadata: NonemptyStrategy,
+        <AC as FromSelectCase>::Done:
+            AllCovisit<T, Heap, L, RemainingCases::Car, RemainingTyMetadata::Car>,
         T: CanonicallyConstructibleFrom<Heap, RemainingCases::Car>,
-        AC::AcceptingRemainingCases:
-            AnyCovisit<T, Heap, L, RemainingCases::Cdr, <AC as FromSelectCase>::Done>,
+        AC::AcceptingRemainingCases: AnyCovisit<
+                T,
+                Heap,
+                L,
+                RemainingCases::Cdr,
+                RemainingTyMetadata::Cdr,
+                <AC as FromSelectCase>::Done,
+            >,
         <AC as FromSelectCase>::Done: CovisitEventSink<T>,
     {
         fn any_covisit(self, heap: &mut Heap) -> (<AC as FromSelectCase>::Done, T) {
             self.try_case()
                 .map(|mut x| {
                     <<AC as FromSelectCase>::Done as CovisitEventSink<T>>::push(&mut x);
-                    let case = <<AC as FromSelectCase>::Done as AllCovisit<
-                        T,
-                        RemainingCases::Car,
-                        Heap,
-                        L,
-                    >>::all_covisit(&mut x, heap);
+                    let case =
+                        <<AC as FromSelectCase>::Done as AllCovisit<_, _, _, _, _>>::all_covisit(
+                            &mut x, heap, 0,
+                        );
                     <<AC as FromSelectCase>::Done as CovisitEventSink<T>>::pop(&mut x);
                     let ret =
                         <T as CanonicallyConstructibleFrom<Heap, RemainingCases::Car>>::construct(
@@ -91,31 +100,25 @@ mod impls {
                     (x, ret)
                 })
                 .unwrap_or_else(|remaining| {
-                    <AC::AcceptingRemainingCases as AnyCovisit<
-                        T,
-                        Heap,
-                        L,
-                        RemainingCases::Cdr,
-                        <AC as FromSelectCase>::Done,
-                    >>::any_covisit(remaining, heap)
+                    <AC::AcceptingRemainingCases as AnyCovisit<_, _, _, _, _, _>>::any_covisit(
+                        remaining, heap,
+                    )
                 })
         }
     }
-    impl<Covisitor, T, Case, Heap, L> AllCovisit<T, Case, Heap, L> for Covisitor
+    impl<Covisitor, T, Case, Heap, L, TyMetadata> AllCovisit<T, Heap, L, Case, TyMetadata> for Covisitor
     where
         Case: NonemptyConsList,
-        Covisitor: Covisit<Case::Car, Heap, L>,
-        Covisitor: AllCovisit<T, Case::Cdr, Heap, L>,
+        TyMetadata: NonemptyConsList,
+        Covisitor: Covisit<TyMetadata::Car, Case::Car, Heap, L>,
+        Covisitor: AllCovisit<T, Heap, L, Case::Cdr, TyMetadata::Cdr>,
         Covisitor: CovisitEventSink<T>,
     {
-        fn all_covisit(&mut self, heap: &mut Heap) -> Case {
-            ConsList::reconstruct(
-                <Covisitor as Covisit<Case::Car, Heap, L>>::covisit(self, heap),
-                {
-                    self.proceed();
-                    <Covisitor as AllCovisit<T, Case::Cdr, Heap, L>>::all_covisit(self, heap)
-                },
-            )
+        fn all_covisit(&mut self, heap: &mut Heap, idx: u32) -> Case {
+            ConsList::reconstruct(<Covisitor as Covisit<_, _, _, _>>::covisit(self, heap), {
+                self.proceed(idx, idx + Case::LENGTH);
+                <Covisitor as AllCovisit<_, _, _, _, _>>::all_covisit(self, heap, idx + 1)
+            })
         }
     }
     mod base_cases {
@@ -124,10 +127,10 @@ mod impls {
             select::{AdmitNoMatchingCase, FromSelectCase},
         };
 
-        impl<Covisitor, T, Heap, L> AllCovisit<T, (), Heap, L> for Covisitor {
-            fn all_covisit(&mut self, _: &mut Heap) {}
+        impl<Covisitor, T, Heap, L> AllCovisit<T, Heap, L, (), ()> for Covisitor {
+            fn all_covisit(&mut self, _: &mut Heap, _idx: u32) {}
         }
-        impl<AC, T, Heap, L> AnyCovisit<T, Heap, L, (), <AC as FromSelectCase>::Done> for AC
+        impl<AC, T, Heap, L> AnyCovisit<T, Heap, L, (), (), <AC as FromSelectCase>::Done> for AC
         where
             AC: AdmitNoMatchingCase<Heap, T>,
         {

@@ -121,7 +121,7 @@ pub(crate) fn generate_parse<LCst: LangSpec>(
             let mut parser = parse_adt::Parser::new(source);
             let mut heap = #cst_data_structure_bp::Heap::default();
             // let ret = <#my_cstfied_ty as #cvt>::co_visit(&mut parser, &mut heap, #parse_bp::fnlut::ParseWitness::new());
-            let ret = <parse_adt::Parser<'_, #words::L> as covisit::Covisit<#my_cstfied_ty, #cst_data_structure_bp::Heap, #words::L>>::covisit(&mut parser, &mut heap);
+            let ret = <parse_adt::Parser<'_, #words::L> as covisit::Covisit<pmsp::AdtMetadata, #my_cstfied_ty, #cst_data_structure_bp::Heap, #words::L>>::covisit(&mut parser, &mut heap);
             (heap, ret)
         }
     }

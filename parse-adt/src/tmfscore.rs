@@ -1,6 +1,7 @@
 use core::panic;
 
 use covisit::Covisit;
+use pmsp::TmfMetadata;
 use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Set, SetHeapBak};
 
 use crate::{
@@ -9,7 +10,9 @@ use crate::{
     return_if_err,
 };
 
-impl<Heap, L> Covisit<Cstfy<Heap, BoundedNat<Heap>>, Heap, L> for Parser<'_, L> {
+impl<Heap, L> Covisit<(TmfMetadata<BoundedNat<Heap>>, ()), Cstfy<Heap, BoundedNat<Heap>>, Heap, L>
+    for Parser<'_, L>
+{
     fn covisit(&mut self, _: &mut Heap) -> Cstfy<Heap, BoundedNat<Heap>> {
         let previous_offset = self.pc.position;
         let next_word = self.pc.pop_word();
@@ -22,10 +25,12 @@ impl<Heap, L> Covisit<Cstfy<Heap, BoundedNat<Heap>>, Heap, L> for Parser<'_, L> 
     }
 }
 
-impl<'a, Heap, L, Elem> Covisit<Cstfy<Heap, Set<Heap, Elem>>, Heap, L> for Parser<'a, L>
+impl<'a, Heap, L, Elem, TyMetadata>
+    Covisit<(TmfMetadata<Set<Heap, Elem>>, (TyMetadata, ())), Cstfy<Heap, Set<Heap, Elem>>, Heap, L>
+    for Parser<'a, L>
 where
     Heap: term::SuperHeap<SetHeapBak<Heap, Elem>>,
-    Parser<'a, L>: Covisit<Elem, Heap, L>,
+    Parser<'a, L>: Covisit<TyMetadata, Elem, Heap, L>,
 {
     fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, Set<Heap, Elem>> {
         let mut items = Vec::new();
@@ -60,10 +65,16 @@ where
     }
 }
 
-impl<'a, Heap, L, Elem> Covisit<Cstfy<Heap, IdxBox<Heap, Elem>>, Heap, L> for Parser<'a, L>
+impl<'a, Heap, L, Elem, TyMetadata>
+    Covisit<
+        (TmfMetadata<IdxBox<Heap, Elem>>, (TyMetadata, ())),
+        Cstfy<Heap, IdxBox<Heap, Elem>>,
+        Heap,
+        L,
+    > for Parser<'a, L>
 where
     Elem: Lookahead<Heap, L>,
-    Self: Covisit<Elem, Heap, L>,
+    Self: Covisit<TyMetadata, Elem, Heap, L>,
     Heap: term::SuperHeap<IdxBoxHeapBak<Heap, Elem>>,
 {
     fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, IdxBox<Heap, Elem>> {

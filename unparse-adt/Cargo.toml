@@ -11,5 +11,6 @@ pmsp = { version = "0.1.0", path = "../pmsp" }
 term = { version = "0.1.0", path = "../term" }
 tymetafuncspec-core = { version = "0.1.0", path = "../tymetafuncspec-core" }
 typenum.workspace = true
+unparse = { version = "0.1.0", path = "../unparse" }
 visit = { version = "0.1.0", path = "../visit" }
 words = { version = "0.1.0", path = "../words" }

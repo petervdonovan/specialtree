@@ -5,7 +5,7 @@ use covisit::{
 };
 use cstfy::Cstfy;
 use parse::{KeywordSequence, UnexpectedTokenError};
-use pmsp::{AtLeastTwoStrategy, Strategy, UsesStrategyForTraversal};
+use pmsp::{AtLeastTwoStrategy, Strategy};
 use take_mut::Poisonable;
 use words::Implements;
 
@@ -14,7 +14,6 @@ mod tmfscore;
 
 pub struct Parser<'a, L> {
     pc: ParseCursor<'a>,
-    current_covisit_idx: usize,
     phantom: std::marker::PhantomData<L>,
 }
 pub struct ParserSelecting<'a, L, AllCurrentCases> {
@@ -32,7 +31,6 @@ impl<'a, L> Poisonable for Parser<'a, L> {
                 source: "",
                 position: miette::SourceOffset::from(usize::MAX),
             },
-            current_covisit_idx: usize::MAX,
             phantom: std::marker::PhantomData,
         }
     }
@@ -44,7 +42,6 @@ impl<'a, L> Parser<'a, L> {
                 source,
                 position: miette::SourceOffset::from(0),
             },
-            current_covisit_idx: 0,
             phantom: std::marker::PhantomData,
         }
     }
@@ -84,7 +81,6 @@ impl<'a, L, AllCurrentCases> ParserSelecting<'a, L, AllCurrentCases> {
     fn done(self) -> Parser<'a, L> {
         Parser {
             pc: self.pc,
-            current_covisit_idx: 0,
             phantom: std::marker::PhantomData,
         }
     }
@@ -186,29 +182,24 @@ where
                     &self.pc.source[self.pc.position.offset()..]
                 );
             });
-        self.current_covisit_idx = 0;
-        println!("push: {:?}", self.pc.position);
     }
 
-    fn proceed(&mut self) {
+    fn proceed(&mut self, idx: u32, _total: u32) {
         if let Some(kw) = <<Cstfy<Heap, A> as Implements<Heap, L>>::LWord as NamesParseLL>::PROCEED
-            .get(self.current_covisit_idx)
+            .get(idx as usize)
         {
             self.pc.position = self.pc.match_keywords(kw).unwrap_or_else(|| {
                 panic!("Expected proceed keyword: {:?}", kw.0[0]);
             }); // todo: do not use 0
-            println!("proceed: {:?}", self.pc.position);
         } else if let Some(kw) =
             <<Cstfy<Heap, A> as Implements<Heap, L>>::LWord as NamesParseLL>::PROCEED.last()
         {
             self.pc.position = self.pc.match_keywords(kw).unwrap_or_else(|| {
                 panic!("Expected proceed keyword: {:?}", kw.0[0]);
             }); // todo: do not use 0
-            println!("proceed: {:?}", self.pc.position);
         } else {
             // do nothing
         }
-        self.current_covisit_idx += 1;
     }
 
     fn pop(&mut self) {
@@ -221,8 +212,6 @@ where
                     &<<Cstfy<Heap, A> as Implements<Heap, L>>::LWord as NamesParseLL>::END.0[0]
                 );
             });
-        self.current_covisit_idx = 0;
-        println!("pop: {:?}", self.pc.position);
     }
 }
 
@@ -242,9 +231,4 @@ where
         );
         (self.done(), err)
     }
-}
-
-impl<'a, L, Heap, T> UsesStrategyForTraversal<Parser<'a, L>> for Cstfy<Heap, T> where
-    T: UsesStrategyForTraversal<Parser<'a, L>>
-{
 }

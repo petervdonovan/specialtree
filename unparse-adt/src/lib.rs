@@ -1,5 +1,5 @@
 use parse_adt::NamesParseLL;
-use pmsp::{AdtMetadata, UsesStrategyForTraversal};
+use pmsp::AdtMetadata;
 // use parse_adt::NamesParseLL;
 // use term::{
 //     case_split::HasBorrowedHeapRef,
@@ -12,26 +12,20 @@ use visit::{
 };
 
 pub mod tmfscore;
-pub mod unparse;
 
 pub struct Unparser<'arena, L> {
     pub unparse: Unparse<'arena>,
     phantom: std::marker::PhantomData<L>,
 }
 
-impl<'arena, L, Heap, EitherLeft, EitherRight> UsesStrategyForTraversal<Unparser<'arena, L>>
-    for tymetafuncspec_core::Either<Heap, EitherLeft, EitherRight>
-{
-}
-
-pub fn unparse<Heap, L, T>(heap: &mut Heap, t: &T) -> String
+pub fn unparse<L, Heap, T>(heap: &Heap, t: &T) -> String
 where
     for<'a> Unparser<'a, L>: Visit<AdtMetadata, T, Heap, L>,
 {
     let arena = bumpalo::Bump::new();
     let mut unparser = Unparser::new(&arena);
     <Unparser<'_, L> as Visit<_, _, _, _>>::visit(&mut unparser, heap, t);
-    format!("{:?}", &unparser.unparse)
+    format!("{}", &unparser.unparse)
 }
 
 impl<'arena, L> Unparser<'arena, L> {
@@ -57,7 +51,7 @@ where
         PopOrProceed::Proceed
     }
 
-    fn proceed(&mut self) -> visit::visiteventsink::PopOrProceed {
+    fn proceed(&mut self, _idx: u32, _total: u32) -> visit::visiteventsink::PopOrProceed {
         // todo
         PopOrProceed::Proceed
     }

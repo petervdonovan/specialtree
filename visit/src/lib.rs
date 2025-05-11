@@ -12,7 +12,7 @@ pub trait Visit<TyMetadata, T, Heap, L> {
 pub(crate) mod helper_traits {
     #[rustc_coinductive]
     pub(crate) trait AllVisit<T, Heap, L, Case, TyMetadata> {
-        fn all_visit(&mut self, heap: &Heap, case: &Case);
+        fn all_visit(&mut self, heap: &Heap, case: &Case, idx: u32);
     }
     #[rustc_coinductive]
     pub(crate) trait AnyVisit<T, Heap, L, RemainingCases, TyMetadata> {
@@ -23,7 +23,7 @@ pub(crate) mod helper_traits {
 mod impls {
     use ccf::CanonicallyConstructibleFrom;
     use conslist::NonemptyConsList;
-    use pmsp::{AdtMetadata, NonemptyStrategy, StrategyOf, TyMetadataOf, UsesStrategyForTraversal};
+    use pmsp::{AdtMetadata, NonemptyStrategy, StrategyOf, TyMetadataOf};
 
     use crate::{
         Visit,
@@ -33,7 +33,7 @@ mod impls {
 
     impl<V, T, Heap, L> Visit<AdtMetadata, T, Heap, L> for V
     where
-        T: words::Implements<Heap, L> + UsesStrategyForTraversal<V>,
+        T: words::Implements<Heap, L>,
         <T as words::Implements<Heap, L>>::LWord: pmsp::NamesPatternMatchStrategyGivenContext<Heap>,
         V: AnyVisit<T, Heap, L, StrategyOf<T, Heap, L>, TyMetadataOf<T, Heap, L>>,
     {
@@ -61,7 +61,7 @@ mod impls {
                     <T as CanonicallyConstructibleFrom<Heap, RemainingCases::Car>>::deconstruct(
                         *t, heap,
                     );
-                self.all_visit(heap, &car);
+                self.all_visit(heap, &car, 0);
                 self.pop();
             } else {
                 <V as AnyVisit<_, _, _, RemainingCases::Cdr, RemainingTyMetadatas::Cdr>>::any_visit(
@@ -79,11 +79,11 @@ mod impls {
         V: Visit<TyMetadatas::Car, Case::Car, Heap, L>,
         V: VisitEventSink<T, Heap>,
     {
-        fn all_visit(&mut self, heap: &Heap, case: &Case) {
+        fn all_visit(&mut self, heap: &Heap, case: &Case, idx: u32) {
             let (car, cdr) = case.deconstruct();
             self.visit(heap, &car);
-            self.proceed();
-            self.all_visit(heap, &cdr);
+            self.proceed(idx, idx + Case::LENGTH);
+            self.all_visit(heap, &cdr, idx + 1);
         }
     }
 
@@ -95,7 +95,7 @@ mod impls {
         };
 
         impl<Visitor, T, Heap, L> AllVisit<T, Heap, L, (), ()> for Visitor {
-            fn all_visit(&mut self, _heap: &Heap, _case: &()) {
+            fn all_visit(&mut self, _heap: &Heap, _case: &(), _idx: u32) {
                 // do nothing
             }
         }

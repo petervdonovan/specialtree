@@ -13,11 +13,6 @@ pub trait NamesPatternMatchStrategyGivenContext<Heap> {
 pub struct TmfMetadata<OgType>(std::marker::PhantomData<OgType>);
 pub struct AdtMetadata;
 
-#[fundamental]
-pub trait UsesStrategyForTraversal<VisitorOrCovisitor> {}
-
-impl<T, VisitorOrCovisitor> UsesStrategyForTraversal<VisitorOrCovisitor> for T where T: words::Adt {}
-
 pub type StrategyOf<T, Heap, L>
     = <<T as Implements<Heap, L>>::LWord as NamesPatternMatchStrategyGivenContext<Heap>>::Strategy
 where
