@@ -1,5 +1,5 @@
-[dependencies.pattern]
-path = "../.././pattern"
+[dependencies.pattern-dyn]
+path = "../.././pattern-dyn"
 
 [dependencies.pattern-gen]
 path = "../.././pattern-gen"

@@ -4,8 +4,8 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-codegen-component = { version = "0.1.0", path = "../codegen-component" }
-langspec = { version = "0.1.0", path = "../langspec" }
-langspec-gen-util = { version = "0.1.0", path = "../langspec-gen-util" }
-pattern = { version = "0.1.0", path = "../pattern" }
+codegen-component = { path = "../codegen-component" }
+langspec = { path = "../langspec" }
+langspec-gen-util = { path = "../langspec-gen-util" }
+pattern-dyn = { path = "../pattern-dyn" }
 syn.workspace = true

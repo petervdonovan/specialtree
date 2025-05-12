@@ -1,0 +1,10 @@
+[package]
+name = "pattern-specialized"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+pattern-dyn.path = "../pattern-dyn"
+ccf = { path = "../ccf" }
+conslist = { path = "../conslist" }
+pmsp = { path = "../pmsp" }

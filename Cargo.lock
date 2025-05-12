@@ -270,7 +270,7 @@ dependencies = [
 name = "fib-pat"
 version = "0.0.0"
 dependencies = [
- "pattern",
+ "pattern-dyn",
  "pattern-gen",
  "tymetafuncspec-core",
 ]
@@ -579,12 +579,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
 
 [[package]]
-name = "pattern"
+name = "pattern-dyn"
 version = "0.1.0"
 dependencies = [
- "ccf",
- "conslist",
- "pmsp",
  "syn 2.0.100",
  "thiserror 2.0.12",
 ]
@@ -596,8 +593,18 @@ dependencies = [
  "codegen-component",
  "langspec",
  "langspec-gen-util",
- "pattern",
+ "pattern-dyn",
  "syn 2.0.100",
+]
+
+[[package]]
+name = "pattern-specialized"
+version = "0.1.0"
+dependencies = [
+ "ccf",
+ "conslist",
+ "pattern-dyn",
+ "pmsp",
 ]
 
 [[package]]

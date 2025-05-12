@@ -42,7 +42,9 @@ members = [
     "integration-tests",
     "visit",
     "unparse",
-    "pattern", "pattern-gen",
+    "pattern-dyn",
+    "pattern-gen",
+    "pattern-specialized",
 ]
 
 [profile.release]

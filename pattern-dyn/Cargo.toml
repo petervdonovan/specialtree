@@ -1,0 +1,8 @@
+[package]
+name = "pattern-dyn"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+syn.workspace = true
+thiserror.workspace = true

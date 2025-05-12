@@ -3,7 +3,7 @@ use langspec::{
     tymetafunc::TyMetaFuncSpec,
 };
 use langspec_gen_util::{AlgebraicsBasePath, HeapType, LsGen, byline, proc_macro2};
-use pattern::{DynPattern, NamedDynPattern};
+use pattern_dyn::{DynPattern, NamedDynPattern};
 
 #[allow(type_alias_bounds)]
 type NamedPatternOf<L: LangSpec> = NamedDynPattern<SortIdOf<L>>;
