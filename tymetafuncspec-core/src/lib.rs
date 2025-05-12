@@ -188,7 +188,6 @@ thread_local! {
 
 impl TyMetaFuncSpec for Core {
     type TyMetaFuncId = CoreTmfId;
-    type OpaqueTerm = usize;
 
     fn ty_meta_func_data(id: &Self::TyMetaFuncId) -> TyMetaFuncData {
         CORE_BAK.with(|cb| cb[id.0].clone())

@@ -267,6 +267,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "fib-pat"
+version = "0.0.0"
+dependencies = [
+ "pattern",
+ "pattern-gen",
+ "tymetafuncspec-core",
+]
+
+[[package]]
 name = "fn-traits"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -305,6 +314,7 @@ dependencies = [
  "langspec",
  "langspec-examples",
  "parse-gen",
+ "pattern-gen",
  "syn 2.0.100",
  "term-pattern-match-strategy-provider-gen",
  "term-pattern-match-strategy-provider-impl-gen",
@@ -380,6 +390,7 @@ version = "0.1.0"
 dependencies = [
  "derive_more",
  "functor_derive",
+ "proc-macro2",
  "quote",
  "serde",
  "serde_yml",
@@ -566,6 +577,28 @@ name = "paste"
 version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
+
+[[package]]
+name = "pattern"
+version = "0.1.0"
+dependencies = [
+ "ccf",
+ "conslist",
+ "pmsp",
+ "syn 2.0.100",
+ "thiserror 2.0.12",
+]
+
+[[package]]
+name = "pattern-gen"
+version = "0.1.0"
+dependencies = [
+ "codegen-component",
+ "langspec",
+ "langspec-gen-util",
+ "pattern",
+ "syn 2.0.100",
+]
 
 [[package]]
 name = "pmsp"

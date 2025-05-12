@@ -1,0 +1,5 @@
+#![feature(custom_inner_attributes)]
+#![rustfmt::skip]
+#![allow(warnings)]
+#![allow(unknown_lints)]
+pub mod pattern_fib;

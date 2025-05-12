@@ -8,6 +8,7 @@ edition = { workspace = true }
 [dependencies]
 derive_more = { workspace = true }
 functor_derive = { workspace = true }
+proc-macro2.workspace = true
 serde = { workspace = true }
 serde_yml = { workspace = true }
 syn = { workspace = true }

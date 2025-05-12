@@ -40,8 +40,6 @@ impl ToLiteral for ParseMetadataTmfId {
 impl TyMetaFuncSpec for ParseMetadataTmfs {
     type TyMetaFuncId = ParseMetadataTmfId;
 
-    type OpaqueTerm = parse::ParseMetadata;
-
     fn ty_meta_func_data(id: &Self::TyMetaFuncId) -> langspec::tymetafunc::TyMetaFuncData {
         match id {
             ParseMetadataTmfId() => langspec::tymetafunc::TyMetaFuncData {

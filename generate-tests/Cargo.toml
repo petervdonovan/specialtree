@@ -17,3 +17,4 @@ langspec-examples.path = "../langspec-examples"
 langspec.path = "../langspec"
 words.path = "../words"
 parse-gen = { version = "0.1.0", path = "../parse-gen" }
+pattern-gen = { version = "0.1.0", path = "../pattern-gen" }

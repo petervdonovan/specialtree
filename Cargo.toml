@@ -40,7 +40,9 @@ members = [
     "ccf",
     "pmsp",
     "integration-tests",
-    "visit", "unparse",
+    "visit",
+    "unparse",
+    "pattern", "pattern-gen",
 ]
 
 [profile.release]

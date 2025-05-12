@@ -1,0 +1,13 @@
+[dependencies.pattern]
+path = "../.././pattern"
+
+[dependencies.pattern-gen]
+path = "../.././pattern-gen"
+
+[dependencies.tymetafuncspec-core]
+path = "../.././tymetafuncspec-core"
+
+[package]
+edition = "2024"
+name = "fib-pat"
+version = "0.0.0"

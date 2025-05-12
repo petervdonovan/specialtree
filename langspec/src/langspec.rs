@@ -141,6 +141,72 @@ pub trait TerminalLangSpec: LangSpec {
 pub trait ToLiteral {
     fn to_literal(&self) -> syn::Expr;
 }
+impl ToLiteral for usize {
+    fn to_literal(&self) -> syn::Expr {
+        syn::Expr::Lit(syn::ExprLit {
+            attrs: vec![],
+            lit: syn::Lit::Int(syn::LitInt::new(
+                &self.to_string(),
+                proc_macro2::Span::call_site(),
+            )),
+        })
+    }
+}
+impl<P, S, F> ToLiteral for SortId<P, S, F>
+where
+    P: ToLiteral,
+    S: ToLiteral,
+    F: ToLiteral,
+{
+    fn to_literal(&self) -> syn::Expr {
+        match self {
+            SortId::Algebraic(algebraic_sort_id) => {
+                let lit = algebraic_sort_id.to_literal();
+                syn::parse_quote! {langspec::SortId::Algebraic(#lit)}
+            }
+            SortId::TyMetaFunc(mapped_type) => {
+                let mtlit = mapped_type.to_literal();
+                syn::parse_quote! {langspec::SortId::TyMetaFunc(#mtlit)}
+            }
+        }
+    }
+}
+impl<P, S> ToLiteral for AlgebraicSortId<P, S>
+where
+    P: ToLiteral,
+    S: ToLiteral,
+{
+    fn to_literal(&self) -> syn::Expr {
+        match self {
+            AlgebraicSortId::Product(p) => {
+                let plit = p.to_literal();
+                syn::parse_quote! {
+                    langspec::AlgebraicSortId::Product(#plit)
+                }
+            }
+            AlgebraicSortId::Sum(s) => {
+                let slit = s.to_literal();
+                syn::parse_quote! {
+                    langspec::AlgebraicSortId::Sum(#slit)
+                }
+            }
+        }
+    }
+}
+impl<P, S, F> ToLiteral for MappedType<P, S, F>
+where
+    P: ToLiteral,
+    S: ToLiteral,
+    F: ToLiteral,
+{
+    fn to_literal(&self) -> syn::Expr {
+        let flit = self.f.to_literal();
+        let slits = self.a.iter().map(ToLiteral::to_literal);
+        syn::parse_quote! {
+            MappedType { f: #flit, a: vec![#(#slits),*] }
+        }
+    }
+}
 
 pub fn call_on_all_tmf_monomorphizations<
     L: LangSpec,

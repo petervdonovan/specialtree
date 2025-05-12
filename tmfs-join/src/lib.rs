@@ -7,8 +7,6 @@ pub struct TmfsJoin<Tmfs0, Tmfs1> {
 impl<Tmfs0: TyMetaFuncSpec, Tmfs1: TyMetaFuncSpec> TyMetaFuncSpec for TmfsJoin<Tmfs0, Tmfs1> {
     type TyMetaFuncId = Either<Tmfs0::TyMetaFuncId, Tmfs1::TyMetaFuncId>;
 
-    type OpaqueTerm = Either<Tmfs0::OpaqueTerm, Tmfs1::OpaqueTerm>;
-
     fn ty_meta_func_data(id: &Self::TyMetaFuncId) -> langspec::tymetafunc::TyMetaFuncData {
         match id {
             Either::Left(id) => Tmfs0::ty_meta_func_data(id),

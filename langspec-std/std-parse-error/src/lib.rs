@@ -40,8 +40,6 @@ impl ToLiteral for ParseErrorTmfId {
 impl TyMetaFuncSpec for ParseErrorTmfs {
     type TyMetaFuncId = ParseErrorTmfId;
 
-    type OpaqueTerm = parse::ParseError;
-
     fn ty_meta_func_data(id: &Self::TyMetaFuncId) -> langspec::tymetafunc::TyMetaFuncData {
         match id {
             ParseErrorTmfId() => langspec::tymetafunc::TyMetaFuncData {
