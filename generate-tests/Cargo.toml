@@ -6,7 +6,6 @@ edition = { workspace = true }
 [dependencies]
 cargo_metadata = { workspace = true }
 bumpalo.workspace = true
-syn = { workspace = true }
 term-pattern-match-strategy-provider-gen = { path = "../term-pattern-match-strategy-provider-gen" }
 term-pattern-match-strategy-provider-impl-gen = { path = "../term-pattern-match-strategy-provider-impl-gen" }
 term-trait-gen = { path = "../term-trait-gen" }

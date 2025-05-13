@@ -276,12 +276,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "fn-traits"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "63fa6a0487cbc51bbe29ca4fd89c0bccc18eca48e7cb750b61d0828074ba40d0"
-
-[[package]]
 name = "functor_derive"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -315,7 +309,6 @@ dependencies = [
  "langspec-examples",
  "parse-gen",
  "pattern-gen",
- "syn 2.0.100",
  "term-pattern-match-strategy-provider-gen",
  "term-pattern-match-strategy-provider-impl-gen",
  "term-specialized-gen",
@@ -428,7 +421,6 @@ dependencies = [
  "either-id",
  "join-boilerplate",
  "langspec",
- "syn 2.0.100",
  "tmfs-join",
  "tymetafuncspec-core",
 ]
@@ -892,10 +884,7 @@ name = "term"
 version = "0.1.0"
 dependencies = [
  "ccf",
- "fn-traits",
- "take-mut",
  "type-equals",
- "typenum",
 ]
 
 [[package]]

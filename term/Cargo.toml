@@ -5,7 +5,4 @@ edition = { workspace = true }
 
 [dependencies]
 ccf = { version = "0.1.0", path = "../ccf" }
-fn-traits = { workspace = true }
-take-mut.path = "../take-mut"
 type-equals.workspace = true
-typenum = { workspace = true }
