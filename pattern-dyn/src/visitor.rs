@@ -23,10 +23,11 @@ impl<L, CurrentNode, Heap, SortId> VisitEventSink<CurrentNode, Heap> for Pattern
     fn pop(&mut self, total: u32) {
         assert!(self.stack.len() >= total as usize);
         let components = self.stack.split_off(self.stack.len() - (total as usize));
-        self.stack.push(DynPattern::Composite(CompositePattern {
-            rs_ty: CurrentNode::own_sort_id(),
-            components,
-        }));
+        // self.stack.push(DynPattern::Composite(CompositePattern {
+        //     rs_ty: CurrentNode::own_sort_id(),
+        //     components,
+        // }));
+        todo!()
     }
 
     fn deconstruction_failure(&mut self) {

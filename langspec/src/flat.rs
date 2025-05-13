@@ -69,13 +69,6 @@ impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::flat::LangSpecFl
         &self.name
     }
 
-    fn my_type() -> syn::Type {
-        let tmfs_ty_literal = Tmfs::my_type();
-        syn::parse_quote! {
-            langspec::flat::LangSpecFlat<#tmfs_ty_literal>
-        }
-    }
-
     fn products(&self) -> impl Iterator<Item = Self::ProductId> {
         (0..self.products.len()).map(crate::flat::ProductId)
     }

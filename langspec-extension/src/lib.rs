@@ -47,8 +47,6 @@ where
 
     join_boilerplate::lsjoin!();
 
-    fn my_type() -> syn::Type {}
-
     fn product_sorts(
         &self,
         id: Self::ProductId,

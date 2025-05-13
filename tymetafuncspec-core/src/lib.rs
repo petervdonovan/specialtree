@@ -192,10 +192,6 @@ impl TyMetaFuncSpec for Core {
     fn ty_meta_func_data(id: &Self::TyMetaFuncId) -> TyMetaFuncData {
         CORE_BAK.with(|cb| cb[id.0].clone())
     }
-
-    fn my_type() -> syn::Type {
-        syn::parse_quote!(tymetafuncspec_core::Core)
-    }
 }
 #[derive(derivative::Derivative)]
 #[derivative(Debug(bound = ""))]

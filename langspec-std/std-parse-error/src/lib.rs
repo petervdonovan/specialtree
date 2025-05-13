@@ -62,12 +62,6 @@ impl TyMetaFuncSpec for ParseErrorTmfs {
             },
         }
     }
-
-    fn my_type() -> syn::Type {
-        syn::parse_quote! {
-            std_parse_error::ParseErrorTmfs
-        }
-    }
 }
 
 #[derive(derivative::Derivative)]

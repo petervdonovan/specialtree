@@ -62,12 +62,6 @@ impl TyMetaFuncSpec for ParseMetadataTmfs {
             },
         }
     }
-
-    fn my_type() -> syn::Type {
-        syn::parse_quote! {
-            std_parse_metadata::ParseMetadataTmfs
-        }
-    }
 }
 
 #[derive(derivative::Derivative)]

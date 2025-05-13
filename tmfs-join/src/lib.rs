@@ -13,12 +13,4 @@ impl<Tmfs0: TyMetaFuncSpec, Tmfs1: TyMetaFuncSpec> TyMetaFuncSpec for TmfsJoin<T
             Either::Right(id) => Tmfs1::ty_meta_func_data(id),
         }
     }
-
-    fn my_type() -> syn::Type {
-        let tmfs0 = Tmfs0::my_type();
-        let tmfs1 = Tmfs1::my_type();
-        syn::parse_quote! {
-            extension_everywhere_alternative::TmfsJoin<#tmfs0, #tmfs1>
-        }
-    }
 }
