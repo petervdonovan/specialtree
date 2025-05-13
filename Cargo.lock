@@ -337,6 +337,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "has-own-sort-id"
+version = "0.1.0"
+
+[[package]]
+name = "has-own-sort-id-gen"
+version = "0.1.0"
+dependencies = [
+ "langspec",
+ "langspec-gen-util",
+ "syn 2.0.100",
+]
+
+[[package]]
 name = "hashbrown"
 version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -415,6 +428,7 @@ dependencies = [
  "either-id",
  "join-boilerplate",
  "langspec",
+ "syn 2.0.100",
  "tmfs-join",
  "tymetafuncspec-core",
 ]
@@ -584,6 +598,7 @@ version = "0.1.0"
 dependencies = [
  "syn 2.0.100",
  "thiserror 2.0.12",
+ "visit",
 ]
 
 [[package]]

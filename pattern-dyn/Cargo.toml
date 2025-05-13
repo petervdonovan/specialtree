@@ -6,3 +6,4 @@ edition.workspace = true
 [dependencies]
 syn.workspace = true
 thiserror.workspace = true
+visit = { version = "0.1.0", path = "../visit" }

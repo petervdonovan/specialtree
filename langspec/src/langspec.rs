@@ -101,6 +101,7 @@ pub trait LangSpec: Sized {
     type Tmfs: TyMetaFuncSpec;
 
     fn name(&self) -> &Name;
+    fn my_type() -> syn::Type;
     fn products(&self) -> impl Iterator<Item = Self::ProductId>;
     fn sums(&self) -> impl Iterator<Item = Self::SumId>;
     fn product_name(&self, id: Self::ProductId) -> &Name;

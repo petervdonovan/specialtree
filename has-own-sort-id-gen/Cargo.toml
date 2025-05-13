@@ -1,0 +1,9 @@
+[package]
+name = "has-own-sort-id-gen"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+langspec = { version = "0.1.0", path = "../langspec" }
+langspec-gen-util = { version = "0.1.0", path = "../langspec-gen-util" }
+syn.workspace = true

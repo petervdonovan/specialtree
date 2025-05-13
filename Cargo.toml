@@ -44,7 +44,7 @@ members = [
     "unparse",
     "pattern-dyn",
     "pattern-gen",
-    "pattern-specialized",
+    "pattern-specialized", "has-own-sort-id-gen", "has-own-sort-id",
 ]
 
 [profile.release]

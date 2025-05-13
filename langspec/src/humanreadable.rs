@@ -83,6 +83,10 @@ impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::humanreadable::L
     fn sublangs(&self) -> Vec<crate::sublang::Sublang<crate::langspec::SortIdOf<Self>>> {
         vec![reflexive_sublang(self)]
     }
+
+    fn my_type() -> syn::Type {
+        unimplemented!()
+    }
 }
 
 impl crate::langspec::ToLiteral for String {
