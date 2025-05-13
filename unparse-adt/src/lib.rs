@@ -42,7 +42,12 @@ where
     CurrentNode: words::Implements<Heap, L>,
     <CurrentNode as words::Implements<Heap, L>>::LWord: NamesParseLL,
 {
-    fn push(&mut self, _heap: &Heap, _t: &CurrentNode) -> visit::visiteventsink::PopOrProceed {
+    fn push(
+        &mut self,
+        _heap: &Heap,
+        _t: &CurrentNode,
+        _total: u32,
+    ) -> visit::visiteventsink::PopOrProceed {
         self.unparse.consistent_group_start();
         let start = <<CurrentNode as words::Implements<Heap, L>>::LWord as NamesParseLL>::START;
         for kw in start.0 {
@@ -56,7 +61,7 @@ where
         PopOrProceed::Proceed
     }
 
-    fn pop(&mut self) {
+    fn pop(&mut self, _total: u32) {
         self.unparse.group_end();
     }
 

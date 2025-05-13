@@ -4,8 +4,8 @@ pub enum PopOrProceed {
 }
 
 pub trait VisitEventSink<T, Heap> {
-    fn push(&mut self, heap: &Heap, t: &T) -> PopOrProceed;
+    fn push(&mut self, heap: &Heap, t: &T, total: u32) -> PopOrProceed;
     fn proceed(&mut self, idx: u32, total: u32) -> PopOrProceed;
-    fn pop(&mut self);
+    fn pop(&mut self, total: u32);
     fn deconstruction_failure(&mut self);
 }

@@ -22,7 +22,7 @@ pub(crate) mod helper_traits {
 
 mod impls {
     use ccf::CanonicallyConstructibleFrom;
-    use conslist::NonemptyConsList;
+    use conslist::{ConsList, NonemptyConsList};
     use pmsp::{AdtMetadata, NonemptyStrategy, StrategyOf, TyMetadataOf};
 
     use crate::{
@@ -56,13 +56,13 @@ mod impls {
             if <T as CanonicallyConstructibleFrom<Heap, RemainingCases::Car>>::deconstruct_succeeds(
                 t, heap,
             ) {
-                self.push(heap, t);
+                self.push(heap, t, <RemainingCases::Car as ConsList>::LENGTH);
                 let car =
                     <T as CanonicallyConstructibleFrom<Heap, RemainingCases::Car>>::deconstruct(
                         *t, heap,
                     );
                 self.all_visit(heap, &car, 0);
-                self.pop();
+                self.pop(<RemainingCases::Car as ConsList>::LENGTH);
             } else {
                 <V as AnyVisit<_, _, _, RemainingCases::Cdr, RemainingTyMetadatas::Cdr>>::any_visit(
                     self, heap, t,

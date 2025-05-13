@@ -1,7 +1,4 @@
-use langspec::{
-    langspec::{LangSpec, SortIdOf, ToLiteral as _},
-    tymetafunc::TyMetaFuncSpec,
-};
+use langspec::langspec::{LangSpec, SortIdOf, ToLiteral as _};
 use langspec_gen_util::{AlgebraicsBasePath, HeapType, LsGen, byline, proc_macro2};
 use pattern_dyn::{DynPattern, NamedDynPattern};
 
