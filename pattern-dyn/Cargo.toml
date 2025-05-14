@@ -4,7 +4,13 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
+ccf = { version = "0.1.0", path = "../ccf" }
+derivative.workspace = true
 has-own-sort-id = { version = "0.1.0", path = "../has-own-sort-id" }
+pmsp = { version = "0.1.0", path = "../pmsp" }
 syn.workspace = true
+term = { version = "0.1.0", path = "../term" }
 thiserror.workspace = true
+to-literal = { version = "0.1.0", path = "../to-literal" }
+tymetafuncspec-core = { version = "0.1.0", path = "../tymetafuncspec-core" }
 visit = { version = "0.1.0", path = "../visit" }

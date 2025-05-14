@@ -10,6 +10,12 @@ path = "../fib"
 [dependencies.fib-ds]
 path = "../fib-ds"
 
+[dependencies.has-own-sort-id]
+path = "../.././has-own-sort-id"
+
+[dependencies.has-own-sort-id-gen]
+path = "../.././has-own-sort-id-gen"
+
 [dependencies.parse]
 path = "../.././parse"
 

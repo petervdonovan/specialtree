@@ -11,3 +11,4 @@ pub mod term_pattern_match_strategy_provider_impl_cst;
 pub mod term_specialized_impl_cst_fib;
 pub mod term_bridge_cst;
 pub mod parse_fib;
+pub mod has_own_sort_id_cst;

@@ -1,0 +1,8 @@
+[package]
+name = "to-literal"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+proc-macro2.workspace = true
+syn.workspace = true

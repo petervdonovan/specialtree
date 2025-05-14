@@ -250,6 +250,8 @@ dependencies = [
  "covisit",
  "fib",
  "fib-ds",
+ "has-own-sort-id",
+ "has-own-sort-id-gen",
  "parse",
  "parse-adt",
  "parse-gen",
@@ -368,6 +370,7 @@ version = "0.1.0"
 dependencies = [
  "fib",
  "fib-parse",
+ "pattern-dyn",
  "unparse-adt",
 ]
 
@@ -592,9 +595,15 @@ checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
 name = "pattern-dyn"
 version = "0.1.0"
 dependencies = [
+ "ccf",
+ "derivative",
  "has-own-sort-id",
+ "pmsp",
  "syn 2.0.100",
+ "term",
  "thiserror 2.0.12",
+ "to-literal",
+ "tymetafuncspec-core",
  "visit",
 ]
 
@@ -1054,6 +1063,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "to-literal"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "syn 2.0.100",
+]
+
+[[package]]
 name = "toml"
 version = "0.8.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1107,6 +1124,7 @@ dependencies = [
  "slab",
  "syn 2.0.100",
  "term",
+ "to-literal",
 ]
 
 [[package]]

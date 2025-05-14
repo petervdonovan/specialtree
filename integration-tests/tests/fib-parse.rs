@@ -5,7 +5,11 @@ fn test() {
     {
         println!("test Nat");
         let (heap, v) = fib_parse::parse_fib::nat("3");
-        println!("unparse: {}", unparse_adt::unparse::<L, _, _>(&heap, &v))
+        println!("unparse: {}", unparse_adt::unparse::<L, _, _>(&heap, &v));
+        println!(
+            "pattern: {:?}",
+            pattern_dyn::to_pattern::<L, _, _>(&heap, &v).unwrap()
+        );
     }
     {
         println!("test Nat");

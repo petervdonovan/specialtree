@@ -1,7 +1,7 @@
 use langspec::{
     flat::LangSpecFlat,
     humanreadable::LangSpecHuman,
-    langspec::{Name, TerminalLangSpec, ToLiteral},
+    langspec::{Name, TerminalLangSpec},
     tymetafunc::{IdentifiedBy, RustTyMap, TyMetaFuncSpec},
 };
 use serde::{Deserialize, Serialize};
@@ -28,14 +28,6 @@ pub fn parse_metadata() -> LangSpecFlat<ParseMetadataTmfs> {
 pub struct ParseMetadataTmfs;
 #[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize, Hash, PartialOrd, Ord)]
 pub struct ParseMetadataTmfId();
-
-impl ToLiteral for ParseMetadataTmfId {
-    fn to_literal(&self) -> syn::Expr {
-        syn::parse_quote! {
-            std_parse_metadata::ParseMetadataTmfId()
-        }
-    }
-}
 
 impl TyMetaFuncSpec for ParseMetadataTmfs {
     type TyMetaFuncId = ParseMetadataTmfId;

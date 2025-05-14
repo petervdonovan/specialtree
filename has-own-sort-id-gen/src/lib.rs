@@ -1,11 +1,7 @@
 use langspec::langspec::LangSpec;
 use langspec_gen_util::{AlgebraicsBasePath, HeapType, LsGen, byline};
 
-pub fn generate<L: LangSpec>(
-    words_path: &syn::Path,
-    ds_base_path: &syn::Path,
-    lg: &LsGen<L>,
-) -> syn::ItemMod {
+pub fn generate<L: LangSpec>(ds_base_path: &syn::Path, lg: &LsGen<L>) -> syn::ItemMod {
     let byline = byline!();
     let tys = lg.bak().all_sort_ids().map(|sid| {
         lg.sort2rs_ty(
@@ -17,7 +13,7 @@ pub fn generate<L: LangSpec>(
     let impls = tys.enumerate().map(|(idx, ty)| -> syn::ItemImpl {
         let idx = idx as u32;
         syn::parse_quote! {
-            impl has_own_sort_id::HasOwnSortId<#ds_base_path::Heap, #words_path::L> for #ty {
+            impl has_own_sort_id::HasOwnSortId<#ds_base_path::Heap> for #ty {
                 fn own_sort_id() -> u32 {
                     #idx
                 }
@@ -47,19 +43,12 @@ pub mod targets {
             id: kebab_id!(l),
             generate: {
                 let lg = LsGen::from(l);
-                let words_path = codegen_deps.add(words::targets::words_mod::<L>(
-                    arena,
-                    codegen_deps.subtree(),
-                    l,
-                ));
                 let ds_base_path = codegen_deps.add(term_specialized_gen::targets::default::<L>(
                     arena,
                     codegen_deps.subtree(),
                     l,
                 ));
-                Box::new(move |c2sp, _sp| {
-                    super::generate(&words_path(c2sp), &ds_base_path(c2sp), &lg)
-                })
+                Box::new(move |c2sp, _sp| super::generate(&ds_base_path(c2sp), &lg))
             },
             external_deps: vec![],
             workspace_deps: vec![

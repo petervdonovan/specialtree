@@ -115,7 +115,7 @@ pub(crate) fn generate_parsell<L: LangSpec, LCst: LangSpec>(
     }
 }
 
-pub(crate) fn cst<'a, 'b: 'a, L: LangSpec>(
+pub fn cst<'a, 'b: 'a, L: LangSpec>(
     arena: &'a bumpalo::Bump,
     l: &'b L,
 ) -> &'a (impl LangSpec + 'a) {

@@ -84,21 +84,3 @@ impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::humanreadable::L
         vec![reflexive_sublang(self)]
     }
 }
-
-impl crate::langspec::ToLiteral for String {
-    fn to_literal(&self) -> syn::Expr {
-        syn::parse_quote! { #self }
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use crate::langspec::ToLiteral as _;
-
-    #[test]
-    fn test_to_literal() {
-        let s = "foo".to_string();
-        let literal = s.to_literal();
-        assert_eq!(quote::quote!(#literal).to_string(), "\"foo\"");
-    }
-}

@@ -13,3 +13,4 @@ syn = { workspace = true }
 derivative = { workspace = true }
 slab = { workspace = true }
 ccf = { version = "0.1.0", path = "../ccf" }
+to-literal = { version = "0.1.0", path = "../to-literal" }

@@ -2,6 +2,7 @@ use std::path::{Path, PathBuf};
 
 use codegen_component::{CgDepList, Component2SynPath, Crate};
 use langspec::{flat::LangSpecFlat, langspec::TerminalLangSpec};
+use parse_gen::cst;
 
 pub fn main() {
     let fib: LangSpecFlat<_> = LangSpecFlat::canonical_from(&langspec_examples::fib());
@@ -55,11 +56,14 @@ pub fn main() {
         },
         Crate {
             id: "fib-parse".into(),
-            provides: vec![parse_gen::targets::default(
-                &arena,
-                root_cgd.subtree(),
-                &fib,
-            )],
+            provides: vec![
+                parse_gen::targets::default(&arena, root_cgd.subtree(), &fib),
+                has_own_sort_id_gen::targets::default(
+                    &arena,
+                    root_cgd.subtree(),
+                    cst(&arena, &fib),
+                ),
+            ],
             global_workspace_deps: vec![("tymetafuncspec-core", Path::new("."))],
         },
     ];

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::langspec::{Name, ToLiteral};
+use crate::langspec::Name;
 
 #[derive(Clone)]
 pub struct RustTyMap {
@@ -38,7 +38,6 @@ pub trait TyMetaFuncSpec: Sized {
         + Eq
         + std::hash::Hash
         + 'static
-        + ToLiteral
         + Ord;
     fn ty_meta_func_data(id: &Self::TyMetaFuncId) -> TyMetaFuncData;
 }

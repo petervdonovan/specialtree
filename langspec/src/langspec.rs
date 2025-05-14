@@ -138,21 +138,6 @@ pub trait TerminalLangSpec: LangSpec {
     fn canonical_from<L: LangSpec<Tmfs = <Self as LangSpec>::Tmfs>>(l: &L) -> Self;
 }
 
-pub trait ToLiteral {
-    fn to_literal(&self) -> syn::Expr;
-}
-impl ToLiteral for usize {
-    fn to_literal(&self) -> syn::Expr {
-        syn::Expr::Lit(syn::ExprLit {
-            attrs: vec![],
-            lit: syn::Lit::Int(syn::LitInt::new(
-                &self.to_string(),
-                proc_macro2::Span::call_site(),
-            )),
-        })
-    }
-}
-
 pub fn call_on_all_tmf_monomorphizations<
     L: LangSpec,
     F: FnMut(&MappedType<L::ProductId, L::SumId, <L::Tmfs as TyMetaFuncSpec>::TyMetaFuncId>),

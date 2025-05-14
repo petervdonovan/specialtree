@@ -1,24 +1,18 @@
 use derivative::Derivative;
 use functor_derive::Functor;
 use langspec::{
-    langspec::{Name, ToLiteral},
+    langspec::Name,
     tymetafunc::{ArgId, IdentifiedBy, RustTyMap, Transparency, TyMetaFuncData, TyMetaFuncSpec},
 };
 
 use ccf::DirectlyCanonicallyConstructibleFrom;
 use serde::{Deserialize, Serialize};
 use term::{Heaped, SuperHeap};
+use to_literal::ToLiteral;
 
 pub struct Core;
 #[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize, Hash, PartialOrd, Ord)]
 pub struct CoreTmfId(usize);
-
-impl ToLiteral for CoreTmfId {
-    fn to_literal(&self) -> syn::Expr {
-        let lit = self.0;
-        syn::parse_quote!(CoreTmfId(#lit))
-    }
-}
 
 macro_rules! empty_heap_bak {
     ($name:ident $(,)? $($ty_args:ident),*) => {
@@ -215,6 +209,11 @@ impl<Heap> BoundedNat<Heap> {
         }
     }
 }
+impl<Heap> ToLiteral for BoundedNat<Heap> {
+    fn to_literal(&self) -> syn::Expr {
+        self.n.to_literal()
+    }
+}
 empty_heap_bak!(BoundedNatHeapBak);
 #[derive(derivative::Derivative)]
 #[derivative(Debug(bound = ""))]
@@ -252,16 +251,24 @@ where
             heap: std::marker::PhantomData,
         }
     }
+    pub fn len(&self, heap: &Heap) -> usize {
+        self.items(heap).len()
+    }
     pub fn iter<'a, 'b>(&'a self, heap: &'b Heap) -> impl Iterator<Item = &'b Elem>
     where
         Elem: 'b,
     {
-        let items = heap
-            .subheap::<SetHeapBak<Heap, Elem>>()
+        self.items(heap).iter()
+    }
+    fn items<'a, 'b>(&'a self, heap: &'b Heap) -> &'b [Elem]
+    where
+        Elem: 'b,
+    {
+        heap.subheap::<SetHeapBak<Heap, Elem>>()
             .vecs
             .get(self.items)
-            .unwrap();
-        items.iter()
+            .unwrap()
+            .as_slice()
     }
 }
 #[derive(Debug)]
