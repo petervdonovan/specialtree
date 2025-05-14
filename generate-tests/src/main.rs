@@ -24,12 +24,14 @@ pub fn main() {
         },
         Crate {
             id: "fib-pat".into(),
-            provides: vec![pattern_gen::targets::default(
-                &arena,
-                root_cgd.subtree(),
-                &fib,
-                patterns_path().as_path(),
-            )],
+            provides: vec![
+            //     pattern_gen::targets::default(
+            //     &arena,
+            //     root_cgd.subtree(),
+            //     &fib,
+            //     patterns_path().as_path(),
+            // )
+            ],
             global_workspace_deps: vec![("tymetafuncspec-core", Path::new("."))],
         },
         Crate {
@@ -47,6 +49,7 @@ pub fn main() {
                     root_cgd.subtree(),
                     &fib,
                 ),
+                has_own_sort_id_gen::targets::default(&arena, root_cgd.subtree(), &fib),
             ],
             global_workspace_deps: vec![("tymetafuncspec-core", Path::new("."))],
         },

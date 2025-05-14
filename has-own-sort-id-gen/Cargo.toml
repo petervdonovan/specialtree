@@ -4,6 +4,9 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
+codegen-component = { version = "0.1.0", path = "../codegen-component" }
 langspec = { version = "0.1.0", path = "../langspec" }
 langspec-gen-util = { version = "0.1.0", path = "../langspec-gen-util" }
 syn.workspace = true
+term-specialized-gen = { version = "0.1.0", path = "../term-specialized-gen" }
+words = { version = "0.1.0", path = "../words" }

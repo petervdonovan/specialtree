@@ -6,23 +6,24 @@ use pattern_dyn::{DynPattern, NamedDynPattern};
 type NamedPatternOf<L: LangSpec> = NamedDynPattern<SortIdOf<L>>;
 
 pub fn generate<L: LangSpec>(lg: &LsGen<L>, patterns: &[NamedPatternOf<L>]) -> syn::ItemMod {
-    let byline = byline!();
-    let literals = lg.bak().all_sort_ids().map(|it| it.to_literal());
-    let names = lg.bak().all_sort_ids().map(|sid| {
-        lg.sort2rs_ty(
-            sid,
-            &HeapType(syn::parse_quote! {Heap}),
-            &AlgebraicsBasePath::new(syn::parse_quote! {abp::}),
-        )
-    });
-    let named_patterns = patterns.iter().map(|it| generate_named_pattern(lg, it));
-    syn::parse_quote! {
-        #byline
-        #[doc = stringify!(#(#names = #literals),*)]
-        pub mod patterns {
-            #(#named_patterns)*
-        }
-    }
+    // let byline = byline!();
+    // let literals = lg.bak().all_sort_ids().map(|it| it.to_literal());
+    // let names = lg.bak().all_sort_ids().map(|sid| {
+    //     lg.sort2rs_ty(
+    //         sid,
+    //         &HeapType(syn::parse_quote! {Heap}),
+    //         &AlgebraicsBasePath::new(syn::parse_quote! {abp::}),
+    //     )
+    // });
+    // let named_patterns = patterns.iter().map(|it| generate_named_pattern(lg, it));
+    // syn::parse_quote! {
+    //     #byline
+    //     #[doc = stringify!(#(#names = #literals),*)]
+    //     pub mod patterns {
+    //         #(#named_patterns)*
+    //     }
+    // }
+    todo!()
 }
 
 pub(crate) fn generate_named_pattern<L: LangSpec>(
@@ -65,7 +66,10 @@ pub mod targets {
                 Box::new(move |c2sp, p| super::generate(&lg, patterns.as_slice()))
             },
             external_deps: vec![],
-            workspace_deps: vec![("pattern-gen", Path::new(".")), ("pattern", Path::new("."))],
+            workspace_deps: vec![
+                ("pattern-gen", Path::new(".")),
+                ("pattern-dyn", Path::new(".")),
+            ],
             codegen_deps,
         }
     }

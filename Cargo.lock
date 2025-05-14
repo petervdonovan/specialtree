@@ -231,6 +231,8 @@ version = "0.0.0"
 dependencies = [
  "ccf",
  "fib",
+ "has-own-sort-id",
+ "has-own-sort-id-gen",
  "term",
  "term-pattern-match-strategy-provider-impl-gen",
  "term-specialized-gen",
@@ -270,8 +272,6 @@ dependencies = [
 name = "fib-pat"
 version = "0.0.0"
 dependencies = [
- "pattern-dyn",
- "pattern-gen",
  "tymetafuncspec-core",
 ]
 
@@ -305,6 +305,7 @@ dependencies = [
  "bumpalo",
  "cargo_metadata",
  "codegen-component",
+ "has-own-sort-id-gen",
  "langspec",
  "langspec-examples",
  "parse-gen",
@@ -337,9 +338,12 @@ version = "0.1.0"
 name = "has-own-sort-id-gen"
 version = "0.1.0"
 dependencies = [
+ "codegen-component",
  "langspec",
  "langspec-gen-util",
  "syn 2.0.100",
+ "term-specialized-gen",
+ "words",
 ]
 
 [[package]]
@@ -588,6 +592,7 @@ checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
 name = "pattern-dyn"
 version = "0.1.0"
 dependencies = [
+ "has-own-sort-id",
  "syn 2.0.100",
  "thiserror 2.0.12",
  "visit",

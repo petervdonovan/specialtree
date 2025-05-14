@@ -1,3 +1,3 @@
-pub trait HasOwnSortId<L, SortId> {
-    fn own_sort_id() -> SortId;
+pub trait HasOwnSortId<Heap, L> {
+    fn own_sort_id() -> u32;
 }

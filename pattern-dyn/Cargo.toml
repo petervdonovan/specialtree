@@ -4,6 +4,7 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
+has-own-sort-id = { version = "0.1.0", path = "../has-own-sort-id" }
 syn.workspace = true
 thiserror.workspace = true
 visit = { version = "0.1.0", path = "../visit" }

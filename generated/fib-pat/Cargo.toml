@@ -1,9 +1,3 @@
-[dependencies.pattern-dyn]
-path = "../.././pattern-dyn"
-
-[dependencies.pattern-gen]
-path = "../.././pattern-gen"
-
 [dependencies.tymetafuncspec-core]
 path = "../.././tymetafuncspec-core"
 

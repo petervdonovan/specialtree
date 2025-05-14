@@ -96,8 +96,8 @@ impl<P, S, F> SortId<P, S, F> {
 }
 
 pub trait LangSpec: Sized {
-    type ProductId: std::fmt::Debug + Clone + Eq + ToLiteral + std::hash::Hash + 'static + Ord;
-    type SumId: std::fmt::Debug + Clone + Eq + ToLiteral + std::hash::Hash + 'static + Ord;
+    type ProductId: std::fmt::Debug + Clone + Eq + std::hash::Hash + 'static + Ord;
+    type SumId: std::fmt::Debug + Clone + Eq + std::hash::Hash + 'static + Ord;
     type Tmfs: TyMetaFuncSpec;
 
     fn name(&self) -> &Name;
@@ -150,61 +150,6 @@ impl ToLiteral for usize {
                 proc_macro2::Span::call_site(),
             )),
         })
-    }
-}
-impl<P, S, F> ToLiteral for SortId<P, S, F>
-where
-    P: ToLiteral,
-    S: ToLiteral,
-    F: ToLiteral,
-{
-    fn to_literal(&self) -> syn::Expr {
-        match self {
-            SortId::Algebraic(algebraic_sort_id) => {
-                let lit = algebraic_sort_id.to_literal();
-                syn::parse_quote! {langspec::SortId::Algebraic(#lit)}
-            }
-            SortId::TyMetaFunc(mapped_type) => {
-                let mtlit = mapped_type.to_literal();
-                syn::parse_quote! {langspec::SortId::TyMetaFunc(#mtlit)}
-            }
-        }
-    }
-}
-impl<P, S> ToLiteral for AlgebraicSortId<P, S>
-where
-    P: ToLiteral,
-    S: ToLiteral,
-{
-    fn to_literal(&self) -> syn::Expr {
-        match self {
-            AlgebraicSortId::Product(p) => {
-                let plit = p.to_literal();
-                syn::parse_quote! {
-                    langspec::AlgebraicSortId::Product(#plit)
-                }
-            }
-            AlgebraicSortId::Sum(s) => {
-                let slit = s.to_literal();
-                syn::parse_quote! {
-                    langspec::AlgebraicSortId::Sum(#slit)
-                }
-            }
-        }
-    }
-}
-impl<P, S, F> ToLiteral for MappedType<P, S, F>
-where
-    P: ToLiteral,
-    S: ToLiteral,
-    F: ToLiteral,
-{
-    fn to_literal(&self) -> syn::Expr {
-        let flit = self.f.to_literal();
-        let slits = self.a.iter().map(ToLiteral::to_literal);
-        syn::parse_quote! {
-            MappedType { f: #flit, a: vec![#(#slits),*] }
-        }
     }
 }
 
