@@ -74,11 +74,6 @@ pub fn main() {
     }
 }
 
-fn patterns_path() -> PathBuf {
-    let manifest_dir: PathBuf = std::env::var("CARGO_MANIFEST_DIR").unwrap().into();
-    manifest_dir.join("patterns")
-}
-
 fn base_path() -> PathBuf {
     let manifest_dir: PathBuf = std::env::var("CARGO_MANIFEST_DIR").unwrap().into();
     manifest_dir.parent().unwrap().join("generated")

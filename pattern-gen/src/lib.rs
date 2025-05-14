@@ -26,6 +26,10 @@ pub fn generate<L: LangSpec>(lg: &LsGen<L>, patterns: &[NamedPatternOf<L>]) -> s
     todo!()
 }
 
+pub fn load<L: LangSpec>(patterns: &std::path::Path) -> Vec<NamedDynPattern<SortIdOf<L>>> {
+    todo!()
+}
+
 pub(crate) fn generate_named_pattern<L: LangSpec>(
     lg: &LsGen<L>,
     np: &NamedPatternOf<L>,

@@ -1,0 +1,13 @@
+[package]
+name = "generate-tests-stage2"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+bumpalo.workspace = true
+codegen-component = { path = "../codegen-component" }
+langspec-examples.path = "../langspec-examples"
+langspec.path = "../langspec"
+parse-gen = { version = "0.1.0", path = "../parse-gen" }
+pattern-gen = { version = "0.1.0", path = "../pattern-gen" }
+tymetafuncspec-core = { version = "0.1.0", path = "../tymetafuncspec-core" }

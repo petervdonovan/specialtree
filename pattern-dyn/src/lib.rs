@@ -5,7 +5,7 @@ use visitor::{PatternBuilder, PbResultError};
 
 pub mod tmfscore;
 pub mod visitor;
-
+#[derive(Debug)]
 pub struct NamedDynPattern<SortId> {
     pub snake_ident: String,
     pub pattern: DynPattern<SortId>,

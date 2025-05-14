@@ -47,7 +47,7 @@ members = [
     "pattern-specialized",
     "has-own-sort-id-gen",
     "has-own-sort-id",
-    "to-literal",
+    "to-literal", "generate-tests-stage2",
 ]
 
 [profile.release]
@@ -59,7 +59,6 @@ edition = "2024"
 
 [workspace.dependencies]
 bumpalo = "3.17.0"
-cargo_metadata = "0.19.2"
 derivative = "2.2.0"
 derive_more = "0.99.20"
 expect-test = "1.5.1"

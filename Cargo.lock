@@ -27,38 +27,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1628fb46dfa0b37568d12e5edd512553eccf6a22a78e8bde00bb4aed84d5bdbf"
 
 [[package]]
-name = "camino"
-version = "1.1.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8b96ec4966b5813e2c0507c1f86115c8c5abaadc3980879c3424042a02fd1ad3"
-dependencies = [
- "serde",
-]
-
-[[package]]
-name = "cargo-platform"
-version = "0.1.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e35af189006b9c0f00a064685c727031e3ed2d8020f7ba284d78cc2671bd36ea"
-dependencies = [
- "serde",
-]
-
-[[package]]
-name = "cargo_metadata"
-version = "0.19.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd5eb614ed4c27c5d706420e4320fbe3216ab31fa1c33cd8246ac36dae4479ba"
-dependencies = [
- "camino",
- "cargo-platform",
- "semver",
- "serde",
- "serde_json",
- "thiserror 2.0.12",
-]
-
-[[package]]
 name = "ccf"
 version = "0.1.0"
 
@@ -305,7 +273,6 @@ name = "generate-tests"
 version = "0.1.0"
 dependencies = [
  "bumpalo",
- "cargo_metadata",
  "codegen-component",
  "has-own-sort-id-gen",
  "langspec",
@@ -318,6 +285,19 @@ dependencies = [
  "term-specialized-impl-gen",
  "term-trait-gen",
  "words",
+]
+
+[[package]]
+name = "generate-tests-stage2"
+version = "0.1.0"
+dependencies = [
+ "bumpalo",
+ "codegen-component",
+ "langspec",
+ "langspec-examples",
+ "parse-gen",
+ "pattern-gen",
+ "tymetafuncspec-core",
 ]
 
 [[package]]
@@ -762,9 +742,6 @@ name = "semver"
 version = "1.0.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56e6fa9c48d24d85fb3de5ad847117517440f6beceb7798af16b4a87d616b8d0"
-dependencies = [
- "serde",
-]
 
 [[package]]
 name = "serde"
