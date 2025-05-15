@@ -22,6 +22,7 @@ pub struct TyMetaFuncData {
     pub heapbak: RustTyMap,
     pub canonical_froms: Box<[Box<[ArgId]>]>,
     pub size_depends_on: Box<[ArgId]>,
+    pub is_collection_of: Box<[ArgId]>,
     pub transparency: Transparency,
 }
 #[derive(Clone, PartialEq, Eq)]

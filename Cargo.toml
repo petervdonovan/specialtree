@@ -47,7 +47,10 @@ members = [
     "pattern-specialized",
     "has-own-sort-id-gen",
     "has-own-sort-id",
-    "to-literal", "generate-tests-stage2",
+    "to-literal",
+    "generate-tests-stage2",
+    "extension-pattern",
+    "pattern-tmf",
 ]
 
 [profile.release]
@@ -78,6 +81,7 @@ syn = { version = "2.0.100", features = [
     "visit-mut",
     "extra-traits",
 ] }
+"string-interner" = "0.19.0"
 thiserror = "2.0.12"
 typed-index-collections = { version = "3.2.3", features = ["serde-std"] }
 typenum = "1.18.0"

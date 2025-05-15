@@ -1,7 +1,7 @@
 use either_id::Either;
 use langspec::{
     langspec::{LangSpec, MappedType, Name, SortId, SortIdOf},
-    sublang::{Sublang, TmfEndoMappingNonreflexive, reflexive_sublang},
+    sublang::{Sublang, TmfEndoMapping, reflexive_sublang},
     tymetafunc::TyMetaFuncSpec,
 };
 use tmfs_join::TmfsJoin;
@@ -96,7 +96,7 @@ where
                         .into_iter()
                         .map(|tem| match (tem.from, tem.to) {
                             (SortId::TyMetaFunc(mtfrom), mtto) => {
-                                TmfEndoMappingNonreflexive::<SortIdOf<Self>> {
+                                TmfEndoMapping::<SortIdOf<Self>> {
                                     from: SortId::TyMetaFunc(MappedType {
                                         f: Either::Left(Either::Left(mtfrom.f.clone())),
                                         a: mtfrom

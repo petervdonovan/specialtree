@@ -177,6 +177,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "extension-pattern"
+version = "0.1.0"
+dependencies = [
+ "either-id",
+ "join-boilerplate",
+ "langspec",
+ "pattern-tmf",
+ "tmfs-join",
+]
+
+[[package]]
 name = "fib"
 version = "0.0.0"
 dependencies = [
@@ -242,8 +253,70 @@ dependencies = [
 name = "fib-pat"
 version = "0.0.0"
 dependencies = [
+ "ccf",
+ "parse",
+ "parse-adt",
+ "parse-gen",
+ "pattern-tmf",
+ "pmsp",
+ "term",
+ "term-pattern-match-strategy-provider-gen",
+ "term-trait-gen",
  "tymetafuncspec-core",
+ "typenum",
+ "words",
 ]
+
+[[package]]
+name = "fib-pat-ds"
+version = "0.0.0"
+dependencies = [
+ "ccf",
+ "fib-pat",
+ "has-own-sort-id",
+ "has-own-sort-id-gen",
+ "pattern-tmf",
+ "term",
+ "term-pattern-match-strategy-provider-impl-gen",
+ "term-specialized-gen",
+ "term-specialized-impl-gen",
+ "term-trait-gen",
+ "tymetafuncspec-core",
+ "words",
+]
+
+[[package]]
+name = "fib-pat-parse"
+version = "0.0.0"
+dependencies = [
+ "ccf",
+ "covisit",
+ "fib-pat",
+ "fib-pat-ds",
+ "parse",
+ "parse-adt",
+ "parse-gen",
+ "pattern-tmf",
+ "pmsp",
+ "std-parse-error",
+ "std-parse-metadata",
+ "term",
+ "term-bridge-gen",
+ "term-pattern-match-strategy-provider-gen",
+ "term-pattern-match-strategy-provider-impl-gen",
+ "term-specialized-gen",
+ "term-specialized-impl-gen",
+ "term-trait-gen",
+ "tymetafuncspec-core",
+ "typenum",
+ "words",
+]
+
+[[package]]
+name = "foldhash"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d9c4f5dac5e15c24eb999c26181a6ca40b39fe946cbe4c263c7209467bc83af2"
 
 [[package]]
 name = "functor_derive"
@@ -274,6 +347,7 @@ version = "0.1.0"
 dependencies = [
  "bumpalo",
  "codegen-component",
+ "extension-pattern",
  "has-own-sort-id-gen",
  "langspec",
  "langspec-examples",
@@ -333,6 +407,9 @@ name = "hashbrown"
 version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bf151400ff0baff5465007dd2f3e717f3fe502074ca563069ce3a6629d07b289"
+dependencies = [
+ "foldhash",
+]
 
 [[package]]
 name = "indexmap"
@@ -375,6 +452,7 @@ version = "0.1.0"
 dependencies = [
  "either-id",
  "langspec",
+ "tmfs-join",
 ]
 
 [[package]]
@@ -609,6 +687,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "pattern-tmf"
+version = "0.1.0"
+dependencies = [
+ "ccf",
+ "derivative",
+ "functor_derive",
+ "langspec",
+ "once_cell",
+ "serde",
+ "string-interner",
+ "syn 2.0.100",
+ "term",
+ "to-literal",
+ "tymetafuncspec-core",
+]
+
+[[package]]
 name = "pmsp"
 version = "0.1.0"
 dependencies = [
@@ -832,6 +927,16 @@ dependencies = [
  "serde_json",
  "syn 2.0.100",
  "term",
+]
+
+[[package]]
+name = "string-interner"
+version = "0.19.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "23de088478b31c349c9ba67816fa55d9355232d63c3afea8bf513e31f0f1d2c0"
+dependencies = [
+ "hashbrown",
+ "serde",
 ]
 
 [[package]]

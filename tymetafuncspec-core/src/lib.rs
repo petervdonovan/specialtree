@@ -14,6 +14,7 @@ pub struct Core;
 #[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize, Hash, PartialOrd, Ord)]
 pub struct CoreTmfId(usize);
 
+#[macro_export]
 macro_rules! empty_heap_bak {
     ($name:ident $(,)? $($ty_args:ident),*) => {
         #[derive(derivative::Derivative)]
@@ -52,6 +53,7 @@ thread_local! {
             },
             canonical_froms: Box::new([]),
             size_depends_on: Box::new([]),
+            is_collection_of: Box::new([])
         },
         TyMetaFuncData {
             name: Name {
@@ -76,6 +78,7 @@ thread_local! {
             },
             canonical_froms: Box::new([]),
             size_depends_on: Box::new([]),
+            is_collection_of: Box::new([ArgId(0)])
         },
         TyMetaFuncData {
             name: Name {
@@ -100,6 +103,7 @@ thread_local! {
             },
             canonical_froms: Box::new([]),
             size_depends_on: Box::new([]),
+            is_collection_of: Box::new([ArgId(0)])
         },
         TyMetaFuncData {
             name: Name {
@@ -125,6 +129,7 @@ thread_local! {
             },
             canonical_froms: Box::new([Box::new([ArgId(0)])]),
             size_depends_on: Box::new([]),
+            is_collection_of: Box::new([])
         },
         TyMetaFuncData {
             name: Name {
@@ -142,6 +147,7 @@ thread_local! {
             heapbak: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::EitherHeapBak) },
             canonical_froms: Box::new([Box::new([ArgId(0)]), Box::new([ArgId(1)])]),
             size_depends_on: Box::new([ArgId(0), ArgId(1)]),
+            is_collection_of: Box::new([])
         },
         TyMetaFuncData {
             name: Name {
@@ -158,6 +164,7 @@ thread_local! {
             heapbak: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::MaybeHeapBak) },
             canonical_froms: Box::new([Box::new([ArgId(0)])]),
             size_depends_on: Box::new([ArgId(0)]),
+            is_collection_of: Box::new([])
         },
         TyMetaFuncData {
             name: Name {
@@ -175,6 +182,7 @@ thread_local! {
             heapbak: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::PairHeapBak) },
             canonical_froms: Box::new([Box::new([ArgId(0)]), Box::new([ArgId(1)])]),
             size_depends_on: Box::new([ArgId(0), ArgId(1)]),
+            is_collection_of: Box::new([])
         }
         ]
     });

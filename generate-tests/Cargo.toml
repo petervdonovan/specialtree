@@ -17,3 +17,4 @@ words.path = "../words"
 parse-gen = { version = "0.1.0", path = "../parse-gen" }
 pattern-gen = { version = "0.1.0", path = "../pattern-gen" }
 has-own-sort-id-gen = { version = "0.1.0", path = "../has-own-sort-id-gen" }
+extension-pattern = { version = "0.1.0", path = "../extension-pattern" }

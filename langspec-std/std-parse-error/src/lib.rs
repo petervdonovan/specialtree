@@ -51,6 +51,7 @@ impl TyMetaFuncSpec for ParseErrorTmfs {
                 },
                 canonical_froms: Box::new([]),
                 size_depends_on: Box::new([]),
+                is_collection_of: Box::new([]),
             },
         }
     }

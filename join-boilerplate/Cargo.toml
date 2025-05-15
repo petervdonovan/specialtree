@@ -6,3 +6,4 @@ edition = { workspace = true }
 [dependencies]
 either-id = { path = "../either-id" }
 langspec = { path = "../langspec" }
+tmfs-join = { version = "0.1.0", path = "../tmfs-join" }
