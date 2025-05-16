@@ -134,15 +134,19 @@ fn generate_maps_tmf_bounds<L: LangSpec>(
     let mut helper_impls = vec![];
     for (trait_name, ty) in helper_type_info.into_iter() {
         let bound: syn::TraitBound = syn::parse_quote! {
-            term::MapsTmf<#words_path::L, #ty>
+            term::MapsTmf<#words_path::L, #ty, Tmf=<Self as #trait_name>::Tmf>
         };
         match previous_trait {
             Some(ptn) => {
                 helper_traits.push(syn::parse_quote! {
-                    pub trait #trait_name<#(#camel_ident),*>: #ptn<#(#camel_ident),*> + #bound {}
+                    pub trait #trait_name<#(#camel_ident),*>: #ptn<#(#camel_ident),*> + #bound {
+                        type Tmf;
+                    }
                 });
                 helper_impls.push(syn::parse_quote! {
-                    impl<T #(, #camel_ident)*> #trait_name<#(#camel_ident),*> for T where T: #ptn<#(#camel_ident),*> + #bound {}
+                    impl<T #(, #camel_ident)*> #trait_name<#(#camel_ident),*> for T where T: #ptn<#(#camel_ident),*> + #bound {
+                        type Tmf =
+                    }
                 });
             }
             None => {
