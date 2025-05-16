@@ -121,21 +121,20 @@ impl<'a, L: LangSpec> LangSpec for PatternExtension<'a, L> {
                     tems: sublang
                         .tems
                         .into_iter()
-                        .map(|tem| match (tem.from, tem.to) {
-                            (SortId::TyMetaFunc(mtfrom), mtto) => {
-                                TmfEndoMapping::<SortIdOf<Self>> {
-                                    from: SortId::TyMetaFunc(MappedType {
-                                        f: Either::Left(mtfrom.f.clone()),
-                                        a: mtfrom
-                                            .a
-                                            .into_iter()
-                                            .map(map_sid_temfrom::<'a, L>)
-                                            .collect(),
-                                    }),
-                                    to: map_sid::<'a, L>(mtto),
-                                }
-                            }
-                            _ => panic!(),
+                        .map(|tem| TmfEndoMapping::<SortIdOf<Self>> {
+                            fromshallow: match tem.fromshallow {
+                                SortId::Algebraic(_) => panic!(),
+                                SortId::TyMetaFunc(mapped_type) => SortId::TyMetaFunc(MappedType {
+                                    f: Either::Left(mapped_type.f.clone()),
+                                    a: mapped_type
+                                        .a
+                                        .into_iter()
+                                        .map(map_sid_temfrom::<'a, L>)
+                                        .collect(),
+                                }),
+                            },
+                            fromrec: map_sid_temfrom::<L>(tem.fromrec),
+                            to: map_sid::<'a, L>(tem.to),
                         })
                         .collect(),
                 },

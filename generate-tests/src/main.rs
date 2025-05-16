@@ -5,12 +5,12 @@ use langspec::{
     flat::LangSpecFlat,
     langspec::{LangSpec, TerminalLangSpec},
 };
-use parse_gen::cst;
+// use parse_gen::cst;
 
 pub fn main() {
     let arena = bumpalo::Bump::new();
     let fib = LangSpecFlat::canonical_from(&langspec_examples::fib());
-    let fib_cst = cst(&arena, &fib);
+    // let fib_cst = cst(&arena, &fib);
     let fib_pat = extension_pattern::patternfy(&fib);
     // let fib_pat_cst = cst(&arena, &fib_pat);
     let root_cgd = CgDepList::new();
@@ -30,17 +30,17 @@ pub fn main() {
             ],
             global_workspace_deps: fib_deps.to_vec(),
         },
-        // traits_crate(&arena, &root_cgd, "fib-pat", &fib_pat, &pat_deps),
-        // ds_crate(&arena, &root_cgd, "fib-pat-ds", &fib_pat, &pat_deps),
-        // Crate {
-        //     id: "fib-pat-parse".into(),
-        //     provides: vec![parse_gen::targets::default(
-        //         &arena,
-        //         root_cgd.subtree(),
-        //         &fib_pat,
-        //     )],
-        //     global_workspace_deps: pat_deps.to_vec(),
-        // },
+        traits_crate(&arena, &root_cgd, "fib-pat", &fib_pat, &pat_deps),
+        ds_crate(&arena, &root_cgd, "fib-pat-ds", &fib_pat, &pat_deps),
+        Crate {
+            id: "fib-pat-parse".into(),
+            provides: vec![parse_gen::targets::default(
+                &arena,
+                root_cgd.subtree(),
+                &fib_pat,
+            )],
+            global_workspace_deps: pat_deps.to_vec(),
+        },
     ];
     let bp = base_path();
     let mut c2sp = Component2SynPath::default();

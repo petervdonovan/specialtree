@@ -134,7 +134,7 @@ pub mod ccf_impls {
                 <<Self as Heaped>::Heap as MapsTmf<
                     L,
                     Set<<Self as Heaped>::Heap, tsf::Nat>,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ),
         > for tsf::Sum {
@@ -144,7 +144,7 @@ pub mod ccf_impls {
                     <<Self as Heaped>::Heap as MapsTmf<
                         L,
                         Set<<Self as Heaped>::Heap, tsf::Nat>,
-                    >>::Tmf,
+                    >>::TmfTo,
                     (),
                 ),
             ) -> Self {
@@ -162,7 +162,7 @@ pub mod ccf_impls {
                 <<Self as Heaped>::Heap as MapsTmf<
                     L,
                     Set<<Self as Heaped>::Heap, tsf::Nat>,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ) {
                 (self.set, ())
@@ -184,7 +184,7 @@ pub mod ccf_impls {
                 <<Self as Heaped>::Heap as MapsTmf<
                     L,
                     BoundedNat<<Self as Heaped>::Heap>,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ),
         > for tsf::Nat {
@@ -194,7 +194,7 @@ pub mod ccf_impls {
                     <<Self as Heaped>::Heap as MapsTmf<
                         L,
                         BoundedNat<<Self as Heaped>::Heap>,
-                    >>::Tmf,
+                    >>::TmfTo,
                     (),
                 ),
             ) -> Self {
@@ -213,7 +213,7 @@ pub mod ccf_impls {
                 <<Self as Heaped>::Heap as MapsTmf<
                     L,
                     BoundedNat<<Self as Heaped>::Heap>,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ) {
                 match self {
@@ -229,7 +229,7 @@ pub mod ccf_impls {
                 <<Self as Heaped>::Heap as MapsTmf<
                     L,
                     IdxBox<<Self as Heaped>::Heap, tsf::F>,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ),
         > for tsf::Nat {
@@ -239,7 +239,7 @@ pub mod ccf_impls {
                     <<Self as Heaped>::Heap as MapsTmf<
                         L,
                         IdxBox<<Self as Heaped>::Heap, tsf::F>,
-                    >>::Tmf,
+                    >>::TmfTo,
                     (),
                 ),
             ) -> Self {
@@ -258,7 +258,7 @@ pub mod ccf_impls {
                 <<Self as Heaped>::Heap as MapsTmf<
                     L,
                     IdxBox<<Self as Heaped>::Heap, tsf::F>,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ) {
                 match self {
@@ -274,7 +274,7 @@ pub mod ccf_impls {
                 <<Self as Heaped>::Heap as MapsTmf<
                     L,
                     IdxBox<<Self as Heaped>::Heap, tsf::Plus>,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ),
         > for tsf::Nat {
@@ -284,7 +284,7 @@ pub mod ccf_impls {
                     <<Self as Heaped>::Heap as MapsTmf<
                         L,
                         IdxBox<<Self as Heaped>::Heap, tsf::Plus>,
-                    >>::Tmf,
+                    >>::TmfTo,
                     (),
                 ),
             ) -> Self {
@@ -303,7 +303,7 @@ pub mod ccf_impls {
                 <<Self as Heaped>::Heap as MapsTmf<
                     L,
                     IdxBox<<Self as Heaped>::Heap, tsf::Plus>,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ) {
                 match self {
@@ -480,6 +480,7 @@ pub mod maps_tmf_impls {
             (TmfMonomorphization, ()),
         >,
     {
-        type Tmf = TmfMonomorphization;
+        type TmfFrom = TmfMonomorphization;
+        type TmfTo = TmfMonomorphization;
     }
 }

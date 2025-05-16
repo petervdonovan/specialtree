@@ -94,21 +94,20 @@ where
                     tems: sublang
                         .tems
                         .into_iter()
-                        .map(|tem| match (tem.from, tem.to) {
-                            (SortId::TyMetaFunc(mtfrom), mtto) => {
-                                TmfEndoMapping::<SortIdOf<Self>> {
-                                    from: SortId::TyMetaFunc(MappedType {
-                                        f: Either::Left(Either::Left(mtfrom.f.clone())),
-                                        a: mtfrom
-                                            .a
-                                            .iter()
-                                            .map(|sid| L0M::l0_map(self, sid.clone()))
-                                            .collect(),
-                                    }),
-                                    to: L0M::l0_map(self, mtto.clone()),
-                                }
-                            }
-                            _ => panic!(),
+                        .map(|tem| TmfEndoMapping::<SortIdOf<Self>> {
+                            fromshallow: match tem.fromshallow {
+                                SortId::Algebraic(_) => panic!(),
+                                SortId::TyMetaFunc(mapped_type) => SortId::TyMetaFunc(MappedType {
+                                    f: Either::Left(Either::Left(mapped_type.f.clone())),
+                                    a: mapped_type
+                                        .a
+                                        .into_iter()
+                                        .map(|sid| L0M::l0_map(self, sid.clone()))
+                                        .collect(),
+                                }),
+                            },
+                            fromrec: l0_as_my_sid::<L0, L1>(tem.fromrec),
+                            to: L0M::l0_map(self, tem.to.clone()),
                         })
                         .collect(),
                 },

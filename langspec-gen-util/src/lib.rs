@@ -90,10 +90,7 @@ pub struct AlgebraicsBasePath(proc_macro2::TokenStream); // a prefix of a syn::T
 impl AlgebraicsBasePath {
     pub fn new(bp: proc_macro2::TokenStream) -> Self {
         if !(bp.to_string().is_empty() || bp.to_string().ends_with("::")) {
-            panic!(
-                "AlgebraicsBasePath must end with '::' but instead is \"{}\"",
-                bp
-            );
+            panic!("AlgebraicsBasePath must end with '::' but instead is \"{bp}\"");
         }
         Self(bp)
     }
@@ -177,11 +174,11 @@ impl<L: LangSpec> LsGen<'_, L> {
         for desired_pair in sublangs
             .into_iter()
             .flat_map(|it| it.tems)
-            .filter(|it| it.from != it.to)
+            .filter(|it| it.fromshallow != it.to)
             .filter(|it| {
                 !ucp_acc
                     .iter()
-                    .any(|existing| existing.from == it.from && existing.to == it.to)
+                    .any(|existing| existing.from == it.fromshallow && existing.to == it.to)
             })
             .collect::<Vec<_>>()
             .into_iter()
@@ -190,7 +187,7 @@ impl<L: LangSpec> LsGen<'_, L> {
                 find_ucp(
                     direct_ccf_rels.as_slice(),
                     UcpPair {
-                        from: desired_pair.from.clone(),
+                        from: desired_pair.fromshallow.clone(),
                         to: desired_pair.to.clone(),
                     },
                 )
@@ -464,10 +461,10 @@ impl<L: LangSpec> LsGen<'_, L> {
                 syn::parse_quote! { #abp #ident }
             }
             SortId::TyMetaFunc(_) => {
-                // let rs_ty = self.sort2rs_ty(sort.clone(), ht, abp);
-                let rs_ty = self.sort2rs_ty_with_tmfmapped_args(sort.clone(), ht, abp, words_path);
+                let rs_ty = self.sort2rs_ty(sort.clone(), ht, abp);
+                // let rs_ty = self.sort2rs_ty_with_tmfmapped_args(sort.clone(), ht, abp, words_path);
                 let ht = &ht.0;
-                let ret = quote::quote! {<#ht as term::MapsTmf<#words_path::L, #rs_ty>>::Tmf};
+                let ret = quote::quote! {<#ht as term::MapsTmf<#words_path::L, #rs_ty>>::TmfTo};
                 syn::parse_quote! { #ret }
             }
         }

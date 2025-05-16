@@ -11,7 +11,8 @@ pub struct Sublang<'a, SortIdSelf> {
 }
 #[derive(Debug, Functor)]
 pub struct TmfEndoMapping<SortIdSelf> {
-    pub from: SortIdSelf,
+    pub fromrec: SortIdSelf,
+    pub fromshallow: SortIdSelf,
     pub to: SortIdSelf,
 }
 
@@ -39,7 +40,8 @@ pub fn reflexive_sublang<L: LangSpec>(l: &L) -> Sublang<SortIdOf<L>> {
             let mut tems = vec![];
             crate::langspec::call_on_all_tmf_monomorphizations(l, &mut |it| {
                 tems.push(TmfEndoMapping {
-                    from: SortId::TyMetaFunc(it.clone()),
+                    fromshallow: SortId::TyMetaFunc(it.clone()),
+                    fromrec: SortId::TyMetaFunc(it.clone()),
                     to: SortId::TyMetaFunc(it.clone()),
                 })
             });

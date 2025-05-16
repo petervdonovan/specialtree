@@ -46,57 +46,33 @@ pub mod ccf_impls {
                     wmcaf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            Pair<
+                        Pair<
+                            <Self as Heaped>::Heap,
+                            tscaf::LeftOperand,
+                            Maybe<
                                 <Self as Heaped>::Heap,
-                                tscaf::LeftOperand,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    Maybe<
-                                        <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
-                                            ParseMetadata<<Self as Heaped>::Heap>,
-                                        >>::Tmf,
-                                    >,
-                                >>::Tmf,
+                                ParseMetadata<<Self as Heaped>::Heap>,
                             >,
-                        >>::Tmf,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            ParseError<<Self as Heaped>::Heap>,
-                        >>::Tmf,
+                        >,
+                        ParseError<<Self as Heaped>::Heap>,
                     >,
-                >>::Tmf,
+                >>::TmfTo,
                 (
                     <<Self as Heaped>::Heap as MapsTmf<
                         wmcaf::L,
                         Either<
                             <Self as Heaped>::Heap,
-                            <<Self as Heaped>::Heap as MapsTmf<
-                                wmcaf::L,
-                                Pair<
+                            Pair<
+                                <Self as Heaped>::Heap,
+                                tscaf::RightOperand,
+                                Maybe<
                                     <Self as Heaped>::Heap,
-                                    tscaf::RightOperand,
-                                    <<Self as Heaped>::Heap as MapsTmf<
-                                        wmcaf::L,
-                                        Maybe<
-                                            <Self as Heaped>::Heap,
-                                            <<Self as Heaped>::Heap as MapsTmf<
-                                                wmcaf::L,
-                                                ParseMetadata<<Self as Heaped>::Heap>,
-                                            >>::Tmf,
-                                        >,
-                                    >>::Tmf,
+                                    ParseMetadata<<Self as Heaped>::Heap>,
                                 >,
-                            >>::Tmf,
-                            <<Self as Heaped>::Heap as MapsTmf<
-                                wmcaf::L,
-                                ParseError<<Self as Heaped>::Heap>,
-                            >>::Tmf,
+                            >,
+                            ParseError<<Self as Heaped>::Heap>,
                         >,
-                    >>::Tmf,
+                    >>::TmfTo,
                     (),
                 ),
             ),
@@ -108,57 +84,33 @@ pub mod ccf_impls {
                         wmcaf::L,
                         Either<
                             <Self as Heaped>::Heap,
-                            <<Self as Heaped>::Heap as MapsTmf<
-                                wmcaf::L,
-                                Pair<
+                            Pair<
+                                <Self as Heaped>::Heap,
+                                tscaf::LeftOperand,
+                                Maybe<
                                     <Self as Heaped>::Heap,
-                                    tscaf::LeftOperand,
-                                    <<Self as Heaped>::Heap as MapsTmf<
-                                        wmcaf::L,
-                                        Maybe<
-                                            <Self as Heaped>::Heap,
-                                            <<Self as Heaped>::Heap as MapsTmf<
-                                                wmcaf::L,
-                                                ParseMetadata<<Self as Heaped>::Heap>,
-                                            >>::Tmf,
-                                        >,
-                                    >>::Tmf,
+                                    ParseMetadata<<Self as Heaped>::Heap>,
                                 >,
-                            >>::Tmf,
-                            <<Self as Heaped>::Heap as MapsTmf<
-                                wmcaf::L,
-                                ParseError<<Self as Heaped>::Heap>,
-                            >>::Tmf,
+                            >,
+                            ParseError<<Self as Heaped>::Heap>,
                         >,
-                    >>::Tmf,
+                    >>::TmfTo,
                     (
                         <<Self as Heaped>::Heap as MapsTmf<
                             wmcaf::L,
                             Either<
                                 <Self as Heaped>::Heap,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    Pair<
+                                Pair<
+                                    <Self as Heaped>::Heap,
+                                    tscaf::RightOperand,
+                                    Maybe<
                                         <Self as Heaped>::Heap,
-                                        tscaf::RightOperand,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
-                                            Maybe<
-                                                <Self as Heaped>::Heap,
-                                                <<Self as Heaped>::Heap as MapsTmf<
-                                                    wmcaf::L,
-                                                    ParseMetadata<<Self as Heaped>::Heap>,
-                                                >>::Tmf,
-                                            >,
-                                        >>::Tmf,
+                                        ParseMetadata<<Self as Heaped>::Heap>,
                                     >,
-                                >>::Tmf,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    ParseError<<Self as Heaped>::Heap>,
-                                >>::Tmf,
+                                >,
+                                ParseError<<Self as Heaped>::Heap>,
                             >,
-                        >>::Tmf,
+                        >>::TmfTo,
                         (),
                     ),
                 ),
@@ -179,57 +131,33 @@ pub mod ccf_impls {
                     wmcaf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            Pair<
+                        Pair<
+                            <Self as Heaped>::Heap,
+                            tscaf::LeftOperand,
+                            Maybe<
                                 <Self as Heaped>::Heap,
-                                tscaf::LeftOperand,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    Maybe<
-                                        <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
-                                            ParseMetadata<<Self as Heaped>::Heap>,
-                                        >>::Tmf,
-                                    >,
-                                >>::Tmf,
+                                ParseMetadata<<Self as Heaped>::Heap>,
                             >,
-                        >>::Tmf,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            ParseError<<Self as Heaped>::Heap>,
-                        >>::Tmf,
+                        >,
+                        ParseError<<Self as Heaped>::Heap>,
                     >,
-                >>::Tmf,
+                >>::TmfTo,
                 (
                     <<Self as Heaped>::Heap as MapsTmf<
                         wmcaf::L,
                         Either<
                             <Self as Heaped>::Heap,
-                            <<Self as Heaped>::Heap as MapsTmf<
-                                wmcaf::L,
-                                Pair<
+                            Pair<
+                                <Self as Heaped>::Heap,
+                                tscaf::RightOperand,
+                                Maybe<
                                     <Self as Heaped>::Heap,
-                                    tscaf::RightOperand,
-                                    <<Self as Heaped>::Heap as MapsTmf<
-                                        wmcaf::L,
-                                        Maybe<
-                                            <Self as Heaped>::Heap,
-                                            <<Self as Heaped>::Heap as MapsTmf<
-                                                wmcaf::L,
-                                                ParseMetadata<<Self as Heaped>::Heap>,
-                                            >>::Tmf,
-                                        >,
-                                    >>::Tmf,
+                                    ParseMetadata<<Self as Heaped>::Heap>,
                                 >,
-                            >>::Tmf,
-                            <<Self as Heaped>::Heap as MapsTmf<
-                                wmcaf::L,
-                                ParseError<<Self as Heaped>::Heap>,
-                            >>::Tmf,
+                            >,
+                            ParseError<<Self as Heaped>::Heap>,
                         >,
-                    >>::Tmf,
+                    >>::TmfTo,
                     (),
                 ),
             ) {
@@ -256,29 +184,17 @@ pub mod ccf_impls {
                     wmcaf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            Pair<
+                        Pair<
+                            <Self as Heaped>::Heap,
+                            tscaf::Nat,
+                            Maybe<
                                 <Self as Heaped>::Heap,
-                                tscaf::Nat,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    Maybe<
-                                        <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
-                                            ParseMetadata<<Self as Heaped>::Heap>,
-                                        >>::Tmf,
-                                    >,
-                                >>::Tmf,
+                                ParseMetadata<<Self as Heaped>::Heap>,
                             >,
-                        >>::Tmf,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            ParseError<<Self as Heaped>::Heap>,
-                        >>::Tmf,
+                        >,
+                        ParseError<<Self as Heaped>::Heap>,
                     >,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ),
         > for tscaf::LeftOperand {
@@ -289,29 +205,17 @@ pub mod ccf_impls {
                         wmcaf::L,
                         Either<
                             <Self as Heaped>::Heap,
-                            <<Self as Heaped>::Heap as MapsTmf<
-                                wmcaf::L,
-                                Pair<
+                            Pair<
+                                <Self as Heaped>::Heap,
+                                tscaf::Nat,
+                                Maybe<
                                     <Self as Heaped>::Heap,
-                                    tscaf::Nat,
-                                    <<Self as Heaped>::Heap as MapsTmf<
-                                        wmcaf::L,
-                                        Maybe<
-                                            <Self as Heaped>::Heap,
-                                            <<Self as Heaped>::Heap as MapsTmf<
-                                                wmcaf::L,
-                                                ParseMetadata<<Self as Heaped>::Heap>,
-                                            >>::Tmf,
-                                        >,
-                                    >>::Tmf,
+                                    ParseMetadata<<Self as Heaped>::Heap>,
                                 >,
-                            >>::Tmf,
-                            <<Self as Heaped>::Heap as MapsTmf<
-                                wmcaf::L,
-                                ParseError<<Self as Heaped>::Heap>,
-                            >>::Tmf,
+                            >,
+                            ParseError<<Self as Heaped>::Heap>,
                         >,
-                    >>::Tmf,
+                    >>::TmfTo,
                     (),
                 ),
             ) -> Self {
@@ -330,29 +234,17 @@ pub mod ccf_impls {
                     wmcaf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            Pair<
+                        Pair<
+                            <Self as Heaped>::Heap,
+                            tscaf::Nat,
+                            Maybe<
                                 <Self as Heaped>::Heap,
-                                tscaf::Nat,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    Maybe<
-                                        <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
-                                            ParseMetadata<<Self as Heaped>::Heap>,
-                                        >>::Tmf,
-                                    >,
-                                >>::Tmf,
+                                ParseMetadata<<Self as Heaped>::Heap>,
                             >,
-                        >>::Tmf,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            ParseError<<Self as Heaped>::Heap>,
-                        >>::Tmf,
+                        >,
+                        ParseError<<Self as Heaped>::Heap>,
                     >,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ) {
                 (self.nat, ())
@@ -378,29 +270,17 @@ pub mod ccf_impls {
                     wmcaf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            Pair<
+                        Pair<
+                            <Self as Heaped>::Heap,
+                            tscaf::Nat,
+                            Maybe<
                                 <Self as Heaped>::Heap,
-                                tscaf::Nat,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    Maybe<
-                                        <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
-                                            ParseMetadata<<Self as Heaped>::Heap>,
-                                        >>::Tmf,
-                                    >,
-                                >>::Tmf,
+                                ParseMetadata<<Self as Heaped>::Heap>,
                             >,
-                        >>::Tmf,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            ParseError<<Self as Heaped>::Heap>,
-                        >>::Tmf,
+                        >,
+                        ParseError<<Self as Heaped>::Heap>,
                     >,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ),
         > for tscaf::RightOperand {
@@ -411,29 +291,17 @@ pub mod ccf_impls {
                         wmcaf::L,
                         Either<
                             <Self as Heaped>::Heap,
-                            <<Self as Heaped>::Heap as MapsTmf<
-                                wmcaf::L,
-                                Pair<
+                            Pair<
+                                <Self as Heaped>::Heap,
+                                tscaf::Nat,
+                                Maybe<
                                     <Self as Heaped>::Heap,
-                                    tscaf::Nat,
-                                    <<Self as Heaped>::Heap as MapsTmf<
-                                        wmcaf::L,
-                                        Maybe<
-                                            <Self as Heaped>::Heap,
-                                            <<Self as Heaped>::Heap as MapsTmf<
-                                                wmcaf::L,
-                                                ParseMetadata<<Self as Heaped>::Heap>,
-                                            >>::Tmf,
-                                        >,
-                                    >>::Tmf,
+                                    ParseMetadata<<Self as Heaped>::Heap>,
                                 >,
-                            >>::Tmf,
-                            <<Self as Heaped>::Heap as MapsTmf<
-                                wmcaf::L,
-                                ParseError<<Self as Heaped>::Heap>,
-                            >>::Tmf,
+                            >,
+                            ParseError<<Self as Heaped>::Heap>,
                         >,
-                    >>::Tmf,
+                    >>::TmfTo,
                     (),
                 ),
             ) -> Self {
@@ -452,29 +320,17 @@ pub mod ccf_impls {
                     wmcaf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            Pair<
+                        Pair<
+                            <Self as Heaped>::Heap,
+                            tscaf::Nat,
+                            Maybe<
                                 <Self as Heaped>::Heap,
-                                tscaf::Nat,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    Maybe<
-                                        <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
-                                            ParseMetadata<<Self as Heaped>::Heap>,
-                                        >>::Tmf,
-                                    >,
-                                >>::Tmf,
+                                ParseMetadata<<Self as Heaped>::Heap>,
                             >,
-                        >>::Tmf,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            ParseError<<Self as Heaped>::Heap>,
-                        >>::Tmf,
+                        >,
+                        ParseError<<Self as Heaped>::Heap>,
                     >,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ) {
                 (self.nat, ())
@@ -500,29 +356,17 @@ pub mod ccf_impls {
                     wmcaf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            Pair<
+                        Pair<
+                            <Self as Heaped>::Heap,
+                            tscaf::Nat,
+                            Maybe<
                                 <Self as Heaped>::Heap,
-                                tscaf::Nat,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    Maybe<
-                                        <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
-                                            ParseMetadata<<Self as Heaped>::Heap>,
-                                        >>::Tmf,
-                                    >,
-                                >>::Tmf,
+                                ParseMetadata<<Self as Heaped>::Heap>,
                             >,
-                        >>::Tmf,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            ParseError<<Self as Heaped>::Heap>,
-                        >>::Tmf,
+                        >,
+                        ParseError<<Self as Heaped>::Heap>,
                     >,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ),
         > for tscaf::F {
@@ -533,29 +377,17 @@ pub mod ccf_impls {
                         wmcaf::L,
                         Either<
                             <Self as Heaped>::Heap,
-                            <<Self as Heaped>::Heap as MapsTmf<
-                                wmcaf::L,
-                                Pair<
+                            Pair<
+                                <Self as Heaped>::Heap,
+                                tscaf::Nat,
+                                Maybe<
                                     <Self as Heaped>::Heap,
-                                    tscaf::Nat,
-                                    <<Self as Heaped>::Heap as MapsTmf<
-                                        wmcaf::L,
-                                        Maybe<
-                                            <Self as Heaped>::Heap,
-                                            <<Self as Heaped>::Heap as MapsTmf<
-                                                wmcaf::L,
-                                                ParseMetadata<<Self as Heaped>::Heap>,
-                                            >>::Tmf,
-                                        >,
-                                    >>::Tmf,
+                                    ParseMetadata<<Self as Heaped>::Heap>,
                                 >,
-                            >>::Tmf,
-                            <<Self as Heaped>::Heap as MapsTmf<
-                                wmcaf::L,
-                                ParseError<<Self as Heaped>::Heap>,
-                            >>::Tmf,
+                            >,
+                            ParseError<<Self as Heaped>::Heap>,
                         >,
-                    >>::Tmf,
+                    >>::TmfTo,
                     (),
                 ),
             ) -> Self {
@@ -574,29 +406,17 @@ pub mod ccf_impls {
                     wmcaf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            Pair<
+                        Pair<
+                            <Self as Heaped>::Heap,
+                            tscaf::Nat,
+                            Maybe<
                                 <Self as Heaped>::Heap,
-                                tscaf::Nat,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    Maybe<
-                                        <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
-                                            ParseMetadata<<Self as Heaped>::Heap>,
-                                        >>::Tmf,
-                                    >,
-                                >>::Tmf,
+                                ParseMetadata<<Self as Heaped>::Heap>,
                             >,
-                        >>::Tmf,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            ParseError<<Self as Heaped>::Heap>,
-                        >>::Tmf,
+                        >,
+                        ParseError<<Self as Heaped>::Heap>,
                     >,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ) {
                 (self.nat, ())
@@ -623,61 +443,31 @@ pub mod ccf_impls {
                     wmcaf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            Pair<
+                        Pair<
+                            <Self as Heaped>::Heap,
+                            Set<
                                 <Self as Heaped>::Heap,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    Set<
+                                Either<
+                                    <Self as Heaped>::Heap,
+                                    Pair<
                                         <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
-                                            Either<
-                                                <Self as Heaped>::Heap,
-                                                <<Self as Heaped>::Heap as MapsTmf<
-                                                    wmcaf::L,
-                                                    Pair<
-                                                        <Self as Heaped>::Heap,
-                                                        tscaf::Nat,
-                                                        <<Self as Heaped>::Heap as MapsTmf<
-                                                            wmcaf::L,
-                                                            Maybe<
-                                                                <Self as Heaped>::Heap,
-                                                                <<Self as Heaped>::Heap as MapsTmf<
-                                                                    wmcaf::L,
-                                                                    ParseMetadata<<Self as Heaped>::Heap>,
-                                                                >>::Tmf,
-                                                            >,
-                                                        >>::Tmf,
-                                                    >,
-                                                >>::Tmf,
-                                                <<Self as Heaped>::Heap as MapsTmf<
-                                                    wmcaf::L,
-                                                    ParseError<<Self as Heaped>::Heap>,
-                                                >>::Tmf,
-                                            >,
-                                        >>::Tmf,
-                                    >,
-                                >>::Tmf,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    Maybe<
-                                        <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
+                                        tscaf::Nat,
+                                        Maybe<
+                                            <Self as Heaped>::Heap,
                                             ParseMetadata<<Self as Heaped>::Heap>,
-                                        >>::Tmf,
+                                        >,
                                     >,
-                                >>::Tmf,
+                                    ParseError<<Self as Heaped>::Heap>,
+                                >,
                             >,
-                        >>::Tmf,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            ParseError<<Self as Heaped>::Heap>,
-                        >>::Tmf,
+                            Maybe<
+                                <Self as Heaped>::Heap,
+                                ParseMetadata<<Self as Heaped>::Heap>,
+                            >,
+                        >,
+                        ParseError<<Self as Heaped>::Heap>,
                     >,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ),
         > for tscaf::Sum {
@@ -688,61 +478,31 @@ pub mod ccf_impls {
                         wmcaf::L,
                         Either<
                             <Self as Heaped>::Heap,
-                            <<Self as Heaped>::Heap as MapsTmf<
-                                wmcaf::L,
-                                Pair<
+                            Pair<
+                                <Self as Heaped>::Heap,
+                                Set<
                                     <Self as Heaped>::Heap,
-                                    <<Self as Heaped>::Heap as MapsTmf<
-                                        wmcaf::L,
-                                        Set<
+                                    Either<
+                                        <Self as Heaped>::Heap,
+                                        Pair<
                                             <Self as Heaped>::Heap,
-                                            <<Self as Heaped>::Heap as MapsTmf<
-                                                wmcaf::L,
-                                                Either<
-                                                    <Self as Heaped>::Heap,
-                                                    <<Self as Heaped>::Heap as MapsTmf<
-                                                        wmcaf::L,
-                                                        Pair<
-                                                            <Self as Heaped>::Heap,
-                                                            tscaf::Nat,
-                                                            <<Self as Heaped>::Heap as MapsTmf<
-                                                                wmcaf::L,
-                                                                Maybe<
-                                                                    <Self as Heaped>::Heap,
-                                                                    <<Self as Heaped>::Heap as MapsTmf<
-                                                                        wmcaf::L,
-                                                                        ParseMetadata<<Self as Heaped>::Heap>,
-                                                                    >>::Tmf,
-                                                                >,
-                                                            >>::Tmf,
-                                                        >,
-                                                    >>::Tmf,
-                                                    <<Self as Heaped>::Heap as MapsTmf<
-                                                        wmcaf::L,
-                                                        ParseError<<Self as Heaped>::Heap>,
-                                                    >>::Tmf,
-                                                >,
-                                            >>::Tmf,
-                                        >,
-                                    >>::Tmf,
-                                    <<Self as Heaped>::Heap as MapsTmf<
-                                        wmcaf::L,
-                                        Maybe<
-                                            <Self as Heaped>::Heap,
-                                            <<Self as Heaped>::Heap as MapsTmf<
-                                                wmcaf::L,
+                                            tscaf::Nat,
+                                            Maybe<
+                                                <Self as Heaped>::Heap,
                                                 ParseMetadata<<Self as Heaped>::Heap>,
-                                            >>::Tmf,
+                                            >,
                                         >,
-                                    >>::Tmf,
+                                        ParseError<<Self as Heaped>::Heap>,
+                                    >,
                                 >,
-                            >>::Tmf,
-                            <<Self as Heaped>::Heap as MapsTmf<
-                                wmcaf::L,
-                                ParseError<<Self as Heaped>::Heap>,
-                            >>::Tmf,
+                                Maybe<
+                                    <Self as Heaped>::Heap,
+                                    ParseMetadata<<Self as Heaped>::Heap>,
+                                >,
+                            >,
+                            ParseError<<Self as Heaped>::Heap>,
                         >,
-                    >>::Tmf,
+                    >>::TmfTo,
                     (),
                 ),
             ) -> Self {
@@ -761,61 +521,31 @@ pub mod ccf_impls {
                     wmcaf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            Pair<
+                        Pair<
+                            <Self as Heaped>::Heap,
+                            Set<
                                 <Self as Heaped>::Heap,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    Set<
+                                Either<
+                                    <Self as Heaped>::Heap,
+                                    Pair<
                                         <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
-                                            Either<
-                                                <Self as Heaped>::Heap,
-                                                <<Self as Heaped>::Heap as MapsTmf<
-                                                    wmcaf::L,
-                                                    Pair<
-                                                        <Self as Heaped>::Heap,
-                                                        tscaf::Nat,
-                                                        <<Self as Heaped>::Heap as MapsTmf<
-                                                            wmcaf::L,
-                                                            Maybe<
-                                                                <Self as Heaped>::Heap,
-                                                                <<Self as Heaped>::Heap as MapsTmf<
-                                                                    wmcaf::L,
-                                                                    ParseMetadata<<Self as Heaped>::Heap>,
-                                                                >>::Tmf,
-                                                            >,
-                                                        >>::Tmf,
-                                                    >,
-                                                >>::Tmf,
-                                                <<Self as Heaped>::Heap as MapsTmf<
-                                                    wmcaf::L,
-                                                    ParseError<<Self as Heaped>::Heap>,
-                                                >>::Tmf,
-                                            >,
-                                        >>::Tmf,
-                                    >,
-                                >>::Tmf,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    Maybe<
-                                        <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
+                                        tscaf::Nat,
+                                        Maybe<
+                                            <Self as Heaped>::Heap,
                                             ParseMetadata<<Self as Heaped>::Heap>,
-                                        >>::Tmf,
+                                        >,
                                     >,
-                                >>::Tmf,
+                                    ParseError<<Self as Heaped>::Heap>,
+                                >,
                             >,
-                        >>::Tmf,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            ParseError<<Self as Heaped>::Heap>,
-                        >>::Tmf,
+                            Maybe<
+                                <Self as Heaped>::Heap,
+                                ParseMetadata<<Self as Heaped>::Heap>,
+                            >,
+                        >,
+                        ParseError<<Self as Heaped>::Heap>,
                     >,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ) {
                 (self.set, ())
@@ -843,32 +573,17 @@ pub mod ccf_impls {
                     wmcaf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            Pair<
+                        Pair<
+                            <Self as Heaped>::Heap,
+                            BoundedNat<<Self as Heaped>::Heap>,
+                            Maybe<
                                 <Self as Heaped>::Heap,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    BoundedNat<<Self as Heaped>::Heap>,
-                                >>::Tmf,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    Maybe<
-                                        <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
-                                            ParseMetadata<<Self as Heaped>::Heap>,
-                                        >>::Tmf,
-                                    >,
-                                >>::Tmf,
+                                ParseMetadata<<Self as Heaped>::Heap>,
                             >,
-                        >>::Tmf,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            ParseError<<Self as Heaped>::Heap>,
-                        >>::Tmf,
+                        >,
+                        ParseError<<Self as Heaped>::Heap>,
                     >,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ),
         > for tscaf::Nat {
@@ -879,32 +594,17 @@ pub mod ccf_impls {
                         wmcaf::L,
                         Either<
                             <Self as Heaped>::Heap,
-                            <<Self as Heaped>::Heap as MapsTmf<
-                                wmcaf::L,
-                                Pair<
+                            Pair<
+                                <Self as Heaped>::Heap,
+                                BoundedNat<<Self as Heaped>::Heap>,
+                                Maybe<
                                     <Self as Heaped>::Heap,
-                                    <<Self as Heaped>::Heap as MapsTmf<
-                                        wmcaf::L,
-                                        BoundedNat<<Self as Heaped>::Heap>,
-                                    >>::Tmf,
-                                    <<Self as Heaped>::Heap as MapsTmf<
-                                        wmcaf::L,
-                                        Maybe<
-                                            <Self as Heaped>::Heap,
-                                            <<Self as Heaped>::Heap as MapsTmf<
-                                                wmcaf::L,
-                                                ParseMetadata<<Self as Heaped>::Heap>,
-                                            >>::Tmf,
-                                        >,
-                                    >>::Tmf,
+                                    ParseMetadata<<Self as Heaped>::Heap>,
                                 >,
-                            >>::Tmf,
-                            <<Self as Heaped>::Heap as MapsTmf<
-                                wmcaf::L,
-                                ParseError<<Self as Heaped>::Heap>,
-                            >>::Tmf,
+                            >,
+                            ParseError<<Self as Heaped>::Heap>,
                         >,
-                    >>::Tmf,
+                    >>::TmfTo,
                     (),
                 ),
             ) -> Self {
@@ -924,32 +624,17 @@ pub mod ccf_impls {
                     wmcaf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            Pair<
+                        Pair<
+                            <Self as Heaped>::Heap,
+                            BoundedNat<<Self as Heaped>::Heap>,
+                            Maybe<
                                 <Self as Heaped>::Heap,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    BoundedNat<<Self as Heaped>::Heap>,
-                                >>::Tmf,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    Maybe<
-                                        <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
-                                            ParseMetadata<<Self as Heaped>::Heap>,
-                                        >>::Tmf,
-                                    >,
-                                >>::Tmf,
+                                ParseMetadata<<Self as Heaped>::Heap>,
                             >,
-                        >>::Tmf,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            ParseError<<Self as Heaped>::Heap>,
-                        >>::Tmf,
+                        >,
+                        ParseError<<Self as Heaped>::Heap>,
                     >,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ) {
                 match self {
@@ -966,61 +651,31 @@ pub mod ccf_impls {
                     wmcaf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            Pair<
+                        Pair<
+                            <Self as Heaped>::Heap,
+                            IdxBox<
                                 <Self as Heaped>::Heap,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    IdxBox<
+                                Either<
+                                    <Self as Heaped>::Heap,
+                                    Pair<
                                         <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
-                                            Either<
-                                                <Self as Heaped>::Heap,
-                                                <<Self as Heaped>::Heap as MapsTmf<
-                                                    wmcaf::L,
-                                                    Pair<
-                                                        <Self as Heaped>::Heap,
-                                                        tscaf::F,
-                                                        <<Self as Heaped>::Heap as MapsTmf<
-                                                            wmcaf::L,
-                                                            Maybe<
-                                                                <Self as Heaped>::Heap,
-                                                                <<Self as Heaped>::Heap as MapsTmf<
-                                                                    wmcaf::L,
-                                                                    ParseMetadata<<Self as Heaped>::Heap>,
-                                                                >>::Tmf,
-                                                            >,
-                                                        >>::Tmf,
-                                                    >,
-                                                >>::Tmf,
-                                                <<Self as Heaped>::Heap as MapsTmf<
-                                                    wmcaf::L,
-                                                    ParseError<<Self as Heaped>::Heap>,
-                                                >>::Tmf,
-                                            >,
-                                        >>::Tmf,
-                                    >,
-                                >>::Tmf,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    Maybe<
-                                        <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
+                                        tscaf::F,
+                                        Maybe<
+                                            <Self as Heaped>::Heap,
                                             ParseMetadata<<Self as Heaped>::Heap>,
-                                        >>::Tmf,
+                                        >,
                                     >,
-                                >>::Tmf,
+                                    ParseError<<Self as Heaped>::Heap>,
+                                >,
                             >,
-                        >>::Tmf,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            ParseError<<Self as Heaped>::Heap>,
-                        >>::Tmf,
+                            Maybe<
+                                <Self as Heaped>::Heap,
+                                ParseMetadata<<Self as Heaped>::Heap>,
+                            >,
+                        >,
+                        ParseError<<Self as Heaped>::Heap>,
                     >,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ),
         > for tscaf::Nat {
@@ -1031,61 +686,31 @@ pub mod ccf_impls {
                         wmcaf::L,
                         Either<
                             <Self as Heaped>::Heap,
-                            <<Self as Heaped>::Heap as MapsTmf<
-                                wmcaf::L,
-                                Pair<
+                            Pair<
+                                <Self as Heaped>::Heap,
+                                IdxBox<
                                     <Self as Heaped>::Heap,
-                                    <<Self as Heaped>::Heap as MapsTmf<
-                                        wmcaf::L,
-                                        IdxBox<
+                                    Either<
+                                        <Self as Heaped>::Heap,
+                                        Pair<
                                             <Self as Heaped>::Heap,
-                                            <<Self as Heaped>::Heap as MapsTmf<
-                                                wmcaf::L,
-                                                Either<
-                                                    <Self as Heaped>::Heap,
-                                                    <<Self as Heaped>::Heap as MapsTmf<
-                                                        wmcaf::L,
-                                                        Pair<
-                                                            <Self as Heaped>::Heap,
-                                                            tscaf::F,
-                                                            <<Self as Heaped>::Heap as MapsTmf<
-                                                                wmcaf::L,
-                                                                Maybe<
-                                                                    <Self as Heaped>::Heap,
-                                                                    <<Self as Heaped>::Heap as MapsTmf<
-                                                                        wmcaf::L,
-                                                                        ParseMetadata<<Self as Heaped>::Heap>,
-                                                                    >>::Tmf,
-                                                                >,
-                                                            >>::Tmf,
-                                                        >,
-                                                    >>::Tmf,
-                                                    <<Self as Heaped>::Heap as MapsTmf<
-                                                        wmcaf::L,
-                                                        ParseError<<Self as Heaped>::Heap>,
-                                                    >>::Tmf,
-                                                >,
-                                            >>::Tmf,
-                                        >,
-                                    >>::Tmf,
-                                    <<Self as Heaped>::Heap as MapsTmf<
-                                        wmcaf::L,
-                                        Maybe<
-                                            <Self as Heaped>::Heap,
-                                            <<Self as Heaped>::Heap as MapsTmf<
-                                                wmcaf::L,
+                                            tscaf::F,
+                                            Maybe<
+                                                <Self as Heaped>::Heap,
                                                 ParseMetadata<<Self as Heaped>::Heap>,
-                                            >>::Tmf,
+                                            >,
                                         >,
-                                    >>::Tmf,
+                                        ParseError<<Self as Heaped>::Heap>,
+                                    >,
                                 >,
-                            >>::Tmf,
-                            <<Self as Heaped>::Heap as MapsTmf<
-                                wmcaf::L,
-                                ParseError<<Self as Heaped>::Heap>,
-                            >>::Tmf,
+                                Maybe<
+                                    <Self as Heaped>::Heap,
+                                    ParseMetadata<<Self as Heaped>::Heap>,
+                                >,
+                            >,
+                            ParseError<<Self as Heaped>::Heap>,
                         >,
-                    >>::Tmf,
+                    >>::TmfTo,
                     (),
                 ),
             ) -> Self {
@@ -1105,61 +730,31 @@ pub mod ccf_impls {
                     wmcaf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            Pair<
+                        Pair<
+                            <Self as Heaped>::Heap,
+                            IdxBox<
                                 <Self as Heaped>::Heap,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    IdxBox<
+                                Either<
+                                    <Self as Heaped>::Heap,
+                                    Pair<
                                         <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
-                                            Either<
-                                                <Self as Heaped>::Heap,
-                                                <<Self as Heaped>::Heap as MapsTmf<
-                                                    wmcaf::L,
-                                                    Pair<
-                                                        <Self as Heaped>::Heap,
-                                                        tscaf::F,
-                                                        <<Self as Heaped>::Heap as MapsTmf<
-                                                            wmcaf::L,
-                                                            Maybe<
-                                                                <Self as Heaped>::Heap,
-                                                                <<Self as Heaped>::Heap as MapsTmf<
-                                                                    wmcaf::L,
-                                                                    ParseMetadata<<Self as Heaped>::Heap>,
-                                                                >>::Tmf,
-                                                            >,
-                                                        >>::Tmf,
-                                                    >,
-                                                >>::Tmf,
-                                                <<Self as Heaped>::Heap as MapsTmf<
-                                                    wmcaf::L,
-                                                    ParseError<<Self as Heaped>::Heap>,
-                                                >>::Tmf,
-                                            >,
-                                        >>::Tmf,
-                                    >,
-                                >>::Tmf,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    Maybe<
-                                        <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
+                                        tscaf::F,
+                                        Maybe<
+                                            <Self as Heaped>::Heap,
                                             ParseMetadata<<Self as Heaped>::Heap>,
-                                        >>::Tmf,
+                                        >,
                                     >,
-                                >>::Tmf,
+                                    ParseError<<Self as Heaped>::Heap>,
+                                >,
                             >,
-                        >>::Tmf,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            ParseError<<Self as Heaped>::Heap>,
-                        >>::Tmf,
+                            Maybe<
+                                <Self as Heaped>::Heap,
+                                ParseMetadata<<Self as Heaped>::Heap>,
+                            >,
+                        >,
+                        ParseError<<Self as Heaped>::Heap>,
                     >,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ) {
                 match self {
@@ -1176,61 +771,31 @@ pub mod ccf_impls {
                     wmcaf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            Pair<
+                        Pair<
+                            <Self as Heaped>::Heap,
+                            IdxBox<
                                 <Self as Heaped>::Heap,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    IdxBox<
+                                Either<
+                                    <Self as Heaped>::Heap,
+                                    Pair<
                                         <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
-                                            Either<
-                                                <Self as Heaped>::Heap,
-                                                <<Self as Heaped>::Heap as MapsTmf<
-                                                    wmcaf::L,
-                                                    Pair<
-                                                        <Self as Heaped>::Heap,
-                                                        tscaf::Plus,
-                                                        <<Self as Heaped>::Heap as MapsTmf<
-                                                            wmcaf::L,
-                                                            Maybe<
-                                                                <Self as Heaped>::Heap,
-                                                                <<Self as Heaped>::Heap as MapsTmf<
-                                                                    wmcaf::L,
-                                                                    ParseMetadata<<Self as Heaped>::Heap>,
-                                                                >>::Tmf,
-                                                            >,
-                                                        >>::Tmf,
-                                                    >,
-                                                >>::Tmf,
-                                                <<Self as Heaped>::Heap as MapsTmf<
-                                                    wmcaf::L,
-                                                    ParseError<<Self as Heaped>::Heap>,
-                                                >>::Tmf,
-                                            >,
-                                        >>::Tmf,
-                                    >,
-                                >>::Tmf,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    Maybe<
-                                        <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
+                                        tscaf::Plus,
+                                        Maybe<
+                                            <Self as Heaped>::Heap,
                                             ParseMetadata<<Self as Heaped>::Heap>,
-                                        >>::Tmf,
+                                        >,
                                     >,
-                                >>::Tmf,
+                                    ParseError<<Self as Heaped>::Heap>,
+                                >,
                             >,
-                        >>::Tmf,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            ParseError<<Self as Heaped>::Heap>,
-                        >>::Tmf,
+                            Maybe<
+                                <Self as Heaped>::Heap,
+                                ParseMetadata<<Self as Heaped>::Heap>,
+                            >,
+                        >,
+                        ParseError<<Self as Heaped>::Heap>,
                     >,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ),
         > for tscaf::Nat {
@@ -1241,61 +806,31 @@ pub mod ccf_impls {
                         wmcaf::L,
                         Either<
                             <Self as Heaped>::Heap,
-                            <<Self as Heaped>::Heap as MapsTmf<
-                                wmcaf::L,
-                                Pair<
+                            Pair<
+                                <Self as Heaped>::Heap,
+                                IdxBox<
                                     <Self as Heaped>::Heap,
-                                    <<Self as Heaped>::Heap as MapsTmf<
-                                        wmcaf::L,
-                                        IdxBox<
+                                    Either<
+                                        <Self as Heaped>::Heap,
+                                        Pair<
                                             <Self as Heaped>::Heap,
-                                            <<Self as Heaped>::Heap as MapsTmf<
-                                                wmcaf::L,
-                                                Either<
-                                                    <Self as Heaped>::Heap,
-                                                    <<Self as Heaped>::Heap as MapsTmf<
-                                                        wmcaf::L,
-                                                        Pair<
-                                                            <Self as Heaped>::Heap,
-                                                            tscaf::Plus,
-                                                            <<Self as Heaped>::Heap as MapsTmf<
-                                                                wmcaf::L,
-                                                                Maybe<
-                                                                    <Self as Heaped>::Heap,
-                                                                    <<Self as Heaped>::Heap as MapsTmf<
-                                                                        wmcaf::L,
-                                                                        ParseMetadata<<Self as Heaped>::Heap>,
-                                                                    >>::Tmf,
-                                                                >,
-                                                            >>::Tmf,
-                                                        >,
-                                                    >>::Tmf,
-                                                    <<Self as Heaped>::Heap as MapsTmf<
-                                                        wmcaf::L,
-                                                        ParseError<<Self as Heaped>::Heap>,
-                                                    >>::Tmf,
-                                                >,
-                                            >>::Tmf,
-                                        >,
-                                    >>::Tmf,
-                                    <<Self as Heaped>::Heap as MapsTmf<
-                                        wmcaf::L,
-                                        Maybe<
-                                            <Self as Heaped>::Heap,
-                                            <<Self as Heaped>::Heap as MapsTmf<
-                                                wmcaf::L,
+                                            tscaf::Plus,
+                                            Maybe<
+                                                <Self as Heaped>::Heap,
                                                 ParseMetadata<<Self as Heaped>::Heap>,
-                                            >>::Tmf,
+                                            >,
                                         >,
-                                    >>::Tmf,
+                                        ParseError<<Self as Heaped>::Heap>,
+                                    >,
                                 >,
-                            >>::Tmf,
-                            <<Self as Heaped>::Heap as MapsTmf<
-                                wmcaf::L,
-                                ParseError<<Self as Heaped>::Heap>,
-                            >>::Tmf,
+                                Maybe<
+                                    <Self as Heaped>::Heap,
+                                    ParseMetadata<<Self as Heaped>::Heap>,
+                                >,
+                            >,
+                            ParseError<<Self as Heaped>::Heap>,
                         >,
-                    >>::Tmf,
+                    >>::TmfTo,
                     (),
                 ),
             ) -> Self {
@@ -1315,61 +850,31 @@ pub mod ccf_impls {
                     wmcaf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            Pair<
+                        Pair<
+                            <Self as Heaped>::Heap,
+                            IdxBox<
                                 <Self as Heaped>::Heap,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    IdxBox<
+                                Either<
+                                    <Self as Heaped>::Heap,
+                                    Pair<
                                         <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
-                                            Either<
-                                                <Self as Heaped>::Heap,
-                                                <<Self as Heaped>::Heap as MapsTmf<
-                                                    wmcaf::L,
-                                                    Pair<
-                                                        <Self as Heaped>::Heap,
-                                                        tscaf::Plus,
-                                                        <<Self as Heaped>::Heap as MapsTmf<
-                                                            wmcaf::L,
-                                                            Maybe<
-                                                                <Self as Heaped>::Heap,
-                                                                <<Self as Heaped>::Heap as MapsTmf<
-                                                                    wmcaf::L,
-                                                                    ParseMetadata<<Self as Heaped>::Heap>,
-                                                                >>::Tmf,
-                                                            >,
-                                                        >>::Tmf,
-                                                    >,
-                                                >>::Tmf,
-                                                <<Self as Heaped>::Heap as MapsTmf<
-                                                    wmcaf::L,
-                                                    ParseError<<Self as Heaped>::Heap>,
-                                                >>::Tmf,
-                                            >,
-                                        >>::Tmf,
-                                    >,
-                                >>::Tmf,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    Maybe<
-                                        <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
+                                        tscaf::Plus,
+                                        Maybe<
+                                            <Self as Heaped>::Heap,
                                             ParseMetadata<<Self as Heaped>::Heap>,
-                                        >>::Tmf,
+                                        >,
                                     >,
-                                >>::Tmf,
+                                    ParseError<<Self as Heaped>::Heap>,
+                                >,
                             >,
-                        >>::Tmf,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            ParseError<<Self as Heaped>::Heap>,
-                        >>::Tmf,
+                            Maybe<
+                                <Self as Heaped>::Heap,
+                                ParseMetadata<<Self as Heaped>::Heap>,
+                            >,
+                        >,
+                        ParseError<<Self as Heaped>::Heap>,
                     >,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ) {
                 match self {
@@ -1386,29 +891,17 @@ pub mod ccf_impls {
                     wmcaf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            Pair<
+                        Pair<
+                            <Self as Heaped>::Heap,
+                            tscaf::Sum,
+                            Maybe<
                                 <Self as Heaped>::Heap,
-                                tscaf::Sum,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    Maybe<
-                                        <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
-                                            ParseMetadata<<Self as Heaped>::Heap>,
-                                        >>::Tmf,
-                                    >,
-                                >>::Tmf,
+                                ParseMetadata<<Self as Heaped>::Heap>,
                             >,
-                        >>::Tmf,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            ParseError<<Self as Heaped>::Heap>,
-                        >>::Tmf,
+                        >,
+                        ParseError<<Self as Heaped>::Heap>,
                     >,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ),
         > for tscaf::Nat {
@@ -1419,29 +912,17 @@ pub mod ccf_impls {
                         wmcaf::L,
                         Either<
                             <Self as Heaped>::Heap,
-                            <<Self as Heaped>::Heap as MapsTmf<
-                                wmcaf::L,
-                                Pair<
+                            Pair<
+                                <Self as Heaped>::Heap,
+                                tscaf::Sum,
+                                Maybe<
                                     <Self as Heaped>::Heap,
-                                    tscaf::Sum,
-                                    <<Self as Heaped>::Heap as MapsTmf<
-                                        wmcaf::L,
-                                        Maybe<
-                                            <Self as Heaped>::Heap,
-                                            <<Self as Heaped>::Heap as MapsTmf<
-                                                wmcaf::L,
-                                                ParseMetadata<<Self as Heaped>::Heap>,
-                                            >>::Tmf,
-                                        >,
-                                    >>::Tmf,
+                                    ParseMetadata<<Self as Heaped>::Heap>,
                                 >,
-                            >>::Tmf,
-                            <<Self as Heaped>::Heap as MapsTmf<
-                                wmcaf::L,
-                                ParseError<<Self as Heaped>::Heap>,
-                            >>::Tmf,
+                            >,
+                            ParseError<<Self as Heaped>::Heap>,
                         >,
-                    >>::Tmf,
+                    >>::TmfTo,
                     (),
                 ),
             ) -> Self {
@@ -1461,29 +942,17 @@ pub mod ccf_impls {
                     wmcaf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            Pair<
+                        Pair<
+                            <Self as Heaped>::Heap,
+                            tscaf::Sum,
+                            Maybe<
                                 <Self as Heaped>::Heap,
-                                tscaf::Sum,
-                                <<Self as Heaped>::Heap as MapsTmf<
-                                    wmcaf::L,
-                                    Maybe<
-                                        <Self as Heaped>::Heap,
-                                        <<Self as Heaped>::Heap as MapsTmf<
-                                            wmcaf::L,
-                                            ParseMetadata<<Self as Heaped>::Heap>,
-                                        >>::Tmf,
-                                    >,
-                                >>::Tmf,
+                                ParseMetadata<<Self as Heaped>::Heap>,
                             >,
-                        >>::Tmf,
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcaf::L,
-                            ParseError<<Self as Heaped>::Heap>,
-                        >>::Tmf,
+                        >,
+                        ParseError<<Self as Heaped>::Heap>,
                     >,
-                >>::Tmf,
+                >>::TmfTo,
                 (),
             ) {
                 match self {
@@ -5391,6 +4860,7 @@ pub mod maps_tmf_impls {
             (TmfMonomorphization, ()),
         >,
     {
-        type Tmf = TmfMonomorphization;
+        type TmfFrom = TmfMonomorphization;
+        type TmfTo = TmfMonomorphization;
     }
 }

@@ -67,7 +67,8 @@ pub(crate) fn gen_maps_tmf(
             where
                 TmfMonomorphization: ccf::CanonicallyConstructibleFrom<Self, (TmfMonomorphization, ())>
             {
-                type Tmf = TmfMonomorphization;
+                type TmfFrom = TmfMonomorphization;
+                type TmfTo = TmfMonomorphization;
             }
         }
     }

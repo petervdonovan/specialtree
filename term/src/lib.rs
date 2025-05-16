@@ -61,7 +61,8 @@ pub trait Heaped {
     type Heap;
 }
 pub trait MapsTmf<LWord, TmfMonomorphization>: Sized {
-    type Tmf: CanonicallyConstructibleFrom<Self, (TmfMonomorphization, ())>;
+    type TmfFrom;
+    type TmfTo: CanonicallyConstructibleFrom<Self, (Self::TmfFrom, ())>;
 }
 pub trait SuperHeap<SubHeap> {
     fn subheap<T>(&self) -> &SubHeap

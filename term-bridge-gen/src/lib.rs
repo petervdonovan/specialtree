@@ -132,7 +132,7 @@ pub(crate) fn generate_maps_tmf_impls<L: LangSpec>(
     sublang: &Sublang<SortIdOf<L>>,
     BasePaths {
         ext_data_structure,
-        og_term_trait: _,
+        og_term_trait,
         og_words_base_path,
     }: &BasePaths,
 ) -> syn::ItemMod {
@@ -141,25 +141,34 @@ pub(crate) fn generate_maps_tmf_impls<L: LangSpec>(
         .tems
         .iter()
         .map(|tmf| {
-            let ogty = ext_lg.sort2rs_ty(
-                tmf.from.clone(),
+            let ogty_shallow = ext_lg.sort2rs_ty(
+                tmf.fromshallow.clone(),
                 &HeapType(syn::parse_quote! {#ext_data_structure::Heap}),
-                &AlgebraicsBasePath::new(quote::quote! {#ext_data_structure::}),
+                &AlgebraicsBasePath::new(quote::quote! { #ext_data_structure:: }),
+            );
+            let ogty_rec = ext_lg.sort2rs_ty(
+                tmf.fromrec.clone(),
+                &HeapType(syn::parse_quote! {#ext_data_structure::Heap}),
+                &AlgebraicsBasePath::new(
+                    quote::quote! {<#ext_data_structure::Heap as #og_term_trait::Heap>::},
+                ),
             );
             let mapped_ty = ext_lg.sort2rs_ty(
                 tmf.to.clone(),
                 &HeapType(syn::parse_quote! {#ext_data_structure::Heap}),
                 &AlgebraicsBasePath::new(quote::quote! {#ext_data_structure::}),
             );
-            (ogty, mapped_ty)
+            ((ogty_shallow, ogty_rec), mapped_ty)
         })
         .unzip::<_, _, Vec<_>, Vec<_>>();
+    let (ogtys_shallow, ogtys_rec) = ogtys.into_iter().unzip::<_, _, Vec<_>, Vec<_>>();
     syn::parse_quote! {
         #byline
         pub mod maps_tmf_impls {
             #(
-                impl term::MapsTmf<#og_words_base_path::L, #ogtys> for #ext_data_structure::Heap {
-                    type Tmf = #mapped_tys;
+                impl term::MapsTmf<#og_words_base_path::L, #ogtys_rec> for #ext_data_structure::Heap {
+                    type TmfFrom = #ogtys_shallow;
+                    type TmfTo = #mapped_tys;
                 }
             )*
         }

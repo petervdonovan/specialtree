@@ -142,10 +142,10 @@ pub mod maps_tmf_impls {
     use std_parse_metadata::ParseMetadata;
     use std_parse_error::ParseError;
     use fib::words_mod_fib::L;
+    use fib::term_trait_fib::Heap;
     use crate::term_specialized_cst_autoboxed_fib as tscaf;
-    impl term::MapsTmf<
-        L,
-        Set<
+    impl term::MapsTmf<L, Set<tscaf::Heap, <tscaf::Heap as Heap>::Nat>> for tscaf::Heap {
+        type TmfFrom = Set<
             tscaf::Heap,
             Either<
                 tscaf::Heap,
@@ -156,9 +156,8 @@ pub mod maps_tmf_impls {
                 >,
                 ParseError<tscaf::Heap>,
             >,
-        >,
-    > for tscaf::Heap {
-        type Tmf = Either<
+        >;
+        type TmfTo = Either<
             tscaf::Heap,
             Pair<
                 tscaf::Heap,
@@ -180,7 +179,8 @@ pub mod maps_tmf_impls {
         >;
     }
     impl term::MapsTmf<L, BoundedNat<tscaf::Heap>> for tscaf::Heap {
-        type Tmf = Either<
+        type TmfFrom = BoundedNat<tscaf::Heap>;
+        type TmfTo = Either<
             tscaf::Heap,
             Pair<
                 tscaf::Heap,
