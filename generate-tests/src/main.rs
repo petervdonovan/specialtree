@@ -26,7 +26,7 @@ pub fn main() {
             id: "fib-parse".into(),
             provides: vec![
                 parse_gen::targets::default(&arena, root_cgd.subtree(), &fib),
-                has_own_sort_id_gen::targets::default(&arena, root_cgd.subtree(), fib_cst),
+                // has_own_sort_id_gen::targets::default(&arena, root_cgd.subtree(), fib_cst),
             ],
             global_workspace_deps: fib_deps.to_vec(),
         },

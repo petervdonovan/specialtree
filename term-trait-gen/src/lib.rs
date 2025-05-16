@@ -1,6 +1,7 @@
 use langspec::langspec::{LangSpec, SortId};
-use langspec_gen_util::HeapType;
+use langspec_gen_util::{HeapType, proc_macro2};
 use langspec_gen_util::{LsGen, byline, transpose};
+use quote::ToTokens;
 use syn::parse_quote;
 
 use langspec_gen_util::{AlgebraicsBasePath, CanonicallyConstructibleFromGenData, TyGenData};
@@ -33,12 +34,16 @@ pub(crate) fn heap_trait<L: LangSpec>(
     );
     let byline = byline!();
     let superheap_bounds = generate_superheap_bounds(ls);
-    let maps_tmf_bounds = generate_maps_tmf_bounds(words_path, ls);
+    let (maps_tmf_bounds, tmf_helper_types, _tmf_helper_type_impls) =
+        generate_maps_tmf_bounds(words_path, ls);
     parse_quote! {
         #byline
         pub trait Heap: Sized #(+ #maps_tmf_bounds)* #(+ #superheap_bounds)* {
             #(
                 type #camel_ident: #base_path::owned::#camel_ident<Self>;
+            )*
+            #(
+                #tmf_helper_types
             )*
         }
     }
@@ -68,20 +73,50 @@ fn generate_superheap_bounds<L: LangSpec>(ls: &LsGen<L>) -> Vec<syn::TraitBound>
 fn generate_maps_tmf_bounds<L: LangSpec>(
     words_path: &syn::Path,
     ls: &LsGen<L>,
-) -> impl Iterator<Item = syn::TraitBound> {
+) -> (
+    Vec<syn::TraitBound>,
+    Vec<syn::TraitItemType>,
+    Vec<syn::ImplItemType>,
+) {
     let mut bounds = vec![];
+    let mut helper_types = vec![];
+    let mut helper_type_impls = vec![];
     langspec::langspec::call_on_all_tmf_monomorphizations(ls.bak(), &mut |mt| {
-        let tmf = ls.sort2rs_ty(
+        // let tmf = ls.sort2rs_ty(
+        //     SortId::TyMetaFunc(mt.clone()),
+        //     &HeapType(syn::parse_quote! {Self}),
+        //     &AlgebraicsBasePath::new(quote::quote! {Self::}),
+        //     // words_path,
+        // );
+        let tmf = ls.sort2rs_ty_with_tmfmapped_args(
             SortId::TyMetaFunc(mt.clone()),
             &HeapType(syn::parse_quote! {Self}),
             &AlgebraicsBasePath::new(quote::quote! {Self::}),
-            // words_path,
+            words_path,
         );
+        let helper_type_name = tmf
+            .to_token_stream()
+            .into_iter()
+            .map(|it| it.to_string())
+            .filter(|it| it.chars().next().unwrap().is_uppercase())
+            .filter(|it| it.chars().all(|char| char.is_alphanumeric() || char == '_'))
+            .filter(|it| it != "Heap" && it != "Self")
+            .fold(String::new(), |acc, next| acc + &next);
+        let helper_type_name = syn::Ident::new(&helper_type_name, proc_macro2::Span::call_site());
+        helper_types.push(syn::parse_quote! {
+            type #helper_type_name: type_equals::TypeEquals<Other = #tmf>;
+        });
+        helper_type_impls.push(syn::parse_quote! {
+            type #helper_type_name = #tmf;
+        });
         bounds.push(syn::parse_quote! {
-            term::MapsTmf<#words_path::L, #tmf>
+            term::MapsTmf<#words_path::L, Self::#helper_type_name>
         });
     });
-    bounds.into_iter()
+    bounds.sort_by_cached_key(|s: &syn::TraitBound| {
+        -(s.to_token_stream().into_iter().count() as isize)
+    });
+    (bounds, helper_types, helper_type_impls)
 }
 
 mod owned {

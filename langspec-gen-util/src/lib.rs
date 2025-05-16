@@ -464,7 +464,8 @@ impl<L: LangSpec> LsGen<'_, L> {
                 syn::parse_quote! { #abp #ident }
             }
             SortId::TyMetaFunc(_) => {
-                let rs_ty = self.sort2rs_ty(sort.clone(), ht, abp); //self.sort2rs_ty_with_tmfmapped_args(sort.clone(), ht, abp, words_path);
+                // let rs_ty = self.sort2rs_ty(sort.clone(), ht, abp);
+                let rs_ty = self.sort2rs_ty_with_tmfmapped_args(sort.clone(), ht, abp, words_path);
                 let ht = &ht.0;
                 let ret = quote::quote! {<#ht as term::MapsTmf<#words_path::L, #rs_ty>>::Tmf};
                 syn::parse_quote! { #ret }

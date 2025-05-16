@@ -190,24 +190,24 @@ pub mod targets {
                         l,
                     ));
                 let cst = super::cst(arena, arena.alloc(super::autobox(l)));
-                let _ =
-                    codegen_deps.add(term_pattern_match_strategy_provider_gen::targets::default(
-                        arena,
-                        codegen_deps.subtree(),
-                        cst,
-                    ));
-                let _ = codegen_deps.add(
-                    term_pattern_match_strategy_provider_impl_gen::targets::default(
-                        arena,
-                        codegen_deps.subtree(),
-                        cst,
-                    ),
-                );
-                let cst_data_structure = codegen_deps.add(term_specialized_gen::targets::default(
-                    arena,
-                    codegen_deps.subtree(),
-                    cst,
-                ));
+                // let _ =
+                //     codegen_deps.add(term_pattern_match_strategy_provider_gen::targets::default(
+                //         arena,
+                //         codegen_deps.subtree(),
+                //         cst,
+                //     ));
+                // let _ = codegen_deps.add(
+                //     term_pattern_match_strategy_provider_impl_gen::targets::default(
+                //         arena,
+                //         codegen_deps.subtree(),
+                //         cst,
+                //     ),
+                // );
+                // let cst_data_structure = codegen_deps.add(term_specialized_gen::targets::default(
+                //     arena,
+                //     codegen_deps.subtree(),
+                //     cst,
+                // ));
                 let cst_term_trait = codegen_deps.add(term_trait_gen::targets::default(
                     arena,
                     codegen_deps.subtree(),
@@ -218,28 +218,29 @@ pub mod targets {
                     codegen_deps.subtree(),
                     cst,
                 ));
-                let _ = codegen_deps.add(term_bridge_gen::targets::default(
-                    arena,
-                    codegen_deps.subtree(),
-                    cst,
-                    l,
-                ));
+                // let _ = codegen_deps.add(term_bridge_gen::targets::default(
+                //     arena,
+                //     codegen_deps.subtree(),
+                //     cst,
+                //     l,
+                // ));
                 // let _ = codegen_deps.add(term_pattern_match_strategy_provider_impl_gen::targets::uses_strategy_for_traversal_impls(arena, codegen_deps.subtree(), cst, &[cst.name().clone(), l.name().clone()]));
                 Box::new(move |c2sp, sp| {
                     let lg = super::LsGen::from(l);
-                    super::generate(
-                        &crate::BasePaths {
-                            data_structure: data_structure(c2sp),
-                            words: words(c2sp),
-                            parse: sp,
-                            term_trait: term_trait(c2sp),
-                            pattern_match_strategy: pattern_match_strategy(c2sp),
-                            cst_data_structure: cst_data_structure(c2sp),
-                            cst_term_trait: cst_term_trait(c2sp),
-                            cst_words: cst_words(c2sp),
-                        },
-                        &lg,
-                    )
+                    // super::generate(
+                    //     &crate::BasePaths {
+                    //         data_structure: data_structure(c2sp),
+                    //         words: words(c2sp),
+                    //         parse: sp,
+                    //         term_trait: term_trait(c2sp),
+                    //         pattern_match_strategy: pattern_match_strategy(c2sp),
+                    //         cst_data_structure: cst_data_structure(c2sp),
+                    //         cst_term_trait: cst_term_trait(c2sp),
+                    //         cst_words: cst_words(c2sp),
+                    //     },
+                    //     &lg,
+                    // )
+                    syn::parse_quote! {pub mod temp {}}
                 })
             },
             external_deps: vec!["typenum"],
