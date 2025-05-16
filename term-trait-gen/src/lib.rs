@@ -13,13 +13,14 @@ pub fn generate<L: LangSpec>(
 ) -> syn::ItemMod {
     let lg = LsGen::from(ls);
     let owned = owned::generate(base_path, words_path, &lg);
-    let heap_trait = heap_trait(base_path, words_path, &lg);
+    let (helpers, heap_trait) = heap_trait(base_path, words_path, &lg);
     let byline = byline!();
     parse_quote!(
         #byline
         pub mod term_trait {
             #heap_trait
             #owned
+            #helpers
         }
     )
 }
@@ -27,26 +28,35 @@ pub(crate) fn heap_trait<L: LangSpec>(
     base_path: &syn::Path,
     words_path: &syn::Path,
     ls: &LsGen<L>,
-) -> syn::ItemTrait {
+) -> (syn::ItemMod, syn::ItemTrait) {
     transpose!(
         ls.ty_gen_datas(Some(syn::parse_quote! {#words_path})),
         camel_ident
     );
     let byline = byline!();
     let superheap_bounds = generate_superheap_bounds(ls);
-    let (maps_tmf_bounds, tmf_helper_types, _tmf_helper_type_impls) =
-        generate_maps_tmf_bounds(words_path, ls);
-    parse_quote! {
-        #byline
-        pub trait Heap: Sized #(+ #maps_tmf_bounds)* #(+ #superheap_bounds)* {
-            #(
-                type #camel_ident: #base_path::owned::#camel_ident<Self>;
-            )*
-            #(
-                #tmf_helper_types
-            )*
-        }
-    }
+    let (maps_tmf_bounds, helper_traits, helper_impls) =
+        generate_maps_tmf_bounds(words_path, ls, camel_ident.as_slice());
+    (
+        parse_quote! {
+            pub mod helpers {
+                #(
+                    #helper_traits
+                )*
+                #(
+                    #helper_impls
+                )*
+            }
+        },
+        parse_quote! {
+            #byline
+            pub trait Heap: Sized #(+ #maps_tmf_bounds)* #(+ #superheap_bounds)* {
+                #(
+                    type #camel_ident: #base_path::owned::#camel_ident<Self>;
+                )*
+            }
+        },
+    )
 }
 
 fn generate_superheap_bounds<L: LangSpec>(ls: &LsGen<L>) -> Vec<syn::TraitBound> {
@@ -73,14 +83,13 @@ fn generate_superheap_bounds<L: LangSpec>(ls: &LsGen<L>) -> Vec<syn::TraitBound>
 fn generate_maps_tmf_bounds<L: LangSpec>(
     words_path: &syn::Path,
     ls: &LsGen<L>,
+    camel_ident: &[syn::Ident],
 ) -> (
     Vec<syn::TraitBound>,
-    Vec<syn::TraitItemType>,
-    Vec<syn::ImplItemType>,
+    Vec<syn::ItemTrait>,
+    Vec<syn::ItemImpl>,
 ) {
-    let mut bounds = vec![];
-    let mut helper_types = vec![];
-    let mut helper_type_impls = vec![];
+    let mut helper_type_info: Vec<(syn::Ident, syn::Type)> = vec![];
     langspec::langspec::call_on_all_tmf_monomorphizations(ls.bak(), &mut |mt| {
         // let tmf = ls.sort2rs_ty(
         //     SortId::TyMetaFunc(mt.clone()),
@@ -91,7 +100,7 @@ fn generate_maps_tmf_bounds<L: LangSpec>(
         let tmf = ls.sort2rs_ty_with_tmfmapped_args(
             SortId::TyMetaFunc(mt.clone()),
             &HeapType(syn::parse_quote! {Self}),
-            &AlgebraicsBasePath::new(quote::quote! {Self::}),
+            &AlgebraicsBasePath::new(quote::quote! {}),
             words_path,
         );
         let helper_type_name = tmf
@@ -101,22 +110,58 @@ fn generate_maps_tmf_bounds<L: LangSpec>(
             .filter(|it| it.chars().next().unwrap().is_uppercase())
             .filter(|it| it.chars().all(|char| char.is_alphanumeric() || char == '_'))
             .filter(|it| it != "Heap" && it != "Self")
-            .fold(String::new(), |acc, next| acc + &next);
+            .fold("Helper2161132b5c2a0c".to_string(), |acc, next| acc + &next);
         let helper_type_name = syn::Ident::new(&helper_type_name, proc_macro2::Span::call_site());
-        helper_types.push(syn::parse_quote! {
-            type #helper_type_name: type_equals::TypeEquals<Other = #tmf>;
-        });
-        helper_type_impls.push(syn::parse_quote! {
-            type #helper_type_name = #tmf;
-        });
-        bounds.push(syn::parse_quote! {
-            term::MapsTmf<#words_path::L, Self::#helper_type_name>
-        });
+        helper_type_info.push((helper_type_name, tmf));
+        // helper_types.push(syn::parse_quote! {
+        //     type #helper_type_name: type_equals::TypeEquals<Other = #tmf>;
+        // });
+        // helper_type_impls.push(syn::parse_quote! {
+        //     type #helper_type_name = #tmf;
+        // });
+        // bounds.push(syn::parse_quote! {
+        //     term::MapsTmf<#words_path::L, Self::#helper_type_name>
+        // });
     });
-    bounds.sort_by_cached_key(|s: &syn::TraitBound| {
-        -(s.to_token_stream().into_iter().count() as isize)
-    });
-    (bounds, helper_types, helper_type_impls)
+    helper_type_info.sort_by_key(|it| it.0.to_string().len());
+    // helper_traits_with_bounds = helper_type_info.windows(2).map(|window| {
+    //     syn::parse_quote! {
+    //         pub trait #trait_name: #previous_trait_name
+    //     }
+    // });
+    let mut previous_trait: Option<syn::Ident> = None;
+    let mut helper_traits = vec![];
+    let mut helper_impls = vec![];
+    for (trait_name, ty) in helper_type_info.into_iter() {
+        let bound: syn::TraitBound = syn::parse_quote! {
+            term::MapsTmf<#words_path::L, #ty>
+        };
+        match previous_trait {
+            Some(ptn) => {
+                helper_traits.push(syn::parse_quote! {
+                    pub trait #trait_name<#(#camel_ident),*>: #ptn<#(#camel_ident),*> + #bound {}
+                });
+                helper_impls.push(syn::parse_quote! {
+                    impl<T #(, #camel_ident)*> #trait_name<#(#camel_ident),*> for T where T: #ptn<#(#camel_ident),*> + #bound {}
+                });
+            }
+            None => {
+                helper_traits.push(syn::parse_quote! {
+                    pub trait #trait_name<#(#camel_ident),*>: #bound {}
+                });
+                helper_impls.push(syn::parse_quote! {
+                    impl<T #(, #camel_ident)*> #trait_name<#(#camel_ident),*> for T where T: #bound {}
+                });
+            }
+        }
+        previous_trait = Some(trait_name)
+    }
+    let bounds = if let Some(trait_name) = previous_trait {
+        vec![syn::parse_quote! { helpers::#trait_name<#(Self::#camel_ident),*> }]
+    } else {
+        vec![]
+    };
+    (bounds, helper_traits, helper_impls)
 }
 
 mod owned {
