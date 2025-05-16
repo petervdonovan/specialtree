@@ -32,7 +32,7 @@ pub(crate) fn heap_trait<L: LangSpec>(
         camel_ident
     );
     let byline = byline!();
-    let superheap_bounds = generate_superheap_bounds(ls);
+    let superheap_bounds = generate_superheap_bounds(ls, words_path);
     let maps_tmf_bounds = generate_maps_tmf_bounds(words_path, ls);
     parse_quote! {
         #byline
@@ -44,7 +44,10 @@ pub(crate) fn heap_trait<L: LangSpec>(
     }
 }
 
-fn generate_superheap_bounds<L: LangSpec>(ls: &LsGen<L>) -> Vec<syn::TraitBound> {
+fn generate_superheap_bounds<L: LangSpec>(
+    ls: &LsGen<L>,
+    words_path: &syn::Path,
+) -> Vec<syn::TraitBound> {
     ls.heapbak_gen_datas()
         .iter()
         .map(|hgd| -> syn::Type {
@@ -52,6 +55,7 @@ fn generate_superheap_bounds<L: LangSpec>(ls: &LsGen<L>) -> Vec<syn::TraitBound>
             let args = (hgd.ty_args)(
                 HeapType(syn::parse_quote! {Self}),
                 AlgebraicsBasePath::new(quote::quote! {Self::}),
+                Some(words_path),
             );
             syn::parse_quote! {
                 #ty_func<Self, #(#args),*>

@@ -85,7 +85,7 @@ pub fn gen_heap<L: LangSpec>(
     let superheap_impls = hgd.iter().map(|hgd| {
         let ty_func = &hgd.ty_func.ty_func;
         let identifiers = &hgd.identifiers;
-        let ty_args = (hgd.ty_args)(HeapType(syn::parse_quote!{#base_path::Heap}), abp.clone());
+        let ty_args = (hgd.ty_args)(HeapType(syn::parse_quote!{#base_path::Heap}), abp.clone(), None);
         quote::quote! {
             term::impl_superheap!(#base_path::Heap ; #ty_func<#base_path::Heap, #(#ty_args),*> ; #(#identifiers)*);
         }
@@ -115,8 +115,11 @@ pub(crate) fn gen_heapbak_module(
 ) -> (Vec<syn::Ident>, syn::Item) {
     let byline = byline!();
     let heapbak_ty_func = &hgd.ty_func.ty_func;
-    let heapbak_ty_args =
-        (hgd.ty_args)(HeapType(syn::parse_quote! {#heap_path::Heap}), abp.clone());
+    let heapbak_ty_args = (hgd.ty_args)(
+        HeapType(syn::parse_quote! {#heap_path::Heap}),
+        abp.clone(),
+        None,
+    );
     let ts = quote::quote! {
         #[derive(Default)]
         pub struct Bak(pub #heapbak_ty_func<#heap_path::Heap, #(#heapbak_ty_args),*>);

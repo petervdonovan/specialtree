@@ -67,6 +67,9 @@ macro_rules! transpose {
     };
 }
 
+type HgdTyArgs<'a> =
+    Box<dyn Fn(HeapType, AlgebraicsBasePath, Option<&syn::Path>) -> Vec<syn::Type> + 'a>;
+
 pub struct TyGenData<'a, L: LangSpec> {
     pub id: Option<AlgebraicSortId<L::ProductId, L::SumId>>,
     pub snake_ident: syn::Ident,
@@ -79,7 +82,7 @@ pub struct HeapbakGenData<'a> {
     pub identifiers: Vec<syn::Ident>,
     pub ty_func: RustTyMap,
     pub ty_arg_camels: Vec<syn::Ident>,
-    pub ty_args: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
+    pub ty_args: HgdTyArgs<'a>,
 }
 // pub struct CanonicallyMaybeToGenData<'a> {
 //     pub cmt_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
@@ -412,9 +415,14 @@ impl<L: LangSpec> LsGen<'_, L> {
                 ty_arg_camels,
                 ty_args: Box::new({
                     let a = mt.a.clone();
-                    move |ht, abp| {
+                    move |ht, abp, words_path| {
                         a.iter()
-                            .map(|arg| self.sort2rs_ty(arg.clone(), &ht, &abp))
+                            .map(|arg| match words_path {
+                                Some(words_path) => {
+                                    self.sort2tmfmapped_rs_ty(arg.clone(), &ht, &abp, words_path)
+                                }
+                                None => self.sort2rs_ty(arg.clone(), &ht, &abp),
+                            })
                             .collect()
                     }
                 }),

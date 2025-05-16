@@ -44,9 +44,18 @@ pub trait Heap: Sized + MapsTmf<
     > + SuperHeap<
         OrVariableHeapBak<Self, Self::Nat>,
     > + SuperHeap<
-        OrVariableHeapBak<Self, Set<Self, OrVariableZeroOrMore<Self, Self::Nat>>>,
+        OrVariableHeapBak<
+            Self,
+            <Self as MapsTmf<
+                wmpf::L,
+                Set<Self, OrVariableZeroOrMore<Self, Self::Nat>>,
+            >>::TmfTo,
+        >,
     > + SuperHeap<
-        SetHeapBak<Self, OrVariableZeroOrMore<Self, Self::Nat>>,
+        SetHeapBak<
+            Self,
+            <Self as MapsTmf<wmpf::L, OrVariableZeroOrMore<Self, Self::Nat>>>::TmfTo,
+        >,
     > + SuperHeap<
         OrVariableZeroOrMoreHeapBak<Self, Self::Nat>,
     > + SuperHeap<BoundedNatHeapBak<Self>> {

@@ -416,35 +416,48 @@ pub trait Heap: Sized + MapsTmf<
     > + SuperHeap<
         EitherHeapBak<
             Self,
-            OrVariable<
-                Self,
+            <Self as MapsTmf<
+                wmcapf::L,
+                OrVariable<
+                    Self,
+                    Either<
+                        Self,
+                        Pair<Self, Self::LeftOperand, Maybe<Self, ParseMetadata<Self>>>,
+                        ParseError<Self>,
+                    >,
+                >,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcapf::L, ParseError<Self>>>::TmfTo,
+        >,
+    > + SuperHeap<
+        OrVariableHeapBak<
+            Self,
+            <Self as MapsTmf<
+                wmcapf::L,
                 Either<
                     Self,
                     Pair<Self, Self::LeftOperand, Maybe<Self, ParseMetadata<Self>>>,
                     ParseError<Self>,
                 >,
-            >,
-            ParseError<Self>,
-        >,
-    > + SuperHeap<
-        OrVariableHeapBak<
-            Self,
-            Either<
-                Self,
-                Pair<Self, Self::LeftOperand, Maybe<Self, ParseMetadata<Self>>>,
-                ParseError<Self>,
-            >,
+            >>::TmfTo,
         >,
     > + SuperHeap<
         EitherHeapBak<
             Self,
-            Pair<Self, Self::LeftOperand, Maybe<Self, ParseMetadata<Self>>>,
-            ParseError<Self>,
+            <Self as MapsTmf<
+                wmcapf::L,
+                Pair<Self, Self::LeftOperand, Maybe<Self, ParseMetadata<Self>>>,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcapf::L, ParseError<Self>>>::TmfTo,
         >,
     > + SuperHeap<
-        PairHeapBak<Self, Self::LeftOperand, Maybe<Self, ParseMetadata<Self>>>,
+        PairHeapBak<
+            Self,
+            Self::LeftOperand,
+            <Self as MapsTmf<wmcapf::L, Maybe<Self, ParseMetadata<Self>>>>::TmfTo,
+        >,
     > + SuperHeap<
-        MaybeHeapBak<Self, ParseMetadata<Self>>,
+        MaybeHeapBak<Self, <Self as MapsTmf<wmcapf::L, ParseMetadata<Self>>>::TmfTo>,
     > + SuperHeap<
         ParseMetadataBak<Self>,
     > + SuperHeap<
@@ -452,68 +465,128 @@ pub trait Heap: Sized + MapsTmf<
     > + SuperHeap<
         EitherHeapBak<
             Self,
-            OrVariable<
-                Self,
+            <Self as MapsTmf<
+                wmcapf::L,
+                OrVariable<
+                    Self,
+                    Either<
+                        Self,
+                        Pair<Self, Self::RightOperand, Maybe<Self, ParseMetadata<Self>>>,
+                        ParseError<Self>,
+                    >,
+                >,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcapf::L, ParseError<Self>>>::TmfTo,
+        >,
+    > + SuperHeap<
+        OrVariableHeapBak<
+            Self,
+            <Self as MapsTmf<
+                wmcapf::L,
                 Either<
                     Self,
                     Pair<Self, Self::RightOperand, Maybe<Self, ParseMetadata<Self>>>,
                     ParseError<Self>,
                 >,
-            >,
-            ParseError<Self>,
+            >>::TmfTo,
+        >,
+    > + SuperHeap<
+        EitherHeapBak<
+            Self,
+            <Self as MapsTmf<
+                wmcapf::L,
+                Pair<Self, Self::RightOperand, Maybe<Self, ParseMetadata<Self>>>,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcapf::L, ParseError<Self>>>::TmfTo,
+        >,
+    > + SuperHeap<
+        PairHeapBak<
+            Self,
+            Self::RightOperand,
+            <Self as MapsTmf<wmcapf::L, Maybe<Self, ParseMetadata<Self>>>>::TmfTo,
+        >,
+    > + SuperHeap<
+        EitherHeapBak<
+            Self,
+            <Self as MapsTmf<
+                wmcapf::L,
+                OrVariable<
+                    Self,
+                    Either<
+                        Self,
+                        Pair<Self, Self::Nat, Maybe<Self, ParseMetadata<Self>>>,
+                        ParseError<Self>,
+                    >,
+                >,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcapf::L, ParseError<Self>>>::TmfTo,
         >,
     > + SuperHeap<
         OrVariableHeapBak<
             Self,
-            Either<
-                Self,
-                Pair<Self, Self::RightOperand, Maybe<Self, ParseMetadata<Self>>>,
-                ParseError<Self>,
-            >,
-        >,
-    > + SuperHeap<
-        EitherHeapBak<
-            Self,
-            Pair<Self, Self::RightOperand, Maybe<Self, ParseMetadata<Self>>>,
-            ParseError<Self>,
-        >,
-    > + SuperHeap<
-        PairHeapBak<Self, Self::RightOperand, Maybe<Self, ParseMetadata<Self>>>,
-    > + SuperHeap<
-        EitherHeapBak<
-            Self,
-            OrVariable<
-                Self,
+            <Self as MapsTmf<
+                wmcapf::L,
                 Either<
                     Self,
                     Pair<Self, Self::Nat, Maybe<Self, ParseMetadata<Self>>>,
                     ParseError<Self>,
                 >,
-            >,
-            ParseError<Self>,
+            >>::TmfTo,
+        >,
+    > + SuperHeap<
+        EitherHeapBak<
+            Self,
+            <Self as MapsTmf<
+                wmcapf::L,
+                Pair<Self, Self::Nat, Maybe<Self, ParseMetadata<Self>>>,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcapf::L, ParseError<Self>>>::TmfTo,
+        >,
+    > + SuperHeap<
+        PairHeapBak<
+            Self,
+            Self::Nat,
+            <Self as MapsTmf<wmcapf::L, Maybe<Self, ParseMetadata<Self>>>>::TmfTo,
+        >,
+    > + SuperHeap<
+        EitherHeapBak<
+            Self,
+            <Self as MapsTmf<
+                wmcapf::L,
+                OrVariable<
+                    Self,
+                    Either<
+                        Self,
+                        Pair<
+                            Self,
+                            Set<
+                                Self,
+                                Either<
+                                    Self,
+                                    OrVariableZeroOrMore<
+                                        Self,
+                                        Either<
+                                            Self,
+                                            Pair<Self, Self::Nat, Maybe<Self, ParseMetadata<Self>>>,
+                                            ParseError<Self>,
+                                        >,
+                                    >,
+                                    ParseError<Self>,
+                                >,
+                            >,
+                            Maybe<Self, ParseMetadata<Self>>,
+                        >,
+                        ParseError<Self>,
+                    >,
+                >,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcapf::L, ParseError<Self>>>::TmfTo,
         >,
     > + SuperHeap<
         OrVariableHeapBak<
             Self,
-            Either<
-                Self,
-                Pair<Self, Self::Nat, Maybe<Self, ParseMetadata<Self>>>,
-                ParseError<Self>,
-            >,
-        >,
-    > + SuperHeap<
-        EitherHeapBak<
-            Self,
-            Pair<Self, Self::Nat, Maybe<Self, ParseMetadata<Self>>>,
-            ParseError<Self>,
-        >,
-    > + SuperHeap<
-        PairHeapBak<Self, Self::Nat, Maybe<Self, ParseMetadata<Self>>>,
-    > + SuperHeap<
-        EitherHeapBak<
-            Self,
-            OrVariable<
-                Self,
+            <Self as MapsTmf<
+                wmcapf::L,
                 Either<
                     Self,
                     Pair<
@@ -537,14 +610,13 @@ pub trait Heap: Sized + MapsTmf<
                     >,
                     ParseError<Self>,
                 >,
-            >,
-            ParseError<Self>,
+            >>::TmfTo,
         >,
     > + SuperHeap<
-        OrVariableHeapBak<
+        EitherHeapBak<
             Self,
-            Either<
-                Self,
+            <Self as MapsTmf<
+                wmcapf::L,
                 Pair<
                     Self,
                     Set<
@@ -564,14 +636,14 @@ pub trait Heap: Sized + MapsTmf<
                     >,
                     Maybe<Self, ParseMetadata<Self>>,
                 >,
-                ParseError<Self>,
-            >,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcapf::L, ParseError<Self>>>::TmfTo,
         >,
     > + SuperHeap<
-        EitherHeapBak<
+        PairHeapBak<
             Self,
-            Pair<
-                Self,
+            <Self as MapsTmf<
+                wmcapf::L,
                 Set<
                     Self,
                     Either<
@@ -587,15 +659,14 @@ pub trait Heap: Sized + MapsTmf<
                         ParseError<Self>,
                     >,
                 >,
-                Maybe<Self, ParseMetadata<Self>>,
-            >,
-            ParseError<Self>,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcapf::L, Maybe<Self, ParseMetadata<Self>>>>::TmfTo,
         >,
     > + SuperHeap<
-        PairHeapBak<
+        SetHeapBak<
             Self,
-            Set<
-                Self,
+            <Self as MapsTmf<
+                wmcapf::L,
                 Either<
                     Self,
                     OrVariableZeroOrMore<
@@ -608,14 +679,13 @@ pub trait Heap: Sized + MapsTmf<
                     >,
                     ParseError<Self>,
                 >,
-            >,
-            Maybe<Self, ParseMetadata<Self>>,
+            >>::TmfTo,
         >,
     > + SuperHeap<
-        SetHeapBak<
+        EitherHeapBak<
             Self,
-            Either<
-                Self,
+            <Self as MapsTmf<
+                wmcapf::L,
                 OrVariableZeroOrMore<
                     Self,
                     Either<
@@ -624,46 +694,63 @@ pub trait Heap: Sized + MapsTmf<
                         ParseError<Self>,
                     >,
                 >,
-                ParseError<Self>,
-            >,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcapf::L, ParseError<Self>>>::TmfTo,
         >,
     > + SuperHeap<
-        EitherHeapBak<
+        OrVariableZeroOrMoreHeapBak<
             Self,
-            OrVariableZeroOrMore<
-                Self,
+            <Self as MapsTmf<
+                wmcapf::L,
                 Either<
                     Self,
                     Pair<Self, Self::Nat, Maybe<Self, ParseMetadata<Self>>>,
                     ParseError<Self>,
                 >,
-            >,
-            ParseError<Self>,
-        >,
-    > + SuperHeap<
-        OrVariableZeroOrMoreHeapBak<
-            Self,
-            Either<
-                Self,
-                Pair<Self, Self::Nat, Maybe<Self, ParseMetadata<Self>>>,
-                ParseError<Self>,
-            >,
+            >>::TmfTo,
         >,
     > + SuperHeap<
         EitherHeapBak<
             Self,
-            Pair<Self, BoundedNat<Self>, Maybe<Self, ParseMetadata<Self>>>,
-            ParseError<Self>,
+            <Self as MapsTmf<
+                wmcapf::L,
+                Pair<Self, BoundedNat<Self>, Maybe<Self, ParseMetadata<Self>>>,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcapf::L, ParseError<Self>>>::TmfTo,
         >,
     > + SuperHeap<
-        PairHeapBak<Self, BoundedNat<Self>, Maybe<Self, ParseMetadata<Self>>>,
+        PairHeapBak<
+            Self,
+            <Self as MapsTmf<wmcapf::L, BoundedNat<Self>>>::TmfTo,
+            <Self as MapsTmf<wmcapf::L, Maybe<Self, ParseMetadata<Self>>>>::TmfTo,
+        >,
     > + SuperHeap<
         BoundedNatHeapBak<Self>,
     > + SuperHeap<
         EitherHeapBak<
             Self,
-            Pair<
-                Self,
+            <Self as MapsTmf<
+                wmcapf::L,
+                Pair<
+                    Self,
+                    IdxBox<
+                        Self,
+                        Either<
+                            Self,
+                            Pair<Self, Self::F, Maybe<Self, ParseMetadata<Self>>>,
+                            ParseError<Self>,
+                        >,
+                    >,
+                    Maybe<Self, ParseMetadata<Self>>,
+                >,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcapf::L, ParseError<Self>>>::TmfTo,
+        >,
+    > + SuperHeap<
+        PairHeapBak<
+            Self,
+            <Self as MapsTmf<
+                wmcapf::L,
                 IdxBox<
                     Self,
                     Either<
@@ -672,45 +759,61 @@ pub trait Heap: Sized + MapsTmf<
                         ParseError<Self>,
                     >,
                 >,
-                Maybe<Self, ParseMetadata<Self>>,
-            >,
-            ParseError<Self>,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcapf::L, Maybe<Self, ParseMetadata<Self>>>>::TmfTo,
         >,
     > + SuperHeap<
-        PairHeapBak<
+        IdxBoxHeapBak<
             Self,
-            IdxBox<
-                Self,
+            <Self as MapsTmf<
+                wmcapf::L,
                 Either<
                     Self,
                     Pair<Self, Self::F, Maybe<Self, ParseMetadata<Self>>>,
                     ParseError<Self>,
                 >,
-            >,
-            Maybe<Self, ParseMetadata<Self>>,
+            >>::TmfTo,
         >,
     > + SuperHeap<
-        IdxBoxHeapBak<
+        EitherHeapBak<
             Self,
-            Either<
-                Self,
+            <Self as MapsTmf<
+                wmcapf::L,
                 Pair<Self, Self::F, Maybe<Self, ParseMetadata<Self>>>,
-                ParseError<Self>,
-            >,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcapf::L, ParseError<Self>>>::TmfTo,
+        >,
+    > + SuperHeap<
+        PairHeapBak<
+            Self,
+            Self::F,
+            <Self as MapsTmf<wmcapf::L, Maybe<Self, ParseMetadata<Self>>>>::TmfTo,
         >,
     > + SuperHeap<
         EitherHeapBak<
             Self,
-            Pair<Self, Self::F, Maybe<Self, ParseMetadata<Self>>>,
-            ParseError<Self>,
+            <Self as MapsTmf<
+                wmcapf::L,
+                Pair<
+                    Self,
+                    IdxBox<
+                        Self,
+                        Either<
+                            Self,
+                            Pair<Self, Self::Plus, Maybe<Self, ParseMetadata<Self>>>,
+                            ParseError<Self>,
+                        >,
+                    >,
+                    Maybe<Self, ParseMetadata<Self>>,
+                >,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcapf::L, ParseError<Self>>>::TmfTo,
         >,
     > + SuperHeap<
-        PairHeapBak<Self, Self::F, Maybe<Self, ParseMetadata<Self>>>,
-    > + SuperHeap<
-        EitherHeapBak<
+        PairHeapBak<
             Self,
-            Pair<
-                Self,
+            <Self as MapsTmf<
+                wmcapf::L,
                 IdxBox<
                     Self,
                     Either<
@@ -719,47 +822,52 @@ pub trait Heap: Sized + MapsTmf<
                         ParseError<Self>,
                     >,
                 >,
-                Maybe<Self, ParseMetadata<Self>>,
-            >,
-            ParseError<Self>,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcapf::L, Maybe<Self, ParseMetadata<Self>>>>::TmfTo,
         >,
     > + SuperHeap<
-        PairHeapBak<
+        IdxBoxHeapBak<
             Self,
-            IdxBox<
-                Self,
+            <Self as MapsTmf<
+                wmcapf::L,
                 Either<
                     Self,
                     Pair<Self, Self::Plus, Maybe<Self, ParseMetadata<Self>>>,
                     ParseError<Self>,
                 >,
-            >,
-            Maybe<Self, ParseMetadata<Self>>,
+            >>::TmfTo,
         >,
     > + SuperHeap<
-        IdxBoxHeapBak<
+        EitherHeapBak<
             Self,
-            Either<
-                Self,
+            <Self as MapsTmf<
+                wmcapf::L,
                 Pair<Self, Self::Plus, Maybe<Self, ParseMetadata<Self>>>,
-                ParseError<Self>,
-            >,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcapf::L, ParseError<Self>>>::TmfTo,
+        >,
+    > + SuperHeap<
+        PairHeapBak<
+            Self,
+            Self::Plus,
+            <Self as MapsTmf<wmcapf::L, Maybe<Self, ParseMetadata<Self>>>>::TmfTo,
         >,
     > + SuperHeap<
         EitherHeapBak<
             Self,
-            Pair<Self, Self::Plus, Maybe<Self, ParseMetadata<Self>>>,
-            ParseError<Self>,
+            <Self as MapsTmf<
+                wmcapf::L,
+                Pair<Self, Self::Sum, Maybe<Self, ParseMetadata<Self>>>,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcapf::L, ParseError<Self>>>::TmfTo,
         >,
     > + SuperHeap<
-        PairHeapBak<Self, Self::Plus, Maybe<Self, ParseMetadata<Self>>>,
-    > + SuperHeap<
-        EitherHeapBak<
+        PairHeapBak<
             Self,
-            Pair<Self, Self::Sum, Maybe<Self, ParseMetadata<Self>>>,
-            ParseError<Self>,
+            Self::Sum,
+            <Self as MapsTmf<wmcapf::L, Maybe<Self, ParseMetadata<Self>>>>::TmfTo,
         >,
-    > + SuperHeap<PairHeapBak<Self, Self::Sum, Maybe<Self, ParseMetadata<Self>>>> {
+    > {
     type Plus: ttcapfo::Plus<Self>;
     type LeftOperand: ttcapfo::LeftOperand<Self>;
     type RightOperand: ttcapfo::RightOperand<Self>;
