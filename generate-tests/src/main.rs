@@ -30,17 +30,17 @@ pub fn main() {
             ],
             global_workspace_deps: fib_deps.to_vec(),
         },
-        traits_crate(&arena, &root_cgd, "fib-pat", &fib_pat, &pat_deps),
-        ds_crate(&arena, &root_cgd, "fib-pat-ds", &fib_pat, &pat_deps),
-        Crate {
-            id: "fib-pat-parse".into(),
-            provides: vec![parse_gen::targets::default(
-                &arena,
-                root_cgd.subtree(),
-                &fib_pat,
-            )],
-            global_workspace_deps: pat_deps.to_vec(),
-        },
+        // traits_crate(&arena, &root_cgd, "fib-pat", &fib_pat, &pat_deps),
+        // ds_crate(&arena, &root_cgd, "fib-pat-ds", &fib_pat, &pat_deps),
+        // Crate {
+        //     id: "fib-pat-parse".into(),
+        //     provides: vec![parse_gen::targets::default(
+        //         &arena,
+        //         root_cgd.subtree(),
+        //         &fib_pat,
+        //     )],
+        //     global_workspace_deps: pat_deps.to_vec(),
+        // },
     ];
     let bp = base_path();
     let mut c2sp = Component2SynPath::default();

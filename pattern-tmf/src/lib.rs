@@ -1,6 +1,7 @@
+use derivative::Derivative;
 use langspec::{
     langspec::Name,
-    tymetafunc::{RustTyMap, TyMetaFuncData, TyMetaFuncSpec},
+    tymetafunc::{ArgId, RustTyMap, TyMetaFuncData, TyMetaFuncSpec},
 };
 use serde::{Deserialize, Serialize};
 use tymetafuncspec_core::empty_heap_bak;
@@ -86,19 +87,19 @@ impl TyMetaFuncSpec for PatternTmfs {
             PatternTmfsId::OrVariable => TyMetaFuncData {
                 name: Name {
                     human: "or-variable".into(),
-                    camel: "Ignored".into(),
-                    snake: "ignored".into(),
+                    camel: "OrVariable".into(),
+                    snake: "or_variable".into(),
                 },
                 args: Box::new([matched_ty_name.clone()]),
                 imp: RustTyMap {
                     ty_func: syn::parse_quote! { pattern_tmf::OrVariable },
                 },
-                idby: langspec::tymetafunc::IdentifiedBy::Tmf,
+                idby: langspec::tymetafunc::IdentifiedBy::FirstTmfArg,
                 heapbak: RustTyMap {
                     ty_func: syn::parse_quote! { pattern_tmf::OrVariableHeapBak },
                 },
                 canonical_froms: Box::new([]),
-                size_depends_on: Box::new([]),
+                size_depends_on: Box::new([ArgId(0)]),
                 is_collection_of: Box::new([]),
                 transparency: langspec::tymetafunc::Transparency::Transparent,
             },
@@ -110,14 +111,14 @@ impl TyMetaFuncSpec for PatternTmfs {
                 },
                 args: Box::new([matched_ty_name.clone()]),
                 imp: RustTyMap {
-                    ty_func: syn::parse_quote! { pattern_tmf::OrVariable },
+                    ty_func: syn::parse_quote! { pattern_tmf::OrVariableZeroOrMore },
                 },
-                idby: langspec::tymetafunc::IdentifiedBy::Tmf,
+                idby: langspec::tymetafunc::IdentifiedBy::FirstTmfArg,
                 heapbak: RustTyMap {
                     ty_func: syn::parse_quote! { pattern_tmf::OrVariableZeroOrMoreHeapBak },
                 },
                 canonical_froms: Box::new([]),
-                size_depends_on: Box::new([]),
+                size_depends_on: Box::new([ArgId(0)]),
                 is_collection_of: Box::new([]),
                 transparency: langspec::tymetafunc::Transparency::Transparent,
             },
@@ -141,23 +142,33 @@ impl TyMetaFuncSpec for PatternTmfs {
 // empty_heap_bak!(IgnoredHeapBak);
 
 type Symbol = <string_interner::DefaultBackend as string_interner::backend::Backend>::Symbol;
-#[derive(Default)]
-pub struct OrVariableHeapBak {
+#[derive(Derivative)]
+#[derivative(Default(bound = ""))]
+pub struct OrVariableHeapBak<Heap, MatchedTy> {
     names: string_interner::DefaultStringInterner,
+    phantom: std::marker::PhantomData<(Heap, MatchedTy)>,
 }
-pub enum OrVariable<MatchedTy> {
+#[derive(Derivative)]
+#[derivative(Clone(bound = "MatchedTy: Clone"))]
+#[derivative(Copy(bound = "MatchedTy: Copy"))]
+pub enum OrVariable<Heap, MatchedTy> {
     Ctor(MatchedTy),
     Variable { name: Symbol },
-    Ignored,
+    Ignored(std::marker::PhantomData<Heap>),
 }
 
-#[derive(Default)]
-pub struct OrVariableZeroOrMoreHeapBak {
+#[derive(Derivative)]
+#[derivative(Default(bound = ""))]
+pub struct OrVariableZeroOrMoreHeapBak<Heap, MatchedTy> {
     names: string_interner::DefaultStringInterner,
+    phantom: std::marker::PhantomData<(Heap, MatchedTy)>,
 }
-pub enum OrVariableZeroOrMore<MatchedTy> {
+#[derive(Derivative)]
+#[derivative(Clone(bound = "MatchedTy: Clone"))]
+#[derivative(Copy(bound = "MatchedTy: Copy"))]
+pub enum OrVariableZeroOrMore<Heap, MatchedTy> {
     Ctor(MatchedTy),
     Variable { name: Symbol },
-    Ignored,
+    Ignored(std::marker::PhantomData<Heap>),
     ZeroOrMore { name: Symbol },
 }

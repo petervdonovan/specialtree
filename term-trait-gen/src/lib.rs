@@ -75,6 +75,7 @@ fn generate_maps_tmf_bounds<L: LangSpec>(
             SortId::TyMetaFunc(mt.clone()),
             &HeapType(syn::parse_quote! {Self}),
             &AlgebraicsBasePath::new(quote::quote! {Self::}),
+            // words_path,
         );
         bounds.push(syn::parse_quote! {
             term::MapsTmf<#words_path::L, #tmf>

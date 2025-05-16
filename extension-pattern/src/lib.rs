@@ -17,7 +17,8 @@ pub fn patternfy<'a, L: LangSpec>(l: &'a L) -> impl LangSpec + 'a {
             human: "Pattern".into(),
             camel: "Pattern".into(),
             snake: "pattern".into(),
-        },
+        }
+        .merge(l.name()),
         l0: l,
     }
 }

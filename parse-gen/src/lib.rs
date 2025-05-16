@@ -139,7 +139,8 @@ pub fn cst<'a, 'b: 'a, L: LangSpec>(
             human: "Cst".into(),
             camel: "Cst".into(),
             snake: "cst".into(),
-        },
+        }
+        .merge(l.name()),
         fallible_ast,
         parse_metadata,
         SortId::TyMetaFunc(MappedType {

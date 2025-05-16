@@ -250,69 +250,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "fib-pat"
-version = "0.0.0"
-dependencies = [
- "ccf",
- "parse",
- "parse-adt",
- "parse-gen",
- "pattern-tmf",
- "pmsp",
- "term",
- "term-pattern-match-strategy-provider-gen",
- "term-trait-gen",
- "tymetafuncspec-core",
- "typenum",
- "words",
-]
-
-[[package]]
-name = "fib-pat-ds"
-version = "0.0.0"
-dependencies = [
- "ccf",
- "fib-pat",
- "has-own-sort-id",
- "has-own-sort-id-gen",
- "pattern-tmf",
- "term",
- "term-pattern-match-strategy-provider-impl-gen",
- "term-specialized-gen",
- "term-specialized-impl-gen",
- "term-trait-gen",
- "tymetafuncspec-core",
- "words",
-]
-
-[[package]]
-name = "fib-pat-parse"
-version = "0.0.0"
-dependencies = [
- "ccf",
- "covisit",
- "fib-pat",
- "fib-pat-ds",
- "parse",
- "parse-adt",
- "parse-gen",
- "pattern-tmf",
- "pmsp",
- "std-parse-error",
- "std-parse-metadata",
- "term",
- "term-bridge-gen",
- "term-pattern-match-strategy-provider-gen",
- "term-pattern-match-strategy-provider-impl-gen",
- "term-specialized-gen",
- "term-specialized-impl-gen",
- "term-trait-gen",
- "tymetafuncspec-core",
- "typenum",
- "words",
-]
-
-[[package]]
 name = "foldhash"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"

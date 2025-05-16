@@ -464,10 +464,36 @@ impl<L: LangSpec> LsGen<'_, L> {
                 syn::parse_quote! { #abp #ident }
             }
             SortId::TyMetaFunc(_) => {
-                let rs_ty = self.sort2rs_ty(sort.clone(), ht, abp);
+                let rs_ty = self.sort2rs_ty(sort.clone(), ht, abp); //self.sort2rs_ty_with_tmfmapped_args(sort.clone(), ht, abp, words_path);
                 let ht = &ht.0;
                 let ret = quote::quote! {<#ht as term::MapsTmf<#words_path::L, #rs_ty>>::Tmf};
                 syn::parse_quote! { #ret }
+            }
+        }
+    }
+    pub fn sort2rs_ty_with_tmfmapped_args(
+        &self,
+        sort: SortIdOf<L>,
+        ht: &HeapType,
+        abp: &AlgebraicsBasePath,
+        words_path: &syn::Path,
+    ) -> syn::Type {
+        match &sort {
+            SortId::Algebraic(_) => self.sort2tmfmapped_rs_ty(sort, ht, abp, words_path),
+            SortId::TyMetaFunc(mt) => {
+                // let rs_ty = self.sort2rs_ty(sort.clone(), ht, abp);
+                // let ht = &ht.0;
+                // let ret = quote::quote! {<#ht as term::MapsTmf<#words_path::L, #rs_ty>>::Tmf};
+                // syn::parse_quote! { #ret }
+                let args =
+                    mt.a.iter()
+                        .map(|it| self.sort2tmfmapped_rs_ty(it.clone(), ht, abp, words_path));
+                let TyMetaFuncData {
+                    imp: RustTyMap { ty_func },
+                    ..
+                } = L::Tmfs::ty_meta_func_data(&mt.f);
+                let ht = &ht.0;
+                syn::parse_quote! { #ty_func<#ht, #( #args, )* > }
             }
         }
     }

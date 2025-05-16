@@ -198,6 +198,7 @@ impl<'langs> Crate<'langs> {
         contents: &mut Vec<syn::ItemMod>,
     ) {
         if current_c2sp.0.contains_key(&dep.id) {
+            dbg!(&dep.id.0);
             return;
         }
         for depdep in dep.codegen_deps.codegen_deps.iter() {
@@ -205,19 +206,21 @@ impl<'langs> Crate<'langs> {
             self.generate_single_dep_contents(depdep, current_c2sp, global_c2sp, contents);
         }
         let dep_ident = &dep.id.to_snake_ident();
-        current_c2sp.0.insert(
+        let none = current_c2sp.0.insert(
             dep.id.clone(),
             syn::parse_quote! {
                 crate::#dep_ident
             },
         );
+        assert!(none.is_none());
         let crate_ident = self.crate_ident();
-        global_c2sp.0.insert(
+        let none = global_c2sp.0.insert(
             dep.id.clone(),
             syn::parse_quote! {
                 #crate_ident::#dep_ident
             },
         );
+        assert!(none.is_none());
         let mut m = (dep.generate)(current_c2sp, current_c2sp.0.get(&dep.id).unwrap().clone());
         m.ident = dep_ident.clone();
         contents.push(m);

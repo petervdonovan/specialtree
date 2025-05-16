@@ -15,6 +15,16 @@ pub struct Name {
     /// snake_case alias
     pub snake: String,
 }
+impl Name {
+    pub fn merge(mut self, other: &Name) -> Name {
+        self.human += "-";
+        self.human += &other.human;
+        self.camel += &other.camel;
+        self.snake += "_";
+        self.snake += &other.snake;
+        self
+    }
+}
 #[allow(type_alias_bounds)]
 pub type SortIdOf<L: LangSpec> =
     SortId<L::ProductId, L::SumId, <L::Tmfs as TyMetaFuncSpec>::TyMetaFuncId>;
