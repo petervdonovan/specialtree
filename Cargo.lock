@@ -177,6 +177,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "extension-file"
+version = "0.1.0"
+dependencies = [
+ "either-id",
+ "file-tmf",
+ "join-boilerplate",
+ "langspec",
+ "tmfs-join",
+]
+
+[[package]]
 name = "extension-pattern"
 version = "0.1.0"
 dependencies = [
@@ -308,6 +319,24 @@ dependencies = [
  "tymetafuncspec-core",
  "typenum",
  "words",
+]
+
+[[package]]
+name = "file-tmf"
+version = "0.1.0"
+dependencies = [
+ "ccf",
+ "covisit",
+ "langspec",
+ "parse-adt",
+ "pmsp",
+ "serde",
+ "slab",
+ "string-interner",
+ "syn 2.0.100",
+ "term",
+ "unparse-adt",
+ "visit",
 ]
 
 [[package]]

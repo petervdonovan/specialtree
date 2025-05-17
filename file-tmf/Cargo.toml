@@ -1,0 +1,18 @@
+[package]
+name = "file-tmf"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+ccf = { version = "0.1.0", path = "../ccf" }
+covisit = { version = "0.1.0", path = "../covisit" }
+langspec = { version = "0.1.0", path = "../langspec" }
+parse-adt = { version = "0.1.0", path = "../parse-adt" }
+pmsp = { version = "0.1.0", path = "../pmsp" }
+serde.workspace = true
+slab.workspace = true
+string-interner.workspace = true
+syn.workspace = true
+term = { version = "0.1.0", path = "../term" }
+unparse-adt = { version = "0.1.0", path = "../unparse-adt" }
+visit = { version = "0.1.0", path = "../visit" }
