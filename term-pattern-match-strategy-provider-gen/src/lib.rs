@@ -62,7 +62,7 @@ pub(crate) fn impl_has_pattern_match_strategy_for<L: LangSpec>(
     let tymetadatas: syn::Type = cons_list(
         ccf_sortses
             .iter()
-            .map(|ccf_sorts| tymetadatas(lg, ccf_sorts.as_slice(), &ht, &abp)),
+            .map(|ccf_sorts| tymetadatas(lg, ccf_sorts.as_slice(), &ht, &abp, words)),
     );
     syn::parse_quote! {
         #byline
@@ -78,16 +78,17 @@ fn tymetadatas<L: LangSpec>(
     sids: &[SortIdOf<L>],
     ht: &HeapType,
     abp: &AlgebraicsBasePath,
+    words_path: &syn::Path,
 ) -> syn::Type {
     cons_list(sids.iter().map(|sid| match sid {
         langspec::langspec::SortId::Algebraic(_) => syn::parse_quote! {
             pmsp::AdtMetadata
         },
         langspec::langspec::SortId::TyMetaFunc(mappedtype) => {
-            let ccf_sortses_tmfs = tymetadatas(lg, mappedtype.a.as_slice(), ht, abp);
-            let rs_ty = lg.sort2rs_ty(sid.clone(), ht, abp);
+            let ccf_sortses_tmfs = tymetadatas(lg, mappedtype.a.as_slice(), ht, abp, words_path);
+            let rs_ty = lg.sort2from_tmfmapped_rs_ty(sid.clone(), ht, abp, words_path);
             syn::parse_quote! {
-                (pmsp::TmfMetadata<#rs_ty>, #ccf_sortses_tmfs)
+                pmsp::TmfMetadata<#rs_ty, #ccf_sortses_tmfs>
             }
         }
     }))

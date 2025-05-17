@@ -47,40 +47,58 @@ impl<
     );
     type TyMetadatas = (
         (
-            (
-                TmfMetadata<
+            TmfMetadata<
+                <Heap as MapsTmf<
+                    wmcaf::L,
                     Either<
                         Heap,
                         Pair<Heap, Heap::LeftOperand, Maybe<Heap, ParseMetadata<Heap>>>,
                         ParseError<Heap>,
                     >,
-                >,
+                >>::TmfFrom,
                 (
-                    (
-                        TmfMetadata<
+                    TmfMetadata<
+                        <Heap as MapsTmf<
+                            wmcaf::L,
                             Pair<
                                 Heap,
                                 Heap::LeftOperand,
                                 Maybe<Heap, ParseMetadata<Heap>>,
                             >,
-                        >,
+                        >>::TmfFrom,
                         (
                             AdtMetadata,
                             (
-                                (
-                                    TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
-                                    ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
-                                ),
+                                TmfMetadata<
+                                    <Heap as MapsTmf<
+                                        wmcaf::L,
+                                        Maybe<Heap, ParseMetadata<Heap>>,
+                                    >>::TmfFrom,
+                                    (
+                                        TmfMetadata<
+                                            <Heap as MapsTmf<wmcaf::L, ParseMetadata<Heap>>>::TmfFrom,
+                                            (),
+                                        >,
+                                        (),
+                                    ),
+                                >,
                                 (),
                             ),
                         ),
+                    >,
+                    (
+                        TmfMetadata<
+                            <Heap as MapsTmf<wmcaf::L, ParseError<Heap>>>::TmfFrom,
+                            (),
+                        >,
+                        (),
                     ),
-                    ((TmfMetadata<ParseError<Heap>>, ()), ()),
                 ),
-            ),
+            >,
             (
-                (
-                    TmfMetadata<
+                TmfMetadata<
+                    <Heap as MapsTmf<
+                        wmcaf::L,
                         Either<
                             Heap,
                             Pair<
@@ -90,30 +108,46 @@ impl<
                             >,
                             ParseError<Heap>,
                         >,
-                    >,
+                    >>::TmfFrom,
                     (
-                        (
-                            TmfMetadata<
+                        TmfMetadata<
+                            <Heap as MapsTmf<
+                                wmcaf::L,
                                 Pair<
                                     Heap,
                                     Heap::RightOperand,
                                     Maybe<Heap, ParseMetadata<Heap>>,
                                 >,
-                            >,
+                            >>::TmfFrom,
                             (
                                 AdtMetadata,
                                 (
-                                    (
-                                        TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
-                                        ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
-                                    ),
+                                    TmfMetadata<
+                                        <Heap as MapsTmf<
+                                            wmcaf::L,
+                                            Maybe<Heap, ParseMetadata<Heap>>,
+                                        >>::TmfFrom,
+                                        (
+                                            TmfMetadata<
+                                                <Heap as MapsTmf<wmcaf::L, ParseMetadata<Heap>>>::TmfFrom,
+                                                (),
+                                            >,
+                                            (),
+                                        ),
+                                    >,
                                     (),
                                 ),
                             ),
+                        >,
+                        (
+                            TmfMetadata<
+                                <Heap as MapsTmf<wmcaf::L, ParseError<Heap>>>::TmfFrom,
+                                (),
+                            >,
+                            (),
                         ),
-                        ((TmfMetadata<ParseError<Heap>>, ()), ()),
                     ),
-                ),
+                >,
                 (),
             ),
         ),
@@ -140,33 +174,50 @@ impl<
     );
     type TyMetadatas = (
         (
-            (
-                TmfMetadata<
+            TmfMetadata<
+                <Heap as MapsTmf<
+                    wmcaf::L,
                     Either<
                         Heap,
                         Pair<Heap, Heap::Nat, Maybe<Heap, ParseMetadata<Heap>>>,
                         ParseError<Heap>,
                     >,
-                >,
+                >>::TmfFrom,
                 (
-                    (
-                        TmfMetadata<
+                    TmfMetadata<
+                        <Heap as MapsTmf<
+                            wmcaf::L,
                             Pair<Heap, Heap::Nat, Maybe<Heap, ParseMetadata<Heap>>>,
-                        >,
+                        >>::TmfFrom,
                         (
                             AdtMetadata,
                             (
-                                (
-                                    TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
-                                    ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
-                                ),
+                                TmfMetadata<
+                                    <Heap as MapsTmf<
+                                        wmcaf::L,
+                                        Maybe<Heap, ParseMetadata<Heap>>,
+                                    >>::TmfFrom,
+                                    (
+                                        TmfMetadata<
+                                            <Heap as MapsTmf<wmcaf::L, ParseMetadata<Heap>>>::TmfFrom,
+                                            (),
+                                        >,
+                                        (),
+                                    ),
+                                >,
                                 (),
                             ),
                         ),
+                    >,
+                    (
+                        TmfMetadata<
+                            <Heap as MapsTmf<wmcaf::L, ParseError<Heap>>>::TmfFrom,
+                            (),
+                        >,
+                        (),
                     ),
-                    ((TmfMetadata<ParseError<Heap>>, ()), ()),
                 ),
-            ),
+            >,
             (),
         ),
         (),
@@ -192,33 +243,50 @@ impl<
     );
     type TyMetadatas = (
         (
-            (
-                TmfMetadata<
+            TmfMetadata<
+                <Heap as MapsTmf<
+                    wmcaf::L,
                     Either<
                         Heap,
                         Pair<Heap, Heap::Nat, Maybe<Heap, ParseMetadata<Heap>>>,
                         ParseError<Heap>,
                     >,
-                >,
+                >>::TmfFrom,
                 (
-                    (
-                        TmfMetadata<
+                    TmfMetadata<
+                        <Heap as MapsTmf<
+                            wmcaf::L,
                             Pair<Heap, Heap::Nat, Maybe<Heap, ParseMetadata<Heap>>>,
-                        >,
+                        >>::TmfFrom,
                         (
                             AdtMetadata,
                             (
-                                (
-                                    TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
-                                    ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
-                                ),
+                                TmfMetadata<
+                                    <Heap as MapsTmf<
+                                        wmcaf::L,
+                                        Maybe<Heap, ParseMetadata<Heap>>,
+                                    >>::TmfFrom,
+                                    (
+                                        TmfMetadata<
+                                            <Heap as MapsTmf<wmcaf::L, ParseMetadata<Heap>>>::TmfFrom,
+                                            (),
+                                        >,
+                                        (),
+                                    ),
+                                >,
                                 (),
                             ),
                         ),
+                    >,
+                    (
+                        TmfMetadata<
+                            <Heap as MapsTmf<wmcaf::L, ParseError<Heap>>>::TmfFrom,
+                            (),
+                        >,
+                        (),
                     ),
-                    ((TmfMetadata<ParseError<Heap>>, ()), ()),
                 ),
-            ),
+            >,
             (),
         ),
         (),
@@ -244,33 +312,50 @@ impl<
     );
     type TyMetadatas = (
         (
-            (
-                TmfMetadata<
+            TmfMetadata<
+                <Heap as MapsTmf<
+                    wmcaf::L,
                     Either<
                         Heap,
                         Pair<Heap, Heap::Nat, Maybe<Heap, ParseMetadata<Heap>>>,
                         ParseError<Heap>,
                     >,
-                >,
+                >>::TmfFrom,
                 (
-                    (
-                        TmfMetadata<
+                    TmfMetadata<
+                        <Heap as MapsTmf<
+                            wmcaf::L,
                             Pair<Heap, Heap::Nat, Maybe<Heap, ParseMetadata<Heap>>>,
-                        >,
+                        >>::TmfFrom,
                         (
                             AdtMetadata,
                             (
-                                (
-                                    TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
-                                    ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
-                                ),
+                                TmfMetadata<
+                                    <Heap as MapsTmf<
+                                        wmcaf::L,
+                                        Maybe<Heap, ParseMetadata<Heap>>,
+                                    >>::TmfFrom,
+                                    (
+                                        TmfMetadata<
+                                            <Heap as MapsTmf<wmcaf::L, ParseMetadata<Heap>>>::TmfFrom,
+                                            (),
+                                        >,
+                                        (),
+                                    ),
+                                >,
                                 (),
                             ),
                         ),
+                    >,
+                    (
+                        TmfMetadata<
+                            <Heap as MapsTmf<wmcaf::L, ParseError<Heap>>>::TmfFrom,
+                            (),
+                        >,
+                        (),
                     ),
-                    ((TmfMetadata<ParseError<Heap>>, ()), ()),
                 ),
-            ),
+            >,
             (),
         ),
         (),
@@ -307,8 +392,9 @@ impl<
     );
     type TyMetadatas = (
         (
-            (
-                TmfMetadata<
+            TmfMetadata<
+                <Heap as MapsTmf<
+                    wmcaf::L,
                     Either<
                         Heap,
                         Pair<
@@ -325,10 +411,11 @@ impl<
                         >,
                         ParseError<Heap>,
                     >,
-                >,
+                >>::TmfFrom,
                 (
-                    (
-                        TmfMetadata<
+                    TmfMetadata<
+                        <Heap as MapsTmf<
+                            wmcaf::L,
                             Pair<
                                 Heap,
                                 Set<
@@ -341,10 +428,11 @@ impl<
                                 >,
                                 Maybe<Heap, ParseMetadata<Heap>>,
                             >,
-                        >,
+                        >>::TmfFrom,
                         (
-                            (
-                                TmfMetadata<
+                            TmfMetadata<
+                                <Heap as MapsTmf<
+                                    wmcaf::L,
                                     Set<
                                         Heap,
                                         Either<
@@ -353,50 +441,82 @@ impl<
                                             ParseError<Heap>,
                                         >,
                                     >,
-                                >,
+                                >>::TmfFrom,
                                 (
-                                    (
-                                        TmfMetadata<
+                                    TmfMetadata<
+                                        <Heap as MapsTmf<
+                                            wmcaf::L,
                                             Either<
                                                 Heap,
                                                 Pair<Heap, Heap::Nat, Maybe<Heap, ParseMetadata<Heap>>>,
                                                 ParseError<Heap>,
                                             >,
-                                        >,
+                                        >>::TmfFrom,
                                         (
-                                            (
-                                                TmfMetadata<
+                                            TmfMetadata<
+                                                <Heap as MapsTmf<
+                                                    wmcaf::L,
                                                     Pair<Heap, Heap::Nat, Maybe<Heap, ParseMetadata<Heap>>>,
-                                                >,
+                                                >>::TmfFrom,
                                                 (
                                                     AdtMetadata,
                                                     (
-                                                        (
-                                                            TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
-                                                            ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
-                                                        ),
+                                                        TmfMetadata<
+                                                            <Heap as MapsTmf<
+                                                                wmcaf::L,
+                                                                Maybe<Heap, ParseMetadata<Heap>>,
+                                                            >>::TmfFrom,
+                                                            (
+                                                                TmfMetadata<
+                                                                    <Heap as MapsTmf<wmcaf::L, ParseMetadata<Heap>>>::TmfFrom,
+                                                                    (),
+                                                                >,
+                                                                (),
+                                                            ),
+                                                        >,
                                                         (),
                                                     ),
                                                 ),
+                                            >,
+                                            (
+                                                TmfMetadata<
+                                                    <Heap as MapsTmf<wmcaf::L, ParseError<Heap>>>::TmfFrom,
+                                                    (),
+                                                >,
+                                                (),
                                             ),
-                                            ((TmfMetadata<ParseError<Heap>>, ()), ()),
                                         ),
-                                    ),
+                                    >,
                                     (),
                                 ),
-                            ),
+                            >,
                             (
-                                (
-                                    TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
-                                    ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
-                                ),
+                                TmfMetadata<
+                                    <Heap as MapsTmf<
+                                        wmcaf::L,
+                                        Maybe<Heap, ParseMetadata<Heap>>,
+                                    >>::TmfFrom,
+                                    (
+                                        TmfMetadata<
+                                            <Heap as MapsTmf<wmcaf::L, ParseMetadata<Heap>>>::TmfFrom,
+                                            (),
+                                        >,
+                                        (),
+                                    ),
+                                >,
                                 (),
                             ),
                         ),
+                    >,
+                    (
+                        TmfMetadata<
+                            <Heap as MapsTmf<wmcaf::L, ParseError<Heap>>>::TmfFrom,
+                            (),
+                        >,
+                        (),
                     ),
-                    ((TmfMetadata<ParseError<Heap>>, ()), ()),
                 ),
-            ),
+            >,
             (),
         ),
         (),
@@ -483,43 +603,64 @@ impl<
     );
     type TyMetadatas = (
         (
-            (
-                TmfMetadata<
+            TmfMetadata<
+                <Heap as MapsTmf<
+                    wmcaf::L,
                     Either<
                         Heap,
                         Pair<Heap, BoundedNat<Heap>, Maybe<Heap, ParseMetadata<Heap>>>,
                         ParseError<Heap>,
                     >,
-                >,
+                >>::TmfFrom,
                 (
-                    (
-                        TmfMetadata<
+                    TmfMetadata<
+                        <Heap as MapsTmf<
+                            wmcaf::L,
                             Pair<
                                 Heap,
                                 BoundedNat<Heap>,
                                 Maybe<Heap, ParseMetadata<Heap>>,
                             >,
-                        >,
+                        >>::TmfFrom,
                         (
-                            (TmfMetadata<BoundedNat<Heap>>, ()),
+                            TmfMetadata<
+                                <Heap as MapsTmf<wmcaf::L, BoundedNat<Heap>>>::TmfFrom,
+                                (),
+                            >,
                             (
-                                (
-                                    TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
-                                    ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
-                                ),
+                                TmfMetadata<
+                                    <Heap as MapsTmf<
+                                        wmcaf::L,
+                                        Maybe<Heap, ParseMetadata<Heap>>,
+                                    >>::TmfFrom,
+                                    (
+                                        TmfMetadata<
+                                            <Heap as MapsTmf<wmcaf::L, ParseMetadata<Heap>>>::TmfFrom,
+                                            (),
+                                        >,
+                                        (),
+                                    ),
+                                >,
                                 (),
                             ),
                         ),
+                    >,
+                    (
+                        TmfMetadata<
+                            <Heap as MapsTmf<wmcaf::L, ParseError<Heap>>>::TmfFrom,
+                            (),
+                        >,
+                        (),
                     ),
-                    ((TmfMetadata<ParseError<Heap>>, ()), ()),
                 ),
-            ),
+            >,
             (),
         ),
         (
             (
-                (
-                    TmfMetadata<
+                TmfMetadata<
+                    <Heap as MapsTmf<
+                        wmcaf::L,
                         Either<
                             Heap,
                             Pair<
@@ -536,10 +677,11 @@ impl<
                             >,
                             ParseError<Heap>,
                         >,
-                    >,
+                    >>::TmfFrom,
                     (
-                        (
-                            TmfMetadata<
+                        TmfMetadata<
+                            <Heap as MapsTmf<
+                                wmcaf::L,
                                 Pair<
                                     Heap,
                                     IdxBox<
@@ -552,10 +694,11 @@ impl<
                                     >,
                                     Maybe<Heap, ParseMetadata<Heap>>,
                                 >,
-                            >,
+                            >>::TmfFrom,
                             (
-                                (
-                                    TmfMetadata<
+                                TmfMetadata<
+                                    <Heap as MapsTmf<
+                                        wmcaf::L,
                                         IdxBox<
                                             Heap,
                                             Either<
@@ -564,56 +707,89 @@ impl<
                                                 ParseError<Heap>,
                                             >,
                                         >,
-                                    >,
+                                    >>::TmfFrom,
                                     (
-                                        (
-                                            TmfMetadata<
+                                        TmfMetadata<
+                                            <Heap as MapsTmf<
+                                                wmcaf::L,
                                                 Either<
                                                     Heap,
                                                     Pair<Heap, Heap::F, Maybe<Heap, ParseMetadata<Heap>>>,
                                                     ParseError<Heap>,
                                                 >,
-                                            >,
+                                            >>::TmfFrom,
                                             (
-                                                (
-                                                    TmfMetadata<
+                                                TmfMetadata<
+                                                    <Heap as MapsTmf<
+                                                        wmcaf::L,
                                                         Pair<Heap, Heap::F, Maybe<Heap, ParseMetadata<Heap>>>,
-                                                    >,
+                                                    >>::TmfFrom,
                                                     (
                                                         AdtMetadata,
                                                         (
-                                                            (
-                                                                TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
-                                                                ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
-                                                            ),
+                                                            TmfMetadata<
+                                                                <Heap as MapsTmf<
+                                                                    wmcaf::L,
+                                                                    Maybe<Heap, ParseMetadata<Heap>>,
+                                                                >>::TmfFrom,
+                                                                (
+                                                                    TmfMetadata<
+                                                                        <Heap as MapsTmf<wmcaf::L, ParseMetadata<Heap>>>::TmfFrom,
+                                                                        (),
+                                                                    >,
+                                                                    (),
+                                                                ),
+                                                            >,
                                                             (),
                                                         ),
                                                     ),
+                                                >,
+                                                (
+                                                    TmfMetadata<
+                                                        <Heap as MapsTmf<wmcaf::L, ParseError<Heap>>>::TmfFrom,
+                                                        (),
+                                                    >,
+                                                    (),
                                                 ),
-                                                ((TmfMetadata<ParseError<Heap>>, ()), ()),
                                             ),
-                                        ),
+                                        >,
                                         (),
                                     ),
-                                ),
+                                >,
                                 (
-                                    (
-                                        TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
-                                        ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
-                                    ),
+                                    TmfMetadata<
+                                        <Heap as MapsTmf<
+                                            wmcaf::L,
+                                            Maybe<Heap, ParseMetadata<Heap>>,
+                                        >>::TmfFrom,
+                                        (
+                                            TmfMetadata<
+                                                <Heap as MapsTmf<wmcaf::L, ParseMetadata<Heap>>>::TmfFrom,
+                                                (),
+                                            >,
+                                            (),
+                                        ),
+                                    >,
                                     (),
                                 ),
                             ),
+                        >,
+                        (
+                            TmfMetadata<
+                                <Heap as MapsTmf<wmcaf::L, ParseError<Heap>>>::TmfFrom,
+                                (),
+                            >,
+                            (),
                         ),
-                        ((TmfMetadata<ParseError<Heap>>, ()), ()),
                     ),
-                ),
+                >,
                 (),
             ),
             (
                 (
-                    (
-                        TmfMetadata<
+                    TmfMetadata<
+                        <Heap as MapsTmf<
+                            wmcaf::L,
                             Either<
                                 Heap,
                                 Pair<
@@ -630,10 +806,11 @@ impl<
                                 >,
                                 ParseError<Heap>,
                             >,
-                        >,
+                        >>::TmfFrom,
                         (
-                            (
-                                TmfMetadata<
+                            TmfMetadata<
+                                <Heap as MapsTmf<
+                                    wmcaf::L,
                                     Pair<
                                         Heap,
                                         IdxBox<
@@ -646,10 +823,11 @@ impl<
                                         >,
                                         Maybe<Heap, ParseMetadata<Heap>>,
                                     >,
-                                >,
+                                >>::TmfFrom,
                                 (
-                                    (
-                                        TmfMetadata<
+                                    TmfMetadata<
+                                        <Heap as MapsTmf<
+                                            wmcaf::L,
                                             IdxBox<
                                                 Heap,
                                                 Either<
@@ -658,81 +836,130 @@ impl<
                                                     ParseError<Heap>,
                                                 >,
                                             >,
-                                        >,
+                                        >>::TmfFrom,
                                         (
-                                            (
-                                                TmfMetadata<
+                                            TmfMetadata<
+                                                <Heap as MapsTmf<
+                                                    wmcaf::L,
                                                     Either<
                                                         Heap,
                                                         Pair<Heap, Heap::Plus, Maybe<Heap, ParseMetadata<Heap>>>,
                                                         ParseError<Heap>,
                                                     >,
-                                                >,
+                                                >>::TmfFrom,
                                                 (
-                                                    (
-                                                        TmfMetadata<
+                                                    TmfMetadata<
+                                                        <Heap as MapsTmf<
+                                                            wmcaf::L,
                                                             Pair<Heap, Heap::Plus, Maybe<Heap, ParseMetadata<Heap>>>,
-                                                        >,
+                                                        >>::TmfFrom,
                                                         (
                                                             AdtMetadata,
                                                             (
-                                                                (
-                                                                    TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
-                                                                    ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
-                                                                ),
+                                                                TmfMetadata<
+                                                                    <Heap as MapsTmf<
+                                                                        wmcaf::L,
+                                                                        Maybe<Heap, ParseMetadata<Heap>>,
+                                                                    >>::TmfFrom,
+                                                                    (
+                                                                        TmfMetadata<
+                                                                            <Heap as MapsTmf<wmcaf::L, ParseMetadata<Heap>>>::TmfFrom,
+                                                                            (),
+                                                                        >,
+                                                                        (),
+                                                                    ),
+                                                                >,
                                                                 (),
                                                             ),
                                                         ),
+                                                    >,
+                                                    (
+                                                        TmfMetadata<
+                                                            <Heap as MapsTmf<wmcaf::L, ParseError<Heap>>>::TmfFrom,
+                                                            (),
+                                                        >,
+                                                        (),
                                                     ),
-                                                    ((TmfMetadata<ParseError<Heap>>, ()), ()),
                                                 ),
-                                            ),
+                                            >,
                                             (),
                                         ),
-                                    ),
+                                    >,
                                     (
-                                        (
-                                            TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
-                                            ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
-                                        ),
+                                        TmfMetadata<
+                                            <Heap as MapsTmf<
+                                                wmcaf::L,
+                                                Maybe<Heap, ParseMetadata<Heap>>,
+                                            >>::TmfFrom,
+                                            (
+                                                TmfMetadata<
+                                                    <Heap as MapsTmf<wmcaf::L, ParseMetadata<Heap>>>::TmfFrom,
+                                                    (),
+                                                >,
+                                                (),
+                                            ),
+                                        >,
                                         (),
                                     ),
                                 ),
+                            >,
+                            (
+                                TmfMetadata<
+                                    <Heap as MapsTmf<wmcaf::L, ParseError<Heap>>>::TmfFrom,
+                                    (),
+                                >,
+                                (),
                             ),
-                            ((TmfMetadata<ParseError<Heap>>, ()), ()),
                         ),
-                    ),
+                    >,
                     (),
                 ),
                 (
                     (
-                        (
-                            TmfMetadata<
+                        TmfMetadata<
+                            <Heap as MapsTmf<
+                                wmcaf::L,
                                 Either<
                                     Heap,
                                     Pair<Heap, Heap::Sum, Maybe<Heap, ParseMetadata<Heap>>>,
                                     ParseError<Heap>,
                                 >,
-                            >,
+                            >>::TmfFrom,
                             (
-                                (
-                                    TmfMetadata<
+                                TmfMetadata<
+                                    <Heap as MapsTmf<
+                                        wmcaf::L,
                                         Pair<Heap, Heap::Sum, Maybe<Heap, ParseMetadata<Heap>>>,
-                                    >,
+                                    >>::TmfFrom,
                                     (
                                         AdtMetadata,
                                         (
-                                            (
-                                                TmfMetadata<Maybe<Heap, ParseMetadata<Heap>>>,
-                                                ((TmfMetadata<ParseMetadata<Heap>>, ()), ()),
-                                            ),
+                                            TmfMetadata<
+                                                <Heap as MapsTmf<
+                                                    wmcaf::L,
+                                                    Maybe<Heap, ParseMetadata<Heap>>,
+                                                >>::TmfFrom,
+                                                (
+                                                    TmfMetadata<
+                                                        <Heap as MapsTmf<wmcaf::L, ParseMetadata<Heap>>>::TmfFrom,
+                                                        (),
+                                                    >,
+                                                    (),
+                                                ),
+                                            >,
                                             (),
                                         ),
                                     ),
+                                >,
+                                (
+                                    TmfMetadata<
+                                        <Heap as MapsTmf<wmcaf::L, ParseError<Heap>>>::TmfFrom,
+                                        (),
+                                    >,
+                                    (),
                                 ),
-                                ((TmfMetadata<ParseError<Heap>>, ()), ()),
                             ),
-                        ),
+                        >,
                         (),
                     ),
                     (),

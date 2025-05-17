@@ -5,7 +5,6 @@ use langspec::{
     flat::LangSpecFlat,
     langspec::{LangSpec, TerminalLangSpec},
 };
-// use parse_gen::cst;
 
 pub fn main() {
     let arena = bumpalo::Bump::new();

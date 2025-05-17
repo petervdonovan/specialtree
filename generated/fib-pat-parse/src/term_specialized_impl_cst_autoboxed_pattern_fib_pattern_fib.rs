@@ -51,57 +51,7 @@ pub mod ccf_impls {
                     wmcapf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        OrVariable<
-                            <Self as Heaped>::Heap,
-                            Either<
-                                <Self as Heaped>::Heap,
-                                Pair<
-                                    <Self as Heaped>::Heap,
-                                    tscapf::LeftOperand,
-                                    Maybe<
-                                        <Self as Heaped>::Heap,
-                                        ParseMetadata<<Self as Heaped>::Heap>,
-                                    >,
-                                >,
-                                ParseError<<Self as Heaped>::Heap>,
-                            >,
-                        >,
-                        ParseError<<Self as Heaped>::Heap>,
-                    >,
-                >>::TmfTo,
-                (
-                    <<Self as Heaped>::Heap as MapsTmf<
-                        wmcapf::L,
-                        Either<
-                            <Self as Heaped>::Heap,
-                            OrVariable<
-                                <Self as Heaped>::Heap,
-                                Either<
-                                    <Self as Heaped>::Heap,
-                                    Pair<
-                                        <Self as Heaped>::Heap,
-                                        tscapf::RightOperand,
-                                        Maybe<
-                                            <Self as Heaped>::Heap,
-                                            ParseMetadata<<Self as Heaped>::Heap>,
-                                        >,
-                                    >,
-                                    ParseError<<Self as Heaped>::Heap>,
-                                >,
-                            >,
-                            ParseError<<Self as Heaped>::Heap>,
-                        >,
-                    >>::TmfTo,
-                    (),
-                ),
-            ),
-        > for tscapf::Plus {
-            fn construct(
-                heap: &mut <Self as Heaped>::Heap,
-                t: (
-                    <<Self as Heaped>::Heap as MapsTmf<
-                        wmcapf::L,
-                        Either<
+                        Pair<
                             <Self as Heaped>::Heap,
                             OrVariable<
                                 <Self as Heaped>::Heap,
@@ -118,13 +68,20 @@ pub mod ccf_impls {
                                     ParseError<<Self as Heaped>::Heap>,
                                 >,
                             >,
-                            ParseError<<Self as Heaped>::Heap>,
+                            Maybe<
+                                <Self as Heaped>::Heap,
+                                ParseMetadata<<Self as Heaped>::Heap>,
+                            >,
                         >,
-                    >>::TmfTo,
-                    (
-                        <<Self as Heaped>::Heap as MapsTmf<
-                            wmcapf::L,
-                            Either<
+                        ParseError<<Self as Heaped>::Heap>,
+                    >,
+                >>::TmfTo,
+                (
+                    <<Self as Heaped>::Heap as MapsTmf<
+                        wmcapf::L,
+                        Either<
+                            <Self as Heaped>::Heap,
+                            Pair<
                                 <Self as Heaped>::Heap,
                                 OrVariable<
                                     <Self as Heaped>::Heap,
@@ -139,6 +96,77 @@ pub mod ccf_impls {
                                             >,
                                         >,
                                         ParseError<<Self as Heaped>::Heap>,
+                                    >,
+                                >,
+                                Maybe<
+                                    <Self as Heaped>::Heap,
+                                    ParseMetadata<<Self as Heaped>::Heap>,
+                                >,
+                            >,
+                            ParseError<<Self as Heaped>::Heap>,
+                        >,
+                    >>::TmfTo,
+                    (),
+                ),
+            ),
+        > for tscapf::Plus {
+            fn construct(
+                heap: &mut <Self as Heaped>::Heap,
+                t: (
+                    <<Self as Heaped>::Heap as MapsTmf<
+                        wmcapf::L,
+                        Either<
+                            <Self as Heaped>::Heap,
+                            Pair<
+                                <Self as Heaped>::Heap,
+                                OrVariable<
+                                    <Self as Heaped>::Heap,
+                                    Either<
+                                        <Self as Heaped>::Heap,
+                                        Pair<
+                                            <Self as Heaped>::Heap,
+                                            tscapf::LeftOperand,
+                                            Maybe<
+                                                <Self as Heaped>::Heap,
+                                                ParseMetadata<<Self as Heaped>::Heap>,
+                                            >,
+                                        >,
+                                        ParseError<<Self as Heaped>::Heap>,
+                                    >,
+                                >,
+                                Maybe<
+                                    <Self as Heaped>::Heap,
+                                    ParseMetadata<<Self as Heaped>::Heap>,
+                                >,
+                            >,
+                            ParseError<<Self as Heaped>::Heap>,
+                        >,
+                    >>::TmfTo,
+                    (
+                        <<Self as Heaped>::Heap as MapsTmf<
+                            wmcapf::L,
+                            Either<
+                                <Self as Heaped>::Heap,
+                                Pair<
+                                    <Self as Heaped>::Heap,
+                                    OrVariable<
+                                        <Self as Heaped>::Heap,
+                                        Either<
+                                            <Self as Heaped>::Heap,
+                                            Pair<
+                                                <Self as Heaped>::Heap,
+                                                tscapf::RightOperand,
+                                                Maybe<
+                                                    <Self as Heaped>::Heap,
+                                                    ParseMetadata<<Self as Heaped>::Heap>,
+                                                >,
+                                            >,
+                                            ParseError<<Self as Heaped>::Heap>,
+                                        >,
+                                    >,
+                                    Maybe<
+                                        <Self as Heaped>::Heap,
+                                        ParseMetadata<<Self as Heaped>::Heap>,
                                     >,
                                 >,
                                 ParseError<<Self as Heaped>::Heap>,
@@ -164,19 +192,26 @@ pub mod ccf_impls {
                     wmcapf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        OrVariable<
+                        Pair<
                             <Self as Heaped>::Heap,
-                            Either<
+                            OrVariable<
                                 <Self as Heaped>::Heap,
-                                Pair<
+                                Either<
                                     <Self as Heaped>::Heap,
-                                    tscapf::LeftOperand,
-                                    Maybe<
+                                    Pair<
                                         <Self as Heaped>::Heap,
-                                        ParseMetadata<<Self as Heaped>::Heap>,
+                                        tscapf::LeftOperand,
+                                        Maybe<
+                                            <Self as Heaped>::Heap,
+                                            ParseMetadata<<Self as Heaped>::Heap>,
+                                        >,
                                     >,
+                                    ParseError<<Self as Heaped>::Heap>,
                                 >,
-                                ParseError<<Self as Heaped>::Heap>,
+                            >,
+                            Maybe<
+                                <Self as Heaped>::Heap,
+                                ParseMetadata<<Self as Heaped>::Heap>,
                             >,
                         >,
                         ParseError<<Self as Heaped>::Heap>,
@@ -187,19 +222,26 @@ pub mod ccf_impls {
                         wmcapf::L,
                         Either<
                             <Self as Heaped>::Heap,
-                            OrVariable<
+                            Pair<
                                 <Self as Heaped>::Heap,
-                                Either<
+                                OrVariable<
                                     <Self as Heaped>::Heap,
-                                    Pair<
+                                    Either<
                                         <Self as Heaped>::Heap,
-                                        tscapf::RightOperand,
-                                        Maybe<
+                                        Pair<
                                             <Self as Heaped>::Heap,
-                                            ParseMetadata<<Self as Heaped>::Heap>,
+                                            tscapf::RightOperand,
+                                            Maybe<
+                                                <Self as Heaped>::Heap,
+                                                ParseMetadata<<Self as Heaped>::Heap>,
+                                            >,
                                         >,
+                                        ParseError<<Self as Heaped>::Heap>,
                                     >,
-                                    ParseError<<Self as Heaped>::Heap>,
+                                >,
+                                Maybe<
+                                    <Self as Heaped>::Heap,
+                                    ParseMetadata<<Self as Heaped>::Heap>,
                                 >,
                             >,
                             ParseError<<Self as Heaped>::Heap>,
@@ -232,19 +274,26 @@ pub mod ccf_impls {
                     wmcapf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        OrVariable<
+                        Pair<
                             <Self as Heaped>::Heap,
-                            Either<
+                            OrVariable<
                                 <Self as Heaped>::Heap,
-                                Pair<
+                                Either<
                                     <Self as Heaped>::Heap,
-                                    tscapf::Nat,
-                                    Maybe<
+                                    Pair<
                                         <Self as Heaped>::Heap,
-                                        ParseMetadata<<Self as Heaped>::Heap>,
+                                        tscapf::Nat,
+                                        Maybe<
+                                            <Self as Heaped>::Heap,
+                                            ParseMetadata<<Self as Heaped>::Heap>,
+                                        >,
                                     >,
+                                    ParseError<<Self as Heaped>::Heap>,
                                 >,
-                                ParseError<<Self as Heaped>::Heap>,
+                            >,
+                            Maybe<
+                                <Self as Heaped>::Heap,
+                                ParseMetadata<<Self as Heaped>::Heap>,
                             >,
                         >,
                         ParseError<<Self as Heaped>::Heap>,
@@ -260,19 +309,26 @@ pub mod ccf_impls {
                         wmcapf::L,
                         Either<
                             <Self as Heaped>::Heap,
-                            OrVariable<
+                            Pair<
                                 <Self as Heaped>::Heap,
-                                Either<
+                                OrVariable<
                                     <Self as Heaped>::Heap,
-                                    Pair<
+                                    Either<
                                         <Self as Heaped>::Heap,
-                                        tscapf::Nat,
-                                        Maybe<
+                                        Pair<
                                             <Self as Heaped>::Heap,
-                                            ParseMetadata<<Self as Heaped>::Heap>,
+                                            tscapf::Nat,
+                                            Maybe<
+                                                <Self as Heaped>::Heap,
+                                                ParseMetadata<<Self as Heaped>::Heap>,
+                                            >,
                                         >,
+                                        ParseError<<Self as Heaped>::Heap>,
                                     >,
-                                    ParseError<<Self as Heaped>::Heap>,
+                                >,
+                                Maybe<
+                                    <Self as Heaped>::Heap,
+                                    ParseMetadata<<Self as Heaped>::Heap>,
                                 >,
                             >,
                             ParseError<<Self as Heaped>::Heap>,
@@ -296,19 +352,26 @@ pub mod ccf_impls {
                     wmcapf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        OrVariable<
+                        Pair<
                             <Self as Heaped>::Heap,
-                            Either<
+                            OrVariable<
                                 <Self as Heaped>::Heap,
-                                Pair<
+                                Either<
                                     <Self as Heaped>::Heap,
-                                    tscapf::Nat,
-                                    Maybe<
+                                    Pair<
                                         <Self as Heaped>::Heap,
-                                        ParseMetadata<<Self as Heaped>::Heap>,
+                                        tscapf::Nat,
+                                        Maybe<
+                                            <Self as Heaped>::Heap,
+                                            ParseMetadata<<Self as Heaped>::Heap>,
+                                        >,
                                     >,
+                                    ParseError<<Self as Heaped>::Heap>,
                                 >,
-                                ParseError<<Self as Heaped>::Heap>,
+                            >,
+                            Maybe<
+                                <Self as Heaped>::Heap,
+                                ParseMetadata<<Self as Heaped>::Heap>,
                             >,
                         >,
                         ParseError<<Self as Heaped>::Heap>,
@@ -340,19 +403,26 @@ pub mod ccf_impls {
                     wmcapf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        OrVariable<
+                        Pair<
                             <Self as Heaped>::Heap,
-                            Either<
+                            OrVariable<
                                 <Self as Heaped>::Heap,
-                                Pair<
+                                Either<
                                     <Self as Heaped>::Heap,
-                                    tscapf::Nat,
-                                    Maybe<
+                                    Pair<
                                         <Self as Heaped>::Heap,
-                                        ParseMetadata<<Self as Heaped>::Heap>,
+                                        tscapf::Nat,
+                                        Maybe<
+                                            <Self as Heaped>::Heap,
+                                            ParseMetadata<<Self as Heaped>::Heap>,
+                                        >,
                                     >,
+                                    ParseError<<Self as Heaped>::Heap>,
                                 >,
-                                ParseError<<Self as Heaped>::Heap>,
+                            >,
+                            Maybe<
+                                <Self as Heaped>::Heap,
+                                ParseMetadata<<Self as Heaped>::Heap>,
                             >,
                         >,
                         ParseError<<Self as Heaped>::Heap>,
@@ -368,19 +438,26 @@ pub mod ccf_impls {
                         wmcapf::L,
                         Either<
                             <Self as Heaped>::Heap,
-                            OrVariable<
+                            Pair<
                                 <Self as Heaped>::Heap,
-                                Either<
+                                OrVariable<
                                     <Self as Heaped>::Heap,
-                                    Pair<
+                                    Either<
                                         <Self as Heaped>::Heap,
-                                        tscapf::Nat,
-                                        Maybe<
+                                        Pair<
                                             <Self as Heaped>::Heap,
-                                            ParseMetadata<<Self as Heaped>::Heap>,
+                                            tscapf::Nat,
+                                            Maybe<
+                                                <Self as Heaped>::Heap,
+                                                ParseMetadata<<Self as Heaped>::Heap>,
+                                            >,
                                         >,
+                                        ParseError<<Self as Heaped>::Heap>,
                                     >,
-                                    ParseError<<Self as Heaped>::Heap>,
+                                >,
+                                Maybe<
+                                    <Self as Heaped>::Heap,
+                                    ParseMetadata<<Self as Heaped>::Heap>,
                                 >,
                             >,
                             ParseError<<Self as Heaped>::Heap>,
@@ -404,19 +481,26 @@ pub mod ccf_impls {
                     wmcapf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        OrVariable<
+                        Pair<
                             <Self as Heaped>::Heap,
-                            Either<
+                            OrVariable<
                                 <Self as Heaped>::Heap,
-                                Pair<
+                                Either<
                                     <Self as Heaped>::Heap,
-                                    tscapf::Nat,
-                                    Maybe<
+                                    Pair<
                                         <Self as Heaped>::Heap,
-                                        ParseMetadata<<Self as Heaped>::Heap>,
+                                        tscapf::Nat,
+                                        Maybe<
+                                            <Self as Heaped>::Heap,
+                                            ParseMetadata<<Self as Heaped>::Heap>,
+                                        >,
                                     >,
+                                    ParseError<<Self as Heaped>::Heap>,
                                 >,
-                                ParseError<<Self as Heaped>::Heap>,
+                            >,
+                            Maybe<
+                                <Self as Heaped>::Heap,
+                                ParseMetadata<<Self as Heaped>::Heap>,
                             >,
                         >,
                         ParseError<<Self as Heaped>::Heap>,
@@ -448,19 +532,26 @@ pub mod ccf_impls {
                     wmcapf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        OrVariable<
+                        Pair<
                             <Self as Heaped>::Heap,
-                            Either<
+                            OrVariable<
                                 <Self as Heaped>::Heap,
-                                Pair<
+                                Either<
                                     <Self as Heaped>::Heap,
-                                    tscapf::Nat,
-                                    Maybe<
+                                    Pair<
                                         <Self as Heaped>::Heap,
-                                        ParseMetadata<<Self as Heaped>::Heap>,
+                                        tscapf::Nat,
+                                        Maybe<
+                                            <Self as Heaped>::Heap,
+                                            ParseMetadata<<Self as Heaped>::Heap>,
+                                        >,
                                     >,
+                                    ParseError<<Self as Heaped>::Heap>,
                                 >,
-                                ParseError<<Self as Heaped>::Heap>,
+                            >,
+                            Maybe<
+                                <Self as Heaped>::Heap,
+                                ParseMetadata<<Self as Heaped>::Heap>,
                             >,
                         >,
                         ParseError<<Self as Heaped>::Heap>,
@@ -476,19 +567,26 @@ pub mod ccf_impls {
                         wmcapf::L,
                         Either<
                             <Self as Heaped>::Heap,
-                            OrVariable<
+                            Pair<
                                 <Self as Heaped>::Heap,
-                                Either<
+                                OrVariable<
                                     <Self as Heaped>::Heap,
-                                    Pair<
+                                    Either<
                                         <Self as Heaped>::Heap,
-                                        tscapf::Nat,
-                                        Maybe<
+                                        Pair<
                                             <Self as Heaped>::Heap,
-                                            ParseMetadata<<Self as Heaped>::Heap>,
+                                            tscapf::Nat,
+                                            Maybe<
+                                                <Self as Heaped>::Heap,
+                                                ParseMetadata<<Self as Heaped>::Heap>,
+                                            >,
                                         >,
+                                        ParseError<<Self as Heaped>::Heap>,
                                     >,
-                                    ParseError<<Self as Heaped>::Heap>,
+                                >,
+                                Maybe<
+                                    <Self as Heaped>::Heap,
+                                    ParseMetadata<<Self as Heaped>::Heap>,
                                 >,
                             >,
                             ParseError<<Self as Heaped>::Heap>,
@@ -512,19 +610,26 @@ pub mod ccf_impls {
                     wmcapf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        OrVariable<
+                        Pair<
                             <Self as Heaped>::Heap,
-                            Either<
+                            OrVariable<
                                 <Self as Heaped>::Heap,
-                                Pair<
+                                Either<
                                     <Self as Heaped>::Heap,
-                                    tscapf::Nat,
-                                    Maybe<
+                                    Pair<
                                         <Self as Heaped>::Heap,
-                                        ParseMetadata<<Self as Heaped>::Heap>,
+                                        tscapf::Nat,
+                                        Maybe<
+                                            <Self as Heaped>::Heap,
+                                            ParseMetadata<<Self as Heaped>::Heap>,
+                                        >,
                                     >,
+                                    ParseError<<Self as Heaped>::Heap>,
                                 >,
-                                ParseError<<Self as Heaped>::Heap>,
+                            >,
+                            Maybe<
+                                <Self as Heaped>::Heap,
+                                ParseMetadata<<Self as Heaped>::Heap>,
                             >,
                         >,
                         ParseError<<Self as Heaped>::Heap>,
@@ -558,40 +663,54 @@ pub mod ccf_impls {
                     wmcapf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        OrVariable<
+                        Pair<
                             <Self as Heaped>::Heap,
-                            Either<
+                            OrVariable<
                                 <Self as Heaped>::Heap,
-                                Pair<
+                                Either<
                                     <Self as Heaped>::Heap,
-                                    Set<
+                                    Pair<
                                         <Self as Heaped>::Heap,
-                                        Either<
+                                        Set<
                                             <Self as Heaped>::Heap,
-                                            OrVariableZeroOrMore<
+                                            Either<
                                                 <Self as Heaped>::Heap,
-                                                Either<
+                                                Pair<
                                                     <Self as Heaped>::Heap,
-                                                    Pair<
+                                                    OrVariableZeroOrMore<
                                                         <Self as Heaped>::Heap,
-                                                        tscapf::Nat,
-                                                        Maybe<
+                                                        Either<
                                                             <Self as Heaped>::Heap,
-                                                            ParseMetadata<<Self as Heaped>::Heap>,
+                                                            Pair<
+                                                                <Self as Heaped>::Heap,
+                                                                tscapf::Nat,
+                                                                Maybe<
+                                                                    <Self as Heaped>::Heap,
+                                                                    ParseMetadata<<Self as Heaped>::Heap>,
+                                                                >,
+                                                            >,
+                                                            ParseError<<Self as Heaped>::Heap>,
                                                         >,
                                                     >,
-                                                    ParseError<<Self as Heaped>::Heap>,
+                                                    Maybe<
+                                                        <Self as Heaped>::Heap,
+                                                        ParseMetadata<<Self as Heaped>::Heap>,
+                                                    >,
                                                 >,
+                                                ParseError<<Self as Heaped>::Heap>,
                                             >,
-                                            ParseError<<Self as Heaped>::Heap>,
+                                        >,
+                                        Maybe<
+                                            <Self as Heaped>::Heap,
+                                            ParseMetadata<<Self as Heaped>::Heap>,
                                         >,
                                     >,
-                                    Maybe<
-                                        <Self as Heaped>::Heap,
-                                        ParseMetadata<<Self as Heaped>::Heap>,
-                                    >,
+                                    ParseError<<Self as Heaped>::Heap>,
                                 >,
-                                ParseError<<Self as Heaped>::Heap>,
+                            >,
+                            Maybe<
+                                <Self as Heaped>::Heap,
+                                ParseMetadata<<Self as Heaped>::Heap>,
                             >,
                         >,
                         ParseError<<Self as Heaped>::Heap>,
@@ -607,40 +726,54 @@ pub mod ccf_impls {
                         wmcapf::L,
                         Either<
                             <Self as Heaped>::Heap,
-                            OrVariable<
+                            Pair<
                                 <Self as Heaped>::Heap,
-                                Either<
+                                OrVariable<
                                     <Self as Heaped>::Heap,
-                                    Pair<
+                                    Either<
                                         <Self as Heaped>::Heap,
-                                        Set<
+                                        Pair<
                                             <Self as Heaped>::Heap,
-                                            Either<
+                                            Set<
                                                 <Self as Heaped>::Heap,
-                                                OrVariableZeroOrMore<
+                                                Either<
                                                     <Self as Heaped>::Heap,
-                                                    Either<
+                                                    Pair<
                                                         <Self as Heaped>::Heap,
-                                                        Pair<
+                                                        OrVariableZeroOrMore<
                                                             <Self as Heaped>::Heap,
-                                                            tscapf::Nat,
-                                                            Maybe<
+                                                            Either<
                                                                 <Self as Heaped>::Heap,
-                                                                ParseMetadata<<Self as Heaped>::Heap>,
+                                                                Pair<
+                                                                    <Self as Heaped>::Heap,
+                                                                    tscapf::Nat,
+                                                                    Maybe<
+                                                                        <Self as Heaped>::Heap,
+                                                                        ParseMetadata<<Self as Heaped>::Heap>,
+                                                                    >,
+                                                                >,
+                                                                ParseError<<Self as Heaped>::Heap>,
                                                             >,
                                                         >,
-                                                        ParseError<<Self as Heaped>::Heap>,
+                                                        Maybe<
+                                                            <Self as Heaped>::Heap,
+                                                            ParseMetadata<<Self as Heaped>::Heap>,
+                                                        >,
                                                     >,
+                                                    ParseError<<Self as Heaped>::Heap>,
                                                 >,
-                                                ParseError<<Self as Heaped>::Heap>,
+                                            >,
+                                            Maybe<
+                                                <Self as Heaped>::Heap,
+                                                ParseMetadata<<Self as Heaped>::Heap>,
                                             >,
                                         >,
-                                        Maybe<
-                                            <Self as Heaped>::Heap,
-                                            ParseMetadata<<Self as Heaped>::Heap>,
-                                        >,
+                                        ParseError<<Self as Heaped>::Heap>,
                                     >,
-                                    ParseError<<Self as Heaped>::Heap>,
+                                >,
+                                Maybe<
+                                    <Self as Heaped>::Heap,
+                                    ParseMetadata<<Self as Heaped>::Heap>,
                                 >,
                             >,
                             ParseError<<Self as Heaped>::Heap>,
@@ -664,40 +797,54 @@ pub mod ccf_impls {
                     wmcapf::L,
                     Either<
                         <Self as Heaped>::Heap,
-                        OrVariable<
+                        Pair<
                             <Self as Heaped>::Heap,
-                            Either<
+                            OrVariable<
                                 <Self as Heaped>::Heap,
-                                Pair<
+                                Either<
                                     <Self as Heaped>::Heap,
-                                    Set<
+                                    Pair<
                                         <Self as Heaped>::Heap,
-                                        Either<
+                                        Set<
                                             <Self as Heaped>::Heap,
-                                            OrVariableZeroOrMore<
+                                            Either<
                                                 <Self as Heaped>::Heap,
-                                                Either<
+                                                Pair<
                                                     <Self as Heaped>::Heap,
-                                                    Pair<
+                                                    OrVariableZeroOrMore<
                                                         <Self as Heaped>::Heap,
-                                                        tscapf::Nat,
-                                                        Maybe<
+                                                        Either<
                                                             <Self as Heaped>::Heap,
-                                                            ParseMetadata<<Self as Heaped>::Heap>,
+                                                            Pair<
+                                                                <Self as Heaped>::Heap,
+                                                                tscapf::Nat,
+                                                                Maybe<
+                                                                    <Self as Heaped>::Heap,
+                                                                    ParseMetadata<<Self as Heaped>::Heap>,
+                                                                >,
+                                                            >,
+                                                            ParseError<<Self as Heaped>::Heap>,
                                                         >,
                                                     >,
-                                                    ParseError<<Self as Heaped>::Heap>,
+                                                    Maybe<
+                                                        <Self as Heaped>::Heap,
+                                                        ParseMetadata<<Self as Heaped>::Heap>,
+                                                    >,
                                                 >,
+                                                ParseError<<Self as Heaped>::Heap>,
                                             >,
-                                            ParseError<<Self as Heaped>::Heap>,
+                                        >,
+                                        Maybe<
+                                            <Self as Heaped>::Heap,
+                                            ParseMetadata<<Self as Heaped>::Heap>,
                                         >,
                                     >,
-                                    Maybe<
-                                        <Self as Heaped>::Heap,
-                                        ParseMetadata<<Self as Heaped>::Heap>,
-                                    >,
+                                    ParseError<<Self as Heaped>::Heap>,
                                 >,
-                                ParseError<<Self as Heaped>::Heap>,
+                            >,
+                            Maybe<
+                                <Self as Heaped>::Heap,
+                                ParseMetadata<<Self as Heaped>::Heap>,
                             >,
                         >,
                         ParseError<<Self as Heaped>::Heap>,
@@ -1152,34 +1299,31 @@ pub mod transitive_ccf {
         tscapf::Heap,
         Either<
             tscapf::Heap,
-            OrVariable<
+            Pair<
                 tscapf::Heap,
-                Either<
-                    tscapf::Heap,
-                    Pair<
-                        tscapf::Heap,
-                        tscapf::Nat,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
         >,
     > for tscapf::LeftOperand {
         type Intermediary = Either<
             tscapf::Heap,
-            OrVariable<
+            Pair<
                 tscapf::Heap,
-                Either<
+                OrVariable<
                     tscapf::Heap,
-                    Pair<
+                    Either<
                         tscapf::Heap,
-                        tscapf::Nat,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
                     >,
-                    ParseError<tscapf::Heap>,
                 >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
         >;
@@ -1189,34 +1333,76 @@ pub mod transitive_ccf {
         tscapf::Heap,
         Either<
             tscapf::Heap,
-            OrVariable<
+            Pair<
                 tscapf::Heap,
-                Either<
+                OrVariable<
                     tscapf::Heap,
-                    Pair<
+                    Either<
                         tscapf::Heap,
-                        tscapf::Nat,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
                     >,
-                    ParseError<tscapf::Heap>,
                 >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    > for tscapf::LeftOperand {
+        type Intermediary = Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                OrVariable<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
         >,
     > for tscapf::RightOperand {
         type Intermediary = Either<
             tscapf::Heap,
-            OrVariable<
+            Pair<
                 tscapf::Heap,
-                Either<
+                OrVariable<
                     tscapf::Heap,
-                    Pair<
+                    Either<
                         tscapf::Heap,
-                        tscapf::Nat,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
                     >,
-                    ParseError<tscapf::Heap>,
                 >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
         >;
@@ -1226,34 +1412,76 @@ pub mod transitive_ccf {
         tscapf::Heap,
         Either<
             tscapf::Heap,
-            OrVariable<
+            Pair<
                 tscapf::Heap,
-                Either<
+                OrVariable<
                     tscapf::Heap,
-                    Pair<
+                    Either<
                         tscapf::Heap,
-                        tscapf::Nat,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
                     >,
-                    ParseError<tscapf::Heap>,
                 >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    > for tscapf::RightOperand {
+        type Intermediary = Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                OrVariable<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
         >,
     > for tscapf::F {
         type Intermediary = Either<
             tscapf::Heap,
-            OrVariable<
+            Pair<
                 tscapf::Heap,
-                Either<
+                OrVariable<
                     tscapf::Heap,
-                    Pair<
+                    Either<
                         tscapf::Heap,
-                        tscapf::Nat,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
                     >,
-                    ParseError<tscapf::Heap>,
                 >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
         >;
@@ -1263,70 +1491,209 @@ pub mod transitive_ccf {
         tscapf::Heap,
         Either<
             tscapf::Heap,
-            OrVariable<
+            Pair<
                 tscapf::Heap,
-                Either<
+                OrVariable<
                     tscapf::Heap,
-                    Pair<
+                    Either<
                         tscapf::Heap,
-                        Set<
+                        Pair<
                             tscapf::Heap,
-                            Either<
-                                tscapf::Heap,
-                                OrVariableZeroOrMore<
-                                    tscapf::Heap,
-                                    Either<
-                                        tscapf::Heap,
-                                        Pair<
-                                            tscapf::Heap,
-                                            tscapf::Nat,
-                                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                                        >,
-                                        ParseError<tscapf::Heap>,
-                                    >,
-                                >,
-                                ParseError<tscapf::Heap>,
-                            >,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                         >,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        ParseError<tscapf::Heap>,
                     >,
-                    ParseError<tscapf::Heap>,
                 >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    > for tscapf::F {
+        type Intermediary = Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                OrVariable<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                Set<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            OrVariableZeroOrMore<
+                                tscapf::Heap,
+                                Either<
+                                    tscapf::Heap,
+                                    Pair<
+                                        tscapf::Heap,
+                                        tscapf::Nat,
+                                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                    >,
+                                    ParseError<tscapf::Heap>,
+                                >,
+                            >,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
         >,
     > for tscapf::Sum {
         type Intermediary = Either<
             tscapf::Heap,
-            OrVariable<
+            Pair<
                 tscapf::Heap,
-                Either<
+                OrVariable<
                     tscapf::Heap,
-                    Pair<
+                    Either<
                         tscapf::Heap,
-                        Set<
+                        Pair<
                             tscapf::Heap,
-                            Either<
+                            Set<
                                 tscapf::Heap,
-                                OrVariableZeroOrMore<
+                                Either<
                                     tscapf::Heap,
-                                    Either<
+                                    Pair<
                                         tscapf::Heap,
-                                        Pair<
+                                        OrVariableZeroOrMore<
                                             tscapf::Heap,
-                                            tscapf::Nat,
-                                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                            Either<
+                                                tscapf::Heap,
+                                                Pair<
+                                                    tscapf::Heap,
+                                                    tscapf::Nat,
+                                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                                >,
+                                                ParseError<tscapf::Heap>,
+                                            >,
                                         >,
-                                        ParseError<tscapf::Heap>,
+                                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                                     >,
+                                    ParseError<tscapf::Heap>,
                                 >,
-                                ParseError<tscapf::Heap>,
                             >,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                         >,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        ParseError<tscapf::Heap>,
                     >,
-                    ParseError<tscapf::Heap>,
                 >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                OrVariable<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            Set<
+                                tscapf::Heap,
+                                Either<
+                                    tscapf::Heap,
+                                    Pair<
+                                        tscapf::Heap,
+                                        OrVariableZeroOrMore<
+                                            tscapf::Heap,
+                                            Either<
+                                                tscapf::Heap,
+                                                Pair<
+                                                    tscapf::Heap,
+                                                    tscapf::Nat,
+                                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                                >,
+                                                ParseError<tscapf::Heap>,
+                                            >,
+                                        >,
+                                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                    >,
+                                    ParseError<tscapf::Heap>,
+                                >,
+                            >,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    > for tscapf::Sum {
+        type Intermediary = Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                OrVariable<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            Set<
+                                tscapf::Heap,
+                                Either<
+                                    tscapf::Heap,
+                                    Pair<
+                                        tscapf::Heap,
+                                        OrVariableZeroOrMore<
+                                            tscapf::Heap,
+                                            Either<
+                                                tscapf::Heap,
+                                                Pair<
+                                                    tscapf::Heap,
+                                                    tscapf::Nat,
+                                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                                >,
+                                                ParseError<tscapf::Heap>,
+                                            >,
+                                        >,
+                                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                    >,
+                                    ParseError<tscapf::Heap>,
+                                >,
+                            >,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
         >;
@@ -1360,95 +1727,6 @@ pub mod transitive_ccf {
         tscapf::Heap,
         Either<
             tscapf::Heap,
-            OrVariable<
-                tscapf::Heap,
-                Either<
-                    tscapf::Heap,
-                    Pair<
-                        tscapf::Heap,
-                        tscapf::Nat,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-            >,
-            ParseError<tscapf::Heap>,
-        >,
-    > for tscapf::Nat {
-        type Intermediary = Either<
-            tscapf::Heap,
-            Pair<
-                tscapf::Heap,
-                IdxBox<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::F,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-            >,
-            ParseError<tscapf::Heap>,
-        >;
-    }
-    /// @generated by [term_specialized_impl_gen::tuc_impls]
-    impl ccf::transitivity::TransitivelyUnitCcf<
-        tscapf::Heap,
-        Either<
-            tscapf::Heap,
-            OrVariable<
-                tscapf::Heap,
-                Either<
-                    tscapf::Heap,
-                    Pair<
-                        tscapf::Heap,
-                        Set<
-                            tscapf::Heap,
-                            Either<
-                                tscapf::Heap,
-                                OrVariableZeroOrMore<
-                                    tscapf::Heap,
-                                    Either<
-                                        tscapf::Heap,
-                                        Pair<
-                                            tscapf::Heap,
-                                            tscapf::Nat,
-                                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                                        >,
-                                        ParseError<tscapf::Heap>,
-                                    >,
-                                >,
-                                ParseError<tscapf::Heap>,
-                            >,
-                        >,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-            >,
-            ParseError<tscapf::Heap>,
-        >,
-    > for tscapf::Nat {
-        type Intermediary = Either<
-            tscapf::Heap,
-            Pair<
-                tscapf::Heap,
-                tscapf::Sum,
-                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-            >,
-            ParseError<tscapf::Heap>,
-        >;
-    }
-    /// @generated by [term_specialized_impl_gen::tuc_impls]
-    impl ccf::transitivity::TransitivelyUnitCcf<
-        tscapf::Heap,
-        Either<
-            tscapf::Heap,
             Pair<
                 tscapf::Heap,
                 tscapf::Plus,
@@ -1565,6 +1843,107 @@ pub mod transitive_ccf {
             tscapf::Heap,
             Pair<
                 tscapf::Heap,
+                OrVariable<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    > for tscapf::Nat {
+        type Intermediary = Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                IdxBox<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::F,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                OrVariable<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            Set<
+                                tscapf::Heap,
+                                Either<
+                                    tscapf::Heap,
+                                    Pair<
+                                        tscapf::Heap,
+                                        OrVariableZeroOrMore<
+                                            tscapf::Heap,
+                                            Either<
+                                                tscapf::Heap,
+                                                Pair<
+                                                    tscapf::Heap,
+                                                    tscapf::Nat,
+                                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                                >,
+                                                ParseError<tscapf::Heap>,
+                                            >,
+                                        >,
+                                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                    >,
+                                    ParseError<tscapf::Heap>,
+                                >,
+                            >,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    > for tscapf::Nat {
+        type Intermediary = Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Sum,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
                 IdxBox<
                     tscapf::Heap,
                     Either<
@@ -1643,6 +2022,619 @@ pub mod transitive_ccf {
                         ParseError<tscapf::Heap>,
                     >,
                 >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::LeftOperand,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for OrVariable<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::LeftOperand,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    > {
+        type Intermediary = Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::LeftOperand,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                OrVariable<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for OrVariable<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::LeftOperand,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    > {
+        type Intermediary = Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::LeftOperand,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::RightOperand,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for OrVariable<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::RightOperand,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    > {
+        type Intermediary = Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::RightOperand,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                OrVariable<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for OrVariable<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::RightOperand,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    > {
+        type Intermediary = Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::RightOperand,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Plus,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for OrVariable<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    > {
+        type Intermediary = Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::F,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for OrVariable<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    > {
+        type Intermediary = Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Sum,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for OrVariable<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    > {
+        type Intermediary = Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for OrVariable<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    > {
+        type Intermediary = Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                BoundedNat<tscapf::Heap>,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for OrVariable<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    > {
+        type Intermediary = Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                Set<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            OrVariableZeroOrMore<
+                                tscapf::Heap,
+                                Either<
+                                    tscapf::Heap,
+                                    Pair<
+                                        tscapf::Heap,
+                                        tscapf::Nat,
+                                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                    >,
+                                    ParseError<tscapf::Heap>,
+                                >,
+                            >,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for OrVariable<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                Set<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            OrVariableZeroOrMore<
+                                tscapf::Heap,
+                                Either<
+                                    tscapf::Heap,
+                                    Pair<
+                                        tscapf::Heap,
+                                        tscapf::Nat,
+                                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                    >,
+                                    ParseError<tscapf::Heap>,
+                                >,
+                            >,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    > {
+        type Intermediary = Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                Set<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            OrVariableZeroOrMore<
+                                tscapf::Heap,
+                                Either<
+                                    tscapf::Heap,
+                                    Pair<
+                                        tscapf::Heap,
+                                        tscapf::Nat,
+                                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                    >,
+                                    ParseError<tscapf::Heap>,
+                                >,
+                            >,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Plus,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for OrVariableZeroOrMore<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    > {
+        type Intermediary = Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::F,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for OrVariableZeroOrMore<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    > {
+        type Intermediary = Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Sum,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for OrVariableZeroOrMore<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    > {
+        type Intermediary = Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for OrVariableZeroOrMore<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    > {
+        type Intermediary = Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                BoundedNat<tscapf::Heap>,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for OrVariableZeroOrMore<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    > {
+        type Intermediary = Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
                 Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
@@ -1712,48 +2704,6 @@ pub mod transitive_ccf {
         tscapf::Heap,
         Either<
             tscapf::Heap,
-            OrVariable<
-                tscapf::Heap,
-                Either<
-                    tscapf::Heap,
-                    Pair<
-                        tscapf::Heap,
-                        tscapf::Nat,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-            >,
-            ParseError<tscapf::Heap>,
-        >,
-    >
-    for IdxBox<
-        tscapf::Heap,
-        Either<
-            tscapf::Heap,
-            Pair<
-                tscapf::Heap,
-                tscapf::F,
-                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-            >,
-            ParseError<tscapf::Heap>,
-        >,
-    > {
-        type Intermediary = Either<
-            tscapf::Heap,
-            Pair<
-                tscapf::Heap,
-                tscapf::F,
-                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-            >,
-            ParseError<tscapf::Heap>,
-        >;
-    }
-    /// @generated by [term_specialized_impl_gen::tuc_impls]
-    impl ccf::transitivity::TransitivelyUnitCcf<
-        tscapf::Heap,
-        Either<
-            tscapf::Heap,
             Pair<
                 tscapf::Heap,
                 tscapf::F,
@@ -1787,399 +2737,48 @@ pub mod transitive_ccf {
     /// @generated by [term_specialized_impl_gen::tuc_impls]
     impl ccf::transitivity::TransitivelyUnitCcf<
         tscapf::Heap,
-        OrVariable<
+        Either<
             tscapf::Heap,
-            Either<
+            Pair<
                 tscapf::Heap,
-                Pair<
+                OrVariable<
                     tscapf::Heap,
-                    tscapf::LeftOperand,
-                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-        >,
-    >
-    for Either<
-        tscapf::Heap,
-        OrVariable<
-            tscapf::Heap,
-            Either<
-                tscapf::Heap,
-                Pair<
-                    tscapf::Heap,
-                    tscapf::LeftOperand,
-                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-        >,
-        ParseError<tscapf::Heap>,
-    > {
-        type Intermediary = OrVariable<
-            tscapf::Heap,
-            Either<
-                tscapf::Heap,
-                Pair<
-                    tscapf::Heap,
-                    tscapf::LeftOperand,
-                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-        >;
-    }
-    /// @generated by [term_specialized_impl_gen::tuc_impls]
-    impl ccf::transitivity::TransitivelyUnitCcf<tscapf::Heap, ParseError<tscapf::Heap>>
-    for Either<
-        tscapf::Heap,
-        OrVariable<
-            tscapf::Heap,
-            Either<
-                tscapf::Heap,
-                Pair<
-                    tscapf::Heap,
-                    tscapf::LeftOperand,
-                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-        >,
-        ParseError<tscapf::Heap>,
-    > {
-        type Intermediary = ParseError<tscapf::Heap>;
-    }
-    /// @generated by [term_specialized_impl_gen::tuc_impls]
-    impl ccf::transitivity::TransitivelyUnitCcf<
-        tscapf::Heap,
-        OrVariable<
-            tscapf::Heap,
-            Either<
-                tscapf::Heap,
-                Pair<
-                    tscapf::Heap,
-                    tscapf::RightOperand,
-                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-        >,
-    >
-    for Either<
-        tscapf::Heap,
-        OrVariable<
-            tscapf::Heap,
-            Either<
-                tscapf::Heap,
-                Pair<
-                    tscapf::Heap,
-                    tscapf::RightOperand,
-                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-        >,
-        ParseError<tscapf::Heap>,
-    > {
-        type Intermediary = OrVariable<
-            tscapf::Heap,
-            Either<
-                tscapf::Heap,
-                Pair<
-                    tscapf::Heap,
-                    tscapf::RightOperand,
-                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-        >;
-    }
-    /// @generated by [term_specialized_impl_gen::tuc_impls]
-    impl ccf::transitivity::TransitivelyUnitCcf<tscapf::Heap, ParseError<tscapf::Heap>>
-    for Either<
-        tscapf::Heap,
-        OrVariable<
-            tscapf::Heap,
-            Either<
-                tscapf::Heap,
-                Pair<
-                    tscapf::Heap,
-                    tscapf::RightOperand,
-                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-        >,
-        ParseError<tscapf::Heap>,
-    > {
-        type Intermediary = ParseError<tscapf::Heap>;
-    }
-    /// @generated by [term_specialized_impl_gen::tuc_impls]
-    impl ccf::transitivity::TransitivelyUnitCcf<
-        tscapf::Heap,
-        OrVariable<
-            tscapf::Heap,
-            Either<
-                tscapf::Heap,
-                Pair<
-                    tscapf::Heap,
-                    tscapf::Nat,
-                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-        >,
-    >
-    for Either<
-        tscapf::Heap,
-        OrVariable<
-            tscapf::Heap,
-            Either<
-                tscapf::Heap,
-                Pair<
-                    tscapf::Heap,
-                    tscapf::Nat,
-                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-        >,
-        ParseError<tscapf::Heap>,
-    > {
-        type Intermediary = OrVariable<
-            tscapf::Heap,
-            Either<
-                tscapf::Heap,
-                Pair<
-                    tscapf::Heap,
-                    tscapf::Nat,
-                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-        >;
-    }
-    /// @generated by [term_specialized_impl_gen::tuc_impls]
-    impl ccf::transitivity::TransitivelyUnitCcf<tscapf::Heap, ParseError<tscapf::Heap>>
-    for Either<
-        tscapf::Heap,
-        OrVariable<
-            tscapf::Heap,
-            Either<
-                tscapf::Heap,
-                Pair<
-                    tscapf::Heap,
-                    tscapf::Nat,
-                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-        >,
-        ParseError<tscapf::Heap>,
-    > {
-        type Intermediary = ParseError<tscapf::Heap>;
-    }
-    /// @generated by [term_specialized_impl_gen::tuc_impls]
-    impl ccf::transitivity::TransitivelyUnitCcf<
-        tscapf::Heap,
-        OrVariable<
-            tscapf::Heap,
-            Either<
-                tscapf::Heap,
-                Pair<
-                    tscapf::Heap,
-                    Set<
+                    Either<
                         tscapf::Heap,
-                        Either<
+                        Pair<
                             tscapf::Heap,
-                            OrVariableZeroOrMore<
-                                tscapf::Heap,
-                                Either<
-                                    tscapf::Heap,
-                                    Pair<
-                                        tscapf::Heap,
-                                        tscapf::Nat,
-                                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                                    >,
-                                    ParseError<tscapf::Heap>,
-                                >,
-                            >,
-                            ParseError<tscapf::Heap>,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                         >,
+                        ParseError<tscapf::Heap>,
                     >,
-                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                 >,
-                ParseError<tscapf::Heap>,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
+            ParseError<tscapf::Heap>,
         >,
     >
-    for Either<
+    for IdxBox<
         tscapf::Heap,
-        OrVariable<
+        Either<
             tscapf::Heap,
-            Either<
+            Pair<
                 tscapf::Heap,
-                Pair<
-                    tscapf::Heap,
-                    Set<
-                        tscapf::Heap,
-                        Either<
-                            tscapf::Heap,
-                            OrVariableZeroOrMore<
-                                tscapf::Heap,
-                                Either<
-                                    tscapf::Heap,
-                                    Pair<
-                                        tscapf::Heap,
-                                        tscapf::Nat,
-                                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                                    >,
-                                    ParseError<tscapf::Heap>,
-                                >,
-                            >,
-                            ParseError<tscapf::Heap>,
-                        >,
-                    >,
-                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                >,
-                ParseError<tscapf::Heap>,
+                tscapf::F,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
+            ParseError<tscapf::Heap>,
         >,
-        ParseError<tscapf::Heap>,
     > {
-        type Intermediary = OrVariable<
+        type Intermediary = Either<
             tscapf::Heap,
-            Either<
+            Pair<
                 tscapf::Heap,
-                Pair<
-                    tscapf::Heap,
-                    Set<
-                        tscapf::Heap,
-                        Either<
-                            tscapf::Heap,
-                            OrVariableZeroOrMore<
-                                tscapf::Heap,
-                                Either<
-                                    tscapf::Heap,
-                                    Pair<
-                                        tscapf::Heap,
-                                        tscapf::Nat,
-                                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                                    >,
-                                    ParseError<tscapf::Heap>,
-                                >,
-                            >,
-                            ParseError<tscapf::Heap>,
-                        >,
-                    >,
-                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                >,
-                ParseError<tscapf::Heap>,
+                tscapf::F,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
+            ParseError<tscapf::Heap>,
         >;
-    }
-    /// @generated by [term_specialized_impl_gen::tuc_impls]
-    impl ccf::transitivity::TransitivelyUnitCcf<tscapf::Heap, ParseError<tscapf::Heap>>
-    for Either<
-        tscapf::Heap,
-        OrVariable<
-            tscapf::Heap,
-            Either<
-                tscapf::Heap,
-                Pair<
-                    tscapf::Heap,
-                    Set<
-                        tscapf::Heap,
-                        Either<
-                            tscapf::Heap,
-                            OrVariableZeroOrMore<
-                                tscapf::Heap,
-                                Either<
-                                    tscapf::Heap,
-                                    Pair<
-                                        tscapf::Heap,
-                                        tscapf::Nat,
-                                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                                    >,
-                                    ParseError<tscapf::Heap>,
-                                >,
-                            >,
-                            ParseError<tscapf::Heap>,
-                        >,
-                    >,
-                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-        >,
-        ParseError<tscapf::Heap>,
-    > {
-        type Intermediary = ParseError<tscapf::Heap>;
-    }
-    /// @generated by [term_specialized_impl_gen::tuc_impls]
-    impl ccf::transitivity::TransitivelyUnitCcf<
-        tscapf::Heap,
-        OrVariableZeroOrMore<
-            tscapf::Heap,
-            Either<
-                tscapf::Heap,
-                Pair<
-                    tscapf::Heap,
-                    tscapf::Nat,
-                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-        >,
-    >
-    for Either<
-        tscapf::Heap,
-        OrVariableZeroOrMore<
-            tscapf::Heap,
-            Either<
-                tscapf::Heap,
-                Pair<
-                    tscapf::Heap,
-                    tscapf::Nat,
-                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-        >,
-        ParseError<tscapf::Heap>,
-    > {
-        type Intermediary = OrVariableZeroOrMore<
-            tscapf::Heap,
-            Either<
-                tscapf::Heap,
-                Pair<
-                    tscapf::Heap,
-                    tscapf::Nat,
-                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-        >;
-    }
-    /// @generated by [term_specialized_impl_gen::tuc_impls]
-    impl ccf::transitivity::TransitivelyUnitCcf<tscapf::Heap, ParseError<tscapf::Heap>>
-    for Either<
-        tscapf::Heap,
-        OrVariableZeroOrMore<
-            tscapf::Heap,
-            Either<
-                tscapf::Heap,
-                Pair<
-                    tscapf::Heap,
-                    tscapf::Nat,
-                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-        >,
-        ParseError<tscapf::Heap>,
-    > {
-        type Intermediary = ParseError<tscapf::Heap>;
     }
     /// @generated by [term_specialized_impl_gen::tuc_impls]
     impl ccf::transitivity::TransitivelyUnitCcf<tscapf::Heap, tscapf::Plus>
@@ -2253,17 +2852,21 @@ pub mod transitive_ccf {
         tscapf::Heap,
         Either<
             tscapf::Heap,
-            OrVariable<
+            Pair<
                 tscapf::Heap,
-                Either<
+                OrVariable<
                     tscapf::Heap,
-                    Pair<
+                    Either<
                         tscapf::Heap,
-                        tscapf::Nat,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
                     >,
-                    ParseError<tscapf::Heap>,
                 >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
         >,
@@ -2325,17 +2928,21 @@ pub mod transitive_ccf {
         tscapf::Heap,
         Either<
             tscapf::Heap,
-            OrVariable<
+            Pair<
                 tscapf::Heap,
-                Either<
+                OrVariable<
                     tscapf::Heap,
-                    Pair<
+                    Either<
                         tscapf::Heap,
-                        tscapf::Nat,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
                     >,
-                    ParseError<tscapf::Heap>,
                 >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
         >,
@@ -2393,17 +3000,21 @@ pub mod transitive_ccf {
         tscapf::Heap,
         Either<
             tscapf::Heap,
-            OrVariable<
+            Pair<
                 tscapf::Heap,
-                Either<
+                OrVariable<
                     tscapf::Heap,
-                    Pair<
+                    Either<
                         tscapf::Heap,
-                        tscapf::Nat,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
                     >,
-                    ParseError<tscapf::Heap>,
                 >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
         >,
@@ -2453,35 +3064,43 @@ pub mod transitive_ccf {
         tscapf::Heap,
         Either<
             tscapf::Heap,
-            OrVariable<
+            Pair<
                 tscapf::Heap,
-                Either<
+                OrVariable<
                     tscapf::Heap,
-                    Pair<
+                    Either<
                         tscapf::Heap,
-                        Set<
+                        Pair<
                             tscapf::Heap,
-                            Either<
+                            Set<
                                 tscapf::Heap,
-                                OrVariableZeroOrMore<
+                                Either<
                                     tscapf::Heap,
-                                    Either<
+                                    Pair<
                                         tscapf::Heap,
-                                        Pair<
+                                        OrVariableZeroOrMore<
                                             tscapf::Heap,
-                                            tscapf::Nat,
-                                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                            Either<
+                                                tscapf::Heap,
+                                                Pair<
+                                                    tscapf::Heap,
+                                                    tscapf::Nat,
+                                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                                >,
+                                                ParseError<tscapf::Heap>,
+                                            >,
                                         >,
-                                        ParseError<tscapf::Heap>,
+                                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                                     >,
+                                    ParseError<tscapf::Heap>,
                                 >,
-                                ParseError<tscapf::Heap>,
                             >,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                         >,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        ParseError<tscapf::Heap>,
                     >,
-                    ParseError<tscapf::Heap>,
                 >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
         >,
@@ -2727,17 +3346,21 @@ pub mod transitive_ccf {
             tscapf::Heap,
             Either<
                 tscapf::Heap,
-                OrVariableZeroOrMore<
+                Pair<
                     tscapf::Heap,
-                    Either<
+                    OrVariableZeroOrMore<
                         tscapf::Heap,
-                        Pair<
+                        Either<
                             tscapf::Heap,
-                            tscapf::Nat,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::Nat,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
                         >,
-                        ParseError<tscapf::Heap>,
                     >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                 >,
                 ParseError<tscapf::Heap>,
             >,
@@ -2751,17 +3374,21 @@ pub mod transitive_ccf {
                 tscapf::Heap,
                 Either<
                     tscapf::Heap,
-                    OrVariableZeroOrMore<
+                    Pair<
                         tscapf::Heap,
-                        Either<
+                        OrVariableZeroOrMore<
                             tscapf::Heap,
-                            Pair<
+                            Either<
                                 tscapf::Heap,
-                                tscapf::Nat,
-                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::Nat,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
                             >,
-                            ParseError<tscapf::Heap>,
                         >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                     >,
                     ParseError<tscapf::Heap>,
                 >,
@@ -2776,17 +3403,21 @@ pub mod transitive_ccf {
                 tscapf::Heap,
                 Either<
                     tscapf::Heap,
-                    OrVariableZeroOrMore<
+                    Pair<
                         tscapf::Heap,
-                        Either<
+                        OrVariableZeroOrMore<
                             tscapf::Heap,
-                            Pair<
+                            Either<
                                 tscapf::Heap,
-                                tscapf::Nat,
-                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::Nat,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
                             >,
-                            ParseError<tscapf::Heap>,
                         >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                     >,
                     ParseError<tscapf::Heap>,
                 >,
@@ -2804,17 +3435,21 @@ pub mod transitive_ccf {
                 tscapf::Heap,
                 Either<
                     tscapf::Heap,
-                    OrVariableZeroOrMore<
+                    Pair<
                         tscapf::Heap,
-                        Either<
+                        OrVariableZeroOrMore<
                             tscapf::Heap,
-                            Pair<
+                            Either<
                                 tscapf::Heap,
-                                tscapf::Nat,
-                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::Nat,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
                             >,
-                            ParseError<tscapf::Heap>,
                         >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                     >,
                     ParseError<tscapf::Heap>,
                 >,
@@ -2834,17 +3469,21 @@ pub mod transitive_ccf {
                 tscapf::Heap,
                 Either<
                     tscapf::Heap,
-                    OrVariableZeroOrMore<
+                    Pair<
                         tscapf::Heap,
-                        Either<
+                        OrVariableZeroOrMore<
                             tscapf::Heap,
-                            Pair<
+                            Either<
                                 tscapf::Heap,
-                                tscapf::Nat,
-                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::Nat,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
                             >,
-                            ParseError<tscapf::Heap>,
                         >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                     >,
                     ParseError<tscapf::Heap>,
                 >,
@@ -2860,17 +3499,21 @@ pub mod transitive_ccf {
                 tscapf::Heap,
                 Either<
                     tscapf::Heap,
-                    OrVariableZeroOrMore<
+                    Pair<
                         tscapf::Heap,
-                        Either<
+                        OrVariableZeroOrMore<
                             tscapf::Heap,
-                            Pair<
+                            Either<
                                 tscapf::Heap,
-                                tscapf::Nat,
-                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::Nat,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
                             >,
-                            ParseError<tscapf::Heap>,
                         >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                     >,
                     ParseError<tscapf::Heap>,
                 >,
@@ -2885,17 +3528,1161 @@ pub mod transitive_ccf {
                 tscapf::Heap,
                 Either<
                     tscapf::Heap,
-                    OrVariableZeroOrMore<
+                    Pair<
+                        tscapf::Heap,
+                        OrVariableZeroOrMore<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::Nat,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::LeftOperand,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+    >
+    for Either<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::LeftOperand,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+        ParseError<tscapf::Heap>,
+    > {
+        type Intermediary = Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::LeftOperand,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<tscapf::Heap, ParseError<tscapf::Heap>>
+    for Either<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::LeftOperand,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+        ParseError<tscapf::Heap>,
+    > {
+        type Intermediary = ParseError<tscapf::Heap>;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::LeftOperand,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Either<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::LeftOperand,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+        ParseError<tscapf::Heap>,
+    > {
+        type Intermediary = Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::LeftOperand,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::LeftOperand,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+    >
+    for Either<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::LeftOperand,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+        ParseError<tscapf::Heap>,
+    > {
+        type Intermediary = Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::LeftOperand,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::RightOperand,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+    >
+    for Either<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::RightOperand,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+        ParseError<tscapf::Heap>,
+    > {
+        type Intermediary = Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::RightOperand,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<tscapf::Heap, ParseError<tscapf::Heap>>
+    for Either<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::RightOperand,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+        ParseError<tscapf::Heap>,
+    > {
+        type Intermediary = ParseError<tscapf::Heap>;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::RightOperand,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Either<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::RightOperand,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+        ParseError<tscapf::Heap>,
+    > {
+        type Intermediary = Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::RightOperand,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::RightOperand,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+    >
+    for Either<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::RightOperand,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+        ParseError<tscapf::Heap>,
+    > {
+        type Intermediary = Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::RightOperand,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+    >
+    for Either<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::Nat,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+        ParseError<tscapf::Heap>,
+    > {
+        type Intermediary = Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::Nat,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<tscapf::Heap, ParseError<tscapf::Heap>>
+    for Either<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::Nat,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+        ParseError<tscapf::Heap>,
+    > {
+        type Intermediary = ParseError<tscapf::Heap>;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Either<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::Nat,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+        ParseError<tscapf::Heap>,
+    > {
+        type Intermediary = Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::Nat,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::Nat,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+    >
+    for Either<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::Nat,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+        ParseError<tscapf::Heap>,
+    > {
+        type Intermediary = Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::Nat,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    Set<
                         tscapf::Heap,
                         Either<
                             tscapf::Heap,
                             Pair<
                                 tscapf::Heap,
-                                tscapf::Nat,
+                                OrVariableZeroOrMore<
+                                    tscapf::Heap,
+                                    Either<
+                                        tscapf::Heap,
+                                        Pair<
+                                            tscapf::Heap,
+                                            tscapf::Nat,
+                                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                        >,
+                                        ParseError<tscapf::Heap>,
+                                    >,
+                                >,
                                 Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                             >,
                             ParseError<tscapf::Heap>,
                         >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+    >
+    for Either<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        Set<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    OrVariableZeroOrMore<
+                                        tscapf::Heap,
+                                        Either<
+                                            tscapf::Heap,
+                                            Pair<
+                                                tscapf::Heap,
+                                                tscapf::Nat,
+                                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                            >,
+                                            ParseError<tscapf::Heap>,
+                                        >,
+                                    >,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+        ParseError<tscapf::Heap>,
+    > {
+        type Intermediary = Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        Set<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    OrVariableZeroOrMore<
+                                        tscapf::Heap,
+                                        Either<
+                                            tscapf::Heap,
+                                            Pair<
+                                                tscapf::Heap,
+                                                tscapf::Nat,
+                                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                            >,
+                                            ParseError<tscapf::Heap>,
+                                        >,
+                                    >,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<tscapf::Heap, ParseError<tscapf::Heap>>
+    for Either<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        Set<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    OrVariableZeroOrMore<
+                                        tscapf::Heap,
+                                        Either<
+                                            tscapf::Heap,
+                                            Pair<
+                                                tscapf::Heap,
+                                                tscapf::Nat,
+                                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                            >,
+                                            ParseError<tscapf::Heap>,
+                                        >,
+                                    >,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+        ParseError<tscapf::Heap>,
+    > {
+        type Intermediary = ParseError<tscapf::Heap>;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                Set<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            OrVariableZeroOrMore<
+                                tscapf::Heap,
+                                Either<
+                                    tscapf::Heap,
+                                    Pair<
+                                        tscapf::Heap,
+                                        tscapf::Nat,
+                                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                    >,
+                                    ParseError<tscapf::Heap>,
+                                >,
+                            >,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Either<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        Set<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    OrVariableZeroOrMore<
+                                        tscapf::Heap,
+                                        Either<
+                                            tscapf::Heap,
+                                            Pair<
+                                                tscapf::Heap,
+                                                tscapf::Nat,
+                                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                            >,
+                                            ParseError<tscapf::Heap>,
+                                        >,
+                                    >,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+        ParseError<tscapf::Heap>,
+    > {
+        type Intermediary = Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        Set<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    OrVariableZeroOrMore<
+                                        tscapf::Heap,
+                                        Either<
+                                            tscapf::Heap,
+                                            Pair<
+                                                tscapf::Heap,
+                                                tscapf::Nat,
+                                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                            >,
+                                            ParseError<tscapf::Heap>,
+                                        >,
+                                    >,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        Set<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    OrVariableZeroOrMore<
+                                        tscapf::Heap,
+                                        Either<
+                                            tscapf::Heap,
+                                            Pair<
+                                                tscapf::Heap,
+                                                tscapf::Nat,
+                                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                            >,
+                                            ParseError<tscapf::Heap>,
+                                        >,
+                                    >,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+    >
+    for Either<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        Set<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    OrVariableZeroOrMore<
+                                        tscapf::Heap,
+                                        Either<
+                                            tscapf::Heap,
+                                            Pair<
+                                                tscapf::Heap,
+                                                tscapf::Nat,
+                                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                            >,
+                                            ParseError<tscapf::Heap>,
+                                        >,
+                                    >,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+        ParseError<tscapf::Heap>,
+    > {
+        type Intermediary = Pair<
+            tscapf::Heap,
+            OrVariable<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        Set<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    OrVariableZeroOrMore<
+                                        tscapf::Heap,
+                                        Either<
+                                            tscapf::Heap,
+                                            Pair<
+                                                tscapf::Heap,
+                                                tscapf::Nat,
+                                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                            >,
+                                            ParseError<tscapf::Heap>,
+                                        >,
+                                    >,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        OrVariableZeroOrMore<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+    >
+    for Either<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariableZeroOrMore<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::Nat,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+        ParseError<tscapf::Heap>,
+    > {
+        type Intermediary = Pair<
+            tscapf::Heap,
+            OrVariableZeroOrMore<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::Nat,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<tscapf::Heap, ParseError<tscapf::Heap>>
+    for Either<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariableZeroOrMore<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::Nat,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+        ParseError<tscapf::Heap>,
+    > {
+        type Intermediary = ParseError<tscapf::Heap>;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Either<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariableZeroOrMore<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::Nat,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+        ParseError<tscapf::Heap>,
+    > {
+        type Intermediary = Pair<
+            tscapf::Heap,
+            OrVariableZeroOrMore<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::Nat,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariableZeroOrMore<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::Nat,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+    >
+    for Either<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            OrVariableZeroOrMore<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::Nat,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+            >,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+        ParseError<tscapf::Heap>,
+    > {
+        type Intermediary = Pair<
+            tscapf::Heap,
+            OrVariableZeroOrMore<
+                tscapf::Heap,
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::Nat,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                     >,
                     ParseError<tscapf::Heap>,
                 >,
@@ -3102,17 +4889,10 @@ pub mod transitive_ccf {
         tscapf::Heap,
         Either<
             tscapf::Heap,
-            OrVariable<
+            Pair<
                 tscapf::Heap,
-                Either<
-                    tscapf::Heap,
-                    Pair<
-                        tscapf::Heap,
-                        tscapf::Nat,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
+                tscapf::F,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
         >,
@@ -3161,7 +4941,18 @@ pub mod transitive_ccf {
             tscapf::Heap,
             Pair<
                 tscapf::Heap,
-                tscapf::F,
+                OrVariable<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
                 Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
@@ -3303,17 +5094,41 @@ pub mod transitive_ccf {
         tscapf::Heap,
         Either<
             tscapf::Heap,
-            OrVariable<
+            Pair<
                 tscapf::Heap,
-                Either<
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        tscapf::LeftOperand,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = tscapf::LeftOperand;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                OrVariable<
                     tscapf::Heap,
-                    Pair<
+                    Either<
                         tscapf::Heap,
-                        tscapf::Nat,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
                     >,
-                    ParseError<tscapf::Heap>,
                 >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
         >,
@@ -3351,17 +5166,41 @@ pub mod transitive_ccf {
         tscapf::Heap,
         Either<
             tscapf::Heap,
-            OrVariable<
+            Pair<
                 tscapf::Heap,
-                Either<
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        tscapf::RightOperand,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = tscapf::RightOperand;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                OrVariable<
                     tscapf::Heap,
-                    Pair<
+                    Either<
                         tscapf::Heap,
-                        tscapf::Nat,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
                     >,
-                    ParseError<tscapf::Heap>,
                 >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
         >,
@@ -3395,17 +5234,37 @@ pub mod transitive_ccf {
         tscapf::Heap,
         Either<
             tscapf::Heap,
-            OrVariable<
+            Pair<
                 tscapf::Heap,
-                Either<
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Pair<tscapf::Heap, tscapf::F, Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>> {
+        type Intermediary = tscapf::F;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                OrVariable<
                     tscapf::Heap,
-                    Pair<
+                    Either<
                         tscapf::Heap,
-                        tscapf::Nat,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
                     >,
-                    ParseError<tscapf::Heap>,
                 >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
         >,
@@ -3435,35 +5294,85 @@ pub mod transitive_ccf {
         tscapf::Heap,
         Either<
             tscapf::Heap,
-            OrVariable<
+            Pair<
                 tscapf::Heap,
-                Either<
+                Set<
                     tscapf::Heap,
-                    Pair<
+                    Either<
                         tscapf::Heap,
-                        Set<
+                        Pair<
                             tscapf::Heap,
-                            Either<
+                            OrVariableZeroOrMore<
                                 tscapf::Heap,
-                                OrVariableZeroOrMore<
+                                Either<
                                     tscapf::Heap,
-                                    Either<
+                                    Pair<
                                         tscapf::Heap,
-                                        Pair<
-                                            tscapf::Heap,
-                                            tscapf::Nat,
-                                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                                        >,
-                                        ParseError<tscapf::Heap>,
+                                        tscapf::Nat,
+                                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                                     >,
+                                    ParseError<tscapf::Heap>,
                                 >,
-                                ParseError<tscapf::Heap>,
                             >,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                         >,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        ParseError<tscapf::Heap>,
                     >,
-                    ParseError<tscapf::Heap>,
                 >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        tscapf::Sum,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = tscapf::Sum;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                OrVariable<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            Set<
+                                tscapf::Heap,
+                                Either<
+                                    tscapf::Heap,
+                                    Pair<
+                                        tscapf::Heap,
+                                        OrVariableZeroOrMore<
+                                            tscapf::Heap,
+                                            Either<
+                                                tscapf::Heap,
+                                                Pair<
+                                                    tscapf::Heap,
+                                                    tscapf::Nat,
+                                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                                >,
+                                                ParseError<tscapf::Heap>,
+                                            >,
+                                        >,
+                                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                    >,
+                                    ParseError<tscapf::Heap>,
+                                >,
+                            >,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
         >,
@@ -3498,78 +5407,6 @@ pub mod transitive_ccf {
     }
     /// @generated by [term_specialized_impl_gen::tuc_impls]
     impl ccf::transitivity::TransitivelyUnitCcf<tscapf::Heap, tscapf::Nat>
-    for Pair<
-        tscapf::Heap,
-        tscapf::Nat,
-        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-    > {
-        type Intermediary = tscapf::Nat;
-    }
-    /// @generated by [term_specialized_impl_gen::tuc_impls]
-    impl ccf::transitivity::TransitivelyUnitCcf<
-        tscapf::Heap,
-        Either<
-            tscapf::Heap,
-            OrVariable<
-                tscapf::Heap,
-                Either<
-                    tscapf::Heap,
-                    Pair<
-                        tscapf::Heap,
-                        tscapf::Nat,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-            >,
-            ParseError<tscapf::Heap>,
-        >,
-    >
-    for Pair<
-        tscapf::Heap,
-        tscapf::Nat,
-        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-    > {
-        type Intermediary = tscapf::Nat;
-    }
-    /// @generated by [term_specialized_impl_gen::tuc_impls]
-    impl ccf::transitivity::TransitivelyUnitCcf<
-        tscapf::Heap,
-        Either<
-            tscapf::Heap,
-            OrVariable<
-                tscapf::Heap,
-                Either<
-                    tscapf::Heap,
-                    Pair<
-                        tscapf::Heap,
-                        Set<
-                            tscapf::Heap,
-                            Either<
-                                tscapf::Heap,
-                                OrVariableZeroOrMore<
-                                    tscapf::Heap,
-                                    Either<
-                                        tscapf::Heap,
-                                        Pair<
-                                            tscapf::Heap,
-                                            tscapf::Nat,
-                                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                                        >,
-                                        ParseError<tscapf::Heap>,
-                                    >,
-                                >,
-                                ParseError<tscapf::Heap>,
-                            >,
-                        >,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-            >,
-            ParseError<tscapf::Heap>,
-        >,
-    >
     for Pair<
         tscapf::Heap,
         tscapf::Nat,
@@ -3660,6 +5497,90 @@ pub mod transitive_ccf {
     /// @generated by [term_specialized_impl_gen::tuc_impls]
     impl ccf::transitivity::TransitivelyUnitCcf<
         tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                OrVariable<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        tscapf::Nat,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = tscapf::Nat;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                OrVariable<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            Set<
+                                tscapf::Heap,
+                                Either<
+                                    tscapf::Heap,
+                                    Pair<
+                                        tscapf::Heap,
+                                        OrVariableZeroOrMore<
+                                            tscapf::Heap,
+                                            Either<
+                                                tscapf::Heap,
+                                                Pair<
+                                                    tscapf::Heap,
+                                                    tscapf::Nat,
+                                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                                >,
+                                                ParseError<tscapf::Heap>,
+                                            >,
+                                        >,
+                                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                    >,
+                                    ParseError<tscapf::Heap>,
+                                >,
+                            >,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        tscapf::Nat,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = tscapf::Nat;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
         Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
     >
     for Pair<
@@ -3697,17 +5618,21 @@ pub mod transitive_ccf {
             tscapf::Heap,
             Either<
                 tscapf::Heap,
-                OrVariableZeroOrMore<
+                Pair<
                     tscapf::Heap,
-                    Either<
+                    OrVariableZeroOrMore<
                         tscapf::Heap,
-                        Pair<
+                        Either<
                             tscapf::Heap,
-                            tscapf::Nat,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::Nat,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
                         >,
-                        ParseError<tscapf::Heap>,
                     >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                 >,
                 ParseError<tscapf::Heap>,
             >,
@@ -3719,17 +5644,21 @@ pub mod transitive_ccf {
             tscapf::Heap,
             Either<
                 tscapf::Heap,
-                OrVariableZeroOrMore<
+                Pair<
                     tscapf::Heap,
-                    Either<
+                    OrVariableZeroOrMore<
                         tscapf::Heap,
-                        Pair<
+                        Either<
                             tscapf::Heap,
-                            tscapf::Nat,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::Nat,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
                         >,
-                        ParseError<tscapf::Heap>,
                     >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                 >,
                 ParseError<tscapf::Heap>,
             >,
@@ -3740,17 +5669,21 @@ pub mod transitive_ccf {
             tscapf::Heap,
             Either<
                 tscapf::Heap,
-                OrVariableZeroOrMore<
+                Pair<
                     tscapf::Heap,
-                    Either<
+                    OrVariableZeroOrMore<
                         tscapf::Heap,
-                        Pair<
+                        Either<
                             tscapf::Heap,
-                            tscapf::Nat,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::Nat,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
                         >,
-                        ParseError<tscapf::Heap>,
                     >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                 >,
                 ParseError<tscapf::Heap>,
             >,
@@ -3767,7 +5700,124 @@ pub mod transitive_ccf {
             tscapf::Heap,
             Either<
                 tscapf::Heap,
-                OrVariableZeroOrMore<
+                Pair<
+                    tscapf::Heap,
+                    OrVariableZeroOrMore<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::Nat,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::LeftOperand,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::LeftOperand,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::LeftOperand,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::LeftOperand,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::LeftOperand,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::LeftOperand,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                OrVariable<
                     tscapf::Heap,
                     Either<
                         tscapf::Heap,
@@ -3778,6 +5828,1039 @@ pub mod transitive_ccf {
                         >,
                         ParseError<tscapf::Heap>,
                     >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::LeftOperand,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::LeftOperand,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::LeftOperand,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::RightOperand,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::RightOperand,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::RightOperand,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::RightOperand,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::RightOperand,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::RightOperand,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                OrVariable<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::RightOperand,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::RightOperand,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::RightOperand,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Plus,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::F,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Sum,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                BoundedNat<tscapf::Heap>,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    Set<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                OrVariableZeroOrMore<
+                                    tscapf::Heap,
+                                    Either<
+                                        tscapf::Heap,
+                                        Pair<
+                                            tscapf::Heap,
+                                            tscapf::Nat,
+                                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                        >,
+                                        ParseError<tscapf::Heap>,
+                                    >,
+                                >,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    Set<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                OrVariableZeroOrMore<
+                                    tscapf::Heap,
+                                    Either<
+                                        tscapf::Heap,
+                                        Pair<
+                                            tscapf::Heap,
+                                            tscapf::Nat,
+                                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                        >,
+                                        ParseError<tscapf::Heap>,
+                                    >,
+                                >,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    Set<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                OrVariableZeroOrMore<
+                                    tscapf::Heap,
+                                    Either<
+                                        tscapf::Heap,
+                                        Pair<
+                                            tscapf::Heap,
+                                            tscapf::Nat,
+                                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                        >,
+                                        ParseError<tscapf::Heap>,
+                                    >,
+                                >,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                Set<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            OrVariableZeroOrMore<
+                                tscapf::Heap,
+                                Either<
+                                    tscapf::Heap,
+                                    Pair<
+                                        tscapf::Heap,
+                                        tscapf::Nat,
+                                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                    >,
+                                    ParseError<tscapf::Heap>,
+                                >,
+                            >,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    Set<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                OrVariableZeroOrMore<
+                                    tscapf::Heap,
+                                    Either<
+                                        tscapf::Heap,
+                                        Pair<
+                                            tscapf::Heap,
+                                            tscapf::Nat,
+                                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                        >,
+                                        ParseError<tscapf::Heap>,
+                                    >,
+                                >,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    Set<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                OrVariableZeroOrMore<
+                                    tscapf::Heap,
+                                    Either<
+                                        tscapf::Heap,
+                                        Pair<
+                                            tscapf::Heap,
+                                            tscapf::Nat,
+                                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                        >,
+                                        ParseError<tscapf::Heap>,
+                                    >,
+                                >,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariable<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    Set<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                OrVariableZeroOrMore<
+                                    tscapf::Heap,
+                                    Either<
+                                        tscapf::Heap,
+                                        Pair<
+                                            tscapf::Heap,
+                                            tscapf::Nat,
+                                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                        >,
+                                        ParseError<tscapf::Heap>,
+                                    >,
+                                >,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        OrVariableZeroOrMore<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariableZeroOrMore<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = OrVariableZeroOrMore<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Plus,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariableZeroOrMore<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = OrVariableZeroOrMore<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::F,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariableZeroOrMore<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = OrVariableZeroOrMore<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Sum,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariableZeroOrMore<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = OrVariableZeroOrMore<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                tscapf::Nat,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariableZeroOrMore<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = OrVariableZeroOrMore<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                BoundedNat<tscapf::Heap>,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            ParseError<tscapf::Heap>,
+        >,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariableZeroOrMore<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = OrVariableZeroOrMore<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+        >;
+    }
+    /// @generated by [term_specialized_impl_gen::tuc_impls]
+    impl ccf::transitivity::TransitivelyUnitCcf<
+        tscapf::Heap,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    >
+    for Pair<
+        tscapf::Heap,
+        OrVariableZeroOrMore<
+            tscapf::Heap,
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    tscapf::Nat,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                 >,
                 ParseError<tscapf::Heap>,
             >,
@@ -3977,17 +7060,10 @@ pub mod transitive_ccf {
         tscapf::Heap,
         Either<
             tscapf::Heap,
-            OrVariable<
+            Pair<
                 tscapf::Heap,
-                Either<
-                    tscapf::Heap,
-                    Pair<
-                        tscapf::Heap,
-                        tscapf::Nat,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
+                tscapf::F,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
         >,
@@ -4028,7 +7104,18 @@ pub mod transitive_ccf {
             tscapf::Heap,
             Pair<
                 tscapf::Heap,
-                tscapf::F,
+                OrVariable<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
                 Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
@@ -4089,582 +7176,13 @@ pub mod transitive_ccf {
     /// @generated by [term_specialized_impl_gen::tac_impls]
     impl ccf::transitivity::TransitivelyAllCcf<
         tscapf::Heap,
-        (
-            OrVariable<
-                tscapf::Heap,
-                Either<
-                    tscapf::Heap,
-                    Pair<
-                        tscapf::Heap,
-                        tscapf::LeftOperand,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-            >,
-            (
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::RightOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                (),
-            ),
-        ),
-    > for tscapf::Plus {
-        type Intermediary = tscapf::Plus;
-        type Intermediaries = (
-            Either<
-                tscapf::Heap,
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-            (
-                Either<
-                    tscapf::Heap,
-                    OrVariable<
-                        tscapf::Heap,
-                        Either<
-                            tscapf::Heap,
-                            Pair<
-                                tscapf::Heap,
-                                tscapf::RightOperand,
-                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                            >,
-                            ParseError<tscapf::Heap>,
-                        >,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-                (),
-            ),
-        );
-    }
-    /// @generated by [term_specialized_impl_gen::tac_impls]
-    impl ccf::transitivity::TransitivelyAllCcf<
-        tscapf::Heap,
-        (
-            OrVariable<
-                tscapf::Heap,
-                Either<
-                    tscapf::Heap,
-                    Pair<
-                        tscapf::Heap,
-                        tscapf::LeftOperand,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-            >,
-            (
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::RightOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                (),
-            ),
-        ),
-    >
-    for Pair<
-        tscapf::Heap,
-        tscapf::Plus,
-        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-    > {
-        type Intermediary = tscapf::Plus;
-        type Intermediaries = (
-            Either<
-                tscapf::Heap,
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-            (
-                Either<
-                    tscapf::Heap,
-                    OrVariable<
-                        tscapf::Heap,
-                        Either<
-                            tscapf::Heap,
-                            Pair<
-                                tscapf::Heap,
-                                tscapf::RightOperand,
-                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                            >,
-                            ParseError<tscapf::Heap>,
-                        >,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-                (),
-            ),
-        );
-    }
-    /// @generated by [term_specialized_impl_gen::tac_impls]
-    impl ccf::transitivity::TransitivelyAllCcf<
-        tscapf::Heap,
-        (
-            OrVariable<
-                tscapf::Heap,
-                Either<
-                    tscapf::Heap,
-                    Pair<
-                        tscapf::Heap,
-                        tscapf::LeftOperand,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-            >,
-            (ParseError<tscapf::Heap>, ()),
-        ),
-    > for tscapf::Plus {
-        type Intermediary = tscapf::Plus;
-        type Intermediaries = (
-            Either<
-                tscapf::Heap,
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-            (
-                Either<
-                    tscapf::Heap,
-                    OrVariable<
-                        tscapf::Heap,
-                        Either<
-                            tscapf::Heap,
-                            Pair<
-                                tscapf::Heap,
-                                tscapf::RightOperand,
-                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                            >,
-                            ParseError<tscapf::Heap>,
-                        >,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-                (),
-            ),
-        );
-    }
-    /// @generated by [term_specialized_impl_gen::tac_impls]
-    impl ccf::transitivity::TransitivelyAllCcf<
-        tscapf::Heap,
-        (
-            OrVariable<
-                tscapf::Heap,
-                Either<
-                    tscapf::Heap,
-                    Pair<
-                        tscapf::Heap,
-                        tscapf::LeftOperand,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-            >,
-            (ParseError<tscapf::Heap>, ()),
-        ),
-    >
-    for Pair<
-        tscapf::Heap,
-        tscapf::Plus,
-        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-    > {
-        type Intermediary = tscapf::Plus;
-        type Intermediaries = (
-            Either<
-                tscapf::Heap,
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-            (
-                Either<
-                    tscapf::Heap,
-                    OrVariable<
-                        tscapf::Heap,
-                        Either<
-                            tscapf::Heap,
-                            Pair<
-                                tscapf::Heap,
-                                tscapf::RightOperand,
-                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                            >,
-                            ParseError<tscapf::Heap>,
-                        >,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-                (),
-            ),
-        );
-    }
-    /// @generated by [term_specialized_impl_gen::tac_impls]
-    impl ccf::transitivity::TransitivelyAllCcf<
-        tscapf::Heap,
-        (
-            OrVariable<
-                tscapf::Heap,
-                Either<
-                    tscapf::Heap,
-                    Pair<
-                        tscapf::Heap,
-                        tscapf::LeftOperand,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-            >,
-            (
-                Either<
-                    tscapf::Heap,
-                    OrVariable<
-                        tscapf::Heap,
-                        Either<
-                            tscapf::Heap,
-                            Pair<
-                                tscapf::Heap,
-                                tscapf::RightOperand,
-                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                            >,
-                            ParseError<tscapf::Heap>,
-                        >,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-                (),
-            ),
-        ),
-    > for tscapf::Plus {
-        type Intermediary = tscapf::Plus;
-        type Intermediaries = (
-            Either<
-                tscapf::Heap,
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-            (
-                Either<
-                    tscapf::Heap,
-                    OrVariable<
-                        tscapf::Heap,
-                        Either<
-                            tscapf::Heap,
-                            Pair<
-                                tscapf::Heap,
-                                tscapf::RightOperand,
-                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                            >,
-                            ParseError<tscapf::Heap>,
-                        >,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-                (),
-            ),
-        );
-    }
-    /// @generated by [term_specialized_impl_gen::tac_impls]
-    impl ccf::transitivity::TransitivelyAllCcf<
-        tscapf::Heap,
-        (
-            OrVariable<
-                tscapf::Heap,
-                Either<
-                    tscapf::Heap,
-                    Pair<
-                        tscapf::Heap,
-                        tscapf::LeftOperand,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-            >,
-            (
-                Either<
-                    tscapf::Heap,
-                    OrVariable<
-                        tscapf::Heap,
-                        Either<
-                            tscapf::Heap,
-                            Pair<
-                                tscapf::Heap,
-                                tscapf::RightOperand,
-                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                            >,
-                            ParseError<tscapf::Heap>,
-                        >,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-                (),
-            ),
-        ),
-    >
-    for Pair<
-        tscapf::Heap,
-        tscapf::Plus,
-        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-    > {
-        type Intermediary = tscapf::Plus;
-        type Intermediaries = (
-            Either<
-                tscapf::Heap,
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-            (
-                Either<
-                    tscapf::Heap,
-                    OrVariable<
-                        tscapf::Heap,
-                        Either<
-                            tscapf::Heap,
-                            Pair<
-                                tscapf::Heap,
-                                tscapf::RightOperand,
-                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                            >,
-                            ParseError<tscapf::Heap>,
-                        >,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-                (),
-            ),
-        );
-    }
-    /// @generated by [term_specialized_impl_gen::tac_impls]
-    impl ccf::transitivity::TransitivelyAllCcf<
-        tscapf::Heap,
-        (
-            ParseError<tscapf::Heap>,
-            (
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::RightOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                (),
-            ),
-        ),
-    > for tscapf::Plus {
-        type Intermediary = tscapf::Plus;
-        type Intermediaries = (
-            Either<
-                tscapf::Heap,
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-            (
-                Either<
-                    tscapf::Heap,
-                    OrVariable<
-                        tscapf::Heap,
-                        Either<
-                            tscapf::Heap,
-                            Pair<
-                                tscapf::Heap,
-                                tscapf::RightOperand,
-                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                            >,
-                            ParseError<tscapf::Heap>,
-                        >,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-                (),
-            ),
-        );
-    }
-    /// @generated by [term_specialized_impl_gen::tac_impls]
-    impl ccf::transitivity::TransitivelyAllCcf<
-        tscapf::Heap,
-        (
-            ParseError<tscapf::Heap>,
-            (
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::RightOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                (),
-            ),
-        ),
-    >
-    for Pair<
-        tscapf::Heap,
-        tscapf::Plus,
-        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-    > {
-        type Intermediary = tscapf::Plus;
-        type Intermediaries = (
-            Either<
-                tscapf::Heap,
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-            (
-                Either<
-                    tscapf::Heap,
-                    OrVariable<
-                        tscapf::Heap,
-                        Either<
-                            tscapf::Heap,
-                            Pair<
-                                tscapf::Heap,
-                                tscapf::RightOperand,
-                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                            >,
-                            ParseError<tscapf::Heap>,
-                        >,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-                (),
-            ),
-        );
-    }
-    /// @generated by [term_specialized_impl_gen::tac_impls]
-    impl ccf::transitivity::TransitivelyAllCcf<
-        tscapf::Heap,
         (ParseError<tscapf::Heap>, (ParseError<tscapf::Heap>, ())),
     > for tscapf::Plus {
         type Intermediary = tscapf::Plus;
         type Intermediaries = (
             Either<
                 tscapf::Heap,
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-            (
-                Either<
+                Pair<
                     tscapf::Heap,
                     OrVariable<
                         tscapf::Heap,
@@ -4672,11 +7190,34 @@ pub mod transitive_ccf {
                             tscapf::Heap,
                             Pair<
                                 tscapf::Heap,
-                                tscapf::RightOperand,
+                                tscapf::LeftOperand,
                                 Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                             >,
                             ParseError<tscapf::Heap>,
                         >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                     >,
                     ParseError<tscapf::Heap>,
                 >,
@@ -4698,22 +7239,7 @@ pub mod transitive_ccf {
         type Intermediaries = (
             Either<
                 tscapf::Heap,
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-            (
-                Either<
+                Pair<
                     tscapf::Heap,
                     OrVariable<
                         tscapf::Heap,
@@ -4721,11 +7247,34 @@ pub mod transitive_ccf {
                             tscapf::Heap,
                             Pair<
                                 tscapf::Heap,
-                                tscapf::RightOperand,
+                                tscapf::LeftOperand,
                                 Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                             >,
                             ParseError<tscapf::Heap>,
                         >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                     >,
                     ParseError<tscapf::Heap>,
                 >,
@@ -4741,17 +7290,21 @@ pub mod transitive_ccf {
             (
                 Either<
                     tscapf::Heap,
-                    OrVariable<
+                    Pair<
                         tscapf::Heap,
-                        Either<
+                        OrVariable<
                             tscapf::Heap,
-                            Pair<
+                            Either<
                                 tscapf::Heap,
-                                tscapf::RightOperand,
-                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
                             >,
-                            ParseError<tscapf::Heap>,
                         >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                     >,
                     ParseError<tscapf::Heap>,
                 >,
@@ -4763,22 +7316,7 @@ pub mod transitive_ccf {
         type Intermediaries = (
             Either<
                 tscapf::Heap,
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-            (
-                Either<
+                Pair<
                     tscapf::Heap,
                     OrVariable<
                         tscapf::Heap,
@@ -4786,11 +7324,34 @@ pub mod transitive_ccf {
                             tscapf::Heap,
                             Pair<
                                 tscapf::Heap,
-                                tscapf::RightOperand,
+                                tscapf::LeftOperand,
                                 Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                             >,
                             ParseError<tscapf::Heap>,
                         >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                     >,
                     ParseError<tscapf::Heap>,
                 >,
@@ -4806,17 +7367,21 @@ pub mod transitive_ccf {
             (
                 Either<
                     tscapf::Heap,
-                    OrVariable<
+                    Pair<
                         tscapf::Heap,
-                        Either<
+                        OrVariable<
                             tscapf::Heap,
-                            Pair<
+                            Either<
                                 tscapf::Heap,
-                                tscapf::RightOperand,
-                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
                             >,
-                            ParseError<tscapf::Heap>,
                         >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                     >,
                     ParseError<tscapf::Heap>,
                 >,
@@ -4833,22 +7398,56 @@ pub mod transitive_ccf {
         type Intermediaries = (
             Either<
                 tscapf::Heap,
-                OrVariable<
+                Pair<
                     tscapf::Heap,
-                    Either<
+                    OrVariable<
                         tscapf::Heap,
-                        Pair<
+                        Either<
                             tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
                         >,
-                        ParseError<tscapf::Heap>,
                     >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                 >,
                 ParseError<tscapf::Heap>,
             >,
             (
                 Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+                (),
+            ),
+        );
+    }
+    /// @generated by [term_specialized_impl_gen::tac_impls]
+    impl ccf::transitivity::TransitivelyAllCcf<
+        tscapf::Heap,
+        (
+            ParseError<tscapf::Heap>,
+            (
+                Pair<
                     tscapf::Heap,
                     OrVariable<
                         tscapf::Heap,
@@ -4862,44 +7461,7 @@ pub mod transitive_ccf {
                             ParseError<tscapf::Heap>,
                         >,
                     >,
-                    ParseError<tscapf::Heap>,
-                >,
-                (),
-            ),
-        );
-    }
-    /// @generated by [term_specialized_impl_gen::tac_impls]
-    impl ccf::transitivity::TransitivelyAllCcf<
-        tscapf::Heap,
-        (
-            Either<
-                tscapf::Heap,
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-            (
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::RightOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                 >,
                 (),
             ),
@@ -4909,22 +7471,56 @@ pub mod transitive_ccf {
         type Intermediaries = (
             Either<
                 tscapf::Heap,
-                OrVariable<
+                Pair<
                     tscapf::Heap,
-                    Either<
+                    OrVariable<
                         tscapf::Heap,
-                        Pair<
+                        Either<
                             tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
                         >,
-                        ParseError<tscapf::Heap>,
                     >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                 >,
                 ParseError<tscapf::Heap>,
             >,
             (
                 Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+                (),
+            ),
+        );
+    }
+    /// @generated by [term_specialized_impl_gen::tac_impls]
+    impl ccf::transitivity::TransitivelyAllCcf<
+        tscapf::Heap,
+        (
+            ParseError<tscapf::Heap>,
+            (
+                Pair<
                     tscapf::Heap,
                     OrVariable<
                         tscapf::Heap,
@@ -4938,44 +7534,7 @@ pub mod transitive_ccf {
                             ParseError<tscapf::Heap>,
                         >,
                     >,
-                    ParseError<tscapf::Heap>,
-                >,
-                (),
-            ),
-        );
-    }
-    /// @generated by [term_specialized_impl_gen::tac_impls]
-    impl ccf::transitivity::TransitivelyAllCcf<
-        tscapf::Heap,
-        (
-            Either<
-                tscapf::Heap,
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-            (
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::RightOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                 >,
                 (),
             ),
@@ -4990,22 +7549,7 @@ pub mod transitive_ccf {
         type Intermediaries = (
             Either<
                 tscapf::Heap,
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-            (
-                Either<
+                Pair<
                     tscapf::Heap,
                     OrVariable<
                         tscapf::Heap,
@@ -5013,11 +7557,34 @@ pub mod transitive_ccf {
                             tscapf::Heap,
                             Pair<
                                 tscapf::Heap,
-                                tscapf::RightOperand,
+                                tscapf::LeftOperand,
                                 Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                             >,
                             ParseError<tscapf::Heap>,
                         >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                     >,
                     ParseError<tscapf::Heap>,
                 >,
@@ -5031,243 +7598,20 @@ pub mod transitive_ccf {
         (
             Either<
                 tscapf::Heap,
-                OrVariable<
+                Pair<
                     tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-            (ParseError<tscapf::Heap>, ()),
-        ),
-    > for tscapf::Plus {
-        type Intermediary = tscapf::Plus;
-        type Intermediaries = (
-            Either<
-                tscapf::Heap,
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
+                    tscapf::LeftOperand,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                 >,
                 ParseError<tscapf::Heap>,
             >,
             (
                 Either<
                     tscapf::Heap,
-                    OrVariable<
+                    Pair<
                         tscapf::Heap,
-                        Either<
-                            tscapf::Heap,
-                            Pair<
-                                tscapf::Heap,
-                                tscapf::RightOperand,
-                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                            >,
-                            ParseError<tscapf::Heap>,
-                        >,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-                (),
-            ),
-        );
-    }
-    /// @generated by [term_specialized_impl_gen::tac_impls]
-    impl ccf::transitivity::TransitivelyAllCcf<
-        tscapf::Heap,
-        (
-            Either<
-                tscapf::Heap,
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-            (ParseError<tscapf::Heap>, ()),
-        ),
-    >
-    for Pair<
-        tscapf::Heap,
-        tscapf::Plus,
-        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-    > {
-        type Intermediary = tscapf::Plus;
-        type Intermediaries = (
-            Either<
-                tscapf::Heap,
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-            (
-                Either<
-                    tscapf::Heap,
-                    OrVariable<
-                        tscapf::Heap,
-                        Either<
-                            tscapf::Heap,
-                            Pair<
-                                tscapf::Heap,
-                                tscapf::RightOperand,
-                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                            >,
-                            ParseError<tscapf::Heap>,
-                        >,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-                (),
-            ),
-        );
-    }
-    /// @generated by [term_specialized_impl_gen::tac_impls]
-    impl ccf::transitivity::TransitivelyAllCcf<
-        tscapf::Heap,
-        (
-            Either<
-                tscapf::Heap,
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-            (
-                Either<
-                    tscapf::Heap,
-                    OrVariable<
-                        tscapf::Heap,
-                        Either<
-                            tscapf::Heap,
-                            Pair<
-                                tscapf::Heap,
-                                tscapf::RightOperand,
-                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                            >,
-                            ParseError<tscapf::Heap>,
-                        >,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-                (),
-            ),
-        ),
-    > for tscapf::Plus {
-        type Intermediary = tscapf::Plus;
-        type Intermediaries = (
-            Either<
-                tscapf::Heap,
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-            (
-                Either<
-                    tscapf::Heap,
-                    OrVariable<
-                        tscapf::Heap,
-                        Either<
-                            tscapf::Heap,
-                            Pair<
-                                tscapf::Heap,
-                                tscapf::RightOperand,
-                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                            >,
-                            ParseError<tscapf::Heap>,
-                        >,
-                    >,
-                    ParseError<tscapf::Heap>,
-                >,
-                (),
-            ),
-        );
-    }
-    /// @generated by [term_specialized_impl_gen::tac_impls]
-    impl ccf::transitivity::TransitivelyAllCcf<
-        tscapf::Heap,
-        (
-            Either<
-                tscapf::Heap,
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-            (
-                Either<
-                    tscapf::Heap,
-                    OrVariable<
-                        tscapf::Heap,
-                        Either<
-                            tscapf::Heap,
-                            Pair<
-                                tscapf::Heap,
-                                tscapf::RightOperand,
-                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                            >,
-                            ParseError<tscapf::Heap>,
-                        >,
+                        tscapf::RightOperand,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                     >,
                     ParseError<tscapf::Heap>,
                 >,
@@ -5288,22 +7632,7 @@ pub mod transitive_ccf {
         type Intermediaries = (
             Either<
                 tscapf::Heap,
-                OrVariable<
-                    tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-            (
-                Either<
+                Pair<
                     tscapf::Heap,
                     OrVariable<
                         tscapf::Heap,
@@ -5311,11 +7640,34 @@ pub mod transitive_ccf {
                             tscapf::Heap,
                             Pair<
                                 tscapf::Heap,
-                                tscapf::RightOperand,
+                                tscapf::LeftOperand,
                                 Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                             >,
                             ParseError<tscapf::Heap>,
                         >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                     >,
                     ParseError<tscapf::Heap>,
                 >,
@@ -5329,22 +7681,52 @@ pub mod transitive_ccf {
         (
             Either<
                 tscapf::Heap,
-                OrVariable<
+                Pair<
                     tscapf::Heap,
-                    Either<
-                        tscapf::Heap,
-                        Pair<
-                            tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                        >,
-                        ParseError<tscapf::Heap>,
-                    >,
+                    tscapf::LeftOperand,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                 >,
                 ParseError<tscapf::Heap>,
             >,
             (
                 Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+                (),
+            ),
+        ),
+    >
+    for Either<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            tscapf::Plus,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+        ParseError<tscapf::Heap>,
+    > {
+        type Intermediary = tscapf::Plus;
+        type Intermediaries = (
+            Either<
+                tscapf::Heap,
+                Pair<
                     tscapf::Heap,
                     OrVariable<
                         tscapf::Heap,
@@ -5352,11 +7734,531 @@ pub mod transitive_ccf {
                             tscapf::Heap,
                             Pair<
                                 tscapf::Heap,
-                                tscapf::RightOperand,
+                                tscapf::LeftOperand,
                                 Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                             >,
                             ParseError<tscapf::Heap>,
                         >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+                (),
+            ),
+        );
+    }
+    /// @generated by [term_specialized_impl_gen::tac_impls]
+    impl ccf::transitivity::TransitivelyAllCcf<
+        tscapf::Heap,
+        (
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (ParseError<tscapf::Heap>, ()),
+        ),
+    > for tscapf::Plus {
+        type Intermediary = tscapf::Plus;
+        type Intermediaries = (
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+                (),
+            ),
+        );
+    }
+    /// @generated by [term_specialized_impl_gen::tac_impls]
+    impl ccf::transitivity::TransitivelyAllCcf<
+        tscapf::Heap,
+        (
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (ParseError<tscapf::Heap>, ()),
+        ),
+    >
+    for Pair<
+        tscapf::Heap,
+        tscapf::Plus,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = tscapf::Plus;
+        type Intermediaries = (
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+                (),
+            ),
+        );
+    }
+    /// @generated by [term_specialized_impl_gen::tac_impls]
+    impl ccf::transitivity::TransitivelyAllCcf<
+        tscapf::Heap,
+        (
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        tscapf::RightOperand,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+                (),
+            ),
+        ),
+    >
+    for Either<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            tscapf::Plus,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+        ParseError<tscapf::Heap>,
+    > {
+        type Intermediary = tscapf::Plus;
+        type Intermediaries = (
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+                (),
+            ),
+        );
+    }
+    /// @generated by [term_specialized_impl_gen::tac_impls]
+    impl ccf::transitivity::TransitivelyAllCcf<
+        tscapf::Heap,
+        (
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+                (),
+            ),
+        ),
+    > for tscapf::Plus {
+        type Intermediary = tscapf::Plus;
+        type Intermediaries = (
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+                (),
+            ),
+        );
+    }
+    /// @generated by [term_specialized_impl_gen::tac_impls]
+    impl ccf::transitivity::TransitivelyAllCcf<
+        tscapf::Heap,
+        (
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+                (),
+            ),
+        ),
+    >
+    for Either<
+        tscapf::Heap,
+        Pair<
+            tscapf::Heap,
+            tscapf::Plus,
+            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+        >,
+        ParseError<tscapf::Heap>,
+    > {
+        type Intermediary = tscapf::Plus;
+        type Intermediaries = (
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+                (),
+            ),
+        );
+    }
+    /// @generated by [term_specialized_impl_gen::tac_impls]
+    impl ccf::transitivity::TransitivelyAllCcf<
+        tscapf::Heap,
+        (
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                     >,
                     ParseError<tscapf::Heap>,
                 >,
@@ -5373,22 +8275,75 @@ pub mod transitive_ccf {
         type Intermediaries = (
             Either<
                 tscapf::Heap,
-                OrVariable<
+                Pair<
                     tscapf::Heap,
-                    Either<
+                    OrVariable<
                         tscapf::Heap,
-                        Pair<
+                        Either<
                             tscapf::Heap,
-                            tscapf::LeftOperand,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
                         >,
-                        ParseError<tscapf::Heap>,
                     >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                 >,
                 ParseError<tscapf::Heap>,
             >,
             (
                 Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+                (),
+            ),
+        );
+    }
+    /// @generated by [term_specialized_impl_gen::tac_impls]
+    impl ccf::transitivity::TransitivelyAllCcf<
+        tscapf::Heap,
+        (
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Pair<
                     tscapf::Heap,
                     OrVariable<
                         tscapf::Heap,
@@ -5401,6 +8356,665 @@ pub mod transitive_ccf {
                             >,
                             ParseError<tscapf::Heap>,
                         >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                (),
+            ),
+        ),
+    > for tscapf::Plus {
+        type Intermediary = tscapf::Plus;
+        type Intermediaries = (
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+                (),
+            ),
+        );
+    }
+    /// @generated by [term_specialized_impl_gen::tac_impls]
+    impl ccf::transitivity::TransitivelyAllCcf<
+        tscapf::Heap,
+        (
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::RightOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                (),
+            ),
+        ),
+    >
+    for Pair<
+        tscapf::Heap,
+        tscapf::Plus,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = tscapf::Plus;
+        type Intermediaries = (
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+                (),
+            ),
+        );
+    }
+    /// @generated by [term_specialized_impl_gen::tac_impls]
+    impl ccf::transitivity::TransitivelyAllCcf<
+        tscapf::Heap,
+        (
+            Pair<
+                tscapf::Heap,
+                OrVariable<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::LeftOperand,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            (ParseError<tscapf::Heap>, ()),
+        ),
+    > for tscapf::Plus {
+        type Intermediary = tscapf::Plus;
+        type Intermediaries = (
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+                (),
+            ),
+        );
+    }
+    /// @generated by [term_specialized_impl_gen::tac_impls]
+    impl ccf::transitivity::TransitivelyAllCcf<
+        tscapf::Heap,
+        (
+            Pair<
+                tscapf::Heap,
+                OrVariable<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::LeftOperand,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            (ParseError<tscapf::Heap>, ()),
+        ),
+    >
+    for Pair<
+        tscapf::Heap,
+        tscapf::Plus,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = tscapf::Plus;
+        type Intermediaries = (
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+                (),
+            ),
+        );
+    }
+    /// @generated by [term_specialized_impl_gen::tac_impls]
+    impl ccf::transitivity::TransitivelyAllCcf<
+        tscapf::Heap,
+        (
+            Pair<
+                tscapf::Heap,
+                OrVariable<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::LeftOperand,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+                (),
+            ),
+        ),
+    > for tscapf::Plus {
+        type Intermediary = tscapf::Plus;
+        type Intermediaries = (
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+                (),
+            ),
+        );
+    }
+    /// @generated by [term_specialized_impl_gen::tac_impls]
+    impl ccf::transitivity::TransitivelyAllCcf<
+        tscapf::Heap,
+        (
+            Pair<
+                tscapf::Heap,
+                OrVariable<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::LeftOperand,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+                (),
+            ),
+        ),
+    >
+    for Pair<
+        tscapf::Heap,
+        tscapf::Plus,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = tscapf::Plus;
+        type Intermediaries = (
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+                (),
+            ),
+        );
+    }
+    /// @generated by [term_specialized_impl_gen::tac_impls]
+    impl ccf::transitivity::TransitivelyAllCcf<
+        tscapf::Heap,
+        (
+            Pair<
+                tscapf::Heap,
+                OrVariable<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::LeftOperand,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            (
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::RightOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                (),
+            ),
+        ),
+    > for tscapf::Plus {
+        type Intermediary = tscapf::Plus;
+        type Intermediaries = (
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                    >,
+                    ParseError<tscapf::Heap>,
+                >,
+                (),
+            ),
+        );
+    }
+    /// @generated by [term_specialized_impl_gen::tac_impls]
+    impl ccf::transitivity::TransitivelyAllCcf<
+        tscapf::Heap,
+        (
+            Pair<
+                tscapf::Heap,
+                OrVariable<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::LeftOperand,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+            >,
+            (
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::RightOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                (),
+            ),
+        ),
+    >
+    for Pair<
+        tscapf::Heap,
+        tscapf::Plus,
+        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+    > {
+        type Intermediary = tscapf::Plus;
+        type Intermediaries = (
+            Either<
+                tscapf::Heap,
+                Pair<
+                    tscapf::Heap,
+                    OrVariable<
+                        tscapf::Heap,
+                        Either<
+                            tscapf::Heap,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::LeftOperand,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
+                        >,
+                    >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                >,
+                ParseError<tscapf::Heap>,
+            >,
+            (
+                Either<
+                    tscapf::Heap,
+                    Pair<
+                        tscapf::Heap,
+                        OrVariable<
+                            tscapf::Heap,
+                            Either<
+                                tscapf::Heap,
+                                Pair<
+                                    tscapf::Heap,
+                                    tscapf::RightOperand,
+                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                >,
+                                ParseError<tscapf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                     >,
                     ParseError<tscapf::Heap>,
                 >,
@@ -5438,6 +9052,29 @@ pub mod ccf_auto_impls {
     term::auto_impl_ccf!(
         crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
         tymetafuncspec_core::Either < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Pair <
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap, pattern_tmf::OrVariable
+        < crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        tymetafuncspec_core::Either < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Pair <
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap, crate
+        ::term_specialized_cst_autoboxed_pattern_fib::LeftOperand,
+        tymetafuncspec_core::Maybe < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        std_parse_metadata::ParseMetadata < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        std_parse_error::ParseError < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        tymetafuncspec_core::Maybe < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        std_parse_metadata::ParseMetadata < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        std_parse_error::ParseError < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >
+    );
+    term::auto_impl_ccf!(
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        tymetafuncspec_core::Pair < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, pattern_tmf::OrVariable <
         crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
         tymetafuncspec_core::Either < crate
@@ -5450,8 +9087,10 @@ pub mod ccf_auto_impls {
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
         std_parse_error::ParseError < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
-        std_parse_error::ParseError < crate
-        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >
+        tymetafuncspec_core::Maybe < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        std_parse_metadata::ParseMetadata < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >
     );
     term::auto_impl_ccf!(
         crate ::term_specialized_cst_autoboxed_pattern_fib::Heap, pattern_tmf::OrVariable
@@ -5510,6 +9149,29 @@ pub mod ccf_auto_impls {
     term::auto_impl_ccf!(
         crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
         tymetafuncspec_core::Either < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Pair <
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap, pattern_tmf::OrVariable
+        < crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        tymetafuncspec_core::Either < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Pair <
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap, crate
+        ::term_specialized_cst_autoboxed_pattern_fib::RightOperand,
+        tymetafuncspec_core::Maybe < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        std_parse_metadata::ParseMetadata < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        std_parse_error::ParseError < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        tymetafuncspec_core::Maybe < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        std_parse_metadata::ParseMetadata < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        std_parse_error::ParseError < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >
+    );
+    term::auto_impl_ccf!(
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        tymetafuncspec_core::Pair < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, pattern_tmf::OrVariable <
         crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
         tymetafuncspec_core::Either < crate
@@ -5522,8 +9184,10 @@ pub mod ccf_auto_impls {
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
         std_parse_error::ParseError < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
-        std_parse_error::ParseError < crate
-        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >
+        tymetafuncspec_core::Maybe < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        std_parse_metadata::ParseMetadata < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >
     );
     term::auto_impl_ccf!(
         crate ::term_specialized_cst_autoboxed_pattern_fib::Heap, pattern_tmf::OrVariable
@@ -5565,6 +9229,28 @@ pub mod ccf_auto_impls {
     term::auto_impl_ccf!(
         crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
         tymetafuncspec_core::Either < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Pair <
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap, pattern_tmf::OrVariable
+        < crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        tymetafuncspec_core::Either < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Pair <
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap, crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Nat, tymetafuncspec_core::Maybe <
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        std_parse_metadata::ParseMetadata < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        std_parse_error::ParseError < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        tymetafuncspec_core::Maybe < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        std_parse_metadata::ParseMetadata < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        std_parse_error::ParseError < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >
+    );
+    term::auto_impl_ccf!(
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        tymetafuncspec_core::Pair < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, pattern_tmf::OrVariable <
         crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
         tymetafuncspec_core::Either < crate
@@ -5576,8 +9262,10 @@ pub mod ccf_auto_impls {
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
         std_parse_error::ParseError < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
-        std_parse_error::ParseError < crate
-        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >
+        tymetafuncspec_core::Maybe < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        std_parse_metadata::ParseMetadata < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >
     );
     term::auto_impl_ccf!(
         crate ::term_specialized_cst_autoboxed_pattern_fib::Heap, pattern_tmf::OrVariable
@@ -5616,14 +9304,17 @@ pub mod ccf_auto_impls {
     term::auto_impl_ccf!(
         crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
         tymetafuncspec_core::Either < crate
-        ::term_specialized_cst_autoboxed_pattern_fib::Heap, pattern_tmf::OrVariable <
-        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Pair <
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap, pattern_tmf::OrVariable
+        < crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
         tymetafuncspec_core::Either < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Pair <
         crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
         tymetafuncspec_core::Set < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Either <
         crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        tymetafuncspec_core::Pair < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
         pattern_tmf::OrVariableZeroOrMore < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Either <
         crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
@@ -5635,6 +9326,10 @@ pub mod ccf_auto_impls {
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
         std_parse_error::ParseError < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        tymetafuncspec_core::Maybe < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        std_parse_metadata::ParseMetadata < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
         std_parse_error::ParseError < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
         tymetafuncspec_core::Maybe < crate
@@ -5643,8 +9338,53 @@ pub mod ccf_auto_impls {
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
         std_parse_error::ParseError < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        tymetafuncspec_core::Maybe < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        std_parse_metadata::ParseMetadata < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
         std_parse_error::ParseError < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >
+    );
+    term::auto_impl_ccf!(
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        tymetafuncspec_core::Pair < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, pattern_tmf::OrVariable <
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        tymetafuncspec_core::Either < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Pair <
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        tymetafuncspec_core::Set < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Either <
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        tymetafuncspec_core::Pair < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        pattern_tmf::OrVariableZeroOrMore < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Either <
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        tymetafuncspec_core::Pair < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Nat, tymetafuncspec_core::Maybe <
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        std_parse_metadata::ParseMetadata < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        std_parse_error::ParseError < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        tymetafuncspec_core::Maybe < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        std_parse_metadata::ParseMetadata < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        std_parse_error::ParseError < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        tymetafuncspec_core::Maybe < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        std_parse_metadata::ParseMetadata < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        std_parse_error::ParseError < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        tymetafuncspec_core::Maybe < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        std_parse_metadata::ParseMetadata < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >
     );
     term::auto_impl_ccf!(
         crate ::term_specialized_cst_autoboxed_pattern_fib::Heap, pattern_tmf::OrVariable
@@ -5655,6 +9395,8 @@ pub mod ccf_auto_impls {
         tymetafuncspec_core::Set < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Either <
         crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        tymetafuncspec_core::Pair < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
         pattern_tmf::OrVariableZeroOrMore < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Either <
         crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
@@ -5665,6 +9407,10 @@ pub mod ccf_auto_impls {
         std_parse_metadata::ParseMetadata < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
         std_parse_error::ParseError < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        tymetafuncspec_core::Maybe < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        std_parse_metadata::ParseMetadata < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
         std_parse_error::ParseError < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
@@ -5683,6 +9429,8 @@ pub mod ccf_auto_impls {
         tymetafuncspec_core::Set < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Either <
         crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        tymetafuncspec_core::Pair < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
         pattern_tmf::OrVariableZeroOrMore < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Either <
         crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
@@ -5693,6 +9441,10 @@ pub mod ccf_auto_impls {
         std_parse_metadata::ParseMetadata < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
         std_parse_error::ParseError < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        tymetafuncspec_core::Maybe < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        std_parse_metadata::ParseMetadata < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
         std_parse_error::ParseError < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
@@ -5709,7 +9461,8 @@ pub mod ccf_auto_impls {
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Set <
         crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
         tymetafuncspec_core::Either < crate
-        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Pair <
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
         pattern_tmf::OrVariableZeroOrMore < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Either <
         crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
@@ -5720,6 +9473,10 @@ pub mod ccf_auto_impls {
         std_parse_metadata::ParseMetadata < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
         std_parse_error::ParseError < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        tymetafuncspec_core::Maybe < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        std_parse_metadata::ParseMetadata < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
         std_parse_error::ParseError < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
@@ -5733,23 +9490,7 @@ pub mod ccf_auto_impls {
         tymetafuncspec_core::Set < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Either <
         crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
-        pattern_tmf::OrVariableZeroOrMore < crate
-        ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Either <
-        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
         tymetafuncspec_core::Pair < crate
-        ::term_specialized_cst_autoboxed_pattern_fib::Heap, crate
-        ::term_specialized_cst_autoboxed_pattern_fib::Nat, tymetafuncspec_core::Maybe <
-        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
-        std_parse_metadata::ParseMetadata < crate
-        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
-        std_parse_error::ParseError < crate
-        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
-        std_parse_error::ParseError < crate
-        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >
-    );
-    term::auto_impl_ccf!(
-        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
-        tymetafuncspec_core::Either < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap,
         pattern_tmf::OrVariableZeroOrMore < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Either <
@@ -5762,8 +9503,55 @@ pub mod ccf_auto_impls {
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
         std_parse_error::ParseError < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        tymetafuncspec_core::Maybe < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        std_parse_metadata::ParseMetadata < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        std_parse_error::ParseError < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >
+    );
+    term::auto_impl_ccf!(
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        tymetafuncspec_core::Either < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Pair <
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        pattern_tmf::OrVariableZeroOrMore < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Either <
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        tymetafuncspec_core::Pair < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Nat, tymetafuncspec_core::Maybe <
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        std_parse_metadata::ParseMetadata < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        std_parse_error::ParseError < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        tymetafuncspec_core::Maybe < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        std_parse_metadata::ParseMetadata < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
         std_parse_error::ParseError < crate
         ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >
+    );
+    term::auto_impl_ccf!(
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        tymetafuncspec_core::Pair < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        pattern_tmf::OrVariableZeroOrMore < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Either <
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        tymetafuncspec_core::Pair < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Nat, tymetafuncspec_core::Maybe <
+        crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        std_parse_metadata::ParseMetadata < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        std_parse_error::ParseError < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >,
+        tymetafuncspec_core::Maybe < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap,
+        std_parse_metadata::ParseMetadata < crate
+        ::term_specialized_cst_autoboxed_pattern_fib::Heap, >, >, >
     );
     term::auto_impl_ccf!(
         crate ::term_specialized_cst_autoboxed_pattern_fib::Heap,

@@ -6,7 +6,7 @@ use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Set, SetHeapBak};
 use crate::{Unparser, Visit};
 
 impl<'arena, Heap, L, MappedBNat: Copy>
-    Visit<(TmfMetadata<BoundedNat<Heap>>, ()), MappedBNat, Heap, L> for Unparser<'arena, L>
+    Visit<TmfMetadata<BoundedNat<Heap>, ()>, MappedBNat, Heap, L> for Unparser<'arena, L>
 where
     MappedBNat: CanonicallyConstructibleFrom<Heap, (BoundedNat<Heap>, ())>,
 {
@@ -17,7 +17,7 @@ where
 }
 
 impl<'arena, Heap, L, Elem, MappedSet: Copy, ElemTmfMetadata>
-    Visit<(TmfMetadata<Set<Heap, Elem>>, (ElemTmfMetadata, ())), MappedSet, Heap, L>
+    Visit<TmfMetadata<Set<Heap, Elem>, (ElemTmfMetadata, ())>, MappedSet, Heap, L>
     for Unparser<'arena, L>
 where
     Heap: term::SuperHeap<SetHeapBak<Heap, Elem>>,
@@ -35,7 +35,7 @@ where
 }
 
 impl<'arena, Heap, L, Elem, MappedIdxBox: Copy, ElemTmfMetadata>
-    Visit<(TmfMetadata<IdxBox<Heap, Elem>>, (ElemTmfMetadata, ())), MappedIdxBox, Heap, L>
+    Visit<TmfMetadata<IdxBox<Heap, Elem>, (ElemTmfMetadata, ())>, MappedIdxBox, Heap, L>
     for Unparser<'arena, L>
 where
     Heap: term::SuperHeap<IdxBoxHeapBak<Heap, Elem>>,

@@ -15,3 +15,6 @@ ccf = { version = "0.1.0", path = "../ccf" }
 to-literal = { version = "0.1.0", path = "../to-literal" }
 serde.workspace = true
 string-interner.workspace = true
+covisit = { version = "0.1.0", path = "../covisit" }
+pmsp = { version = "0.1.0", path = "../pmsp" }
+parse-adt = { version = "0.1.0", path = "../parse-adt" }

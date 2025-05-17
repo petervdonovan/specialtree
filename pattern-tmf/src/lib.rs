@@ -1,10 +1,12 @@
+use ccf::DirectlyCanonicallyConstructibleFrom;
 use derivative::Derivative;
 use langspec::{
     langspec::Name,
     tymetafunc::{ArgId, RustTyMap, TyMetaFuncData, TyMetaFuncSpec},
 };
 use serde::{Deserialize, Serialize};
-use tymetafuncspec_core::empty_heap_bak;
+
+pub mod parse;
 
 pub struct PatternTmfs;
 
@@ -98,10 +100,10 @@ impl TyMetaFuncSpec for PatternTmfs {
                 heapbak: RustTyMap {
                     ty_func: syn::parse_quote! { pattern_tmf::OrVariableHeapBak },
                 },
-                canonical_froms: Box::new([]),
+                canonical_froms: Box::new([Box::new([ArgId(0)])]),
                 size_depends_on: Box::new([ArgId(0)]),
                 is_collection_of: Box::new([]),
-                transparency: langspec::tymetafunc::Transparency::Transparent,
+                transparency: langspec::tymetafunc::Transparency::Visible,
             },
             PatternTmfsId::OrVariableZeroOrMore => TyMetaFuncData {
                 name: Name {
@@ -117,10 +119,10 @@ impl TyMetaFuncSpec for PatternTmfs {
                 heapbak: RustTyMap {
                     ty_func: syn::parse_quote! { pattern_tmf::OrVariableZeroOrMoreHeapBak },
                 },
-                canonical_froms: Box::new([]),
+                canonical_froms: Box::new([Box::new([ArgId(0)])]),
                 size_depends_on: Box::new([ArgId(0)]),
                 is_collection_of: Box::new([]),
-                transparency: langspec::tymetafunc::Transparency::Transparent,
+                transparency: langspec::tymetafunc::Transparency::Visible,
             },
         }
     }
@@ -171,4 +173,44 @@ pub enum OrVariableZeroOrMore<Heap, MatchedTy> {
     Variable { name: Symbol },
     Ignored(std::marker::PhantomData<Heap>),
     ZeroOrMore { name: Symbol },
+}
+
+impl<Heap, MatchedTy> DirectlyCanonicallyConstructibleFrom<Heap, (MatchedTy, ())>
+    for OrVariable<Heap, MatchedTy>
+{
+    fn construct(_heap: &mut Heap, t: (MatchedTy, ())) -> Self {
+        OrVariable::Ctor(t.0)
+    }
+
+    fn deconstruct_succeeds(&self, _heap: &Heap) -> bool {
+        matches!(self, OrVariable::Ctor(_))
+    }
+
+    fn deconstruct(self, _heap: &Heap) -> (MatchedTy, ()) {
+        if let OrVariable::Ctor(ret) = self {
+            (ret, ())
+        } else {
+            panic!()
+        }
+    }
+}
+
+impl<Heap, MatchedTy> DirectlyCanonicallyConstructibleFrom<Heap, (MatchedTy, ())>
+    for OrVariableZeroOrMore<Heap, MatchedTy>
+{
+    fn construct(_heap: &mut Heap, t: (MatchedTy, ())) -> Self {
+        OrVariableZeroOrMore::Ctor(t.0)
+    }
+
+    fn deconstruct_succeeds(&self, _heap: &Heap) -> bool {
+        matches!(self, OrVariableZeroOrMore::Ctor(_))
+    }
+
+    fn deconstruct(self, _heap: &Heap) -> (MatchedTy, ()) {
+        if let OrVariableZeroOrMore::Ctor(ret) = self {
+            (ret, ())
+        } else {
+            panic!()
+        }
+    }
 }

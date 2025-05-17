@@ -1,5 +1,6 @@
 use core::panic;
 
+use ccf::CanonicallyConstructibleFrom;
 use covisit::Covisit;
 use pmsp::TmfMetadata;
 use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Set, SetHeapBak};
@@ -10,10 +11,12 @@ use crate::{
     return_if_err,
 };
 
-impl<Heap, L> Covisit<(TmfMetadata<BoundedNat<Heap>>, ()), Cstfy<Heap, BoundedNat<Heap>>, Heap, L>
-    for Parser<'_, L>
+impl<Heap, L, MappedBNat>
+    Covisit<TmfMetadata<BoundedNat<Heap>, ()>, Cstfy<Heap, MappedBNat>, Heap, L> for Parser<'_, L>
+where
+    MappedBNat: CanonicallyConstructibleFrom<Heap, (BoundedNat<Heap>, ())>,
 {
-    fn covisit(&mut self, _: &mut Heap) -> Cstfy<Heap, BoundedNat<Heap>> {
+    fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, MappedBNat> {
         let previous_offset = self.pc.position;
         let next_word = self.pc.pop_word();
         let n = next_word
@@ -21,18 +24,26 @@ impl<Heap, L> Covisit<(TmfMetadata<BoundedNat<Heap>>, ()), Cstfy<Heap, BoundedNa
             .parse::<usize>()
             .map_err(|_| parse::ParseError::TmfsParseFailure(self.pc.position.into()));
         return_if_err!(n);
-        cstfy_ok(BoundedNat::new(n), previous_offset, self.pc.position)
+        let mb = BoundedNat::new(n);
+        cstfy_ok(
+            MappedBNat::construct(heap, (mb, ())),
+            previous_offset,
+            self.pc.position,
+        )
     }
 }
 
-impl<'a, Heap, L, Elem, TyMetadata>
-    Covisit<(TmfMetadata<Set<Heap, Elem>>, (TyMetadata, ())), Cstfy<Heap, Set<Heap, Elem>>, Heap, L>
+// ((tymetafuncspec_core::Either<term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Pair<term_specialized_cst_autoboxed_pattern_fib::Heap, pattern_tmf::OrVariable<term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Either<term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Pair<term_specialized_cst_autoboxed_pattern_fib::Heap, term_specialized_cst_autoboxed_pattern_fib::Nat, tymetafuncspec_core::Maybe<term_specialized_cst_autoboxed_pattern_fib::Heap, std_parse_metadata::ParseMetadata<term_specialized_cst_autoboxed_pattern_fib::Heap>>>, std_parse_error::ParseError<term_specialized_cst_autoboxed_pattern_fib::Heap>>>, tymetafuncspec_core::Maybe<term_specialized_cst_autoboxed_pattern_fib::Heap, std_parse_metadata::ParseMetadata<term_specialized_cst_autoboxed_pattern_fib::Heap>>>, std_parse_error::ParseError<term_specialized_cst_autoboxed_pattern_fib::Heap>>, ()), ())
+
+impl<'a, Heap, L, Elem, TyMetadata, MappedSet>
+    Covisit<TmfMetadata<Set<Heap, Elem>, (TyMetadata, ())>, Cstfy<Heap, MappedSet>, Heap, L>
     for Parser<'a, L>
 where
     Heap: term::SuperHeap<SetHeapBak<Heap, Elem>>,
     Parser<'a, L>: Covisit<TyMetadata, Elem, Heap, L>,
+    MappedSet: CanonicallyConstructibleFrom<Heap, (Set<Heap, Elem>, ())>,
 {
-    fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, Set<Heap, Elem>> {
+    fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, MappedSet> {
         let mut items = Vec::new();
         let initial_offset = self.pc.position;
         match self.pc.pop_word() {
@@ -61,27 +72,35 @@ where
         }
 
         let final_offset = self.pc.position;
-        cstfy_ok(Set::new(heap, items), initial_offset, final_offset)
+        let set = Set::new(heap, items);
+        cstfy_ok(
+            MappedSet::construct(heap, (set, ())),
+            initial_offset,
+            final_offset,
+        )
+        // todo!()
     }
 }
 
-impl<'a, Heap, L, Elem, TyMetadata>
-    Covisit<
-        (TmfMetadata<IdxBox<Heap, Elem>>, (TyMetadata, ())),
-        Cstfy<Heap, IdxBox<Heap, Elem>>,
-        Heap,
-        L,
-    > for Parser<'a, L>
+impl<'a, Heap, L, Elem, TyMetadata, MappedIdxBox>
+    Covisit<TmfMetadata<IdxBox<Heap, Elem>, (TyMetadata, ())>, Cstfy<Heap, MappedIdxBox>, Heap, L>
+    for Parser<'a, L>
 where
     Elem: Lookahead<Heap, L>,
     Self: Covisit<TyMetadata, Elem, Heap, L>,
     Heap: term::SuperHeap<IdxBoxHeapBak<Heap, Elem>>,
+    MappedIdxBox: CanonicallyConstructibleFrom<Heap, (IdxBox<Heap, Elem>, ())>,
 {
-    fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, IdxBox<Heap, Elem>> {
+    fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, MappedIdxBox> {
         let initial_offset = self.pc.position;
         let item = Self::covisit(self, heap);
         let final_offset = self.pc.position;
-        cstfy_ok(IdxBox::new(heap, item), initial_offset, final_offset)
+        let ib = IdxBox::new(heap, item);
+        cstfy_ok(
+            MappedIdxBox::construct(heap, (ib, ())),
+            initial_offset,
+            final_offset,
+        )
     }
 }
 

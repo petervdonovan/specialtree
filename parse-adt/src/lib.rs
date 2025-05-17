@@ -13,7 +13,7 @@ pub mod cstfy;
 mod tmfscore;
 
 pub struct Parser<'a, L> {
-    pc: ParseCursor<'a>,
+    pub pc: ParseCursor<'a>,
     phantom: std::marker::PhantomData<L>,
 }
 pub struct ParserSelecting<'a, L, AllCurrentCases> {
@@ -22,7 +22,7 @@ pub struct ParserSelecting<'a, L, AllCurrentCases> {
 }
 pub struct ParseCursor<'a> {
     source: &'a str,
-    position: miette::SourceOffset,
+    pub position: miette::SourceOffset,
 }
 impl<'a, L> Poisonable for Parser<'a, L> {
     fn poisoned() -> Self {
@@ -164,7 +164,7 @@ impl<'a, L, AllCurrentCases> AcceptingCases<()> for ParserSelecting<'a, L, AllCu
 
 impl<Heap, A, L> CovisitEventSink<Cstfy<Heap, A>> for Parser<'_, L>
 where
-    A: words::Adt,
+    // A: words::Adt,
     Cstfy<Heap, A>: Implements<Heap, L>,
     <Cstfy<Heap, A> as Implements<Heap, L>>::LWord: NamesParseLL,
 {

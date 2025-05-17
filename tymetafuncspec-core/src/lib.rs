@@ -465,8 +465,7 @@ impl<Heap, L, R> Heaped for Pair<Heap, L, R> {
 }
 impl<Heap, L, R> DirectlyCanonicallyConstructibleFrom<Heap, (L, ())> for Pair<Heap, L, R>
 where
-    L: Heaped<Heap = Heap>,
-    R: Heaped<Heap = Heap> + Default,
+    R: Default,
 {
     fn construct(_: &mut Heap, t: (L, ())) -> Self {
         Pair {

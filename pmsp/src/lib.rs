@@ -10,7 +10,7 @@ pub trait NamesPatternMatchStrategyGivenContext<Heap> {
     type TyMetadatas: Strategy;
 }
 #[fundamental] // opt TmfMetadata out of the "covers" rule for when OgType is a local type
-pub struct TmfMetadata<OgType>(std::marker::PhantomData<OgType>);
+pub struct TmfMetadata<OgType, ArgMetadatas>(std::marker::PhantomData<(OgType, ArgMetadatas)>);
 pub struct AdtMetadata;
 
 pub type StrategyOf<T, Heap, L>

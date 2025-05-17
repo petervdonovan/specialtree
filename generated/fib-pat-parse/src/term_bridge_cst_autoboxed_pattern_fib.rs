@@ -186,17 +186,21 @@ pub mod maps_tmf_impls {
         >;
         type TmfTo = Either<
             tscapf::Heap,
-            OrVariable<
+            Pair<
                 tscapf::Heap,
-                Either<
+                OrVariable<
                     tscapf::Heap,
-                    Pair<
+                    Either<
                         tscapf::Heap,
-                        tscapf::LeftOperand,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::LeftOperand,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
                     >,
-                    ParseError<tscapf::Heap>,
                 >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
         >;
@@ -217,17 +221,21 @@ pub mod maps_tmf_impls {
         >;
         type TmfTo = Either<
             tscapf::Heap,
-            OrVariable<
+            Pair<
                 tscapf::Heap,
-                Either<
+                OrVariable<
                     tscapf::Heap,
-                    Pair<
+                    Either<
                         tscapf::Heap,
-                        tscapf::RightOperand,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::RightOperand,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
                     >,
-                    ParseError<tscapf::Heap>,
                 >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
         >;
@@ -248,17 +256,21 @@ pub mod maps_tmf_impls {
         >;
         type TmfTo = Either<
             tscapf::Heap,
-            OrVariable<
+            Pair<
                 tscapf::Heap,
-                Either<
+                OrVariable<
                     tscapf::Heap,
-                    Pair<
+                    Either<
                         tscapf::Heap,
-                        tscapf::Nat,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
                     >,
-                    ParseError<tscapf::Heap>,
                 >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
         >;
@@ -283,37 +295,7 @@ pub mod maps_tmf_impls {
                         tscapf::Heap,
                         Either<
                             tscapf::Heap,
-                            OrVariableZeroOrMore<
-                                tscapf::Heap,
-                                Either<
-                                    tscapf::Heap,
-                                    Pair<
-                                        tscapf::Heap,
-                                        tscapf::Nat,
-                                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                                    >,
-                                    ParseError<tscapf::Heap>,
-                                >,
-                            >,
-                            ParseError<tscapf::Heap>,
-                        >,
-                    >,
-                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
-                >,
-                ParseError<tscapf::Heap>,
-            >,
-        >;
-        type TmfTo = Either<
-            tscapf::Heap,
-            OrVariable<
-                tscapf::Heap,
-                Either<
-                    tscapf::Heap,
-                    Pair<
-                        tscapf::Heap,
-                        Set<
-                            tscapf::Heap,
-                            Either<
+                            Pair<
                                 tscapf::Heap,
                                 OrVariableZeroOrMore<
                                     tscapf::Heap,
@@ -327,13 +309,55 @@ pub mod maps_tmf_impls {
                                         ParseError<tscapf::Heap>,
                                     >,
                                 >,
-                                ParseError<tscapf::Heap>,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                             >,
+                            ParseError<tscapf::Heap>,
                         >,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                     >,
-                    ParseError<tscapf::Heap>,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                 >,
+                ParseError<tscapf::Heap>,
+            >,
+        >;
+        type TmfTo = Either<
+            tscapf::Heap,
+            Pair<
+                tscapf::Heap,
+                OrVariable<
+                    tscapf::Heap,
+                    Either<
+                        tscapf::Heap,
+                        Pair<
+                            tscapf::Heap,
+                            Set<
+                                tscapf::Heap,
+                                Either<
+                                    tscapf::Heap,
+                                    Pair<
+                                        tscapf::Heap,
+                                        OrVariableZeroOrMore<
+                                            tscapf::Heap,
+                                            Either<
+                                                tscapf::Heap,
+                                                Pair<
+                                                    tscapf::Heap,
+                                                    tscapf::Nat,
+                                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                                >,
+                                                ParseError<tscapf::Heap>,
+                                            >,
+                                        >,
+                                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                    >,
+                                    ParseError<tscapf::Heap>,
+                                >,
+                            >,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
+                    >,
+                >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
         >;
@@ -349,17 +373,21 @@ pub mod maps_tmf_impls {
             tscapf::Heap,
             Either<
                 tscapf::Heap,
-                OrVariableZeroOrMore<
+                Pair<
                     tscapf::Heap,
-                    Either<
+                    OrVariableZeroOrMore<
                         tscapf::Heap,
-                        Pair<
+                        Either<
                             tscapf::Heap,
-                            tscapf::Nat,
-                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            Pair<
+                                tscapf::Heap,
+                                tscapf::Nat,
+                                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                            >,
+                            ParseError<tscapf::Heap>,
                         >,
-                        ParseError<tscapf::Heap>,
                     >,
+                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                 >,
                 ParseError<tscapf::Heap>,
             >,
@@ -372,17 +400,21 @@ pub mod maps_tmf_impls {
                     tscapf::Heap,
                     Either<
                         tscapf::Heap,
-                        OrVariableZeroOrMore<
+                        Pair<
                             tscapf::Heap,
-                            Either<
+                            OrVariableZeroOrMore<
                                 tscapf::Heap,
-                                Pair<
+                                Either<
                                     tscapf::Heap,
-                                    tscapf::Nat,
-                                    Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                    Pair<
+                                        tscapf::Heap,
+                                        tscapf::Nat,
+                                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                                    >,
+                                    ParseError<tscapf::Heap>,
                                 >,
-                                ParseError<tscapf::Heap>,
                             >,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
                         >,
                         ParseError<tscapf::Heap>,
                     >,
@@ -410,17 +442,21 @@ pub mod maps_tmf_impls {
         >;
         type TmfTo = Either<
             tscapf::Heap,
-            OrVariableZeroOrMore<
+            Pair<
                 tscapf::Heap,
-                Either<
+                OrVariableZeroOrMore<
                     tscapf::Heap,
-                    Pair<
+                    Either<
                         tscapf::Heap,
-                        tscapf::Nat,
-                        Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        Pair<
+                            tscapf::Heap,
+                            tscapf::Nat,
+                            Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
+                        >,
+                        ParseError<tscapf::Heap>,
                     >,
-                    ParseError<tscapf::Heap>,
                 >,
+                Maybe<tscapf::Heap, ParseMetadata<tscapf::Heap>>,
             >,
             ParseError<tscapf::Heap>,
         >;

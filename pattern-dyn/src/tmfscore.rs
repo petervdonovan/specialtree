@@ -7,7 +7,7 @@ use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Set, SetHeapBak};
 use visit::{Visit, visiteventsink::VisitEventSink};
 
 impl<SortId, Heap, L, MappedBNat: Copy>
-    Visit<(TmfMetadata<BoundedNat<Heap>>, ()), MappedBNat, Heap, L> for PatternBuilder<L, SortId>
+    Visit<TmfMetadata<BoundedNat<Heap>, ()>, MappedBNat, Heap, L> for PatternBuilder<L, SortId>
 where
     MappedBNat: CanonicallyConstructibleFrom<Heap, (BoundedNat<Heap>, ())>,
     MappedBNat: HasOwnSortId<Heap>,
@@ -21,7 +21,7 @@ where
 }
 
 impl<SortId: Clone, Heap, L, Elem, MappedSet: Copy, ElemTmfMetadata>
-    Visit<(TmfMetadata<Set<Heap, Elem>>, (ElemTmfMetadata, ())), MappedSet, Heap, L>
+    Visit<TmfMetadata<Set<Heap, Elem>, (ElemTmfMetadata, ())>, MappedSet, Heap, L>
     for PatternBuilder<L, SortId>
 where
     Heap: term::SuperHeap<SetHeapBak<Heap, Elem>>,
@@ -43,7 +43,7 @@ where
 }
 
 impl<SortId, Heap, L, Elem, MappedIdxBox: Copy, ElemTmfMetadata>
-    Visit<(TmfMetadata<IdxBox<Heap, Elem>>, (ElemTmfMetadata, ())), MappedIdxBox, Heap, L>
+    Visit<TmfMetadata<IdxBox<Heap, Elem>, (ElemTmfMetadata, ())>, MappedIdxBox, Heap, L>
     for PatternBuilder<L, SortId>
 where
     Heap: term::SuperHeap<IdxBoxHeapBak<Heap, Elem>>,

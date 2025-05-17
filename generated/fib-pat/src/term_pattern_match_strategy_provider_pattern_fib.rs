@@ -26,8 +26,20 @@ impl<
     );
     type TyMetadatas = (
         (
-            (TmfMetadata<OrVariable<Heap, Heap::LeftOperand>>, (AdtMetadata, ())),
-            ((TmfMetadata<OrVariable<Heap, Heap::RightOperand>>, (AdtMetadata, ())), ()),
+            TmfMetadata<
+                <Heap as MapsTmf<wmpf::L, OrVariable<Heap, Heap::LeftOperand>>>::TmfFrom,
+                (AdtMetadata, ()),
+            >,
+            (
+                TmfMetadata<
+                    <Heap as MapsTmf<
+                        wmpf::L,
+                        OrVariable<Heap, Heap::RightOperand>,
+                    >>::TmfFrom,
+                    (AdtMetadata, ()),
+                >,
+                (),
+            ),
         ),
         (),
     );
@@ -41,7 +53,13 @@ impl<
         (),
     );
     type TyMetadatas = (
-        ((TmfMetadata<OrVariable<Heap, Heap::Nat>>, (AdtMetadata, ())), ()),
+        (
+            TmfMetadata<
+                <Heap as MapsTmf<wmpf::L, OrVariable<Heap, Heap::Nat>>>::TmfFrom,
+                (AdtMetadata, ()),
+            >,
+            (),
+        ),
         (),
     );
 }
@@ -54,7 +72,13 @@ impl<
         (),
     );
     type TyMetadatas = (
-        ((TmfMetadata<OrVariable<Heap, Heap::Nat>>, (AdtMetadata, ())), ()),
+        (
+            TmfMetadata<
+                <Heap as MapsTmf<wmpf::L, OrVariable<Heap, Heap::Nat>>>::TmfFrom,
+                (AdtMetadata, ()),
+            >,
+            (),
+        ),
         (),
     );
 }
@@ -67,7 +91,13 @@ impl<
         (),
     );
     type TyMetadatas = (
-        ((TmfMetadata<OrVariable<Heap, Heap::Nat>>, (AdtMetadata, ())), ()),
+        (
+            TmfMetadata<
+                <Heap as MapsTmf<wmpf::L, OrVariable<Heap, Heap::Nat>>>::TmfFrom,
+                (AdtMetadata, ()),
+            >,
+            (),
+        ),
         (),
     );
 }
@@ -87,24 +117,31 @@ impl<
     );
     type TyMetadatas = (
         (
-            (
-                TmfMetadata<
+            TmfMetadata<
+                <Heap as MapsTmf<
+                    wmpf::L,
                     OrVariable<Heap, Set<Heap, OrVariableZeroOrMore<Heap, Heap::Nat>>>,
-                >,
+                >>::TmfFrom,
                 (
-                    (
-                        TmfMetadata<Set<Heap, OrVariableZeroOrMore<Heap, Heap::Nat>>>,
+                    TmfMetadata<
+                        <Heap as MapsTmf<
+                            wmpf::L,
+                            Set<Heap, OrVariableZeroOrMore<Heap, Heap::Nat>>,
+                        >>::TmfFrom,
                         (
-                            (
-                                TmfMetadata<OrVariableZeroOrMore<Heap, Heap::Nat>>,
+                            TmfMetadata<
+                                <Heap as MapsTmf<
+                                    wmpf::L,
+                                    OrVariableZeroOrMore<Heap, Heap::Nat>,
+                                >>::TmfFrom,
                                 (AdtMetadata, ()),
-                            ),
+                            >,
                             (),
                         ),
-                    ),
+                    >,
                     (),
                 ),
-            ),
+            >,
             (),
         ),
         (),
@@ -119,7 +156,7 @@ impl<
         ((Heap::F, ()), ((Heap::Plus, ()), ((Heap::Sum, ()), ()))),
     );
     type TyMetadatas = (
-        ((TmfMetadata<BoundedNat<Heap>>, ()), ()),
+        (TmfMetadata<<Heap as MapsTmf<wmpf::L, BoundedNat<Heap>>>::TmfFrom, ()>, ()),
         ((AdtMetadata, ()), ((AdtMetadata, ()), ((AdtMetadata, ()), ()))),
     );
 }

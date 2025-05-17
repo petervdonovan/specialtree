@@ -40,7 +40,13 @@ impl<Heap: crate::term_trait_fib::Heap> pmsp::NamesPatternMatchStrategyGivenCont
 for wmfs::Sum {
     type Strategy = ((<Heap as MapsTmf<wmf::L, Set<Heap, Heap::Nat>>>::TmfTo, ()), ());
     type TyMetadatas = (
-        ((TmfMetadata<Set<Heap, Heap::Nat>>, (AdtMetadata, ())), ()),
+        (
+            TmfMetadata<
+                <Heap as MapsTmf<wmf::L, Set<Heap, Heap::Nat>>>::TmfFrom,
+                (AdtMetadata, ()),
+            >,
+            (),
+        ),
         (),
     );
 }
@@ -52,7 +58,7 @@ for wmfs::Nat {
         ((Heap::F, ()), ((Heap::Plus, ()), ((Heap::Sum, ()), ()))),
     );
     type TyMetadatas = (
-        ((TmfMetadata<BoundedNat<Heap>>, ()), ()),
+        (TmfMetadata<<Heap as MapsTmf<wmf::L, BoundedNat<Heap>>>::TmfFrom, ()>, ()),
         ((AdtMetadata, ()), ((AdtMetadata, ()), ((AdtMetadata, ()), ()))),
     );
 }

@@ -593,6 +593,7 @@ dependencies = [
 name = "parse-adt"
 version = "0.1.0"
 dependencies = [
+ "ccf",
  "conslist",
  "covisit",
  "miette",
@@ -689,10 +690,13 @@ name = "pattern-tmf"
 version = "0.1.0"
 dependencies = [
  "ccf",
+ "covisit",
  "derivative",
  "functor_derive",
  "langspec",
  "once_cell",
+ "parse-adt",
+ "pmsp",
  "serde",
  "string-interner",
  "syn 2.0.100",
