@@ -18,3 +18,5 @@ string-interner.workspace = true
 covisit = { version = "0.1.0", path = "../covisit" }
 pmsp = { version = "0.1.0", path = "../pmsp" }
 parse-adt = { version = "0.1.0", path = "../parse-adt" }
+visit = { version = "0.1.0", path = "../visit" }
+unparse-adt = { version = "0.1.0", path = "../unparse-adt" }

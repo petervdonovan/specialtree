@@ -101,11 +101,8 @@ where
     <Cstfy<Heap, T> as words::Implements<Heap, L>>::LWord: NamesParseLL,
 {
     fn matches(parser: &ParseCursor<'_>) -> bool {
-        parser
-            .match_keywords(
-                &<<Cstfy<Heap, T> as words::Implements<Heap, L>>::LWord as NamesParseLL>::START,
-            )
-            .is_some()
+        let kw = &<<Cstfy<Heap, T> as words::Implements<Heap, L>>::LWord as NamesParseLL>::START;
+        parser.match_keywords(kw).is_some()
     }
 }
 
@@ -176,10 +173,11 @@ where
             )
             .unwrap_or_else(|| {
                 panic!(
-                    "Expected start keyword \"{}\" but got \"{}\"",
+                    "Expected start keyword \"{}\" but got \"{}\" at position {}",
                     &<<Cstfy<Heap, A> as Implements<Heap, L>>::LWord as NamesParseLL>::START.0[0]
                         .get(),
-                    &self.pc.source[self.pc.position.offset()..]
+                    &self.pc.source[self.pc.position.offset()..],
+                    self.pc.position.offset()
                 );
             });
     }

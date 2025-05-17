@@ -425,6 +425,8 @@ version = "0.1.0"
 dependencies = [
  "fib",
  "fib-parse",
+ "fib-pat",
+ "fib-pat-parse",
  "pattern-dyn",
  "unparse-adt",
 ]
@@ -703,6 +705,8 @@ dependencies = [
  "term",
  "to-literal",
  "tymetafuncspec-core",
+ "unparse-adt",
+ "visit",
 ]
 
 [[package]]

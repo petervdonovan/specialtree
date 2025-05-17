@@ -29,7 +29,7 @@ impl Keyword {
         self.0
     }
 }
-
+#[derive(Debug)]
 pub struct KeywordSequence(pub &'static [Keyword]);
 
 pub enum TokenKind {
