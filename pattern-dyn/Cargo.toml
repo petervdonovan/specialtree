@@ -6,7 +6,7 @@ edition.workspace = true
 [dependencies]
 ccf = { version = "0.1.0", path = "../ccf" }
 derivative.workspace = true
-has-own-sort-id = { version = "0.1.0", path = "../has-own-sort-id" }
+names-langspec-sort = { version = "0.1.0", path = "../names-langspec-sort", package = "names-langspec-sort" }
 pmsp = { version = "0.1.0", path = "../pmsp" }
 syn.workspace = true
 term = { version = "0.1.0", path = "../term" }

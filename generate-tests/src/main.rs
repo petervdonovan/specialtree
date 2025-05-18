@@ -25,10 +25,11 @@ pub fn main() {
         ds_crate(&arena, &root_cgd, "fib-ds", &fib, &fib_deps),
         Crate {
             id: "fib-parse".into(),
-            provides: vec![
-                parse_gen::targets::default(&arena, root_cgd.subtree(), &fib),
-                // has_own_sort_id_gen::targets::default(&arena, root_cgd.subtree(), fib_cst),
-            ],
+            provides: vec![parse_gen::targets::default(
+                &arena,
+                root_cgd.subtree(),
+                &fib,
+            )],
             global_workspace_deps: fib_deps.to_vec(),
         },
         traits_crate(&arena, &root_cgd, "fib-pat", &fib_pat_file, &pat_deps),

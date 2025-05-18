@@ -7,11 +7,11 @@ path = "../fib-pat"
 [dependencies.file-tmf]
 path = "../.././file-tmf"
 
-[dependencies.has-own-sort-id]
-path = "../.././has-own-sort-id"
+[dependencies.names-langspec-sort]
+path = "../.././names-langspec-sort"
 
-[dependencies.has-own-sort-id-gen]
-path = "../.././has-own-sort-id-gen"
+[dependencies.names-langspec-sort-gen]
+path = "../.././names-langspec-sort-gen"
 
 [dependencies.pattern-tmf]
 path = "../.././pattern-tmf"

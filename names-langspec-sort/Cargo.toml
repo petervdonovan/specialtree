@@ -1,5 +1,5 @@
 [package]
-name = "has-own-sort-id"
+name = "names-langspec-sort"
 edition = "2024"
 version.workspace = true
 

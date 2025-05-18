@@ -4,7 +4,7 @@ use parse_adt::{
     Lookahead, ParseCursor, Parser,
     cstfy::{Cstfy, cstfy_ok},
 };
-use pmsp::TmfMetadata;
+use pmsp::{AdtMetadata, TmfMetadata};
 use term::SuperHeap;
 
 use crate::{File, FileHeapBak};
@@ -40,4 +40,19 @@ impl<Heap, L, Item> Lookahead<Heap, L> for File<Heap, Item> {
     fn matches(_: &ParseCursor<'_>) -> bool {
         true
     }
+}
+
+pub fn file<Heap: Default, L, Item>(source: &str) -> (Heap, Cstfy<Heap, File<Heap, Item>>)
+where
+    for<'a> Parser<'a, L>: covisit::Covisit<
+            TmfMetadata<File<Heap, Item>, (AdtMetadata, ())>,
+            Cstfy<Heap, File<Heap, Item>>,
+            Heap,
+            L,
+        >,
+{
+    let mut parser = parse_adt::Parser::new(source);
+    let mut heap = Heap::default();
+    let ret = <Parser<'_, L> as covisit::Covisit<_, _, _, _>>::covisit(&mut parser, &mut heap);
+    (heap, ret)
 }

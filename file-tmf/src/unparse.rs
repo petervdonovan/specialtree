@@ -1,5 +1,5 @@
 use ccf::CanonicallyConstructibleFrom;
-use pmsp::TmfMetadata;
+use pmsp::{AdtMetadata, TmfMetadata};
 use term::SuperHeap;
 use unparse_adt::Unparser;
 use visit::Visit;
@@ -25,4 +25,16 @@ where
         }
         self.unparse.group_end();
     }
+}
+
+pub fn file<L, Heap, Item, FileMapped>(heap: &Heap, t: &FileMapped) -> String
+where
+    FileMapped: CanonicallyConstructibleFrom<Heap, (File<Heap, Item>, ())>,
+    for<'a> Unparser<'a, L>:
+        Visit<TmfMetadata<File<Heap, Item>, (AdtMetadata, ())>, FileMapped, Heap, L>,
+{
+    let arena = bumpalo::Bump::new();
+    let mut unparser = Unparser::new(&arena);
+    <Unparser<'_, L> as Visit<_, _, _, _>>::visit(&mut unparser, heap, t);
+    format!("{}", &unparser.unparse)
 }

@@ -221,8 +221,8 @@ version = "0.0.0"
 dependencies = [
  "ccf",
  "fib",
- "has-own-sort-id",
- "has-own-sort-id-gen",
+ "names-langspec-sort",
+ "names-langspec-sort-gen",
  "term",
  "term-pattern-match-strategy-provider-impl-gen",
  "term-specialized-gen",
@@ -284,8 +284,8 @@ dependencies = [
  "ccf",
  "fib-pat",
  "file-tmf",
- "has-own-sort-id",
- "has-own-sort-id-gen",
+ "names-langspec-sort",
+ "names-langspec-sort-gen",
  "pattern-tmf",
  "term",
  "term-pattern-match-strategy-provider-impl-gen",
@@ -305,6 +305,8 @@ dependencies = [
  "fib-pat",
  "fib-pat-ds",
  "file-tmf",
+ "names-langspec-sort",
+ "names-langspec-sort-gen",
  "parse",
  "parse-adt",
  "parse-gen",
@@ -328,6 +330,7 @@ dependencies = [
 name = "file-tmf"
 version = "0.1.0"
 dependencies = [
+ "bumpalo",
  "ccf",
  "covisit",
  "derivative",
@@ -380,9 +383,9 @@ dependencies = [
  "codegen-component",
  "extension-file",
  "extension-pattern",
- "has-own-sort-id-gen",
  "langspec",
  "langspec-examples",
+ "names-langspec-sort-gen",
  "parse-gen",
  "pattern-gen",
  "term-pattern-match-strategy-provider-gen",
@@ -419,22 +422,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "has-own-sort-id"
-version = "0.1.0"
-
-[[package]]
-name = "has-own-sort-id-gen"
-version = "0.1.0"
-dependencies = [
- "codegen-component",
- "langspec",
- "langspec-gen-util",
- "syn 2.0.100",
- "term-specialized-gen",
- "words",
-]
-
-[[package]]
 name = "hashbrown"
 version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -461,6 +448,7 @@ dependencies = [
  "fib-parse",
  "fib-pat",
  "fib-pat-parse",
+ "file-tmf",
  "pattern-dyn",
  "unparse-adt",
 ]
@@ -599,6 +587,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "names-langspec-sort"
+version = "0.1.0"
+
+[[package]]
+name = "names-langspec-sort-gen"
+version = "0.1.0"
+dependencies = [
+ "codegen-component",
+ "langspec",
+ "langspec-gen-util",
+ "syn 2.0.100",
+ "words",
+]
+
+[[package]]
 name = "num-traits"
 version = "0.2.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -690,7 +693,7 @@ version = "0.1.0"
 dependencies = [
  "ccf",
  "derivative",
- "has-own-sort-id",
+ "names-langspec-sort",
  "pmsp",
  "syn 2.0.100",
  "term",
