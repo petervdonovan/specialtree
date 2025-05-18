@@ -1,6 +1,9 @@
 [dependencies.ccf]
 path = "../.././ccf"
 
+[dependencies.file-tmf]
+path = "../.././file-tmf"
+
 [dependencies.parse]
 path = "../.././parse"
 

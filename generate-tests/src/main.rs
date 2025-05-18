@@ -11,12 +11,14 @@ pub fn main() {
     let fib = LangSpecFlat::canonical_from(&langspec_examples::fib());
     // let fib_cst = cst(&arena, &fib);
     let fib_pat = extension_pattern::patternfy(&fib);
+    let fib_pat_file = extension_file::filefy_all_products(&fib_pat);
     // let fib_pat_cst = cst(&arena, &fib_pat);
     let root_cgd = CgDepList::new();
     let fib_deps = [("tymetafuncspec-core", Path::new("."))];
     let pat_deps = [
         ("tymetafuncspec-core", Path::new(".")),
         ("pattern-tmf", Path::new(".")),
+        ("file-tmf", Path::new(".")),
     ];
     let crates = vec![
         traits_crate(&arena, &root_cgd, "fib", &fib, &fib_deps),
@@ -29,14 +31,14 @@ pub fn main() {
             ],
             global_workspace_deps: fib_deps.to_vec(),
         },
-        traits_crate(&arena, &root_cgd, "fib-pat", &fib_pat, &pat_deps),
-        ds_crate(&arena, &root_cgd, "fib-pat-ds", &fib_pat, &pat_deps),
+        traits_crate(&arena, &root_cgd, "fib-pat", &fib_pat_file, &pat_deps),
+        ds_crate(&arena, &root_cgd, "fib-pat-ds", &fib_pat_file, &pat_deps),
         Crate {
             id: "fib-pat-parse".into(),
             provides: vec![parse_gen::targets::default(
                 &arena,
                 root_cgd.subtree(),
-                &fib_pat,
+                &fib_pat_file,
             )],
             global_workspace_deps: pat_deps.to_vec(),
         },

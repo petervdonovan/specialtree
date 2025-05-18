@@ -263,6 +263,7 @@ name = "fib-pat"
 version = "0.0.0"
 dependencies = [
  "ccf",
+ "file-tmf",
  "parse",
  "parse-adt",
  "parse-gen",
@@ -282,6 +283,7 @@ version = "0.0.0"
 dependencies = [
  "ccf",
  "fib-pat",
+ "file-tmf",
  "has-own-sort-id",
  "has-own-sort-id-gen",
  "pattern-tmf",
@@ -302,6 +304,7 @@ dependencies = [
  "covisit",
  "fib-pat",
  "fib-pat-ds",
+ "file-tmf",
  "parse",
  "parse-adt",
  "parse-gen",
@@ -327,6 +330,7 @@ version = "0.1.0"
 dependencies = [
  "ccf",
  "covisit",
+ "derivative",
  "langspec",
  "parse-adt",
  "pmsp",
@@ -374,6 +378,7 @@ version = "0.1.0"
 dependencies = [
  "bumpalo",
  "codegen-component",
+ "extension-file",
  "extension-pattern",
  "has-own-sort-id-gen",
  "langspec",

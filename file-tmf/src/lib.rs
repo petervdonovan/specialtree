@@ -1,3 +1,4 @@
+use derivative::Derivative;
 use langspec::{
     langspec::Name,
     tymetafunc::{ArgId, RustTyMap, TyMetaFuncData, TyMetaFuncSpec},
@@ -41,12 +42,16 @@ impl TyMetaFuncSpec for FileTmfs {
         }
     }
 }
-type Filename = <string_interner::DefaultBackend as string_interner::backend::Backend>::Symbol;
+// type Filename = <string_interner::DefaultBackend as string_interner::backend::Backend>::Symbol;
+#[derive(Derivative)]
+#[derivative(Clone(bound = ""), Copy(bound = ""))]
 pub struct File<Heap, Item> {
     // name: Option<Filename>,
     items: usize,
     phantom: std::marker::PhantomData<(Heap, Item)>,
 }
+#[derive(Derivative)]
+#[derivative(Default(bound = ""))]
 pub struct FileHeapBak<Heap, Item> {
     // names: string_interner::DefaultStringInterner,
     vecs: slab::Slab<std::vec::Vec<Item>>,

@@ -35,6 +35,14 @@ pub fn filefy<'a, L: LangSpec>(l: &'a L, item_sids: Vec<SortIdOf<L>>) -> impl La
         },
     }
 }
+pub fn filefy_all_products<'a, L: LangSpec>(l: &'a L) -> impl LangSpec + 'a {
+    filefy::<L>(
+        l,
+        l.products()
+            .map(|it| SortId::Algebraic(langspec::langspec::AlgebraicSortId::Product(it)))
+            .collect(),
+    )
+}
 
 fn embed<'a, L: LangSpec>(sid: SortIdOf<L>) -> SortIdOf<FileExtension<'a, L>> {
     sid.fmap_f(Either::Left).fmap_s(Either::Left)
@@ -103,7 +111,9 @@ impl<'a, L: LangSpec> LangSpec for FileExtension<'a, L> {
             Either::Right(id) => match id {
                 FileSortId::Root => vec![SortId::TyMetaFunc(MappedType {
                     f: Either::Right(file_tmf::FileTmfId),
-                    a: vec![],
+                    a: vec![SortId::Algebraic(langspec::langspec::AlgebraicSortId::Sum(
+                        Either::Right(FileSortId::Item),
+                    ))],
                 })]
                 .into_iter(),
                 FileSortId::Item => self

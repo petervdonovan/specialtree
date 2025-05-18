@@ -4,6 +4,9 @@ path = "../.././ccf"
 [dependencies.fib-pat]
 path = "../fib-pat"
 
+[dependencies.file-tmf]
+path = "../.././file-tmf"
+
 [dependencies.has-own-sort-id]
 path = "../.././has-own-sort-id"
 

@@ -10,6 +10,9 @@ path = "../fib-pat"
 [dependencies.fib-pat-ds]
 path = "../fib-pat-ds"
 
+[dependencies.file-tmf]
+path = "../.././file-tmf"
+
 [dependencies.parse]
 path = "../.././parse"
 

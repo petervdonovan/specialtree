@@ -1,7 +1,7 @@
 use ccf::CanonicallyConstructibleFrom;
 use covisit::Covisit;
 use parse_adt::{
-    Parser,
+    Lookahead, ParseCursor, Parser,
     cstfy::{Cstfy, cstfy_ok},
 };
 use pmsp::TmfMetadata;
@@ -34,5 +34,10 @@ where
             previous_offset,
             self.pc.position,
         )
+    }
+}
+impl<Heap, L, Item> Lookahead<Heap, L> for File<Heap, Item> {
+    fn matches(_: &ParseCursor<'_>) -> bool {
+        true
     }
 }

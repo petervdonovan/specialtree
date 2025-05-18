@@ -6,6 +6,7 @@ edition.workspace = true
 [dependencies]
 ccf = { version = "0.1.0", path = "../ccf" }
 covisit = { version = "0.1.0", path = "../covisit" }
+derivative.workspace = true
 langspec = { version = "0.1.0", path = "../langspec" }
 parse-adt = { version = "0.1.0", path = "../parse-adt" }
 pmsp = { version = "0.1.0", path = "../pmsp" }
