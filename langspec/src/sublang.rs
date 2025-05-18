@@ -38,13 +38,25 @@ pub fn reflexive_sublang<L: LangSpec>(l: &L) -> Sublang<SortIdOf<L>> {
         }),
         tems: {
             let mut tems = vec![];
+            let mut tmfs = vec![];
             crate::langspec::call_on_all_tmf_monomorphizations(l, &mut |it| {
                 tems.push(TmfEndoMapping {
                     fromshallow: SortId::TyMetaFunc(it.clone()),
                     fromrec: SortId::TyMetaFunc(it.clone()),
                     to: SortId::TyMetaFunc(it.clone()),
-                })
+                });
+                tmfs.push(it.clone());
             });
+            // for mt in l.tmf_roots() {
+            //     if !tmfs.contains(&mt) {
+            //         let tmf = SortId::TyMetaFunc(mt);
+            //         tems.push(TmfEndoMapping {
+            //             fromrec: tmf.clone(),
+            //             fromshallow: tmf.clone(),
+            //             to: tmf,
+            //         });
+            //     }
+            // }
             tems
         },
     }

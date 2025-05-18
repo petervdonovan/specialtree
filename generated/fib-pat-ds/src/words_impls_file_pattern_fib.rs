@@ -8,7 +8,6 @@ use fib_pat::words_mod_file_pattern_fib::sorts::RightOperand;
 use fib_pat::words_mod_file_pattern_fib::sorts::Plus;
 use fib_pat::words_mod_file_pattern_fib::sorts::Nat;
 use fib_pat::words_mod_file_pattern_fib::sorts::LeftOperand;
-use fib_pat::words_mod_file_pattern_fib::sorts::FileRoot;
 use fib_pat::words_mod_file_pattern_fib::sorts::FileItem;
 use fib_pat::words_mod_file_pattern_fib::sorts::F;
 use fib_pat::words_mod_file_pattern_fib::L;
@@ -30,9 +29,6 @@ impl words::Implements<tsfpf::Heap, L> for tsfpf::Sum {
 }
 impl words::Implements<tsfpf::Heap, L> for tsfpf::Nat {
     type LWord = Nat;
-}
-impl words::Implements<tsfpf::Heap, L> for tsfpf::FileRoot {
-    type LWord = FileRoot;
 }
 impl words::Implements<tsfpf::Heap, L> for tsfpf::FileItem {
     type LWord = FileItem;

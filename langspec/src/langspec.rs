@@ -28,6 +28,9 @@ impl Name {
 #[allow(type_alias_bounds)]
 pub type SortIdOf<L: LangSpec> =
     SortId<L::ProductId, L::SumId, <L::Tmfs as TyMetaFuncSpec>::TyMetaFuncId>;
+#[allow(type_alias_bounds)]
+pub type MappedTypeOf<L: LangSpec> =
+    MappedType<L::ProductId, L::SumId, <L::Tmfs as TyMetaFuncSpec>::TyMetaFuncId>;
 
 #[derive(Debug, Serialize, Deserialize, Clone, Functor, PartialEq, Eq, Hash)]
 #[functor(ProductId as p, SumId as s, TyMetaFuncId as f)]
@@ -53,6 +56,7 @@ impl<ProductId: Ord, SumId: Ord, TyMetaFuncId: Ord> Ord for SortId<ProductId, Su
     }
 }
 #[derive(Debug, Serialize, Deserialize, Clone, Functor, PartialEq, Eq, Hash)]
+#[functor(ProductId as p, SumId as s, TyMetaFuncId as f)]
 pub struct MappedType<ProductId, SumId, TyMetaFuncId> {
     pub f: TyMetaFuncId,
     pub a: Vec<SortId<ProductId, SumId, TyMetaFuncId>>,
@@ -128,6 +132,9 @@ pub trait LangSpec: Sized {
         Bot::canonical_from(self)
     }
     fn sublangs(&self) -> Vec<Sublang<SortIdOf<Self>>>;
+    fn tmf_roots(&self) -> impl Iterator<Item = MappedTypeOf<Self>> {
+        std::iter::empty()
+    }
     fn all_sort_ids(&self) -> impl Iterator<Item = SortIdOf<Self>> {
         let products = self
             .products()
@@ -139,6 +146,12 @@ pub trait LangSpec: Sized {
         call_on_all_tmf_monomorphizations(self, &mut |mt| {
             tmfs.push(SortId::TyMetaFunc(mt.clone()));
         });
+        // for mt in self.tmf_roots() {
+        //     let tmf = SortId::TyMetaFunc(mt);
+        //     if !tmfs.contains(&tmf) {
+        //         tmfs.push(tmf);
+        //     }
+        // }
         products.chain(sums).chain(tmfs)
     }
 }
@@ -155,7 +168,7 @@ pub fn call_on_all_tmf_monomorphizations<
     l: &L,
     f: &mut F,
 ) {
-    let mut found: std::collections::HashSet<SortIdOf<L>> = std::collections::HashSet::new();
+    let mut found: std::collections::HashSet<SortIdOf<L>> = Default::default();
     fn process_tmf<
         L: LangSpec,
         F: FnMut(&MappedType<L::ProductId, L::SumId, <L::Tmfs as TyMetaFuncSpec>::TyMetaFuncId>),
@@ -182,6 +195,7 @@ pub fn call_on_all_tmf_monomorphizations<
         .products()
         .flat_map(|pid| l.product_sorts(pid))
         .chain(l.sums().flat_map(|sid| l.sum_sorts(sid)))
+        .chain(l.tmf_roots().map(SortId::TyMetaFunc))
     {
         process_tmf::<L, F>(&mut found, sort, f);
     }

@@ -64,15 +64,6 @@ impl fib_pat::term_trait_file_pattern_fib::Heap for tscafpf::Heap {
         >,
         ParseError<tscafpf::Heap>,
     >;
-    type FileRoot = Either<
-        tscafpf::Heap,
-        Pair<
-            tscafpf::Heap,
-            tscafpf::FileRoot,
-            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-        >,
-        ParseError<tscafpf::Heap>,
-    >;
     type FileItem = Either<
         tscafpf::Heap,
         Pair<
@@ -151,16 +142,6 @@ pub mod owned_impls {
         >,
         ParseError<tscafpf::Heap>,
     > {}
-    impl fib_pat::term_trait_file_pattern_fib::owned::FileRoot<tscafpf::Heap>
-    for Either<
-        tscafpf::Heap,
-        Pair<
-            tscafpf::Heap,
-            tscafpf::FileRoot,
-            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-        >,
-        ParseError<tscafpf::Heap>,
-    > {}
     impl fib_pat::term_trait_file_pattern_fib::owned::FileItem<tscafpf::Heap>
     for Either<
         tscafpf::Heap,
@@ -179,7 +160,6 @@ pub mod words_impls {
     use fib_pat::words_mod_file_pattern_fib::sorts::Plus;
     use fib_pat::words_mod_file_pattern_fib::sorts::Nat;
     use fib_pat::words_mod_file_pattern_fib::sorts::LeftOperand;
-    use fib_pat::words_mod_file_pattern_fib::sorts::FileRoot;
     use fib_pat::words_mod_file_pattern_fib::sorts::FileItem;
     use fib_pat::words_mod_file_pattern_fib::sorts::F;
     use fib_pat::words_mod_file_pattern_fib::L;
@@ -202,9 +182,6 @@ pub mod words_impls {
     }
     impl words::Implements<tscafpf::Heap, L> for <tscafpf::Heap as Heap>::Nat {
         type LWord = Nat;
-    }
-    impl words::Implements<tscafpf::Heap, L> for <tscafpf::Heap as Heap>::FileRoot {
-        type LWord = FileRoot;
     }
     impl words::Implements<tscafpf::Heap, L> for <tscafpf::Heap as Heap>::FileItem {
         type LWord = FileItem;

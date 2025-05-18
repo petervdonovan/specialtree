@@ -11,6 +11,5 @@ pub mod sorts {
     pub struct F;
     pub struct Sum;
     pub struct Nat;
-    pub struct FileRoot;
     pub struct FileItem;
 }

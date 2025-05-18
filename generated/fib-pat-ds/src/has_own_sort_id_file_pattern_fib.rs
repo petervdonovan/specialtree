@@ -39,31 +39,26 @@ impl has_own_sort_id::HasOwnSortId<tsfpf::Heap> for tsfpf::Nat {
         5u32
     }
 }
-impl has_own_sort_id::HasOwnSortId<tsfpf::Heap> for tsfpf::FileRoot {
-    fn own_sort_id() -> u32 {
-        6u32
-    }
-}
 impl has_own_sort_id::HasOwnSortId<tsfpf::Heap> for tsfpf::FileItem {
     fn own_sort_id() -> u32 {
-        7u32
+        6u32
     }
 }
 impl has_own_sort_id::HasOwnSortId<tsfpf::Heap>
 for OrVariable<tsfpf::Heap, tsfpf::LeftOperand> {
     fn own_sort_id() -> u32 {
-        8u32
+        7u32
     }
 }
 impl has_own_sort_id::HasOwnSortId<tsfpf::Heap>
 for OrVariable<tsfpf::Heap, tsfpf::RightOperand> {
     fn own_sort_id() -> u32 {
-        9u32
+        8u32
     }
 }
 impl has_own_sort_id::HasOwnSortId<tsfpf::Heap> for OrVariable<tsfpf::Heap, tsfpf::Nat> {
     fn own_sort_id() -> u32 {
-        10u32
+        9u32
     }
 }
 impl has_own_sort_id::HasOwnSortId<tsfpf::Heap>
@@ -72,28 +67,28 @@ for OrVariable<
     Set<tsfpf::Heap, OrVariableZeroOrMore<tsfpf::Heap, tsfpf::Nat>>,
 > {
     fn own_sort_id() -> u32 {
-        11u32
+        10u32
     }
 }
 impl has_own_sort_id::HasOwnSortId<tsfpf::Heap>
 for Set<tsfpf::Heap, OrVariableZeroOrMore<tsfpf::Heap, tsfpf::Nat>> {
     fn own_sort_id() -> u32 {
-        12u32
+        11u32
     }
 }
 impl has_own_sort_id::HasOwnSortId<tsfpf::Heap>
 for OrVariableZeroOrMore<tsfpf::Heap, tsfpf::Nat> {
     fn own_sort_id() -> u32 {
-        13u32
+        12u32
     }
 }
 impl has_own_sort_id::HasOwnSortId<tsfpf::Heap> for BoundedNat<tsfpf::Heap> {
     fn own_sort_id() -> u32 {
-        14u32
+        13u32
     }
 }
 impl has_own_sort_id::HasOwnSortId<tsfpf::Heap> for File<tsfpf::Heap, tsfpf::FileItem> {
     fn own_sort_id() -> u32 {
-        15u32
+        14u32
     }
 }

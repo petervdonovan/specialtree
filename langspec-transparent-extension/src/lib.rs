@@ -1,6 +1,6 @@
 use either_id::Either;
 use langspec::{
-    langspec::{AlgebraicSortId, LangSpec, Name, SortId, SortIdOf},
+    langspec::{AlgebraicSortId, LangSpec, MappedType, Name, SortId, SortIdOf},
     sublang::reflexive_sublang,
     tymetafunc::TyMetaFuncSpec,
 };
@@ -73,6 +73,10 @@ where
             self.csm
                 .map(self.l, &AlgebraicSortId::Sum(id.clone()), &sid)
         })
+    }
+
+    fn tmf_roots(&self) -> impl Iterator<Item = langspec::langspec::MappedTypeOf<Self>> {
+        self.l.tmf_roots().map(|mt| mt.fmap_f(Either::Left))
     }
 
     fn sublangs(&self) -> Vec<langspec::sublang::Sublang<SortIdOf<Self>>> {

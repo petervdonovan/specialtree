@@ -24,9 +24,6 @@ impl words::Implements<tscafpf::Heap, wmcafpf::L> for tscafpf::Sum {
 impl words::Implements<tscafpf::Heap, wmcafpf::L> for tscafpf::Nat {
     type LWord = wmcafpfs::Nat;
 }
-impl words::Implements<tscafpf::Heap, wmcafpf::L> for tscafpf::FileRoot {
-    type LWord = wmcafpfs::FileRoot;
-}
 impl words::Implements<tscafpf::Heap, wmcafpf::L> for tscafpf::FileItem {
     type LWord = wmcafpfs::FileItem;
 }

@@ -73,6 +73,16 @@ where
         }
     }
 
+    fn tmf_roots(&self) -> impl Iterator<Item = langspec::langspec::MappedTypeOf<Self>> {
+        self.l0
+            .tmf_roots()
+            .map(|mt| L0M::l0_map(self, SortId::TyMetaFunc(mt)))
+            .map(|sid| match sid {
+                SortId::Algebraic(_) => panic!(),
+                SortId::TyMetaFunc(mapped_type) => mapped_type,
+            })
+    }
+
     fn sublangs(&self) -> Vec<langspec::sublang::Sublang<SortIdOf<Self>>> {
         self.l0
             .sublangs()

@@ -100,6 +100,10 @@ impl<'a, L: LangSpec> LangSpec for PatternExtension<'a, L> {
         self.l0.sum_sorts(id).map(map_sid::<'a, L>)
     }
 
+    fn tmf_roots(&self) -> impl Iterator<Item = langspec::langspec::MappedTypeOf<Self>> {
+        self.l0.tmf_roots().map(|it| it.fmap_f(Either::Left))
+    }
+
     fn sublangs(&self) -> Vec<langspec::sublang::Sublang<langspec::langspec::SortIdOf<Self>>> {
         self.l0
             .sublangs()

@@ -1,4 +1,5 @@
 use either_id::Either;
+use file_tmf::FileTmfId;
 use langspec::{
     langspec::{LangSpec, MappedType, Name, SortId, SortIdOf},
     sublang::{Sublang, TmfEndoMapping, reflexive_sublang},
@@ -9,7 +10,6 @@ pub struct FileExtension<'a, L: LangSpec> {
     pub name: Name,
     pub l: &'a L,
     pub item_sids: Vec<SortIdOf<L>>,
-    file_name: Name,
     item_name: Name,
 }
 
@@ -23,11 +23,6 @@ pub fn filefy<'a, L: LangSpec>(l: &'a L, item_sids: Vec<SortIdOf<L>>) -> impl La
         .merge(l.name()),
         l,
         item_sids,
-        file_name: Name {
-            human: "file-root".into(),
-            camel: "FileRoot".into(),
-            snake: "file_root".into(),
-        },
         item_name: Name {
             human: "file-item".into(),
             camel: "FileItem".into(),
@@ -49,15 +44,12 @@ fn embed<'a, L: LangSpec>(sid: SortIdOf<L>) -> SortIdOf<FileExtension<'a, L>> {
 }
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Debug)]
-pub enum FileSortId {
-    Root,
-    Item,
-}
+pub struct FileItemSortId;
 
 impl<'a, L: LangSpec> LangSpec for FileExtension<'a, L> {
     type ProductId = L::ProductId;
 
-    type SumId = Either<L::SumId, FileSortId>;
+    type SumId = Either<L::SumId, FileItemSortId>;
 
     type Tmfs = TmfsJoin<L::Tmfs, file_tmf::FileTmfs>;
 
@@ -70,10 +62,10 @@ impl<'a, L: LangSpec> LangSpec for FileExtension<'a, L> {
     }
 
     fn sums(&self) -> impl Iterator<Item = Self::SumId> {
-        self.l.sums().map(Either::Left).chain([
-            Either::Right(FileSortId::Root),
-            Either::Right(FileSortId::Item),
-        ])
+        self.l
+            .sums()
+            .map(Either::Left)
+            .chain([Either::Right(FileItemSortId)])
     }
 
     fn product_name(&self, id: Self::ProductId) -> &langspec::langspec::Name {
@@ -83,10 +75,7 @@ impl<'a, L: LangSpec> LangSpec for FileExtension<'a, L> {
     fn sum_name(&self, id: Self::SumId) -> &langspec::langspec::Name {
         match id {
             Either::Left(id) => self.l.sum_name(id),
-            Either::Right(fsi) => match fsi {
-                FileSortId::Root => &self.file_name,
-                FileSortId::Item => &self.item_name,
-            },
+            Either::Right(_) => &self.item_name,
         }
     }
 
@@ -108,23 +97,23 @@ impl<'a, L: LangSpec> LangSpec for FileExtension<'a, L> {
                 .map(embed::<L>)
                 .collect::<Vec<_>>()
                 .into_iter(),
-            Either::Right(id) => match id {
-                FileSortId::Root => vec![SortId::TyMetaFunc(MappedType {
-                    f: Either::Right(file_tmf::FileTmfId),
-                    a: vec![SortId::Algebraic(langspec::langspec::AlgebraicSortId::Sum(
-                        Either::Right(FileSortId::Item),
-                    ))],
-                })]
+            Either::Right(_) => self
+                .item_sids
+                .iter()
+                .cloned()
+                .map(embed::<L>)
+                .collect::<Vec<_>>()
                 .into_iter(),
-                FileSortId::Item => self
-                    .item_sids
-                    .iter()
-                    .cloned()
-                    .map(embed::<L>)
-                    .collect::<Vec<_>>()
-                    .into_iter(),
-            },
         }
+    }
+
+    fn tmf_roots(&self) -> impl Iterator<Item = langspec::langspec::MappedTypeOf<Self>> {
+        std::iter::once(MappedType {
+            f: Either::Right(FileTmfId),
+            a: vec![SortId::Algebraic(langspec::langspec::AlgebraicSortId::Sum(
+                Either::Right(FileItemSortId),
+            ))],
+        })
     }
 
     fn sublangs(&self) -> Vec<langspec::sublang::Sublang<langspec::langspec::SortIdOf<Self>>> {

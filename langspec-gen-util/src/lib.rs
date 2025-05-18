@@ -731,7 +731,9 @@ struct UcpPair<SortId> {
 }
 #[derive(Clone, Copy)]
 struct Distance(usize);
-fn unit_ccf_paths_quadratically_large_closure<SortId: Clone + Eq + std::hash::Hash>(
+fn unit_ccf_paths_quadratically_large_closure<
+    SortId: std::fmt::Debug + Clone + Eq + std::hash::Hash,
+>(
     direct_ccf_rels: &[CcfRelation<SortId>],
     non_transparent_sorts: &[SortId],
 ) -> Vec<TransitiveUnitCcfRelation<SortId>> {
@@ -774,7 +776,7 @@ fn find_ucp<SortId: Clone + Eq + std::hash::Hash + std::fmt::Debug>(
         .clone()
 }
 
-fn get_tucr_for_to<SortId: Clone + Eq + std::hash::Hash>(
+fn get_tucr_for_to<SortId: std::fmt::Debug + Clone + Eq + std::hash::Hash>(
     unit_ccf_rels: &[UnitCcfRel<SortId>],
     to: SortId,
     non_transparent_sorts: &[SortId],
