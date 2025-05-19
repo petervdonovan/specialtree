@@ -65,16 +65,41 @@ pub(crate) fn bridge_words_impls<L: LangSpec>(
     }: &BasePaths,
     elsg: &LsGen<L>,
 ) -> syn::ItemMod {
+    // let impls = elsg
+    //     .ty_gen_datas(Some(og_words_base_path.clone()))
+    //     .map(|tgd| -> syn::ItemImpl {
+    //         let camel_ident = &tgd.camel_ident;
+    //         let ty: syn::Type = syn::parse_quote! {
+    //             <#ext_data_structure::Heap as #og_term_trait::Heap>::#camel_ident
+    //         };
+    //         syn::parse_quote! {
+    //             impl words::Implements<#ext_data_structure::Heap, #og_words_base_path::L> for #ty {
+    //                 type LWord = #og_words_base_path::sorts::#camel_ident;
+    //             }
+    //         }
+    //     });
     let impls = elsg
-        .ty_gen_datas(Some(og_words_base_path.clone()))
-        .map(|tgd| -> syn::ItemImpl {
-            let camel_ident = &tgd.camel_ident;
-            let ty: syn::Type = syn::parse_quote! {
-                <#ext_data_structure::Heap as #og_term_trait::Heap>::#camel_ident
-            };
+        .bak()
+        .all_sort_ids()
+        .map(|sid| {
+            let skeleton = elsg.sort2rs_ty(
+                sid.clone(),
+                &HeapType(syn::parse_quote! { () }),
+                &AlgebraicsBasePath::new(syn::parse_quote! { #og_words_base_path::sorts:: }),
+            );
+            let ty = elsg.sort2rs_ty(
+                sid,
+                &HeapType(syn::parse_quote! { #ext_data_structure::Heap }),
+                &AlgebraicsBasePath::new(
+                    syn::parse_quote! { <#ext_data_structure::Heap as #og_term_trait::Heap>:: },
+                ),
+            );
+            (ty, skeleton)
+        })
+        .map(|(ty, skeleton)| -> syn::ItemImpl {
             syn::parse_quote! {
                 impl words::Implements<#ext_data_structure::Heap, #og_words_base_path::L> for #ty {
-                    type LWord = #og_words_base_path::sorts::#camel_ident;
+                    type LWord = #skeleton;
                 }
             }
         });

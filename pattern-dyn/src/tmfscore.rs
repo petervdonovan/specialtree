@@ -1,16 +1,18 @@
 use crate::visitor::PatternBuilder;
 use ccf::CanonicallyConstructibleFrom;
-use has_own_sort_id::HasOwnSortId;
+use names_langspec_sort::NamesLangspecSort;
 use pmsp::TmfMetadata;
 use to_literal::ToLiteral as _;
 use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Set, SetHeapBak};
 use visit::{Visit, visiteventsink::VisitEventSink};
+use words::Implements;
 
 impl<SortId, Heap, L, MappedBNat: Copy>
     Visit<TmfMetadata<BoundedNat<Heap>, ()>, MappedBNat, Heap, L> for PatternBuilder<L, SortId>
 where
     MappedBNat: CanonicallyConstructibleFrom<Heap, (BoundedNat<Heap>, ())>,
-    MappedBNat: HasOwnSortId<Heap>,
+    MappedBNat: Implements<Heap, L>,
+    <MappedBNat as Implements<Heap, L>>::LWord: NamesLangspecSort<L>,
     SortId: Clone,
 {
     fn visit(&mut self, heap: &Heap, t: &MappedBNat) {
@@ -26,7 +28,8 @@ impl<SortId: Clone, Heap, L, Elem, MappedSet: Copy, ElemTmfMetadata>
 where
     Heap: term::SuperHeap<SetHeapBak<Heap, Elem>>,
     MappedSet: CanonicallyConstructibleFrom<Heap, (Set<Heap, Elem>, ())>,
-    MappedSet: HasOwnSortId<Heap>,
+    MappedSet: Implements<Heap, L>,
+    <MappedSet as Implements<Heap, L>>::LWord: NamesLangspecSort<L>,
     PatternBuilder<L, SortId>: Visit<ElemTmfMetadata, Elem, Heap, L>,
 {
     fn visit(&mut self, heap: &Heap, t: &MappedSet) {

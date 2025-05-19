@@ -74,6 +74,7 @@ fn traits_crate<'arena: 'b, 'b>(
                 root_cgd.subtree(),
                 l,
             ),
+            names_langspec_sort_gen::targets::default(arena, root_cgd.subtree(), l),
         ],
         global_workspace_deps: global_workspace_deps.to_vec(),
     }
@@ -100,7 +101,6 @@ fn ds_crate<'arena: 'b, 'b>(
                 root_cgd.subtree(),
                 l,
             ),
-            has_own_sort_id_gen::targets::default(arena, root_cgd.subtree(), l),
         ],
         global_workspace_deps: global_workspace_deps.to_vec(),
     }

@@ -203,6 +203,8 @@ name = "fib"
 version = "0.0.0"
 dependencies = [
  "ccf",
+ "names-langspec-sort",
+ "names-langspec-sort-gen",
  "parse",
  "parse-adt",
  "parse-gen",
@@ -221,8 +223,6 @@ version = "0.0.0"
 dependencies = [
  "ccf",
  "fib",
- "names-langspec-sort",
- "names-langspec-sort-gen",
  "term",
  "term-pattern-match-strategy-provider-impl-gen",
  "term-specialized-gen",
@@ -264,6 +264,8 @@ version = "0.0.0"
 dependencies = [
  "ccf",
  "file-tmf",
+ "names-langspec-sort",
+ "names-langspec-sort-gen",
  "parse",
  "parse-adt",
  "parse-gen",
@@ -284,8 +286,6 @@ dependencies = [
  "ccf",
  "fib-pat",
  "file-tmf",
- "names-langspec-sort",
- "names-langspec-sort-gen",
  "pattern-tmf",
  "term",
  "term-pattern-match-strategy-provider-impl-gen",
@@ -305,8 +305,6 @@ dependencies = [
  "fib-pat",
  "fib-pat-ds",
  "file-tmf",
- "names-langspec-sort",
- "names-langspec-sort-gen",
  "parse",
  "parse-adt",
  "parse-gen",
@@ -701,6 +699,7 @@ dependencies = [
  "to-literal",
  "tymetafuncspec-core",
  "visit",
+ "words",
 ]
 
 [[package]]

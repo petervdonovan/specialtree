@@ -4,6 +4,12 @@ path = "../.././ccf"
 [dependencies.file-tmf]
 path = "../.././file-tmf"
 
+[dependencies.names-langspec-sort]
+path = "../.././names-langspec-sort"
+
+[dependencies.names-langspec-sort-gen]
+path = "../.././names-langspec-sort-gen"
+
 [dependencies.parse]
 path = "../.././parse"
 

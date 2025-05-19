@@ -6,14 +6,14 @@ pub fn generate<L: LangSpec>(words_base_path: &syn::Path, lg: &LsGen<L>) -> syn:
     let tys = lg.bak().all_sort_ids().map(|sid| {
         lg.sort2rs_ty(
             sid,
-            &HeapType(syn::parse_quote! {#words_base_path::Heap}),
-            &AlgebraicsBasePath::new(syn::parse_quote! { #words_base_path:: }),
+            &HeapType(syn::parse_quote! { () }),
+            &AlgebraicsBasePath::new(syn::parse_quote! { #words_base_path::sorts:: }),
         )
     });
     let impls = tys.enumerate().map(|(idx, ty)| -> syn::ItemImpl {
         let idx = idx as u32;
         syn::parse_quote! {
-            impl names_langspec_sort::NamesLangspecSort for #ty {
+            impl names_langspec_sort::NamesLangspecSort<#words_base_path::L> for #ty {
                 fn sort_idx() -> u32 {
                     #idx
                 }

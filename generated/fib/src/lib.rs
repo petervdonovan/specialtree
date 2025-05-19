@@ -6,3 +6,4 @@ pub mod words_mod_fib;
 pub mod term_trait_fib;
 pub mod parsells_fib;
 pub mod term_pattern_match_strategy_provider_fib;
+pub mod names_langspec_sort_fib;

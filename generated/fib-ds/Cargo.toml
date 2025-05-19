@@ -4,12 +4,6 @@ path = "../.././ccf"
 [dependencies.fib]
 path = "../fib"
 
-[dependencies.names-langspec-sort]
-path = "../.././names-langspec-sort"
-
-[dependencies.names-langspec-sort-gen]
-path = "../.././names-langspec-sort-gen"
-
 [dependencies.term]
 path = "../.././term"
 

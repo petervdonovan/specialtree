@@ -14,3 +14,4 @@ thiserror.workspace = true
 to-literal = { version = "0.1.0", path = "../to-literal" }
 tymetafuncspec-core = { version = "0.1.0", path = "../tymetafuncspec-core" }
 visit = { version = "0.1.0", path = "../visit" }
+words = { version = "0.1.0", path = "../words" }

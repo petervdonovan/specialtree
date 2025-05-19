@@ -1,4 +1,4 @@
-use langspec::langspec::{Name, call_on_all_tmf_monomorphizations};
+use langspec::langspec::{MappedTypeOf, Name, call_on_all_tmf_monomorphizations};
 use langspec::tymetafunc::{IdentifiedBy, RustTyMap, Transparency, TyMetaFuncSpec};
 use langspec::{
     langspec::{AlgebraicSortId, LangSpec, MappedType, SortId, SortIdOf},
@@ -500,32 +500,6 @@ impl<L: LangSpec> LsGen<'_, L> {
             }
         }
     }
-    // pub fn sort2rs_ty_with_tmfmapped_args(
-    //     &self,
-    //     sort: SortIdOf<L>,
-    //     ht: &HeapType,
-    //     abp: &AlgebraicsBasePath,
-    //     words_path: &syn::Path,
-    // ) -> syn::Type {
-    //     match &sort {
-    //         SortId::Algebraic(_) => self.sort2tmfmapped_rs_ty(sort, ht, abp, words_path),
-    //         SortId::TyMetaFunc(mt) => {
-    //             // let rs_ty = self.sort2rs_ty(sort.clone(), ht, abp);
-    //             // let ht = &ht.0;
-    //             // let ret = quote::quote! {<#ht as term::MapsTmf<#words_path::L, #rs_ty>>::Tmf};
-    //             // syn::parse_quote! { #ret }
-    //             let args =
-    //                 mt.a.iter()
-    //                     .map(|it| self.sort2tmfmapped_rs_ty(it.clone(), ht, abp, words_path));
-    //             let TyMetaFuncData {
-    //                 imp: RustTyMap { ty_func },
-    //                 ..
-    //             } = L::Tmfs::ty_meta_func_data(&mt.f);
-    //             let ht = &ht.0;
-    //             syn::parse_quote! { #ty_func<#ht, #( #args, )* > }
-    //         }
-    //     }
-    // }
     pub fn sort2heap_ty(
         &self,
         sort: SortIdOf<L>,
@@ -554,6 +528,12 @@ impl<L: LangSpec> LsGen<'_, L> {
             }
         }
     }
+    // pub fn tmf_sort_ids(&self) -> impl Iterator<Item = MappedTypeOf<L>> {
+    //     self.bak.all_sort_ids().filter_map(|sid| match sid {
+    //         SortId::Algebraic(_) => None,
+    //         SortId::TyMetaFunc(mapped_type) => Some(mapped_type),
+    //     })
+    // }
     fn product_heap_sort_camel_idents(&self, pid: &L::ProductId) -> Vec<syn::Ident> {
         self.bak
             .product_sorts(pid.clone())

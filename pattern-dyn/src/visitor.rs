@@ -1,7 +1,8 @@
 use derivative::Derivative;
-use has_own_sort_id::HasOwnSortId;
+use names_langspec_sort::NamesLangspecSort;
 use thiserror::Error;
 use visit::visiteventsink::VisitEventSink;
+use words::Implements;
 
 use crate::{CompositePattern, DynPattern};
 #[derive(Derivative)]
@@ -26,11 +27,18 @@ impl<L, SortId: Clone> PatternBuilder<L, SortId> {
             phantom: std::marker::PhantomData,
         }
     }
-    pub(crate) fn literal<Heap, CurrentNode: HasOwnSortId<Heap>>(&mut self, literal: syn::Expr) {
+    pub(crate) fn literal<Heap, CurrentNode>(&mut self, literal: syn::Expr)
+    where
+        CurrentNode: Implements<Heap, L>,
+        <CurrentNode as Implements<Heap, L>>::LWord: NamesLangspecSort<L>,
+    {
         self.stack.push(DynPattern::Literal(crate::LiteralPattern {
             sid: self
                 .int2sid
-                .get(CurrentNode::own_sort_id() as usize)
+                .get(
+                    <<CurrentNode as Implements<Heap, L>>::LWord as NamesLangspecSort<L>>::sort_idx(
+                    ) as usize,
+                )
                 .unwrap()
                 .clone(),
             equal_to: literal,
@@ -46,7 +54,8 @@ impl<L, SortId: Clone> PatternBuilder<L, SortId> {
 }
 impl<L, CurrentNode, Heap, SortId> VisitEventSink<CurrentNode, Heap> for PatternBuilder<L, SortId>
 where
-    CurrentNode: HasOwnSortId<Heap>,
+    CurrentNode: Implements<Heap, L>,
+    <CurrentNode as Implements<Heap, L>>::LWord: NamesLangspecSort<L>,
     SortId: Clone,
 {
     fn push(
@@ -68,7 +77,10 @@ where
         self.stack.push(DynPattern::Composite(CompositePattern {
             rs_ty: self
                 .int2sid
-                .get(CurrentNode::own_sort_id() as usize)
+                .get(
+                    <<CurrentNode as Implements<Heap, L>>::LWord as NamesLangspecSort<L>>::sort_idx(
+                    ) as usize,
+                )
                 .unwrap()
                 .clone(),
             components,

@@ -146,12 +146,6 @@ pub trait LangSpec: Sized {
         call_on_all_tmf_monomorphizations(self, &mut |mt| {
             tmfs.push(SortId::TyMetaFunc(mt.clone()));
         });
-        // for mt in self.tmf_roots() {
-        //     let tmf = SortId::TyMetaFunc(mt);
-        //     if !tmfs.contains(&tmf) {
-        //         tmfs.push(tmf);
-        //     }
-        // }
         products.chain(sums).chain(tmfs)
     }
 }
