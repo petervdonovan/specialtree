@@ -27,7 +27,7 @@ impl<L, SortId: Clone> PatternBuilder<L, SortId> {
             phantom: std::marker::PhantomData,
         }
     }
-    pub(crate) fn literal<Heap, CurrentNode>(&mut self, literal: syn::Expr)
+    pub fn literal<Heap, CurrentNode>(&mut self, literal: syn::Expr)
     where
         CurrentNode: Implements<Heap, L>,
         <CurrentNode as Implements<Heap, L>>::LWord: NamesLangspecSort<L>,
@@ -43,6 +43,55 @@ impl<L, SortId: Clone> PatternBuilder<L, SortId> {
                 .clone(),
             equal_to: literal,
         }))
+    }
+    pub fn variable<Heap, CurrentNode>(&mut self, name: String)
+    where
+        CurrentNode: Implements<Heap, L>,
+        <CurrentNode as Implements<Heap, L>>::LWord: NamesLangspecSort<L>,
+    {
+        self.stack.push(DynPattern::Variable(crate::Variable {
+            sid: self
+                .int2sid
+                .get(
+                    <<CurrentNode as Implements<Heap, L>>::LWord as NamesLangspecSort<L>>::sort_idx(
+                    ) as usize,
+                )
+                .unwrap()
+                .clone(),
+            ident: name,
+        }))
+    }
+    pub fn vzom<Heap, CurrentNode>(&mut self, name: String)
+    where
+        CurrentNode: Implements<Heap, L>,
+        <CurrentNode as Implements<Heap, L>>::LWord: NamesLangspecSort<L>,
+    {
+        self.stack.push(DynPattern::ZeroOrMore(crate::Variable {
+            sid: self
+                .int2sid
+                .get(
+                    <<CurrentNode as Implements<Heap, L>>::LWord as NamesLangspecSort<L>>::sort_idx(
+                    ) as usize,
+                )
+                .unwrap()
+                .clone(),
+            ident: name,
+        }))
+    }
+    pub fn ignored<Heap, CurrentNode>(&mut self)
+    where
+        CurrentNode: Implements<Heap, L>,
+        <CurrentNode as Implements<Heap, L>>::LWord: NamesLangspecSort<L>,
+    {
+        self.stack.push(DynPattern::Ignored(
+            self.int2sid
+                .get(
+                    <<CurrentNode as Implements<Heap, L>>::LWord as NamesLangspecSort<L>>::sort_idx(
+                    ) as usize,
+                )
+                .unwrap()
+                .clone(),
+        ))
     }
     pub(crate) fn result(mut self) -> Result<DynPattern<SortId>, PbResultError> {
         match self.stack.len() {

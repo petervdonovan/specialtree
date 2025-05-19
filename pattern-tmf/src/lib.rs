@@ -7,6 +7,7 @@ use langspec::{
 use serde::{Deserialize, Serialize};
 
 pub mod parse;
+pub mod pattern_dyn;
 pub mod unparse;
 
 pub struct PatternTmfs;

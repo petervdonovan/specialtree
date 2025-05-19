@@ -10,8 +10,9 @@ pub struct BasePaths {
     pub og_words_base_path: syn::Path,
 }
 
-pub fn generate<L: LangSpec>(
+pub fn generate<L: LangSpec, LSub: LangSpec>(
     ext_lg: &LsGen<L>,
+    oglsg: &LsGen<LSub>,
     sublang_name: &Name,
     bps: &BasePaths,
 ) -> syn::ItemMod {
@@ -45,7 +46,7 @@ pub fn generate<L: LangSpec>(
         .collect::<Vec<_>>();
     let heap = generate_heap(&camel_names, &image_ty_under_embeddings, bps);
     let owned_impls = generate_owned_impls(&camel_names, &image_ty_under_embeddings, bps);
-    let words_impls = bridge_words_impls(bps, ext_lg);
+    let words_impls = bridge_words_impls(bps, &sublang, oglsg, ext_lg);
     let maps_tmf_impls = generate_maps_tmf_impls(ext_lg, &sublang, bps);
     syn::parse_quote! {
         mod bridge {
@@ -57,12 +58,14 @@ pub fn generate<L: LangSpec>(
     }
 }
 
-pub(crate) fn bridge_words_impls<L: LangSpec>(
+pub(crate) fn bridge_words_impls<L: LangSpec, LSub: LangSpec>(
     BasePaths {
         ext_data_structure,
         og_term_trait,
         og_words_base_path,
     }: &BasePaths,
+    sublang: &Sublang<'_, SortIdOf<L>>,
+    oglsg: &LsGen<LSub>,
     elsg: &LsGen<L>,
 ) -> syn::ItemMod {
     // let impls = elsg
@@ -78,21 +81,19 @@ pub(crate) fn bridge_words_impls<L: LangSpec>(
     //             }
     //         }
     //     });
-    let impls = elsg
+    let impls = oglsg
         .bak()
         .all_sort_ids()
         .map(|sid| {
-            let skeleton = elsg.sort2rs_ty(
+            let skeleton = oglsg.sort2rs_ty(
                 sid.clone(),
                 &HeapType(syn::parse_quote! { () }),
                 &AlgebraicsBasePath::new(syn::parse_quote! { #og_words_base_path::sorts:: }),
             );
             let ty = elsg.sort2rs_ty(
-                sid,
+                (sublang.map)(todo!()),
                 &HeapType(syn::parse_quote! { #ext_data_structure::Heap }),
-                &AlgebraicsBasePath::new(
-                    syn::parse_quote! { <#ext_data_structure::Heap as #og_term_trait::Heap>:: },
-                ),
+                &AlgebraicsBasePath::new(syn::parse_quote! { #ext_data_structure::Heap:: }),
             );
             (ty, skeleton)
         })
@@ -213,6 +214,7 @@ pub mod targets {
         lsublang: &'langs LSub,
     ) -> CodegenInstance<'langs> {
         let ext_lg = super::LsGen::from(l);
+        let oglsg = super::LsGen::from(l);
         CodegenInstance {
             id: kebab_id!(l),
             generate: {
@@ -247,6 +249,7 @@ pub mod targets {
                 Box::new(move |c2sp, _| {
                     super::generate(
                         &ext_lg,
+                        &oglsg,
                         &sublang_name,
                         &crate::BasePaths {
                             ext_data_structure: ext_data_structure(c2sp),

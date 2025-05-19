@@ -14,7 +14,7 @@ pub struct NamedDynPattern<SortId> {
 pub enum DynPattern<SortId> {
     Composite(CompositePattern<SortId>),
     Ignored(SortId),
-    ZeroOrMore(Box<DynPattern<SortId>>),
+    ZeroOrMore(Variable<SortId>),
     Variable(Variable<SortId>),
     Literal(LiteralPattern<SortId>),
 }

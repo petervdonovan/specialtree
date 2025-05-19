@@ -5,7 +5,7 @@ use fib_pat_parse::term_specialized_cst_autoboxed_file_pattern_fib::Heap;
 fn test() {
     {
         println!("test Nat");
-        let (heap, v) = fib_pat_parse::parse_file_pattern_fib::nat("3");
+        let (heap, v) = fib_pat_parse::parse_file_pattern_fib::sum("3");
         println!("unparse: {}", unparse_adt::unparse::<L, _, _>(&heap, &v));
         println!(
             "pattern: {:?}",
@@ -44,9 +44,9 @@ fn test() {
         println!("test File");
         let (heap, v) = file_tmf::parse::file::<Heap, L, _>(
             r#"
-        f plus left_operand $a right_operand $b
-        sum { 4 , 5 , ...c }
-        f 9
+            f plus left_operand $a right_operand $b
+            sum { 4 , 5 , ...c }
+            f 9
         "#,
         );
         println!("unparse: {}", file_tmf::unparse::file(&heap, &v))

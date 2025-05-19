@@ -20,3 +20,6 @@ pmsp = { version = "0.1.0", path = "../pmsp" }
 parse-adt = { version = "0.1.0", path = "../parse-adt" }
 visit = { version = "0.1.0", path = "../visit" }
 unparse-adt = { version = "0.1.0", path = "../unparse-adt" }
+pattern-dyn = { version = "0.1.0", path = "../pattern-dyn" }
+words = { version = "0.1.0", path = "../words" }
+names-langspec-sort = { version = "0.1.0", path = "../names-langspec-sort" }
