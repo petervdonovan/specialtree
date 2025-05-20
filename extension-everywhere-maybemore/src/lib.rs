@@ -71,6 +71,8 @@ where
     ) -> SortIdOfExtension<L0, L1> {
         maybemorefy_if_visible::<L0, L1>(sid, this.l0m.l1_root.clone())
     }
+
+    type SelfAsLifetime<'c> = L0M<L1::AsLifetime<'c>>;
 }
 
 pub fn everywhere_maybemore<L0: LangSpec, L1: LangSpec>(

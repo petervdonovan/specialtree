@@ -1,7 +1,7 @@
 use either_id::Either;
 use langspec::{
-    langspec::{AlgebraicSortId, LangSpec, MappedType, Name, SortId, SortIdOf},
-    sublang::reflexive_sublang,
+    langspec::{AlgebraicSortId, AsLifetime, LangSpec, MappedType, Name, SortId, SortIdOf},
+    sublang::{Sublang, reflexive_sublang},
     tymetafunc::TyMetaFuncSpec,
 };
 use tmfs_join::TmfsJoin;
@@ -11,8 +11,10 @@ pub struct LsSortMapped<'a, L, Csm> {
     pub name: Name,
     pub csm: Csm,
 }
-
-pub trait ContextualSortMap<L: LangSpec> {
+pub trait CsmAsLifetime<L: LangSpec> {
+    type AsLifetime<'this>: ContextualSortMap<L::AsLifetime<'this>> + 'this;
+}
+pub trait ContextualSortMap<L: LangSpec>: CsmAsLifetime<L> {
     type Tmfs: TyMetaFuncSpec;
     fn map(
         &self,
@@ -28,7 +30,14 @@ pub trait ContextualSortMap<L: LangSpec> {
 #[allow(type_alias_bounds)]
 pub type SortIdOfExtension<L: LangSpec, Tmfs> =
     SortId<L::ProductId, L::SumId, <TmfsJoin<L::Tmfs, Tmfs> as TyMetaFuncSpec>::TyMetaFuncId>;
-
+impl<'a, L, Csm, Tmfs> AsLifetime for LsSortMapped<'a, L, Csm>
+where
+    L: LangSpec,
+    Tmfs: TyMetaFuncSpec,
+    Csm: ContextualSortMap<L, Tmfs = Tmfs>,
+{
+    type AsLifetime<'this> = LsSortMapped<'this, L::AsLifetime<'this>, Csm::AsLifetime<'this>>;
+}
 impl<'a, L, Tmfs, Csm> LangSpec for LsSortMapped<'a, L, Csm>
 where
     L: LangSpec,
@@ -79,22 +88,37 @@ where
         self.l.tmf_roots().map(|mt| mt.fmap_f(Either::Left))
     }
 
-    fn sublangs(&self) -> Vec<langspec::sublang::Sublang<SortIdOf<Self>>> {
+    fn sublang<'this, LSub: LangSpec>(
+        &'this self,
+    ) -> Option<langspec::sublang::Sublang<'this, LSub::AsLifetime<'this>, SortIdOf<Self>>> {
         self.l
-            .sublangs()
-            .into_iter()
-            .map(|sublang| langspec::sublang::Sublang::<SortIdOf<Self>> {
-                name: sublang.name,
-                image: sublang.image.into_iter().map(Csm::embed_sort_id).collect(),
-                ty_names: sublang.ty_names,
-                map: Box::new(move |name| Csm::embed_sort_id((sublang.map)(name))),
-                tems: sublang
-                    .tems
+            .sublang::<LSub>()
+            .map(|Sublang { lsub, map, tems }| Sublang {
+                lsub,
+                map: Box::new(move |sid| Csm::embed_sort_id(map(sid))),
+                tems: tems
                     .into_iter()
                     .map(|it| it.fmap(Csm::embed_sort_id))
                     .collect(),
             })
-            .chain(std::iter::once(reflexive_sublang(self)))
-            .collect()
     }
+
+    // fn sublangs(&self) -> Vec<langspec::sublang::Sublang<SortIdOf<Self>>> {
+    //     self.l
+    //         .sublangs()
+    //         .into_iter()
+    //         .map(|sublang| langspec::sublang::Sublang::<SortIdOf<Self>> {
+    //             name: sublang.name,
+    //             image: sublang.image.into_iter().map(Csm::embed_sort_id).collect(),
+    //             ty_names: sublang.ty_names,
+    //             map: Box::new(move |name| Csm::embed_sort_id((sublang.map)(name))),
+    //             tems: sublang
+    //                 .tems
+    //                 .into_iter()
+    //                 .map(|it| it.fmap(Csm::embed_sort_id))
+    //                 .collect(),
+    //         })
+    //         .chain(std::iter::once(reflexive_sublang(self)))
+    //         .collect()
+    // }
 }

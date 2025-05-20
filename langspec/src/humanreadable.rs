@@ -1,6 +1,12 @@
+use std::any::TypeId;
+
 use serde::{Deserialize, Serialize};
 
-use crate::{langspec::Name, sublang::reflexive_sublang, tymetafunc::TyMetaFuncSpec};
+use crate::{
+    langspec::{AsLifetime, LangSpec, Name, SortIdOf},
+    sublang::{Sublang, reflexive_sublang},
+    tymetafunc::TyMetaFuncSpec,
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(bound = "")]
@@ -26,7 +32,13 @@ pub struct Sum<Tmfs: TyMetaFuncSpec> {
 
 pub type SortId<Tmfs> = crate::langspec::SortIdOf<LangSpecHuman<Tmfs>>;
 
-impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::humanreadable::LangSpecHuman<Tmfs> {
+impl<Tmfs: TyMetaFuncSpec + 'static> AsLifetime for crate::humanreadable::LangSpecHuman<Tmfs> {
+    type AsLifetime<'a> = Self;
+}
+
+impl<Tmfs: TyMetaFuncSpec + 'static> crate::langspec::LangSpec
+    for crate::humanreadable::LangSpecHuman<Tmfs>
+{
     type ProductId = String;
 
     type SumId = String;
@@ -80,7 +92,30 @@ impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::humanreadable::L
             .unwrap()
     }
 
-    fn sublangs(&self) -> Vec<crate::sublang::Sublang<crate::langspec::SortIdOf<Self>>> {
-        vec![reflexive_sublang(self)]
+    fn sublang<'a, LSub: LangSpec>(
+        &'a self,
+    ) -> Option<Sublang<'a, LSub::AsLifetime<'a>, SortIdOf<Self>>> {
+        // vec![reflexive_sublang(self)]
+        // if <LSub as std::any::Any>::type_id() == <Self as std::any::Any>::type_id() {
+        // } else {
+        //     None
+        // }
+        if TypeId::of::<LSub::AsLifetime<'static>>() == TypeId::of::<Self>() {
+            // let reflexive: Sublang<'a, Self, SortIdOf<Self>> = reflexive_sublang(self);
+            // let reflexive_box: Box<Sublang<'a, Self, SortIdOf<Self>>> = Box::new(reflexive);
+            // unsafe {
+            //     let reflexive_box_transmuted =
+            // }
+            // let any: Box<dyn Any + '_> = Box::<&Sublang<'a, Self, SortIdOf<Self>>>::new(&reflexive);
+            // // if let Ok(ret) = any.downcast::<Sublang<'_, LSub, SortIdOf<Self>>>() {
+            // //     Some(*ret)
+            // // } else {
+            // //     None
+            // // }
+            // todo!()
+            unsafe { Some(std::mem::transmute(reflexive_sublang(self))) }
+        } else {
+            None
+        }
     }
 }

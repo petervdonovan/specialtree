@@ -1,9 +1,11 @@
+use ccf::CanonicallyConstructibleFrom;
 use derivative::Derivative;
 use langspec::{
     langspec::Name,
     tymetafunc::{ArgId, RustTyMap, TyMetaFuncData, TyMetaFuncSpec},
 };
 use serde::{Deserialize, Serialize};
+use term::SuperHeap;
 
 pub mod parse;
 pub mod unparse;
@@ -56,4 +58,17 @@ pub struct FileHeapBak<Heap, Item> {
     // names: string_interner::DefaultStringInterner,
     vecs: slab::Slab<std::vec::Vec<Item>>,
     phantom: std::marker::PhantomData<Heap>,
+}
+pub fn items<'a, Heap, FileMapped, Item>(
+    heap: &'a Heap,
+    f: &FileMapped,
+) -> impl Iterator<Item = &'a Item>
+where
+    FileMapped: Copy + CanonicallyConstructibleFrom<Heap, (File<Heap, Item>, ())>,
+    Heap: SuperHeap<FileHeapBak<Heap, Item>>,
+{
+    let (f, ()) = f.deconstruct(heap);
+    let subheap = heap.subheap::<FileHeapBak<Heap, Item>>();
+    let items = subheap.vecs.get(f.items).unwrap();
+    items.iter()
 }

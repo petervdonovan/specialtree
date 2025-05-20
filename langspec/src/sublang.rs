@@ -2,40 +2,31 @@ use functor_derive::Functor;
 
 use crate::langspec::{AlgebraicSortId, LangSpec, Name, SortId, SortIdOf};
 
-pub struct Sublang<'a, SortIdSelf> {
-    pub name: Name,
-    pub image: Vec<SortIdSelf>,
-    pub ty_names: Vec<Name>,
-    pub map: Box<dyn Fn(&Name) -> SortIdSelf + 'a>,
+type SublangTyMap<'a, LSub, SortIdSelf> = dyn Fn(&SortIdOf<LSub>) -> SortIdSelf + 'a;
+
+pub struct Sublang<'a, LSub: LangSpec, SortIdSelf> {
+    pub lsub: &'a LSub,
+    pub map: Box<SublangTyMap<'a, LSub, SortIdSelf>>,
     pub tems: Vec<TmfEndoMapping<SortIdSelf>>,
 }
-#[derive(Debug, Functor)]
+#[derive(Debug, Functor, Clone)]
 pub struct TmfEndoMapping<SortIdSelf> {
     pub fromrec: SortIdSelf,
     pub fromshallow: SortIdSelf,
     pub to: SortIdSelf,
 }
 
-pub fn reflexive_sublang<L: LangSpec>(l: &L) -> Sublang<SortIdOf<L>> {
+pub fn reflexive_sublang<L: LangSpec>(l: &L) -> Sublang<L, SortIdOf<L>> {
     Sublang {
-        name: l.name().clone(),
-        image: l.all_sort_ids().collect(),
-        ty_names: l
-            .products()
-            .map(|p| l.product_name(p.clone()).clone())
-            .chain(l.sums().map(|s| l.sum_name(s.clone()).clone()))
-            .collect(),
-        map: Box::new(|name| {
-            l.products()
-                .find(|p| l.product_name(p.clone()) == name)
-                .map(|p| SortId::Algebraic(AlgebraicSortId::Product(p)))
-                .or_else(|| {
-                    l.sums()
-                        .find(|s| l.sum_name(s.clone()) == name)
-                        .map(|s| SortId::Algebraic(AlgebraicSortId::Sum(s)))
-                })
-                .unwrap()
-        }),
+        // name: l.name().clone(),
+        // image: l.all_sort_ids().collect(),
+        // ty_names: l
+        //     .products()
+        //     .map(|p| l.product_name(p.clone()).clone())
+        //     .chain(l.sums().map(|s| l.sum_name(s.clone()).clone()))
+        //     .collect(),
+        lsub: l,
+        map: Box::new(|sid| sid.clone()),
         tems: {
             let mut tems = vec![];
             let mut tmfs = vec![];
@@ -59,5 +50,72 @@ pub fn reflexive_sublang<L: LangSpec>(l: &L) -> Sublang<SortIdOf<L>> {
             // }
             tems
         },
+    }
+}
+
+pub trait Sublangs<SortIdSelf> {
+    fn images(&self) -> impl Iterator<Item = Vec<SortIdSelf>>;
+    fn tems(&self) -> impl Iterator<Item = Vec<TmfEndoMapping<SortIdSelf>>>;
+    fn names(&self) -> impl Iterator<Item = Name>;
+    fn push_through<L: LangSpec>(&self, l: &L) -> impl Sublangs<SortIdOf<L>>;
+}
+pub trait SublangsElement<SortIdSelf> {
+    fn image(&self) -> Vec<SortIdSelf>;
+    fn tems(&self) -> Vec<TmfEndoMapping<SortIdSelf>>;
+    fn name(&self) -> Name;
+    fn push_through<L: LangSpec>(&self, l: &L) -> impl SublangsElement<SortIdOf<L>>;
+}
+impl<'a, LSub: LangSpec, SortIdSelf: Clone> SublangsElement<SortIdSelf>
+    for Sublang<'a, LSub, SortIdSelf>
+{
+    fn image(&self) -> Vec<SortIdSelf> {
+        self.lsub.all_sort_ids().map(|it| (self.map)(&it)).collect()
+    }
+
+    fn tems(&self) -> Vec<TmfEndoMapping<SortIdSelf>> {
+        self.tems.clone()
+    }
+
+    fn name(&self) -> Name {
+        self.lsub.name().clone()
+    }
+
+    fn push_through<L: LangSpec>(&self, l: &L) -> impl SublangsElement<SortIdOf<L>> {
+        l.sublang::<LSub>().unwrap()
+    }
+}
+impl<SortIdSelf> Sublangs<SortIdSelf> for () {
+    fn images(&self) -> impl Iterator<Item = Vec<SortIdSelf>> {
+        std::iter::empty()
+    }
+    fn tems(&self) -> impl Iterator<Item = Vec<TmfEndoMapping<SortIdSelf>>> {
+        std::iter::empty()
+    }
+
+    fn names(&self) -> impl Iterator<Item = Name> {
+        std::iter::empty()
+    }
+
+    fn push_through<L: LangSpec>(&self, _: &L) -> impl Sublangs<SortIdOf<L>> {}
+}
+impl<SortIdSelf, Car, Cdr> Sublangs<SortIdSelf> for (Car, Cdr)
+where
+    Car: SublangsElement<SortIdSelf>,
+    Cdr: Sublangs<SortIdSelf>,
+{
+    fn images(&self) -> impl Iterator<Item = Vec<SortIdSelf>> {
+        std::iter::once(self.0.image()).chain(self.1.images())
+    }
+
+    fn tems(&self) -> impl Iterator<Item = Vec<TmfEndoMapping<SortIdSelf>>> {
+        std::iter::once(self.0.tems()).chain(self.1.tems())
+    }
+
+    fn names(&self) -> impl Iterator<Item = Name> {
+        std::iter::once(self.0.name()).chain(self.1.names())
+    }
+
+    fn push_through<L: LangSpec>(&self, l: &L) -> impl Sublangs<SortIdOf<L>> {
+        (self.0.push_through(l), self.1.push_through(l))
     }
 }

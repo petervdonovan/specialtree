@@ -31,7 +31,7 @@ pub enum Transparency {
     Visible,
 }
 
-pub trait TyMetaFuncSpec: Sized {
+pub trait TyMetaFuncSpec: Sized + 'static {
     type TyMetaFuncId: Serialize
         + for<'a> Deserialize<'a>
         + std::fmt::Debug

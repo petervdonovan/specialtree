@@ -4,7 +4,7 @@ use langspec::{
     langspec::{AlgebraicSortId, LangSpec, MappedType, Name, SortId, SortIdOf},
     tymetafunc::TyMetaFuncSpec,
 };
-use langspec_transparent_extension::{ContextualSortMap, LsSortMapped};
+use langspec_transparent_extension::{ContextualSortMap, CsmAsLifetime, LsSortMapped};
 use tymetafuncspec_core::Core;
 
 pub struct Csm<L0: LangSpec> {
@@ -27,7 +27,9 @@ where
         csm: Csm { breaks },
     }
 }
-
+impl<L0: LangSpec> CsmAsLifetime<L0> for Csm<L0> {
+    type AsLifetime<'this> = Csm<L0::AsLifetime<'this>>;
+}
 impl<L0> ContextualSortMap<L0> for Csm<L0>
 where
     L0: LangSpec,

@@ -1,10 +1,12 @@
+use std::any::TypeId;
+
 use derive_more::{From, Into};
 use serde::{Deserialize, Serialize};
 use typed_index_collections::TiVec;
 
 use crate::{
-    langspec::{AlgebraicSortId, LangSpec, Name, SortIdOf, TerminalLangSpec},
-    sublang::reflexive_sublang,
+    langspec::{AlgebraicSortId, AsLifetime, LangSpec, Name, SortIdOf, TerminalLangSpec},
+    sublang::{Sublang, reflexive_sublang},
     tymetafunc::TyMetaFuncSpec,
 };
 
@@ -58,6 +60,10 @@ impl<Tmfs: TyMetaFuncSpec> std::fmt::Display for LangSpecFlat<Tmfs> {
     }
 }
 
+impl<Tmfs: TyMetaFuncSpec + 'static> AsLifetime for LangSpecFlat<Tmfs> {
+    type AsLifetime<'a> = Self;
+}
+
 impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::flat::LangSpecFlat<Tmfs> {
     type ProductId = crate::flat::ProductId;
 
@@ -93,9 +99,24 @@ impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::flat::LangSpecFl
         self.sums[id].sorts.iter().cloned()
     }
 
-    fn sublangs(&self) -> Vec<crate::sublang::Sublang<SortIdOf<Self>>> {
-        vec![reflexive_sublang(self)]
+    fn sublang<'a, LSub: LangSpec>(
+        &'a self,
+    ) -> Option<crate::sublang::Sublang<'a, LSub::AsLifetime<'a>, SortIdOf<Self>>> {
+        if TypeId::of::<LSub::AsLifetime<'static>>() == TypeId::of::<Self>() {
+            unsafe {
+                Some(std::mem::transmute::<
+                    Sublang<Self, SortIdOf<Self>>,
+                    Sublang<LSub::AsLifetime<'a>, SortIdOf<Self>>,
+                >(reflexive_sublang(self)))
+            }
+        } else {
+            None
+        }
     }
+
+    // fn sublangs(&self) -> Vec<crate::sublang::Sublang<SortIdOf<Self>>> {
+    //     vec![reflexive_sublang(self)]
+    // }
 }
 
 impl<Tmfs: TyMetaFuncSpec> TerminalLangSpec for LangSpecFlat<Tmfs> {

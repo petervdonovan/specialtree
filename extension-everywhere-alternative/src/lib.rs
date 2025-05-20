@@ -41,6 +41,8 @@ where
             },
         )
     }
+
+    type SelfAsLifetime<'c> = L0M<L1::AsLifetime<'c>>;
 }
 
 pub fn everywhere_alternative<L0: LangSpec, L1: LangSpec>(

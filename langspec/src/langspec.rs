@@ -109,7 +109,11 @@ impl<P, S, F> SortId<P, S, F> {
     }
 }
 
-pub trait LangSpec: Sized {
+pub trait AsLifetime {
+    type AsLifetime<'this>: LangSpec + 'this;
+}
+
+pub trait LangSpec: Sized + AsLifetime {
     type ProductId: std::fmt::Debug + Clone + Eq + std::hash::Hash + 'static + Ord;
     type SumId: std::fmt::Debug + Clone + Eq + std::hash::Hash + 'static + Ord;
     type Tmfs: TyMetaFuncSpec;
@@ -131,7 +135,9 @@ pub trait LangSpec: Sized {
     fn canonical_into<Bot: TerminalLangSpec<Tmfs = Self::Tmfs>>(&self) -> Bot {
         Bot::canonical_from(self)
     }
-    fn sublangs(&self) -> Vec<Sublang<SortIdOf<Self>>>;
+    fn sublang<'this, LSub: LangSpec>(
+        &'this self,
+    ) -> Option<Sublang<'this, LSub::AsLifetime<'this>, SortIdOf<Self>>>;
     fn tmf_roots(&self) -> impl Iterator<Item = MappedTypeOf<Self>> {
         std::iter::empty()
     }

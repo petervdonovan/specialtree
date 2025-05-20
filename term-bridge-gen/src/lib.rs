@@ -1,5 +1,5 @@
 use langspec::{
-    langspec::{LangSpec, Name, SortIdOf},
+    langspec::{LangSpec, SortId, SortIdOf},
     sublang::Sublang,
 };
 use langspec_gen_util::{AlgebraicsBasePath, HeapType, LsGen, byline};
@@ -10,10 +10,10 @@ pub struct BasePaths {
     pub og_words_base_path: syn::Path,
 }
 
-pub fn generate<L: LangSpec, LSub: LangSpec>(
+pub fn generate<'a, L: LangSpec, LSub: LangSpec>(
     ext_lg: &LsGen<L>,
-    oglsg: &LsGen<LSub>,
-    sublang_name: &Name,
+    // oglsg: &LsGen<LSub>,
+    sublang: &Sublang<'a, LSub, SortIdOf<L>>,
     bps: &BasePaths,
 ) -> syn::ItemMod {
     let BasePaths {
@@ -21,24 +21,26 @@ pub fn generate<L: LangSpec, LSub: LangSpec>(
         og_term_trait: _,
         og_words_base_path: _,
     } = bps;
-    let sublang = ext_lg
-        .bak()
-        .sublangs()
-        .into_iter()
-        .find(|sublang| sublang.name == *sublang_name)
-        .expect("Sublang not found");
-    let camel_names = sublang
-        .ty_names
+    // let sublang = ext_lg
+    //     .bak()
+    //     .sublangs()
+    //     .into_iter()
+    //     .find(|sublang| sublang.name == *sublang_name)
+    //     .expect("Sublang not found");
+    dbg!(sublang.lsub.name());
+    let (camel_names, sids): (Vec<_>, Vec<SortIdOf<LSub>>) = LsGen::from(sublang.lsub)
+        .ty_gen_datas(None)
+        .filter_map(|tgd| match tgd.id {
+            Some(asi) => Some((tgd.camel_ident, SortId::Algebraic(asi))),
+            None => None,
+        })
+        .unzip::<_, _, Vec<_>, Vec<_>>();
+    dbg!(&camel_names);
+    let image_ty_under_embeddings = sids
         .iter()
-        .map(|name| syn::Ident::new(&name.camel, proc_macro2::Span::call_site()))
-        .collect::<Vec<_>>();
-    let image_ty_under_embeddings = sublang
-        .ty_names
-        .iter()
-        .map(&sublang.map)
         .map(|sort| {
             ext_lg.sort2rs_ty(
-                sort,
+                (sublang.map)(sort),
                 &HeapType(syn::parse_quote! {#ext_data_structure::Heap}),
                 &AlgebraicsBasePath::new(quote::quote! {#ext_data_structure::}),
             )
@@ -46,8 +48,8 @@ pub fn generate<L: LangSpec, LSub: LangSpec>(
         .collect::<Vec<_>>();
     let heap = generate_heap(&camel_names, &image_ty_under_embeddings, bps);
     let owned_impls = generate_owned_impls(&camel_names, &image_ty_under_embeddings, bps);
-    let words_impls = bridge_words_impls(bps, &sublang, oglsg, ext_lg);
-    let maps_tmf_impls = generate_maps_tmf_impls(ext_lg, &sublang, bps);
+    let words_impls = bridge_words_impls(bps, sublang, ext_lg);
+    let maps_tmf_impls = generate_maps_tmf_impls(ext_lg, sublang, bps);
     syn::parse_quote! {
         mod bridge {
             #heap
@@ -64,8 +66,8 @@ pub(crate) fn bridge_words_impls<L: LangSpec, LSub: LangSpec>(
         og_term_trait,
         og_words_base_path,
     }: &BasePaths,
-    sublang: &Sublang<'_, SortIdOf<L>>,
-    oglsg: &LsGen<LSub>,
+    sublang: &Sublang<'_, LSub, SortIdOf<L>>,
+    // oglsg: &LsGen<LSub>,
     elsg: &LsGen<L>,
 ) -> syn::ItemMod {
     // let impls = elsg
@@ -81,6 +83,7 @@ pub(crate) fn bridge_words_impls<L: LangSpec, LSub: LangSpec>(
     //             }
     //         }
     //     });
+    let oglsg = LsGen::from(sublang.lsub);
     let impls = oglsg
         .bak()
         .all_sort_ids()
@@ -91,9 +94,9 @@ pub(crate) fn bridge_words_impls<L: LangSpec, LSub: LangSpec>(
                 &AlgebraicsBasePath::new(syn::parse_quote! { #og_words_base_path::sorts:: }),
             );
             let ty = elsg.sort2rs_ty(
-                (sublang.map)(todo!()),
+                (sublang.map)(&sid),
                 &HeapType(syn::parse_quote! { #ext_data_structure::Heap }),
-                &AlgebraicsBasePath::new(syn::parse_quote! { #ext_data_structure::Heap:: }),
+                &AlgebraicsBasePath::new(syn::parse_quote! { #ext_data_structure:: }),
             );
             (ty, skeleton)
         })
@@ -122,6 +125,7 @@ pub(crate) fn generate_heap(
         og_words_base_path: _,
     }: &BasePaths,
 ) -> syn::ItemImpl {
+    dbg!(camel_names);
     let byline = langspec_gen_util::byline!();
     syn::parse_quote! {
         #byline
@@ -153,9 +157,9 @@ pub(crate) fn generate_owned_impls(
     }
 }
 
-pub(crate) fn generate_maps_tmf_impls<L: LangSpec>(
+pub(crate) fn generate_maps_tmf_impls<L: LangSpec, LSub: LangSpec>(
     ext_lg: &LsGen<L>,
-    sublang: &Sublang<SortIdOf<L>>,
+    sublang: &Sublang<LSub, SortIdOf<L>>,
     BasePaths {
         ext_data_structure,
         og_term_trait,
@@ -218,7 +222,7 @@ pub mod targets {
         CodegenInstance {
             id: kebab_id!(l),
             generate: {
-                let sublang_name = lsublang.name().clone();
+                // let sublang_name = lsublang.name().clone();
                 let ext_data_structure = codegen_deps.add(term_specialized_gen::targets::default(
                     arena,
                     codegen_deps.subtree(),
@@ -244,13 +248,16 @@ pub mod targets {
                         arena,
                         codegen_deps.subtree(),
                         l,
-                        &[l.name().clone(), lsublang.name().clone()],
+                        (
+                            l.sublang::<L>().unwrap(),
+                            (l.sublang::<LSub>().unwrap(), ()),
+                        ),
                     ));
                 Box::new(move |c2sp, _| {
                     super::generate(
                         &ext_lg,
-                        &oglsg,
-                        &sublang_name,
+                        // &oglsg,
+                        &l.sublang::<LSub>().unwrap(),
                         &crate::BasePaths {
                             ext_data_structure: ext_data_structure(c2sp),
                             og_term_trait: og_term_trait(c2sp),

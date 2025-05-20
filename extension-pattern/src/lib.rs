@@ -1,6 +1,8 @@
+use std::any::TypeId;
+
 use either_id::Either;
 use langspec::{
-    langspec::{LangSpec, MappedType, Name, SortId, SortIdOf},
+    langspec::{AsLifetime, LangSpec, MappedType, Name, SortId, SortIdOf},
     sublang::{Sublang, TmfEndoMapping, reflexive_sublang},
     tymetafunc::TyMetaFuncSpec,
 };
@@ -54,6 +56,10 @@ fn map_sid<'a, L: LangSpec + 'a>(sid: SortIdOf<L>) -> SortIdOf<PatternExtension<
     }
 }
 
+impl<'a, L: LangSpec> AsLifetime for PatternExtension<'a, L> {
+    type AsLifetime<'this> = PatternExtension<'this, L::AsLifetime<'this>>;
+}
+
 impl<'a, L: LangSpec> LangSpec for PatternExtension<'a, L> {
     type ProductId = L::ProductId;
 
@@ -104,26 +110,26 @@ impl<'a, L: LangSpec> LangSpec for PatternExtension<'a, L> {
         self.l0.tmf_roots().map(|it| it.fmap_f(Either::Left))
     }
 
-    fn sublangs(&self) -> Vec<langspec::sublang::Sublang<langspec::langspec::SortIdOf<Self>>> {
-        self.l0
-            .sublangs()
-            .into_iter()
-            .map(
-                |sublang: Sublang<SortIdOf<L>>| langspec::sublang::Sublang::<SortIdOf<Self>> {
-                    name: sublang.name,
-                    image: sublang
-                        .image
-                        .clone()
-                        .into_iter()
-                        .map(map_sid::<'a, L>)
-                        .collect(),
-                    ty_names: sublang.ty_names,
+    fn sublang<'this, LSub: LangSpec>(
+        &'this self,
+    ) -> Option<Sublang<'this, LSub::AsLifetime<'this>, SortIdOf<Self>>> {
+        if TypeId::of::<LSub::AsLifetime<'static>>() == TypeId::of::<Self::AsLifetime<'static>>() {
+            unsafe {
+                Some(std::mem::transmute::<
+                    Sublang<Self, SortIdOf<Self>>,
+                    Sublang<LSub::AsLifetime<'this>, SortIdOf<Self>>,
+                >(reflexive_sublang(self)))
+            }
+        } else {
+            self.l0
+                .sublang::<LSub>()
+                .map(|Sublang { lsub, map, tems }| Sublang {
+                    lsub,
                     map: Box::new(move |name| {
-                        let id = (sublang.map)(name);
+                        let id = map(name);
                         map_sid::<'a, L>(id)
                     }),
-                    tems: sublang
-                        .tems
+                    tems: tems
                         .into_iter()
                         .map(|tem| TmfEndoMapping::<SortIdOf<Self>> {
                             fromshallow: match tem.fromshallow {
@@ -141,9 +147,7 @@ impl<'a, L: LangSpec> LangSpec for PatternExtension<'a, L> {
                             to: map_sid::<'a, L>(tem.to),
                         })
                         .collect(),
-                },
-            )
-            .chain(std::iter::once(reflexive_sublang(self)))
-            .collect()
+                })
+        }
     }
 }

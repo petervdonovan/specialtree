@@ -1,4 +1,5 @@
 use langspec::langspec::{MappedTypeOf, Name, call_on_all_tmf_monomorphizations};
+use langspec::sublang::Sublangs;
 use langspec::tymetafunc::{IdentifiedBy, RustTyMap, Transparency, TyMetaFuncSpec};
 use langspec::{
     langspec::{AlgebraicSortId, LangSpec, MappedType, SortId, SortIdOf},
@@ -139,17 +140,20 @@ impl<L: LangSpec> LsGen<'_, L> {
     pub fn bak(&self) -> &L {
         self.bak
     }
-    pub fn ccf_paths(&self, important_sublangs: &[Name]) -> CcfPaths<SortIdOf<L>> {
+    pub fn ccf_paths(
+        &self,
+        important_sublangs: impl Sublangs<SortIdOf<L>>,
+    ) -> CcfPaths<SortIdOf<L>> {
         let direct_ccf_rels = get_direct_ccf_rels(self.bak);
         let mut ucp_acc = std::collections::HashSet::new();
         let mut cebup_acc = std::collections::HashSet::new();
-        let sublangs = self
-            .bak
-            .sublangs()
-            .into_iter()
-            .filter(|it| important_sublangs.contains(&it.name))
-            .collect::<Vec<_>>();
-        for non_transparent_sorts in sublangs.iter().map(|it| it.image.clone()) {
+        // let sublangs = self
+        //     .bak
+        //     .sublangs()
+        //     .into_iter()
+        //     .filter(|it| important_sublangs.contains(&it.name))
+        //     .collect::<Vec<_>>();
+        for non_transparent_sorts in important_sublangs.images() {
             let ucp = unit_ccf_paths_quadratically_large_closure::<SortIdOf<L>>(
                 direct_ccf_rels.as_slice(),
                 &non_transparent_sorts,
@@ -174,18 +178,28 @@ impl<L: LangSpec> LsGen<'_, L> {
             }));
             cebup_acc.extend(cebup_filtered);
         }
-        for desired_pair in sublangs
-            .into_iter()
-            .flat_map(|it| it.tems)
+        // for desired_pair in sublangs
+        //     .into_iter()
+        //     .flat_map(|it| it.tems)
+        //     .filter(|it| it.fromshallow != it.to)
+        //     .filter(|it| {
+        //         !ucp_acc
+        //             .iter()
+        //             .any(|existing| existing.from == it.fromshallow && existing.to == it.to)
+        //     })
+        //     .collect::<Vec<_>>()
+        //     .into_iter()
+        let all_tems = important_sublangs
+            .tems()
+            .flatten()
             .filter(|it| it.fromshallow != it.to)
             .filter(|it| {
                 !ucp_acc
                     .iter()
                     .any(|existing| existing.from == it.fromshallow && existing.to == it.to)
             })
-            .collect::<Vec<_>>()
-            .into_iter()
-        {
+            .collect::<Vec<_>>();
+        for desired_pair in all_tems.into_iter() {
             ucp_acc.insert(
                 find_ucp(
                     direct_ccf_rels.as_slice(),

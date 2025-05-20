@@ -1,4 +1,7 @@
-use langspec::langspec::{AlgebraicSortId, LangSpec, Name, SortId, SortIdOf};
+use langspec::{
+    langspec::{AlgebraicSortId, LangSpec, Name, SortId, SortIdOf},
+    sublang::Sublangs,
+};
 use langspec_gen_util::{
     AlgebraicsBasePath, CcfPaths, HeapType, LsGen, TyGenData, byline, cons_list_index_range,
 };
@@ -12,7 +15,7 @@ pub struct BasePaths {
 pub fn generate<L: LangSpec>(
     bps: &BasePaths,
     lsg: &LsGen<L>,
-    important_sublangs: &[Name],
+    important_sublangs: impl Sublangs<SortIdOf<L>>,
 ) -> syn::ItemMod {
     let owned_mod = gen_owned_mod(bps, lsg);
     let ccf_mod = gen_ccf_mod(bps, lsg);
@@ -145,7 +148,7 @@ pub(crate) fn gen_ccf_auto_impls<L: LangSpec>(
 pub(crate) fn gen_transitive_ccf_mod<L: LangSpec>(
     ds_base_path: &syn::Path,
     lsg: &LsGen<L>,
-    important_sublangs: &[Name],
+    important_sublangs: impl Sublangs<SortIdOf<L>>,
 ) -> syn::ItemMod {
     let ccfp = lsg.ccf_paths(important_sublangs);
     let tucs = tuc_impls(ds_base_path, &ccfp, lsg);
@@ -391,41 +394,44 @@ pub mod targets {
 
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
     use extension_autobox::autobox;
-    use langspec::langspec::Name;
+    use langspec::{
+        langspec::SortIdOf,
+        sublang::{Sublangs, reflexive_sublang},
+    };
 
     pub fn default<'langs, L: super::LangSpec>(
         arena: &'langs bumpalo::Bump,
         codegen_deps: CgDepList<'langs>,
         l: &'langs L,
     ) -> CodegenInstance<'langs> {
-        term_specialized_impl(arena, codegen_deps, l, &[l.name().clone()])
+        term_specialized_impl(arena, codegen_deps, l, (reflexive_sublang(l), ()))
     }
 
     pub fn term_specialized_impl<'langs, L: super::LangSpec>(
         arena: &'langs bumpalo::Bump,
         mut codegen_deps: CgDepList<'langs>,
         l: &'langs L,
-        sublang_names: &[Name],
+        sublangs: impl Sublangs<SortIdOf<L>> + 'langs,
     ) -> CodegenInstance<'langs> {
-        let sublang_names_dedup =
-            std::iter::once(l.name())
-                .chain(sublang_names.iter())
-                .fold(Vec::new(), |mut acc, l| {
-                    if !acc.contains(l) {
-                        acc.push(l.clone());
-                    }
-                    acc
-                });
-        let kebab = sublang_names_dedup.iter().fold(String::new(), |acc, l| {
+        // let sublang_names_dedup =
+        //     std::iter::once(l.name())
+        //         .chain(sublangs.iter())
+        //         .fold(Vec::new(), |mut acc, l| {
+        //             if !acc.contains(l) {
+        //                 acc.push(l.clone());
+        //             }
+        //             acc
+        //         });
+        let kebab = sublangs.names().fold(String::new(), |acc, l| {
             let kebab = l.snake.replace("_", "-");
             if acc.is_empty() {
                 kebab
             } else {
-                format!("{}-{}", acc, kebab)
+                format!("{acc}-{kebab}")
             }
         });
         CodegenInstance {
-            id: codegen_component::KebabCodegenId(format!("term-specialized-impl-{}", kebab,)),
+            id: codegen_component::KebabCodegenId(format!("term-specialized-impl-{kebab}")),
             generate: {
                 let data_structure = codegen_deps.add(term_specialized_gen::targets::default(
                     arena,
@@ -449,7 +455,7 @@ pub mod targets {
                             words: words(c2sp),
                         },
                         &lg,
-                        sublang_names_dedup.as_slice(),
+                        sublangs.push_through(&lsf_boxed),
                     )
                 })
             },

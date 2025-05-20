@@ -1,6 +1,8 @@
+use std::any::TypeId;
+
 use either_id::Either;
 use langspec::{
-    langspec::{LangSpec, MappedType, Name, SortId, SortIdOf},
+    langspec::{AsLifetime, LangSpec, MappedType, Name, SortId, SortIdOf},
     sublang::{Sublang, TmfEndoMapping, reflexive_sublang},
     tymetafunc::TyMetaFuncSpec,
 };
@@ -13,6 +15,7 @@ pub struct LsExtension<'a, 'b, L0, L1, L0M> {
     pub l0m: L0M,
 }
 pub trait L0Map<'a, 'b, L0: LangSpec, L1: LangSpec>: Sized {
+    type SelfAsLifetime<'c>: L0Map<'c, 'c, L0::AsLifetime<'c>, L1::AsLifetime<'c>> + 'c;
     fn l0_map(
         this: &LsExtension<'a, 'b, L0, L1, Self>,
         sid: SortIdOf<L0>,
@@ -38,6 +41,14 @@ pub type SortIdOfExtension<L0: LangSpec, L1: LangSpec> = SortId<
     Either<L0::SumId, L1::SumId>,
     <TmfsJoin<TmfsJoin<L0::Tmfs, L1::Tmfs>, tymetafuncspec_core::Core> as TyMetaFuncSpec>::TyMetaFuncId,
 >;
+
+impl<'a, 'b, L0: LangSpec, L1: LangSpec, L0M> AsLifetime for LsExtension<'a, 'b, L0, L1, L0M>
+where
+    L0M: L0Map<'a, 'b, L0, L1>,
+{
+    type AsLifetime<'c> =
+        LsExtension<'c, 'c, L0::AsLifetime<'c>, L1::AsLifetime<'c>, L0M::SelfAsLifetime<'c>>;
+}
 
 impl<'a, 'b, L0: LangSpec, L1: LangSpec, L0M> LangSpec for LsExtension<'a, 'b, L0, L1, L0M>
 where
@@ -83,20 +94,20 @@ where
             })
     }
 
-    fn sublangs(&self) -> Vec<langspec::sublang::Sublang<SortIdOf<Self>>> {
-        self.l0
-            .sublangs()
-            .into_iter()
-            .map(
-                |sublang: Sublang<SortIdOf<L0>>| langspec::sublang::Sublang::<SortIdOf<Self>> {
-                    name: sublang.name,
-                    image: sublang
-                        .image
-                        .clone()
-                        .into_iter()
-                        .map(|sid| L0M::l0_map(self, sid))
-                        .collect(),
-                    ty_names: sublang.ty_names,
+    fn sublang<'c, LSub: LangSpec>(
+        &'c self,
+    ) -> Option<Sublang<'c, LSub::AsLifetime<'c>, SortIdOf<Self>>> {
+        if TypeId::of::<LSub::AsLifetime<'static>>() == TypeId::of::<Self::AsLifetime<'static>>() {
+            unsafe {
+                Some(std::mem::transmute::<
+                    Sublang<Self, SortIdOf<Self>>,
+                    Sublang<LSub::AsLifetime<'c>, SortIdOf<Self>>,
+                >(reflexive_sublang(self)))
+            }
+        } else {
+            self.l0.sublang::<LSub>().map(
+                |sublang: Sublang<'c, LSub::AsLifetime<'c>, SortIdOf<L0>>| Sublang {
+                    lsub: sublang.lsub,
                     map: Box::new(move |name| {
                         let id = (sublang.map)(name);
                         L0M::l0_map(self, id)
@@ -122,8 +133,50 @@ where
                         .collect(),
                 },
             )
-            .chain(std::iter::once(reflexive_sublang(self)))
-            .collect()
-        // todo!()
+        }
     }
+
+    // fn sublangs(&self) -> Vec<langspec::sublang::Sublang<SortIdOf<Self>>> {
+    //     self.l0
+    //         .sublangs()
+    //         .into_iter()
+    //         .map(
+    //             |sublang: Sublang<SortIdOf<L0>>| langspec::sublang::Sublang::<SortIdOf<Self>> {
+    //                 name: sublang.name,
+    //                 image: sublang
+    //                     .image
+    //                     .clone()
+    //                     .into_iter()
+    //                     .map(|sid| L0M::l0_map(self, sid))
+    //                     .collect(),
+    //                 ty_names: sublang.ty_names,
+    //                 map: Box::new(move |name| {
+    //                     let id = (sublang.map)(name);
+    //                     L0M::l0_map(self, id)
+    //                 }),
+    //                 tems: sublang
+    //                     .tems
+    //                     .into_iter()
+    //                     .map(|tem| TmfEndoMapping::<SortIdOf<Self>> {
+    //                         fromshallow: match tem.fromshallow {
+    //                             SortId::Algebraic(_) => panic!(),
+    //                             SortId::TyMetaFunc(mapped_type) => SortId::TyMetaFunc(MappedType {
+    //                                 f: Either::Left(Either::Left(mapped_type.f.clone())),
+    //                                 a: mapped_type
+    //                                     .a
+    //                                     .into_iter()
+    //                                     .map(|sid| L0M::l0_map(self, sid.clone()))
+    //                                     .collect(),
+    //                             }),
+    //                         },
+    //                         fromrec: l0_as_my_sid::<L0, L1>(tem.fromrec),
+    //                         to: L0M::l0_map(self, tem.to.clone()),
+    //                     })
+    //                     .collect(),
+    //             },
+    //         )
+    //         .chain(std::iter::once(reflexive_sublang(self)))
+    //         .collect()
+    //     // todo!()
+    // }
 }

@@ -158,7 +158,6 @@ pub mod words_impls {
     use tymetafuncspec_core::Set;
     use tymetafuncspec_core::Pair;
     use tymetafuncspec_core::Maybe;
-    use tymetafuncspec_core::IdxBox;
     use tymetafuncspec_core::Either;
     use tymetafuncspec_core::BoundedNat;
     use std_parse_metadata::ParseMetadata;
@@ -174,27 +173,89 @@ pub mod words_impls {
     use fib_pat::words_mod_file_pattern_fib::sorts::FileItem;
     use fib_pat::words_mod_file_pattern_fib::sorts::F;
     use fib_pat::words_mod_file_pattern_fib::L;
-    use fib_pat::term_trait_file_pattern_fib::Heap;
     use crate::term_specialized_cst_autoboxed_file_pattern_fib as tscafpf;
-    impl words::Implements<tscafpf::Heap, L> for <tscafpf::Heap as Heap>::Plus {
+    impl words::Implements<tscafpf::Heap, L>
+    for Either<
+        tscafpf::Heap,
+        Pair<
+            tscafpf::Heap,
+            tscafpf::Plus,
+            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+        >,
+        ParseError<tscafpf::Heap>,
+    > {
         type LWord = Plus;
     }
-    impl words::Implements<tscafpf::Heap, L> for <tscafpf::Heap as Heap>::LeftOperand {
+    impl words::Implements<tscafpf::Heap, L>
+    for Either<
+        tscafpf::Heap,
+        Pair<
+            tscafpf::Heap,
+            tscafpf::LeftOperand,
+            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+        >,
+        ParseError<tscafpf::Heap>,
+    > {
         type LWord = LeftOperand;
     }
-    impl words::Implements<tscafpf::Heap, L> for <tscafpf::Heap as Heap>::RightOperand {
+    impl words::Implements<tscafpf::Heap, L>
+    for Either<
+        tscafpf::Heap,
+        Pair<
+            tscafpf::Heap,
+            tscafpf::RightOperand,
+            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+        >,
+        ParseError<tscafpf::Heap>,
+    > {
         type LWord = RightOperand;
     }
-    impl words::Implements<tscafpf::Heap, L> for <tscafpf::Heap as Heap>::F {
+    impl words::Implements<tscafpf::Heap, L>
+    for Either<
+        tscafpf::Heap,
+        Pair<
+            tscafpf::Heap,
+            tscafpf::F,
+            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+        >,
+        ParseError<tscafpf::Heap>,
+    > {
         type LWord = F;
     }
-    impl words::Implements<tscafpf::Heap, L> for <tscafpf::Heap as Heap>::Sum {
+    impl words::Implements<tscafpf::Heap, L>
+    for Either<
+        tscafpf::Heap,
+        Pair<
+            tscafpf::Heap,
+            tscafpf::Sum,
+            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+        >,
+        ParseError<tscafpf::Heap>,
+    > {
         type LWord = Sum;
     }
-    impl words::Implements<tscafpf::Heap, L> for <tscafpf::Heap as Heap>::Nat {
+    impl words::Implements<tscafpf::Heap, L>
+    for Either<
+        tscafpf::Heap,
+        Pair<
+            tscafpf::Heap,
+            tscafpf::Nat,
+            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+        >,
+        ParseError<tscafpf::Heap>,
+    > {
         type LWord = Nat;
     }
-    impl words::Implements<tscafpf::Heap, L> for <tscafpf::Heap as Heap>::FileItem {
+    impl words::Implements<tscafpf::Heap, L>
+    for Either<
+        tscafpf::Heap,
+        Pair<
+            tscafpf::Heap,
+            tscafpf::FileItem,
+            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+        >,
+        ParseError<tscafpf::Heap>,
+    > {
         type LWord = FileItem;
     }
     impl words::Implements<tscafpf::Heap, L>
@@ -208,7 +269,7 @@ pub mod words_impls {
                     tscafpf::Heap,
                     Pair<
                         tscafpf::Heap,
-                        <tscafpf::Heap as Heap>::LeftOperand,
+                        tscafpf::LeftOperand,
                         Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
                     >,
                     ParseError<tscafpf::Heap>,
@@ -218,108 +279,7 @@ pub mod words_impls {
         >,
         ParseError<tscafpf::Heap>,
     > {
-        type LWord = Either<
-            (),
-            Pair<
-                (),
-                OrVariable<
-                    (),
-                    Either<
-                        (),
-                        Pair<(), LeftOperand, Maybe<(), ParseMetadata<()>>>,
-                        ParseError<()>,
-                    >,
-                >,
-                Maybe<(), ParseMetadata<()>>,
-            >,
-            ParseError<()>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Pair<
-        tscafpf::Heap,
-        OrVariable<
-            tscafpf::Heap,
-            Either<
-                tscafpf::Heap,
-                Pair<
-                    tscafpf::Heap,
-                    <tscafpf::Heap as Heap>::LeftOperand,
-                    Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                >,
-                ParseError<tscafpf::Heap>,
-            >,
-        >,
-        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-    > {
-        type LWord = Pair<
-            (),
-            OrVariable<
-                (),
-                Either<
-                    (),
-                    Pair<(), LeftOperand, Maybe<(), ParseMetadata<()>>>,
-                    ParseError<()>,
-                >,
-            >,
-            Maybe<(), ParseMetadata<()>>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for OrVariable<
-        tscafpf::Heap,
-        Either<
-            tscafpf::Heap,
-            Pair<
-                tscafpf::Heap,
-                <tscafpf::Heap as Heap>::LeftOperand,
-                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-            >,
-            ParseError<tscafpf::Heap>,
-        >,
-    > {
-        type LWord = OrVariable<
-            (),
-            Either<
-                (),
-                Pair<(), LeftOperand, Maybe<(), ParseMetadata<()>>>,
-                ParseError<()>,
-            >,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Either<
-        tscafpf::Heap,
-        Pair<
-            tscafpf::Heap,
-            <tscafpf::Heap as Heap>::LeftOperand,
-            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-        >,
-        ParseError<tscafpf::Heap>,
-    > {
-        type LWord = Either<
-            (),
-            Pair<(), LeftOperand, Maybe<(), ParseMetadata<()>>>,
-            ParseError<()>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Pair<
-        tscafpf::Heap,
-        <tscafpf::Heap as Heap>::LeftOperand,
-        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-    > {
-        type LWord = Pair<(), LeftOperand, Maybe<(), ParseMetadata<()>>>;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>> {
-        type LWord = Maybe<(), ParseMetadata<()>>;
-    }
-    impl words::Implements<tscafpf::Heap, L> for ParseMetadata<tscafpf::Heap> {
-        type LWord = ParseMetadata<()>;
-    }
-    impl words::Implements<tscafpf::Heap, L> for ParseError<tscafpf::Heap> {
-        type LWord = ParseError<()>;
+        type LWord = OrVariable<(), LeftOperand>;
     }
     impl words::Implements<tscafpf::Heap, L>
     for Either<
@@ -332,7 +292,7 @@ pub mod words_impls {
                     tscafpf::Heap,
                     Pair<
                         tscafpf::Heap,
-                        <tscafpf::Heap as Heap>::RightOperand,
+                        tscafpf::RightOperand,
                         Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
                     >,
                     ParseError<tscafpf::Heap>,
@@ -342,98 +302,7 @@ pub mod words_impls {
         >,
         ParseError<tscafpf::Heap>,
     > {
-        type LWord = Either<
-            (),
-            Pair<
-                (),
-                OrVariable<
-                    (),
-                    Either<
-                        (),
-                        Pair<(), RightOperand, Maybe<(), ParseMetadata<()>>>,
-                        ParseError<()>,
-                    >,
-                >,
-                Maybe<(), ParseMetadata<()>>,
-            >,
-            ParseError<()>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Pair<
-        tscafpf::Heap,
-        OrVariable<
-            tscafpf::Heap,
-            Either<
-                tscafpf::Heap,
-                Pair<
-                    tscafpf::Heap,
-                    <tscafpf::Heap as Heap>::RightOperand,
-                    Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                >,
-                ParseError<tscafpf::Heap>,
-            >,
-        >,
-        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-    > {
-        type LWord = Pair<
-            (),
-            OrVariable<
-                (),
-                Either<
-                    (),
-                    Pair<(), RightOperand, Maybe<(), ParseMetadata<()>>>,
-                    ParseError<()>,
-                >,
-            >,
-            Maybe<(), ParseMetadata<()>>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for OrVariable<
-        tscafpf::Heap,
-        Either<
-            tscafpf::Heap,
-            Pair<
-                tscafpf::Heap,
-                <tscafpf::Heap as Heap>::RightOperand,
-                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-            >,
-            ParseError<tscafpf::Heap>,
-        >,
-    > {
-        type LWord = OrVariable<
-            (),
-            Either<
-                (),
-                Pair<(), RightOperand, Maybe<(), ParseMetadata<()>>>,
-                ParseError<()>,
-            >,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Either<
-        tscafpf::Heap,
-        Pair<
-            tscafpf::Heap,
-            <tscafpf::Heap as Heap>::RightOperand,
-            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-        >,
-        ParseError<tscafpf::Heap>,
-    > {
-        type LWord = Either<
-            (),
-            Pair<(), RightOperand, Maybe<(), ParseMetadata<()>>>,
-            ParseError<()>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Pair<
-        tscafpf::Heap,
-        <tscafpf::Heap as Heap>::RightOperand,
-        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-    > {
-        type LWord = Pair<(), RightOperand, Maybe<(), ParseMetadata<()>>>;
+        type LWord = OrVariable<(), RightOperand>;
     }
     impl words::Implements<tscafpf::Heap, L>
     for Either<
@@ -446,7 +315,7 @@ pub mod words_impls {
                     tscafpf::Heap,
                     Pair<
                         tscafpf::Heap,
-                        <tscafpf::Heap as Heap>::Nat,
+                        tscafpf::Nat,
                         Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
                     >,
                     ParseError<tscafpf::Heap>,
@@ -456,90 +325,7 @@ pub mod words_impls {
         >,
         ParseError<tscafpf::Heap>,
     > {
-        type LWord = Either<
-            (),
-            Pair<
-                (),
-                OrVariable<
-                    (),
-                    Either<
-                        (),
-                        Pair<(), Nat, Maybe<(), ParseMetadata<()>>>,
-                        ParseError<()>,
-                    >,
-                >,
-                Maybe<(), ParseMetadata<()>>,
-            >,
-            ParseError<()>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Pair<
-        tscafpf::Heap,
-        OrVariable<
-            tscafpf::Heap,
-            Either<
-                tscafpf::Heap,
-                Pair<
-                    tscafpf::Heap,
-                    <tscafpf::Heap as Heap>::Nat,
-                    Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                >,
-                ParseError<tscafpf::Heap>,
-            >,
-        >,
-        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-    > {
-        type LWord = Pair<
-            (),
-            OrVariable<
-                (),
-                Either<(), Pair<(), Nat, Maybe<(), ParseMetadata<()>>>, ParseError<()>>,
-            >,
-            Maybe<(), ParseMetadata<()>>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for OrVariable<
-        tscafpf::Heap,
-        Either<
-            tscafpf::Heap,
-            Pair<
-                tscafpf::Heap,
-                <tscafpf::Heap as Heap>::Nat,
-                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-            >,
-            ParseError<tscafpf::Heap>,
-        >,
-    > {
-        type LWord = OrVariable<
-            (),
-            Either<(), Pair<(), Nat, Maybe<(), ParseMetadata<()>>>, ParseError<()>>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Either<
-        tscafpf::Heap,
-        Pair<
-            tscafpf::Heap,
-            <tscafpf::Heap as Heap>::Nat,
-            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-        >,
-        ParseError<tscafpf::Heap>,
-    > {
-        type LWord = Either<
-            (),
-            Pair<(), Nat, Maybe<(), ParseMetadata<()>>>,
-            ParseError<()>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Pair<
-        tscafpf::Heap,
-        <tscafpf::Heap as Heap>::Nat,
-        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-    > {
-        type LWord = Pair<(), Nat, Maybe<(), ParseMetadata<()>>>;
+        type LWord = OrVariable<(), Nat>;
     }
     impl words::Implements<tscafpf::Heap, L>
     for Either<
@@ -564,7 +350,7 @@ pub mod words_impls {
                                             tscafpf::Heap,
                                             Pair<
                                                 tscafpf::Heap,
-                                                <tscafpf::Heap as Heap>::Nat,
+                                                tscafpf::Nat,
                                                 Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
                                             >,
                                             ParseError<tscafpf::Heap>,
@@ -584,184 +370,7 @@ pub mod words_impls {
         >,
         ParseError<tscafpf::Heap>,
     > {
-        type LWord = Either<
-            (),
-            Pair<
-                (),
-                OrVariable<
-                    (),
-                    Either<
-                        (),
-                        Pair<
-                            (),
-                            Set<
-                                (),
-                                Either<
-                                    (),
-                                    Pair<
-                                        (),
-                                        OrVariableZeroOrMore<
-                                            (),
-                                            Either<
-                                                (),
-                                                Pair<(), Nat, Maybe<(), ParseMetadata<()>>>,
-                                                ParseError<()>,
-                                            >,
-                                        >,
-                                        Maybe<(), ParseMetadata<()>>,
-                                    >,
-                                    ParseError<()>,
-                                >,
-                            >,
-                            Maybe<(), ParseMetadata<()>>,
-                        >,
-                        ParseError<()>,
-                    >,
-                >,
-                Maybe<(), ParseMetadata<()>>,
-            >,
-            ParseError<()>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Pair<
-        tscafpf::Heap,
-        OrVariable<
-            tscafpf::Heap,
-            Either<
-                tscafpf::Heap,
-                Pair<
-                    tscafpf::Heap,
-                    Set<
-                        tscafpf::Heap,
-                        Either<
-                            tscafpf::Heap,
-                            Pair<
-                                tscafpf::Heap,
-                                OrVariableZeroOrMore<
-                                    tscafpf::Heap,
-                                    Either<
-                                        tscafpf::Heap,
-                                        Pair<
-                                            tscafpf::Heap,
-                                            <tscafpf::Heap as Heap>::Nat,
-                                            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                                        >,
-                                        ParseError<tscafpf::Heap>,
-                                    >,
-                                >,
-                                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                            >,
-                            ParseError<tscafpf::Heap>,
-                        >,
-                    >,
-                    Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                >,
-                ParseError<tscafpf::Heap>,
-            >,
-        >,
-        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-    > {
-        type LWord = Pair<
-            (),
-            OrVariable<
-                (),
-                Either<
-                    (),
-                    Pair<
-                        (),
-                        Set<
-                            (),
-                            Either<
-                                (),
-                                Pair<
-                                    (),
-                                    OrVariableZeroOrMore<
-                                        (),
-                                        Either<
-                                            (),
-                                            Pair<(), Nat, Maybe<(), ParseMetadata<()>>>,
-                                            ParseError<()>,
-                                        >,
-                                    >,
-                                    Maybe<(), ParseMetadata<()>>,
-                                >,
-                                ParseError<()>,
-                            >,
-                        >,
-                        Maybe<(), ParseMetadata<()>>,
-                    >,
-                    ParseError<()>,
-                >,
-            >,
-            Maybe<(), ParseMetadata<()>>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for OrVariable<
-        tscafpf::Heap,
-        Either<
-            tscafpf::Heap,
-            Pair<
-                tscafpf::Heap,
-                Set<
-                    tscafpf::Heap,
-                    Either<
-                        tscafpf::Heap,
-                        Pair<
-                            tscafpf::Heap,
-                            OrVariableZeroOrMore<
-                                tscafpf::Heap,
-                                Either<
-                                    tscafpf::Heap,
-                                    Pair<
-                                        tscafpf::Heap,
-                                        <tscafpf::Heap as Heap>::Nat,
-                                        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                                    >,
-                                    ParseError<tscafpf::Heap>,
-                                >,
-                            >,
-                            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                        >,
-                        ParseError<tscafpf::Heap>,
-                    >,
-                >,
-                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-            >,
-            ParseError<tscafpf::Heap>,
-        >,
-    > {
-        type LWord = OrVariable<
-            (),
-            Either<
-                (),
-                Pair<
-                    (),
-                    Set<
-                        (),
-                        Either<
-                            (),
-                            Pair<
-                                (),
-                                OrVariableZeroOrMore<
-                                    (),
-                                    Either<
-                                        (),
-                                        Pair<(), Nat, Maybe<(), ParseMetadata<()>>>,
-                                        ParseError<()>,
-                                    >,
-                                >,
-                                Maybe<(), ParseMetadata<()>>,
-                            >,
-                            ParseError<()>,
-                        >,
-                    >,
-                    Maybe<(), ParseMetadata<()>>,
-                >,
-                ParseError<()>,
-            >,
-        >;
+        type LWord = OrVariable<(), Set<(), OrVariableZeroOrMore<(), Nat>>>;
     }
     impl words::Implements<tscafpf::Heap, L>
     for Either<
@@ -780,7 +389,7 @@ pub mod words_impls {
                                 tscafpf::Heap,
                                 Pair<
                                     tscafpf::Heap,
-                                    <tscafpf::Heap as Heap>::Nat,
+                                    tscafpf::Nat,
                                     Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
                                 >,
                                 ParseError<tscafpf::Heap>,
@@ -795,129 +404,7 @@ pub mod words_impls {
         >,
         ParseError<tscafpf::Heap>,
     > {
-        type LWord = Either<
-            (),
-            Pair<
-                (),
-                Set<
-                    (),
-                    Either<
-                        (),
-                        Pair<
-                            (),
-                            OrVariableZeroOrMore<
-                                (),
-                                Either<
-                                    (),
-                                    Pair<(), Nat, Maybe<(), ParseMetadata<()>>>,
-                                    ParseError<()>,
-                                >,
-                            >,
-                            Maybe<(), ParseMetadata<()>>,
-                        >,
-                        ParseError<()>,
-                    >,
-                >,
-                Maybe<(), ParseMetadata<()>>,
-            >,
-            ParseError<()>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Pair<
-        tscafpf::Heap,
-        Set<
-            tscafpf::Heap,
-            Either<
-                tscafpf::Heap,
-                Pair<
-                    tscafpf::Heap,
-                    OrVariableZeroOrMore<
-                        tscafpf::Heap,
-                        Either<
-                            tscafpf::Heap,
-                            Pair<
-                                tscafpf::Heap,
-                                <tscafpf::Heap as Heap>::Nat,
-                                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                            >,
-                            ParseError<tscafpf::Heap>,
-                        >,
-                    >,
-                    Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                >,
-                ParseError<tscafpf::Heap>,
-            >,
-        >,
-        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-    > {
-        type LWord = Pair<
-            (),
-            Set<
-                (),
-                Either<
-                    (),
-                    Pair<
-                        (),
-                        OrVariableZeroOrMore<
-                            (),
-                            Either<
-                                (),
-                                Pair<(), Nat, Maybe<(), ParseMetadata<()>>>,
-                                ParseError<()>,
-                            >,
-                        >,
-                        Maybe<(), ParseMetadata<()>>,
-                    >,
-                    ParseError<()>,
-                >,
-            >,
-            Maybe<(), ParseMetadata<()>>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Set<
-        tscafpf::Heap,
-        Either<
-            tscafpf::Heap,
-            Pair<
-                tscafpf::Heap,
-                OrVariableZeroOrMore<
-                    tscafpf::Heap,
-                    Either<
-                        tscafpf::Heap,
-                        Pair<
-                            tscafpf::Heap,
-                            <tscafpf::Heap as Heap>::Nat,
-                            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                        >,
-                        ParseError<tscafpf::Heap>,
-                    >,
-                >,
-                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-            >,
-            ParseError<tscafpf::Heap>,
-        >,
-    > {
-        type LWord = Set<
-            (),
-            Either<
-                (),
-                Pair<
-                    (),
-                    OrVariableZeroOrMore<
-                        (),
-                        Either<
-                            (),
-                            Pair<(), Nat, Maybe<(), ParseMetadata<()>>>,
-                            ParseError<()>,
-                        >,
-                    >,
-                    Maybe<(), ParseMetadata<()>>,
-                >,
-                ParseError<()>,
-            >,
-        >;
+        type LWord = Set<(), OrVariableZeroOrMore<(), Nat>>;
     }
     impl words::Implements<tscafpf::Heap, L>
     for Either<
@@ -930,7 +417,7 @@ pub mod words_impls {
                     tscafpf::Heap,
                     Pair<
                         tscafpf::Heap,
-                        <tscafpf::Heap as Heap>::Nat,
+                        tscafpf::Nat,
                         Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
                     >,
                     ParseError<tscafpf::Heap>,
@@ -940,66 +427,7 @@ pub mod words_impls {
         >,
         ParseError<tscafpf::Heap>,
     > {
-        type LWord = Either<
-            (),
-            Pair<
-                (),
-                OrVariableZeroOrMore<
-                    (),
-                    Either<
-                        (),
-                        Pair<(), Nat, Maybe<(), ParseMetadata<()>>>,
-                        ParseError<()>,
-                    >,
-                >,
-                Maybe<(), ParseMetadata<()>>,
-            >,
-            ParseError<()>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Pair<
-        tscafpf::Heap,
-        OrVariableZeroOrMore<
-            tscafpf::Heap,
-            Either<
-                tscafpf::Heap,
-                Pair<
-                    tscafpf::Heap,
-                    <tscafpf::Heap as Heap>::Nat,
-                    Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                >,
-                ParseError<tscafpf::Heap>,
-            >,
-        >,
-        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-    > {
-        type LWord = Pair<
-            (),
-            OrVariableZeroOrMore<
-                (),
-                Either<(), Pair<(), Nat, Maybe<(), ParseMetadata<()>>>, ParseError<()>>,
-            >,
-            Maybe<(), ParseMetadata<()>>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for OrVariableZeroOrMore<
-        tscafpf::Heap,
-        Either<
-            tscafpf::Heap,
-            Pair<
-                tscafpf::Heap,
-                <tscafpf::Heap as Heap>::Nat,
-                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-            >,
-            ParseError<tscafpf::Heap>,
-        >,
-    > {
-        type LWord = OrVariableZeroOrMore<
-            (),
-            Either<(), Pair<(), Nat, Maybe<(), ParseMetadata<()>>>, ParseError<()>>,
-        >;
+        type LWord = OrVariableZeroOrMore<(), Nat>;
     }
     impl words::Implements<tscafpf::Heap, L>
     for Either<
@@ -1011,21 +439,6 @@ pub mod words_impls {
         >,
         ParseError<tscafpf::Heap>,
     > {
-        type LWord = Either<
-            (),
-            Pair<(), BoundedNat<()>, Maybe<(), ParseMetadata<()>>>,
-            ParseError<()>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Pair<
-        tscafpf::Heap,
-        BoundedNat<tscafpf::Heap>,
-        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-    > {
-        type LWord = Pair<(), BoundedNat<()>, Maybe<(), ParseMetadata<()>>>;
-    }
-    impl words::Implements<tscafpf::Heap, L> for BoundedNat<tscafpf::Heap> {
         type LWord = BoundedNat<()>;
     }
     impl words::Implements<tscafpf::Heap, L>
@@ -1033,245 +446,13 @@ pub mod words_impls {
         tscafpf::Heap,
         Pair<
             tscafpf::Heap,
-            IdxBox<
-                tscafpf::Heap,
-                Either<
-                    tscafpf::Heap,
-                    Pair<
-                        tscafpf::Heap,
-                        <tscafpf::Heap as Heap>::F,
-                        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                    >,
-                    ParseError<tscafpf::Heap>,
-                >,
-            >,
-            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-        >,
-        ParseError<tscafpf::Heap>,
-    > {
-        type LWord = Either<
-            (),
-            Pair<
-                (),
-                IdxBox<
-                    (),
-                    Either<(), Pair<(), F, Maybe<(), ParseMetadata<()>>>, ParseError<()>>,
-                >,
-                Maybe<(), ParseMetadata<()>>,
-            >,
-            ParseError<()>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Pair<
-        tscafpf::Heap,
-        IdxBox<
-            tscafpf::Heap,
-            Either<
-                tscafpf::Heap,
-                Pair<
-                    tscafpf::Heap,
-                    <tscafpf::Heap as Heap>::F,
-                    Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                >,
-                ParseError<tscafpf::Heap>,
-            >,
-        >,
-        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-    > {
-        type LWord = Pair<
-            (),
-            IdxBox<
-                (),
-                Either<(), Pair<(), F, Maybe<(), ParseMetadata<()>>>, ParseError<()>>,
-            >,
-            Maybe<(), ParseMetadata<()>>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for IdxBox<
-        tscafpf::Heap,
-        Either<
-            tscafpf::Heap,
-            Pair<
-                tscafpf::Heap,
-                <tscafpf::Heap as Heap>::F,
-                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-            >,
-            ParseError<tscafpf::Heap>,
-        >,
-    > {
-        type LWord = IdxBox<
-            (),
-            Either<(), Pair<(), F, Maybe<(), ParseMetadata<()>>>, ParseError<()>>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Either<
-        tscafpf::Heap,
-        Pair<
-            tscafpf::Heap,
-            <tscafpf::Heap as Heap>::F,
-            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-        >,
-        ParseError<tscafpf::Heap>,
-    > {
-        type LWord = Either<
-            (),
-            Pair<(), F, Maybe<(), ParseMetadata<()>>>,
-            ParseError<()>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Pair<
-        tscafpf::Heap,
-        <tscafpf::Heap as Heap>::F,
-        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-    > {
-        type LWord = Pair<(), F, Maybe<(), ParseMetadata<()>>>;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Either<
-        tscafpf::Heap,
-        Pair<
-            tscafpf::Heap,
-            IdxBox<
-                tscafpf::Heap,
-                Either<
-                    tscafpf::Heap,
-                    Pair<
-                        tscafpf::Heap,
-                        <tscafpf::Heap as Heap>::Plus,
-                        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                    >,
-                    ParseError<tscafpf::Heap>,
-                >,
-            >,
-            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-        >,
-        ParseError<tscafpf::Heap>,
-    > {
-        type LWord = Either<
-            (),
-            Pair<
-                (),
-                IdxBox<
-                    (),
-                    Either<
-                        (),
-                        Pair<(), Plus, Maybe<(), ParseMetadata<()>>>,
-                        ParseError<()>,
-                    >,
-                >,
-                Maybe<(), ParseMetadata<()>>,
-            >,
-            ParseError<()>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Pair<
-        tscafpf::Heap,
-        IdxBox<
-            tscafpf::Heap,
-            Either<
-                tscafpf::Heap,
-                Pair<
-                    tscafpf::Heap,
-                    <tscafpf::Heap as Heap>::Plus,
-                    Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                >,
-                ParseError<tscafpf::Heap>,
-            >,
-        >,
-        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-    > {
-        type LWord = Pair<
-            (),
-            IdxBox<
-                (),
-                Either<(), Pair<(), Plus, Maybe<(), ParseMetadata<()>>>, ParseError<()>>,
-            >,
-            Maybe<(), ParseMetadata<()>>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for IdxBox<
-        tscafpf::Heap,
-        Either<
-            tscafpf::Heap,
-            Pair<
-                tscafpf::Heap,
-                <tscafpf::Heap as Heap>::Plus,
-                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-            >,
-            ParseError<tscafpf::Heap>,
-        >,
-    > {
-        type LWord = IdxBox<
-            (),
-            Either<(), Pair<(), Plus, Maybe<(), ParseMetadata<()>>>, ParseError<()>>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Either<
-        tscafpf::Heap,
-        Pair<
-            tscafpf::Heap,
-            <tscafpf::Heap as Heap>::Plus,
-            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-        >,
-        ParseError<tscafpf::Heap>,
-    > {
-        type LWord = Either<
-            (),
-            Pair<(), Plus, Maybe<(), ParseMetadata<()>>>,
-            ParseError<()>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Pair<
-        tscafpf::Heap,
-        <tscafpf::Heap as Heap>::Plus,
-        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-    > {
-        type LWord = Pair<(), Plus, Maybe<(), ParseMetadata<()>>>;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Either<
-        tscafpf::Heap,
-        Pair<
-            tscafpf::Heap,
-            <tscafpf::Heap as Heap>::Sum,
-            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-        >,
-        ParseError<tscafpf::Heap>,
-    > {
-        type LWord = Either<
-            (),
-            Pair<(), Sum, Maybe<(), ParseMetadata<()>>>,
-            ParseError<()>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Pair<
-        tscafpf::Heap,
-        <tscafpf::Heap as Heap>::Sum,
-        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-    > {
-        type LWord = Pair<(), Sum, Maybe<(), ParseMetadata<()>>>;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Either<
-        tscafpf::Heap,
-        Pair<
-            tscafpf::Heap,
             File<
                 tscafpf::Heap,
                 Either<
                     tscafpf::Heap,
                     Pair<
                         tscafpf::Heap,
-                        <tscafpf::Heap as Heap>::FileItem,
+                        tscafpf::FileItem,
                         Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
                     >,
                     ParseError<tscafpf::Heap>,
@@ -1281,94 +462,7 @@ pub mod words_impls {
         >,
         ParseError<tscafpf::Heap>,
     > {
-        type LWord = Either<
-            (),
-            Pair<
-                (),
-                File<
-                    (),
-                    Either<
-                        (),
-                        Pair<(), FileItem, Maybe<(), ParseMetadata<()>>>,
-                        ParseError<()>,
-                    >,
-                >,
-                Maybe<(), ParseMetadata<()>>,
-            >,
-            ParseError<()>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Pair<
-        tscafpf::Heap,
-        File<
-            tscafpf::Heap,
-            Either<
-                tscafpf::Heap,
-                Pair<
-                    tscafpf::Heap,
-                    <tscafpf::Heap as Heap>::FileItem,
-                    Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                >,
-                ParseError<tscafpf::Heap>,
-            >,
-        >,
-        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-    > {
-        type LWord = Pair<
-            (),
-            File<
-                (),
-                Either<
-                    (),
-                    Pair<(), FileItem, Maybe<(), ParseMetadata<()>>>,
-                    ParseError<()>,
-                >,
-            >,
-            Maybe<(), ParseMetadata<()>>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for File<
-        tscafpf::Heap,
-        Either<
-            tscafpf::Heap,
-            Pair<
-                tscafpf::Heap,
-                <tscafpf::Heap as Heap>::FileItem,
-                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-            >,
-            ParseError<tscafpf::Heap>,
-        >,
-    > {
-        type LWord = File<
-            (),
-            Either<(), Pair<(), FileItem, Maybe<(), ParseMetadata<()>>>, ParseError<()>>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Either<
-        tscafpf::Heap,
-        Pair<
-            tscafpf::Heap,
-            <tscafpf::Heap as Heap>::FileItem,
-            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-        >,
-        ParseError<tscafpf::Heap>,
-    > {
-        type LWord = Either<
-            (),
-            Pair<(), FileItem, Maybe<(), ParseMetadata<()>>>,
-            ParseError<()>,
-        >;
-    }
-    impl words::Implements<tscafpf::Heap, L>
-    for Pair<
-        tscafpf::Heap,
-        <tscafpf::Heap as Heap>::FileItem,
-        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-    > {
-        type LWord = Pair<(), FileItem, Maybe<(), ParseMetadata<()>>>;
+        type LWord = File<(), FileItem>;
     }
 }
 /// @generated by [term_bridge_gen::generate_maps_tmf_impls]
