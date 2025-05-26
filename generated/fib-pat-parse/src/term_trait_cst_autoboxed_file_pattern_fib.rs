@@ -25,6 +25,8 @@ use pattern_tmf::OrVariableZeroOrMoreHeapBak;
 use pattern_tmf::OrVariableZeroOrMore;
 use pattern_tmf::OrVariableHeapBak;
 use pattern_tmf::OrVariable;
+use pattern_tmf::NamedPatternHeapBak;
+use pattern_tmf::NamedPattern;
 use file_tmf::FileHeapBak;
 use file_tmf::File;
 use crate::words_mod_cst_autoboxed_file_pattern_fib as wmcafpf;
@@ -547,6 +549,216 @@ pub trait Heap: Sized + MapsTmf<
     > + MapsTmf<
         wmcafpf::L,
         Pair<Self, Self::Sum, Maybe<Self, ParseMetadata<Self>>>,
+    > + MapsTmf<
+        wmcafpf::L,
+        Either<
+            Self,
+            Pair<
+                Self,
+                NamedPattern<
+                    Self,
+                    Either<
+                        Self,
+                        Pair<Self, Self::Plus, Maybe<Self, ParseMetadata<Self>>>,
+                        ParseError<Self>,
+                    >,
+                >,
+                Maybe<Self, ParseMetadata<Self>>,
+            >,
+            ParseError<Self>,
+        >,
+    > + MapsTmf<
+        wmcafpf::L,
+        Pair<
+            Self,
+            NamedPattern<
+                Self,
+                Either<
+                    Self,
+                    Pair<Self, Self::Plus, Maybe<Self, ParseMetadata<Self>>>,
+                    ParseError<Self>,
+                >,
+            >,
+            Maybe<Self, ParseMetadata<Self>>,
+        >,
+    > + MapsTmf<
+        wmcafpf::L,
+        NamedPattern<
+            Self,
+            Either<
+                Self,
+                Pair<Self, Self::Plus, Maybe<Self, ParseMetadata<Self>>>,
+                ParseError<Self>,
+            >,
+        >,
+    > + MapsTmf<
+        wmcafpf::L,
+        Either<
+            Self,
+            Pair<
+                Self,
+                NamedPattern<
+                    Self,
+                    Either<
+                        Self,
+                        Pair<Self, Self::LeftOperand, Maybe<Self, ParseMetadata<Self>>>,
+                        ParseError<Self>,
+                    >,
+                >,
+                Maybe<Self, ParseMetadata<Self>>,
+            >,
+            ParseError<Self>,
+        >,
+    > + MapsTmf<
+        wmcafpf::L,
+        Pair<
+            Self,
+            NamedPattern<
+                Self,
+                Either<
+                    Self,
+                    Pair<Self, Self::LeftOperand, Maybe<Self, ParseMetadata<Self>>>,
+                    ParseError<Self>,
+                >,
+            >,
+            Maybe<Self, ParseMetadata<Self>>,
+        >,
+    > + MapsTmf<
+        wmcafpf::L,
+        NamedPattern<
+            Self,
+            Either<
+                Self,
+                Pair<Self, Self::LeftOperand, Maybe<Self, ParseMetadata<Self>>>,
+                ParseError<Self>,
+            >,
+        >,
+    > + MapsTmf<
+        wmcafpf::L,
+        Either<
+            Self,
+            Pair<
+                Self,
+                NamedPattern<
+                    Self,
+                    Either<
+                        Self,
+                        Pair<Self, Self::RightOperand, Maybe<Self, ParseMetadata<Self>>>,
+                        ParseError<Self>,
+                    >,
+                >,
+                Maybe<Self, ParseMetadata<Self>>,
+            >,
+            ParseError<Self>,
+        >,
+    > + MapsTmf<
+        wmcafpf::L,
+        Pair<
+            Self,
+            NamedPattern<
+                Self,
+                Either<
+                    Self,
+                    Pair<Self, Self::RightOperand, Maybe<Self, ParseMetadata<Self>>>,
+                    ParseError<Self>,
+                >,
+            >,
+            Maybe<Self, ParseMetadata<Self>>,
+        >,
+    > + MapsTmf<
+        wmcafpf::L,
+        NamedPattern<
+            Self,
+            Either<
+                Self,
+                Pair<Self, Self::RightOperand, Maybe<Self, ParseMetadata<Self>>>,
+                ParseError<Self>,
+            >,
+        >,
+    > + MapsTmf<
+        wmcafpf::L,
+        Either<
+            Self,
+            Pair<
+                Self,
+                NamedPattern<
+                    Self,
+                    Either<
+                        Self,
+                        Pair<Self, Self::F, Maybe<Self, ParseMetadata<Self>>>,
+                        ParseError<Self>,
+                    >,
+                >,
+                Maybe<Self, ParseMetadata<Self>>,
+            >,
+            ParseError<Self>,
+        >,
+    > + MapsTmf<
+        wmcafpf::L,
+        Pair<
+            Self,
+            NamedPattern<
+                Self,
+                Either<
+                    Self,
+                    Pair<Self, Self::F, Maybe<Self, ParseMetadata<Self>>>,
+                    ParseError<Self>,
+                >,
+            >,
+            Maybe<Self, ParseMetadata<Self>>,
+        >,
+    > + MapsTmf<
+        wmcafpf::L,
+        NamedPattern<
+            Self,
+            Either<
+                Self,
+                Pair<Self, Self::F, Maybe<Self, ParseMetadata<Self>>>,
+                ParseError<Self>,
+            >,
+        >,
+    > + MapsTmf<
+        wmcafpf::L,
+        Either<
+            Self,
+            Pair<
+                Self,
+                NamedPattern<
+                    Self,
+                    Either<
+                        Self,
+                        Pair<Self, Self::Sum, Maybe<Self, ParseMetadata<Self>>>,
+                        ParseError<Self>,
+                    >,
+                >,
+                Maybe<Self, ParseMetadata<Self>>,
+            >,
+            ParseError<Self>,
+        >,
+    > + MapsTmf<
+        wmcafpf::L,
+        Pair<
+            Self,
+            NamedPattern<
+                Self,
+                Either<
+                    Self,
+                    Pair<Self, Self::Sum, Maybe<Self, ParseMetadata<Self>>>,
+                    ParseError<Self>,
+                >,
+            >,
+            Maybe<Self, ParseMetadata<Self>>,
+        >,
+    > + MapsTmf<
+        wmcafpf::L,
+        NamedPattern<
+            Self,
+            Either<
+                Self,
+                Pair<Self, Self::Sum, Maybe<Self, ParseMetadata<Self>>>,
+                ParseError<Self>,
+            >,
+        >,
     > + MapsTmf<
         wmcafpf::L,
         Either<
@@ -1210,6 +1422,254 @@ pub trait Heap: Sized + MapsTmf<
                 wmcafpf::L,
                 Pair<
                     Self,
+                    NamedPattern<
+                        Self,
+                        Either<
+                            Self,
+                            Pair<Self, Self::Plus, Maybe<Self, ParseMetadata<Self>>>,
+                            ParseError<Self>,
+                        >,
+                    >,
+                    Maybe<Self, ParseMetadata<Self>>,
+                >,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcafpf::L, ParseError<Self>>>::TmfTo,
+        >,
+    > + SuperHeap<
+        PairHeapBak<
+            Self,
+            <Self as MapsTmf<
+                wmcafpf::L,
+                NamedPattern<
+                    Self,
+                    Either<
+                        Self,
+                        Pair<Self, Self::Plus, Maybe<Self, ParseMetadata<Self>>>,
+                        ParseError<Self>,
+                    >,
+                >,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcafpf::L, Maybe<Self, ParseMetadata<Self>>>>::TmfTo,
+        >,
+    > + SuperHeap<
+        NamedPatternHeapBak<
+            Self,
+            <Self as MapsTmf<
+                wmcafpf::L,
+                Either<
+                    Self,
+                    Pair<Self, Self::Plus, Maybe<Self, ParseMetadata<Self>>>,
+                    ParseError<Self>,
+                >,
+            >>::TmfTo,
+        >,
+    > + SuperHeap<
+        EitherHeapBak<
+            Self,
+            <Self as MapsTmf<
+                wmcafpf::L,
+                Pair<
+                    Self,
+                    NamedPattern<
+                        Self,
+                        Either<
+                            Self,
+                            Pair<
+                                Self,
+                                Self::LeftOperand,
+                                Maybe<Self, ParseMetadata<Self>>,
+                            >,
+                            ParseError<Self>,
+                        >,
+                    >,
+                    Maybe<Self, ParseMetadata<Self>>,
+                >,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcafpf::L, ParseError<Self>>>::TmfTo,
+        >,
+    > + SuperHeap<
+        PairHeapBak<
+            Self,
+            <Self as MapsTmf<
+                wmcafpf::L,
+                NamedPattern<
+                    Self,
+                    Either<
+                        Self,
+                        Pair<Self, Self::LeftOperand, Maybe<Self, ParseMetadata<Self>>>,
+                        ParseError<Self>,
+                    >,
+                >,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcafpf::L, Maybe<Self, ParseMetadata<Self>>>>::TmfTo,
+        >,
+    > + SuperHeap<
+        NamedPatternHeapBak<
+            Self,
+            <Self as MapsTmf<
+                wmcafpf::L,
+                Either<
+                    Self,
+                    Pair<Self, Self::LeftOperand, Maybe<Self, ParseMetadata<Self>>>,
+                    ParseError<Self>,
+                >,
+            >>::TmfTo,
+        >,
+    > + SuperHeap<
+        EitherHeapBak<
+            Self,
+            <Self as MapsTmf<
+                wmcafpf::L,
+                Pair<
+                    Self,
+                    NamedPattern<
+                        Self,
+                        Either<
+                            Self,
+                            Pair<
+                                Self,
+                                Self::RightOperand,
+                                Maybe<Self, ParseMetadata<Self>>,
+                            >,
+                            ParseError<Self>,
+                        >,
+                    >,
+                    Maybe<Self, ParseMetadata<Self>>,
+                >,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcafpf::L, ParseError<Self>>>::TmfTo,
+        >,
+    > + SuperHeap<
+        PairHeapBak<
+            Self,
+            <Self as MapsTmf<
+                wmcafpf::L,
+                NamedPattern<
+                    Self,
+                    Either<
+                        Self,
+                        Pair<Self, Self::RightOperand, Maybe<Self, ParseMetadata<Self>>>,
+                        ParseError<Self>,
+                    >,
+                >,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcafpf::L, Maybe<Self, ParseMetadata<Self>>>>::TmfTo,
+        >,
+    > + SuperHeap<
+        NamedPatternHeapBak<
+            Self,
+            <Self as MapsTmf<
+                wmcafpf::L,
+                Either<
+                    Self,
+                    Pair<Self, Self::RightOperand, Maybe<Self, ParseMetadata<Self>>>,
+                    ParseError<Self>,
+                >,
+            >>::TmfTo,
+        >,
+    > + SuperHeap<
+        EitherHeapBak<
+            Self,
+            <Self as MapsTmf<
+                wmcafpf::L,
+                Pair<
+                    Self,
+                    NamedPattern<
+                        Self,
+                        Either<
+                            Self,
+                            Pair<Self, Self::F, Maybe<Self, ParseMetadata<Self>>>,
+                            ParseError<Self>,
+                        >,
+                    >,
+                    Maybe<Self, ParseMetadata<Self>>,
+                >,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcafpf::L, ParseError<Self>>>::TmfTo,
+        >,
+    > + SuperHeap<
+        PairHeapBak<
+            Self,
+            <Self as MapsTmf<
+                wmcafpf::L,
+                NamedPattern<
+                    Self,
+                    Either<
+                        Self,
+                        Pair<Self, Self::F, Maybe<Self, ParseMetadata<Self>>>,
+                        ParseError<Self>,
+                    >,
+                >,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcafpf::L, Maybe<Self, ParseMetadata<Self>>>>::TmfTo,
+        >,
+    > + SuperHeap<
+        NamedPatternHeapBak<
+            Self,
+            <Self as MapsTmf<
+                wmcafpf::L,
+                Either<
+                    Self,
+                    Pair<Self, Self::F, Maybe<Self, ParseMetadata<Self>>>,
+                    ParseError<Self>,
+                >,
+            >>::TmfTo,
+        >,
+    > + SuperHeap<
+        EitherHeapBak<
+            Self,
+            <Self as MapsTmf<
+                wmcafpf::L,
+                Pair<
+                    Self,
+                    NamedPattern<
+                        Self,
+                        Either<
+                            Self,
+                            Pair<Self, Self::Sum, Maybe<Self, ParseMetadata<Self>>>,
+                            ParseError<Self>,
+                        >,
+                    >,
+                    Maybe<Self, ParseMetadata<Self>>,
+                >,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcafpf::L, ParseError<Self>>>::TmfTo,
+        >,
+    > + SuperHeap<
+        PairHeapBak<
+            Self,
+            <Self as MapsTmf<
+                wmcafpf::L,
+                NamedPattern<
+                    Self,
+                    Either<
+                        Self,
+                        Pair<Self, Self::Sum, Maybe<Self, ParseMetadata<Self>>>,
+                        ParseError<Self>,
+                    >,
+                >,
+            >>::TmfTo,
+            <Self as MapsTmf<wmcafpf::L, Maybe<Self, ParseMetadata<Self>>>>::TmfTo,
+        >,
+    > + SuperHeap<
+        NamedPatternHeapBak<
+            Self,
+            <Self as MapsTmf<
+                wmcafpf::L,
+                Either<
+                    Self,
+                    Pair<Self, Self::Sum, Maybe<Self, ParseMetadata<Self>>>,
+                    ParseError<Self>,
+                >,
+            >>::TmfTo,
+        >,
+    > + SuperHeap<
+        EitherHeapBak<
+            Self,
+            <Self as MapsTmf<
+                wmcafpf::L,
+                Pair<
+                    Self,
                     File<
                         Self,
                         Either<
@@ -1288,6 +1748,7 @@ pub mod owned {
     use std_parse_error::ParseError;
     use pattern_tmf::OrVariableZeroOrMore;
     use pattern_tmf::OrVariable;
+    use pattern_tmf::NamedPattern;
     use crate::words_mod_cst_autoboxed_file_pattern_fib as wmcafpf;
     use crate::term_trait_cst_autoboxed_file_pattern_fib as ttcafpf;
     use ccf::CanonicallyConstructibleFrom;
@@ -1611,7 +2072,18 @@ pub mod owned {
                         Heap,
                         Pair<
                             Heap,
-                            <Heap as ttcafpf::Heap>::Plus,
+                            NamedPattern<
+                                Heap,
+                                Either<
+                                    Heap,
+                                    Pair<
+                                        Heap,
+                                        <Heap as ttcafpf::Heap>::Plus,
+                                        Maybe<Heap, ParseMetadata<Heap>>,
+                                    >,
+                                    ParseError<Heap>,
+                                >,
+                            >,
                             Maybe<Heap, ParseMetadata<Heap>>,
                         >,
                         ParseError<Heap>,
@@ -1628,7 +2100,18 @@ pub mod owned {
                         Heap,
                         Pair<
                             Heap,
-                            <Heap as ttcafpf::Heap>::LeftOperand,
+                            NamedPattern<
+                                Heap,
+                                Either<
+                                    Heap,
+                                    Pair<
+                                        Heap,
+                                        <Heap as ttcafpf::Heap>::LeftOperand,
+                                        Maybe<Heap, ParseMetadata<Heap>>,
+                                    >,
+                                    ParseError<Heap>,
+                                >,
+                            >,
                             Maybe<Heap, ParseMetadata<Heap>>,
                         >,
                         ParseError<Heap>,
@@ -1645,7 +2128,18 @@ pub mod owned {
                         Heap,
                         Pair<
                             Heap,
-                            <Heap as ttcafpf::Heap>::RightOperand,
+                            NamedPattern<
+                                Heap,
+                                Either<
+                                    Heap,
+                                    Pair<
+                                        Heap,
+                                        <Heap as ttcafpf::Heap>::RightOperand,
+                                        Maybe<Heap, ParseMetadata<Heap>>,
+                                    >,
+                                    ParseError<Heap>,
+                                >,
+                            >,
                             Maybe<Heap, ParseMetadata<Heap>>,
                         >,
                         ParseError<Heap>,
@@ -1662,7 +2156,18 @@ pub mod owned {
                         Heap,
                         Pair<
                             Heap,
-                            <Heap as ttcafpf::Heap>::F,
+                            NamedPattern<
+                                Heap,
+                                Either<
+                                    Heap,
+                                    Pair<
+                                        Heap,
+                                        <Heap as ttcafpf::Heap>::F,
+                                        Maybe<Heap, ParseMetadata<Heap>>,
+                                    >,
+                                    ParseError<Heap>,
+                                >,
+                            >,
                             Maybe<Heap, ParseMetadata<Heap>>,
                         >,
                         ParseError<Heap>,
@@ -1679,7 +2184,18 @@ pub mod owned {
                         Heap,
                         Pair<
                             Heap,
-                            <Heap as ttcafpf::Heap>::Sum,
+                            NamedPattern<
+                                Heap,
+                                Either<
+                                    Heap,
+                                    Pair<
+                                        Heap,
+                                        <Heap as ttcafpf::Heap>::Sum,
+                                        Maybe<Heap, ParseMetadata<Heap>>,
+                                    >,
+                                    ParseError<Heap>,
+                                >,
+                            >,
                             Maybe<Heap, ParseMetadata<Heap>>,
                         >,
                         ParseError<Heap>,

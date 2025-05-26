@@ -64,17 +64,15 @@ fn test() {
         println!("test File");
         let (heap, v) = file_tmf::parse::file::<Heap, L, _>(
             r#"
-            f plus left_operand $a right_operand $b
-            sum { 4 , 5 , ...c }
-            f 9
+            @a = f plus left_operand $a right_operand $b
+            @b = sum { 4 , 5 , ...c }
+            @c = f 9
         "#,
         );
         println!("unparse: {}", file_tmf::unparse::file(&heap, &v));
-        // use ccf::DirectlyCanonicallyConstructibleFrom;
-        // let (f, ()): (file_tmf::File<_, _>, ()) = v.deconstruct(&heap);
         for item in file_tmf::items(&heap, &v) {
             println!(
-                "pattern: {:?}",
+                "pattern: {:#?}",
                 pattern_dyn::to_pattern::<L, _, _>(&heap, item).unwrap()
             );
         }

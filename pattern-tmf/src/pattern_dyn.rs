@@ -3,7 +3,10 @@ use pattern_dyn::visitor::PatternBuilder;
 use pmsp::TmfMetadata;
 use visit::Visit;
 
-use crate::{OrVariable, OrVariableHeapBak, OrVariableZeroOrMore, OrVariableZeroOrMoreHeapBak};
+use crate::{
+    NamedPattern, NamedPatternHeapBak, OrVariable, OrVariableHeapBak, OrVariableZeroOrMore,
+    OrVariableZeroOrMoreHeapBak,
+};
 
 impl<SortId, Heap, L, MatchedTy, MappedOrVariable: Copy, MatchedTyMetadata>
     Visit<
@@ -63,5 +66,27 @@ where
                 subheap.names.resolve(name).unwrap().to_string()
             }),
         }
+    }
+}
+
+impl<SortId, Heap, L, Pattern, MappedNamedPattern: Copy, PatternMetadata>
+    Visit<
+        TmfMetadata<NamedPattern<Heap, Pattern>, (PatternMetadata, ())>,
+        MappedNamedPattern,
+        Heap,
+        L,
+    > for PatternBuilder<L, SortId>
+where
+    SortId: Clone,
+    Heap: term::SuperHeap<NamedPatternHeapBak<Heap, Pattern>>,
+    MappedNamedPattern: CanonicallyConstructibleFrom<Heap, (NamedPattern<Heap, Pattern>, ())>,
+    PatternBuilder<L, SortId>: Visit<PatternMetadata, Pattern, Heap, L>,
+    Pattern: words::Implements<Heap, L>,
+    <Pattern as words::Implements<Heap, L>>::LWord: names_langspec_sort::NamesLangspecSort<L>,
+{
+    fn visit(&mut self, heap: &Heap, t: &MappedNamedPattern) {
+        let (np, ()) = (*t).deconstruct(heap);
+        self.visit(heap, &np.pattern);
+        self.named(np.name(heap))
     }
 }

@@ -7,6 +7,7 @@ use tymetafuncspec_core::Set;
 use tymetafuncspec_core::BoundedNat;
 use pattern_tmf::OrVariableZeroOrMore;
 use pattern_tmf::OrVariable;
+use pattern_tmf::NamedPattern;
 use file_tmf::File;
 use crate::words_mod_file_pattern_fib as wmfpf;
 use crate::words_mod_file_pattern_fib::sorts as wmfpfs;
@@ -85,8 +86,36 @@ impl names_langspec_sort::NamesLangspecSort<wmfpf::L> for BoundedNat<()> {
         13u32
     }
 }
-impl names_langspec_sort::NamesLangspecSort<wmfpf::L> for File<(), wmfpfs::FileItem> {
+impl names_langspec_sort::NamesLangspecSort<wmfpf::L>
+for NamedPattern<(), wmfpfs::Plus> {
     fn sort_idx() -> u32 {
         14u32
+    }
+}
+impl names_langspec_sort::NamesLangspecSort<wmfpf::L>
+for NamedPattern<(), wmfpfs::LeftOperand> {
+    fn sort_idx() -> u32 {
+        15u32
+    }
+}
+impl names_langspec_sort::NamesLangspecSort<wmfpf::L>
+for NamedPattern<(), wmfpfs::RightOperand> {
+    fn sort_idx() -> u32 {
+        16u32
+    }
+}
+impl names_langspec_sort::NamesLangspecSort<wmfpf::L> for NamedPattern<(), wmfpfs::F> {
+    fn sort_idx() -> u32 {
+        17u32
+    }
+}
+impl names_langspec_sort::NamesLangspecSort<wmfpf::L> for NamedPattern<(), wmfpfs::Sum> {
+    fn sort_idx() -> u32 {
+        18u32
+    }
+}
+impl names_langspec_sort::NamesLangspecSort<wmfpf::L> for File<(), wmfpfs::FileItem> {
+    fn sort_idx() -> u32 {
+        19u32
     }
 }

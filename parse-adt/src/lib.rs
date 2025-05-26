@@ -20,6 +20,7 @@ pub struct ParserSelecting<'a, L, AllCurrentCases> {
     pc: ParseCursor<'a>,
     phantom: std::marker::PhantomData<(L, AllCurrentCases)>,
 }
+#[derive(Clone, Copy)]
 pub struct ParseCursor<'a> {
     source: &'a str,
     pub position: miette::SourceOffset,

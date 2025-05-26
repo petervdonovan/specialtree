@@ -4,7 +4,9 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
+bumpalo.workspace = true
 either-id = { version = "0.1.0", path = "../either-id" }
+extension-file = { version = "0.1.0", path = "../extension-file" }
 join-boilerplate = { version = "0.1.0", path = "../join-boilerplate" }
 langspec = { version = "0.1.0", path = "../langspec" }
 pattern-tmf = { version = "0.1.0", path = "../pattern-tmf" }

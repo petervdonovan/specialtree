@@ -4,8 +4,8 @@ use langspec::{flat::LangSpecFlat, langspec::LangSpec as _};
 
 fn main() {
     let fib: LangSpecFlat<tymetafuncspec_core::Core> = langspec_examples::fib().canonical_into();
-    let patterns = pattern_gen::load::<LangSpecFlat<tymetafuncspec_core::Core>>(&patterns_path());
-    println!("{:?}", patterns);
+    // let patterns = pattern_gen::load::<LangSpecFlat<tymetafuncspec_core::Core>>(&patterns_path());
+    // println!("{:?}", patterns);
 }
 
 fn patterns_path() -> PathBuf {

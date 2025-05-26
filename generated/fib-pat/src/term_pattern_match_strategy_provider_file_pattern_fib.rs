@@ -10,6 +10,7 @@ use pmsp::TmfMetadata;
 use pmsp::AdtMetadata;
 use pattern_tmf::OrVariableZeroOrMore;
 use pattern_tmf::OrVariable;
+use pattern_tmf::NamedPattern;
 use crate::words_mod_file_pattern_fib as wmfpf;
 use crate::words_mod_file_pattern_fib::sorts as wmfpfs;
 use crate::term_trait_file_pattern_fib as ttfpf;
@@ -171,17 +172,98 @@ impl<
     Heap: crate::term_trait_file_pattern_fib::Heap,
 > pmsp::NamesPatternMatchStrategyGivenContext<Heap> for wmfpfs::FileItem {
     type Strategy = (
-        (Heap::Plus, ()),
+        (<Heap as MapsTmf<wmfpf::L, NamedPattern<Heap, Heap::Plus>>>::TmfTo, ()),
         (
-            (Heap::LeftOperand, ()),
-            ((Heap::RightOperand, ()), ((Heap::F, ()), ((Heap::Sum, ()), ()))),
+            (
+                <Heap as MapsTmf<
+                    wmfpf::L,
+                    NamedPattern<Heap, Heap::LeftOperand>,
+                >>::TmfTo,
+                (),
+            ),
+            (
+                (
+                    <Heap as MapsTmf<
+                        wmfpf::L,
+                        NamedPattern<Heap, Heap::RightOperand>,
+                    >>::TmfTo,
+                    (),
+                ),
+                (
+                    (
+                        <Heap as MapsTmf<wmfpf::L, NamedPattern<Heap, Heap::F>>>::TmfTo,
+                        (),
+                    ),
+                    (
+                        (
+                            <Heap as MapsTmf<
+                                wmfpf::L,
+                                NamedPattern<Heap, Heap::Sum>,
+                            >>::TmfTo,
+                            (),
+                        ),
+                        (),
+                    ),
+                ),
+            ),
         ),
     );
     type TyMetadatas = (
-        (AdtMetadata, ()),
         (
-            (AdtMetadata, ()),
-            ((AdtMetadata, ()), ((AdtMetadata, ()), ((AdtMetadata, ()), ()))),
+            TmfMetadata<
+                <Heap as MapsTmf<wmfpf::L, NamedPattern<Heap, Heap::Plus>>>::TmfFrom,
+                (AdtMetadata, ()),
+            >,
+            (),
+        ),
+        (
+            (
+                TmfMetadata<
+                    <Heap as MapsTmf<
+                        wmfpf::L,
+                        NamedPattern<Heap, Heap::LeftOperand>,
+                    >>::TmfFrom,
+                    (AdtMetadata, ()),
+                >,
+                (),
+            ),
+            (
+                (
+                    TmfMetadata<
+                        <Heap as MapsTmf<
+                            wmfpf::L,
+                            NamedPattern<Heap, Heap::RightOperand>,
+                        >>::TmfFrom,
+                        (AdtMetadata, ()),
+                    >,
+                    (),
+                ),
+                (
+                    (
+                        TmfMetadata<
+                            <Heap as MapsTmf<
+                                wmfpf::L,
+                                NamedPattern<Heap, Heap::F>,
+                            >>::TmfFrom,
+                            (AdtMetadata, ()),
+                        >,
+                        (),
+                    ),
+                    (
+                        (
+                            TmfMetadata<
+                                <Heap as MapsTmf<
+                                    wmfpf::L,
+                                    NamedPattern<Heap, Heap::Sum>,
+                                >>::TmfFrom,
+                                (AdtMetadata, ()),
+                            >,
+                            (),
+                        ),
+                        (),
+                    ),
+                ),
+            ),
         ),
     );
 }

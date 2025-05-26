@@ -13,6 +13,8 @@ use pattern_tmf::OrVariableZeroOrMoreHeapBak;
 use pattern_tmf::OrVariableZeroOrMore;
 use pattern_tmf::OrVariableHeapBak;
 use pattern_tmf::OrVariable;
+use pattern_tmf::NamedPatternHeapBak;
+use pattern_tmf::NamedPattern;
 use file_tmf::FileHeapBak;
 use file_tmf::File;
 use crate::words_mod_file_pattern_fib as wmfpf;
@@ -41,6 +43,21 @@ pub trait Heap: Sized + MapsTmf<
         BoundedNat<Self>,
     > + MapsTmf<
         wmfpf::L,
+        NamedPattern<Self, Self::Plus>,
+    > + MapsTmf<
+        wmfpf::L,
+        NamedPattern<Self, Self::LeftOperand>,
+    > + MapsTmf<
+        wmfpf::L,
+        NamedPattern<Self, Self::RightOperand>,
+    > + MapsTmf<
+        wmfpf::L,
+        NamedPattern<Self, Self::F>,
+    > + MapsTmf<
+        wmfpf::L,
+        NamedPattern<Self, Self::Sum>,
+    > + MapsTmf<
+        wmfpf::L,
         File<Self, Self::FileItem>,
     > + SuperHeap<
         OrVariableHeapBak<Self, Self::LeftOperand>,
@@ -65,6 +82,16 @@ pub trait Heap: Sized + MapsTmf<
         OrVariableZeroOrMoreHeapBak<Self, Self::Nat>,
     > + SuperHeap<
         BoundedNatHeapBak<Self>,
+    > + SuperHeap<
+        NamedPatternHeapBak<Self, Self::Plus>,
+    > + SuperHeap<
+        NamedPatternHeapBak<Self, Self::LeftOperand>,
+    > + SuperHeap<
+        NamedPatternHeapBak<Self, Self::RightOperand>,
+    > + SuperHeap<
+        NamedPatternHeapBak<Self, Self::F>,
+    > + SuperHeap<
+        NamedPatternHeapBak<Self, Self::Sum>,
     > + SuperHeap<FileHeapBak<Self, Self::FileItem>> {
     type Plus: ttfpfo::Plus<Self>;
     type LeftOperand: ttfpfo::LeftOperand<Self>;
@@ -81,6 +108,7 @@ pub mod owned {
     use term::MapsTmf;
     use pattern_tmf::OrVariableZeroOrMore;
     use pattern_tmf::OrVariable;
+    use pattern_tmf::NamedPattern;
     use crate::words_mod_file_pattern_fib as wmfpf;
     use crate::term_trait_file_pattern_fib as ttfpf;
     use ccf::CanonicallyConstructibleFrom;
@@ -187,17 +215,50 @@ pub mod owned {
         Heap,
     >: CanonicallyConstructibleFrom<
             Heap,
-            (<Heap as ttfpf::Heap>::Plus, ()),
+            (
+                <Heap as MapsTmf<
+                    wmfpf::L,
+                    NamedPattern<Heap, <Heap as ttfpf::Heap>::Plus>,
+                >>::TmfTo,
+                (),
+            ),
         > + CanonicallyConstructibleFrom<
             Heap,
-            (<Heap as ttfpf::Heap>::LeftOperand, ()),
+            (
+                <Heap as MapsTmf<
+                    wmfpf::L,
+                    NamedPattern<Heap, <Heap as ttfpf::Heap>::LeftOperand>,
+                >>::TmfTo,
+                (),
+            ),
         > + CanonicallyConstructibleFrom<
             Heap,
-            (<Heap as ttfpf::Heap>::RightOperand, ()),
+            (
+                <Heap as MapsTmf<
+                    wmfpf::L,
+                    NamedPattern<Heap, <Heap as ttfpf::Heap>::RightOperand>,
+                >>::TmfTo,
+                (),
+            ),
         > + CanonicallyConstructibleFrom<
             Heap,
-            (<Heap as ttfpf::Heap>::F, ()),
-        > + CanonicallyConstructibleFrom<Heap, (<Heap as ttfpf::Heap>::Sum, ())>
+            (
+                <Heap as MapsTmf<
+                    wmfpf::L,
+                    NamedPattern<Heap, <Heap as ttfpf::Heap>::F>,
+                >>::TmfTo,
+                (),
+            ),
+        > + CanonicallyConstructibleFrom<
+            Heap,
+            (
+                <Heap as MapsTmf<
+                    wmfpf::L,
+                    NamedPattern<Heap, <Heap as ttfpf::Heap>::Sum>,
+                >>::TmfTo,
+                (),
+            ),
+        >
     where
         Heap: crate::term_trait_file_pattern_fib::Heap,
     {}

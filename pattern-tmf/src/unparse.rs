@@ -4,7 +4,10 @@ use term::SuperHeap;
 use unparse_adt::Unparser;
 use visit::Visit;
 
-use crate::{OrVariable, OrVariableHeapBak, OrVariableZeroOrMore, OrVariableZeroOrMoreHeapBak};
+use crate::{
+    NamedPattern, NamedPatternHeapBak, OrVariable, OrVariableHeapBak, OrVariableZeroOrMore,
+    OrVariableZeroOrMoreHeapBak,
+};
 
 impl<'a, Heap, L, MatchedTy, MatchedTyTmfMetadata, OvMapped: Copy>
     Visit<TmfMetadata<OrVariable<Heap, MatchedTy>, (MatchedTyTmfMetadata, ())>, OvMapped, Heap, L>
@@ -59,5 +62,26 @@ where
                     .dynamic_text(subheap.names.resolve(name).unwrap().to_string());
             }
         }
+    }
+}
+
+impl<'a, Heap, L, Pattern, PatternTmfMetadata, NamedPatternMapped: Copy>
+    Visit<
+        TmfMetadata<NamedPattern<Heap, Pattern>, (PatternTmfMetadata, ())>,
+        NamedPatternMapped,
+        Heap,
+        L,
+    > for Unparser<'a, L>
+where
+    Heap: SuperHeap<NamedPatternHeapBak<Heap, Pattern>>,
+    Unparser<'a, L>: Visit<PatternTmfMetadata, Pattern, Heap, L>,
+    NamedPatternMapped: CanonicallyConstructibleFrom<Heap, (NamedPattern<Heap, Pattern>, ())>,
+{
+    fn visit(&mut self, heap: &Heap, np: &NamedPatternMapped) {
+        let (np, ()) = np.deconstruct(heap);
+        self.unparse.static_text("@");
+        self.unparse.dynamic_text(np.name(heap).to_string());
+        self.unparse.static_text("=");
+        self.visit(heap, &np.pattern);
     }
 }

@@ -2,7 +2,7 @@ use std::any::TypeId;
 
 use either_id::Either;
 use langspec::{
-    langspec::{AsLifetime, LangSpec, MappedType, Name, SortId, SortIdOf},
+    langspec::{AlgebraicSortId, AsLifetime, LangSpec, MappedType, Name, SortId, SortIdOf},
     sublang::{Sublang, TmfEndoMapping, reflexive_sublang},
     tymetafunc::TyMetaFuncSpec,
 };
@@ -13,8 +13,8 @@ pub struct PatternExtension<'a, L> {
     pub l0: &'a L,
 }
 
-pub fn patternfy<'a, L: LangSpec>(l: &'a L) -> impl LangSpec + 'a {
-    PatternExtension {
+pub fn patternfy<'a, L: LangSpec>(arena: &'a bumpalo::Bump, l: &'a L) -> impl LangSpec + 'a {
+    let patternfied = arena.alloc(PatternExtension {
         name: Name {
             human: "Pattern".into(),
             camel: "Pattern".into(),
@@ -22,7 +22,11 @@ pub fn patternfy<'a, L: LangSpec>(l: &'a L) -> impl LangSpec + 'a {
         }
         .merge(l.name()),
         l0: l,
-    }
+    });
+    extension_file::filefy_all_tmf(
+        patternfied,
+        Either::Right(pattern_tmf::PatternTmfsId::NamedPattern),
+    )
 }
 
 fn map_sid_temfrom<'a, L: LangSpec + 'a>(sid: SortIdOf<L>) -> SortIdOf<PatternExtension<'a, L>> {
@@ -107,7 +111,13 @@ impl<'a, L: LangSpec> LangSpec for PatternExtension<'a, L> {
     }
 
     fn tmf_roots(&self) -> impl Iterator<Item = langspec::langspec::MappedTypeOf<Self>> {
-        self.l0.tmf_roots().map(|it| it.fmap_f(Either::Left))
+        self.l0
+            .tmf_roots()
+            .map(|it| it.fmap_f(Either::Left))
+            .chain(self.products().map(|pid| MappedType {
+                f: Either::Right(pattern_tmf::PatternTmfsId::NamedPattern),
+                a: vec![SortId::Algebraic(AlgebraicSortId::Product(pid))],
+            }))
     }
 
     fn sublang<'this, LSub: LangSpec>(

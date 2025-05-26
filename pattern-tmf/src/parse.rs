@@ -7,7 +7,10 @@ use parse_adt::{
 use pmsp::TmfMetadata;
 use term::SuperHeap;
 
-use crate::{OrVariable, OrVariableHeapBak, OrVariableZeroOrMore, OrVariableZeroOrMoreHeapBak};
+use crate::{
+    NamedPattern, NamedPatternHeapBak, OrVariable, OrVariableHeapBak, OrVariableZeroOrMore,
+    OrVariableZeroOrMoreHeapBak,
+};
 
 impl<'a, Heap, L, MatchedTy, MatchedTyTmfMetadata, OvMapped>
     Covisit<
@@ -89,6 +92,44 @@ where
     }
 }
 
+impl<'a, Heap, L, Pattern, PatternTmfMetadata, NamedPatternMapped>
+    Covisit<
+        TmfMetadata<NamedPattern<Heap, Pattern>, (PatternTmfMetadata, ())>,
+        Cstfy<Heap, NamedPatternMapped>,
+        Heap,
+        L,
+    > for Parser<'a, L>
+where
+    Heap: SuperHeap<NamedPatternHeapBak<Heap, Pattern>>,
+    Parser<'a, L>: Covisit<PatternTmfMetadata, Pattern, Heap, L>,
+    NamedPatternMapped: CanonicallyConstructibleFrom<Heap, (NamedPattern<Heap, Pattern>, ())>,
+{
+    fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, NamedPatternMapped> {
+        let previous_offset = self.pc.position;
+        let next_word = self.pc.pop_word().unwrap();
+        if next_word != "@" {
+            panic!("expected @");
+        }
+        let next_word = self.pc.pop_word().unwrap();
+        let subheap = heap.subheap_mut::<NamedPatternHeapBak<_, _>>();
+        let intern = subheap.names.get_or_intern(next_word);
+        let next_word = self.pc.pop_word().unwrap();
+        if next_word != "=" {
+            panic!("expected =");
+        }
+        let t = NamedPattern {
+            pattern: self.covisit(heap),
+            name: intern,
+            phantom: Default::default(),
+        };
+        cstfy_ok(
+            NamedPatternMapped::construct(heap, (t, ())),
+            previous_offset,
+            self.pc.position,
+        )
+    }
+}
+
 impl<Heap, L, Elem> Lookahead<Heap, L> for OrVariable<Heap, Elem> {
     fn matches(_: &ParseCursor<'_>) -> bool {
         true // OK because we must be in a single-possibility context
@@ -97,5 +138,17 @@ impl<Heap, L, Elem> Lookahead<Heap, L> for OrVariable<Heap, Elem> {
 impl<Heap, L, Elem> Lookahead<Heap, L> for OrVariableZeroOrMore<Heap, Elem> {
     fn matches(_: &ParseCursor<'_>) -> bool {
         true // OK because we must be in a single-possibility context
+    }
+}
+impl<Heap, L, Elem> Lookahead<Heap, L> for NamedPattern<Heap, Cstfy<Heap, Elem>>
+where
+    Elem: Lookahead<Heap, L>,
+{
+    fn matches(pc: &ParseCursor<'_>) -> bool {
+        let mut pc = *pc;
+        while let Some(word) = pc.pop_word()
+            && word != "="
+        {}
+        Elem::matches(&pc)
     }
 }

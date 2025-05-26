@@ -164,6 +164,7 @@ pub mod words_impls {
     use std_parse_error::ParseError;
     use pattern_tmf::OrVariableZeroOrMore;
     use pattern_tmf::OrVariable;
+    use pattern_tmf::NamedPattern;
     use file_tmf::File;
     use fib_pat::words_mod_file_pattern_fib::sorts::Sum;
     use fib_pat::words_mod_file_pattern_fib::sorts::RightOperand;
@@ -446,6 +447,121 @@ pub mod words_impls {
         tscafpf::Heap,
         Pair<
             tscafpf::Heap,
+            NamedPattern<
+                tscafpf::Heap,
+                Either<
+                    tscafpf::Heap,
+                    Pair<
+                        tscafpf::Heap,
+                        tscafpf::Plus,
+                        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                    >,
+                    ParseError<tscafpf::Heap>,
+                >,
+            >,
+            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+        >,
+        ParseError<tscafpf::Heap>,
+    > {
+        type LWord = NamedPattern<(), Plus>;
+    }
+    impl words::Implements<tscafpf::Heap, L>
+    for Either<
+        tscafpf::Heap,
+        Pair<
+            tscafpf::Heap,
+            NamedPattern<
+                tscafpf::Heap,
+                Either<
+                    tscafpf::Heap,
+                    Pair<
+                        tscafpf::Heap,
+                        tscafpf::LeftOperand,
+                        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                    >,
+                    ParseError<tscafpf::Heap>,
+                >,
+            >,
+            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+        >,
+        ParseError<tscafpf::Heap>,
+    > {
+        type LWord = NamedPattern<(), LeftOperand>;
+    }
+    impl words::Implements<tscafpf::Heap, L>
+    for Either<
+        tscafpf::Heap,
+        Pair<
+            tscafpf::Heap,
+            NamedPattern<
+                tscafpf::Heap,
+                Either<
+                    tscafpf::Heap,
+                    Pair<
+                        tscafpf::Heap,
+                        tscafpf::RightOperand,
+                        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                    >,
+                    ParseError<tscafpf::Heap>,
+                >,
+            >,
+            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+        >,
+        ParseError<tscafpf::Heap>,
+    > {
+        type LWord = NamedPattern<(), RightOperand>;
+    }
+    impl words::Implements<tscafpf::Heap, L>
+    for Either<
+        tscafpf::Heap,
+        Pair<
+            tscafpf::Heap,
+            NamedPattern<
+                tscafpf::Heap,
+                Either<
+                    tscafpf::Heap,
+                    Pair<
+                        tscafpf::Heap,
+                        tscafpf::F,
+                        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                    >,
+                    ParseError<tscafpf::Heap>,
+                >,
+            >,
+            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+        >,
+        ParseError<tscafpf::Heap>,
+    > {
+        type LWord = NamedPattern<(), F>;
+    }
+    impl words::Implements<tscafpf::Heap, L>
+    for Either<
+        tscafpf::Heap,
+        Pair<
+            tscafpf::Heap,
+            NamedPattern<
+                tscafpf::Heap,
+                Either<
+                    tscafpf::Heap,
+                    Pair<
+                        tscafpf::Heap,
+                        tscafpf::Sum,
+                        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                    >,
+                    ParseError<tscafpf::Heap>,
+                >,
+            >,
+            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+        >,
+        ParseError<tscafpf::Heap>,
+    > {
+        type LWord = NamedPattern<(), Sum>;
+    }
+    impl words::Implements<tscafpf::Heap, L>
+    for Either<
+        tscafpf::Heap,
+        Pair<
+            tscafpf::Heap,
             File<
                 tscafpf::Heap,
                 Either<
@@ -476,6 +592,7 @@ pub mod maps_tmf_impls {
     use std_parse_error::ParseError;
     use pattern_tmf::OrVariableZeroOrMore;
     use pattern_tmf::OrVariable;
+    use pattern_tmf::NamedPattern;
     use file_tmf::File;
     use fib_pat::words_mod_file_pattern_fib::L;
     use fib_pat::term_trait_file_pattern_fib::Heap;
@@ -782,6 +899,185 @@ pub mod maps_tmf_impls {
             Pair<
                 tscafpf::Heap,
                 BoundedNat<tscafpf::Heap>,
+                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+            >,
+            ParseError<tscafpf::Heap>,
+        >;
+    }
+    impl term::MapsTmf<L, NamedPattern<tscafpf::Heap, <tscafpf::Heap as Heap>::Plus>>
+    for tscafpf::Heap {
+        type TmfFrom = NamedPattern<
+            tscafpf::Heap,
+            Either<
+                tscafpf::Heap,
+                Pair<
+                    tscafpf::Heap,
+                    tscafpf::Plus,
+                    Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                >,
+                ParseError<tscafpf::Heap>,
+            >,
+        >;
+        type TmfTo = Either<
+            tscafpf::Heap,
+            Pair<
+                tscafpf::Heap,
+                NamedPattern<
+                    tscafpf::Heap,
+                    Either<
+                        tscafpf::Heap,
+                        Pair<
+                            tscafpf::Heap,
+                            tscafpf::Plus,
+                            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                        >,
+                        ParseError<tscafpf::Heap>,
+                    >,
+                >,
+                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+            >,
+            ParseError<tscafpf::Heap>,
+        >;
+    }
+    impl term::MapsTmf<
+        L,
+        NamedPattern<tscafpf::Heap, <tscafpf::Heap as Heap>::LeftOperand>,
+    > for tscafpf::Heap {
+        type TmfFrom = NamedPattern<
+            tscafpf::Heap,
+            Either<
+                tscafpf::Heap,
+                Pair<
+                    tscafpf::Heap,
+                    tscafpf::LeftOperand,
+                    Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                >,
+                ParseError<tscafpf::Heap>,
+            >,
+        >;
+        type TmfTo = Either<
+            tscafpf::Heap,
+            Pair<
+                tscafpf::Heap,
+                NamedPattern<
+                    tscafpf::Heap,
+                    Either<
+                        tscafpf::Heap,
+                        Pair<
+                            tscafpf::Heap,
+                            tscafpf::LeftOperand,
+                            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                        >,
+                        ParseError<tscafpf::Heap>,
+                    >,
+                >,
+                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+            >,
+            ParseError<tscafpf::Heap>,
+        >;
+    }
+    impl term::MapsTmf<
+        L,
+        NamedPattern<tscafpf::Heap, <tscafpf::Heap as Heap>::RightOperand>,
+    > for tscafpf::Heap {
+        type TmfFrom = NamedPattern<
+            tscafpf::Heap,
+            Either<
+                tscafpf::Heap,
+                Pair<
+                    tscafpf::Heap,
+                    tscafpf::RightOperand,
+                    Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                >,
+                ParseError<tscafpf::Heap>,
+            >,
+        >;
+        type TmfTo = Either<
+            tscafpf::Heap,
+            Pair<
+                tscafpf::Heap,
+                NamedPattern<
+                    tscafpf::Heap,
+                    Either<
+                        tscafpf::Heap,
+                        Pair<
+                            tscafpf::Heap,
+                            tscafpf::RightOperand,
+                            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                        >,
+                        ParseError<tscafpf::Heap>,
+                    >,
+                >,
+                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+            >,
+            ParseError<tscafpf::Heap>,
+        >;
+    }
+    impl term::MapsTmf<L, NamedPattern<tscafpf::Heap, <tscafpf::Heap as Heap>::F>>
+    for tscafpf::Heap {
+        type TmfFrom = NamedPattern<
+            tscafpf::Heap,
+            Either<
+                tscafpf::Heap,
+                Pair<
+                    tscafpf::Heap,
+                    tscafpf::F,
+                    Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                >,
+                ParseError<tscafpf::Heap>,
+            >,
+        >;
+        type TmfTo = Either<
+            tscafpf::Heap,
+            Pair<
+                tscafpf::Heap,
+                NamedPattern<
+                    tscafpf::Heap,
+                    Either<
+                        tscafpf::Heap,
+                        Pair<
+                            tscafpf::Heap,
+                            tscafpf::F,
+                            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                        >,
+                        ParseError<tscafpf::Heap>,
+                    >,
+                >,
+                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+            >,
+            ParseError<tscafpf::Heap>,
+        >;
+    }
+    impl term::MapsTmf<L, NamedPattern<tscafpf::Heap, <tscafpf::Heap as Heap>::Sum>>
+    for tscafpf::Heap {
+        type TmfFrom = NamedPattern<
+            tscafpf::Heap,
+            Either<
+                tscafpf::Heap,
+                Pair<
+                    tscafpf::Heap,
+                    tscafpf::Sum,
+                    Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                >,
+                ParseError<tscafpf::Heap>,
+            >,
+        >;
+        type TmfTo = Either<
+            tscafpf::Heap,
+            Pair<
+                tscafpf::Heap,
+                NamedPattern<
+                    tscafpf::Heap,
+                    Either<
+                        tscafpf::Heap,
+                        Pair<
+                            tscafpf::Heap,
+                            tscafpf::Sum,
+                            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                        >,
+                        ParseError<tscafpf::Heap>,
+                    >,
+                >,
                 Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
             >,
             ParseError<tscafpf::Heap>,

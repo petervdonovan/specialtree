@@ -5,6 +5,7 @@ use file_tmf::FileTmfId;
 use langspec::{
     langspec::{AsLifetime, LangSpec, MappedType, Name, SortId, SortIdOf},
     sublang::{Sublang, TmfEndoMapping, reflexive_sublang},
+    tymetafunc::TyMetaFuncSpec,
 };
 use tmfs_join::TmfsJoin;
 
@@ -32,11 +33,17 @@ pub fn filefy<'a, L: LangSpec>(l: &'a L, item_sids: Vec<SortIdOf<L>>) -> impl La
         },
     }
 }
-pub fn filefy_all_products<'a, L: LangSpec>(l: &'a L) -> impl LangSpec + 'a {
+pub fn filefy_all_tmf<'a, L: LangSpec>(
+    l: &'a L,
+    f: <<L as LangSpec>::Tmfs as TyMetaFuncSpec>::TyMetaFuncId,
+) -> impl LangSpec + 'a {
     filefy::<L>(
         l,
-        l.products()
-            .map(|it| SortId::Algebraic(langspec::langspec::AlgebraicSortId::Product(it)))
+        l.all_sort_ids()
+            .filter(|sid| match sid {
+                SortId::Algebraic(_) => false,
+                SortId::TyMetaFunc(mapped_type) => mapped_type.f == f,
+            })
             .collect(),
     )
 }

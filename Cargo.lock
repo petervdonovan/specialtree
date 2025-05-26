@@ -191,7 +191,9 @@ dependencies = [
 name = "extension-pattern"
 version = "0.1.0"
 dependencies = [
+ "bumpalo",
  "either-id",
+ "extension-file",
  "join-boilerplate",
  "langspec",
  "pattern-tmf",

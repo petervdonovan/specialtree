@@ -5,6 +5,7 @@ use langspec::{
     tymetafunc::{ArgId, RustTyMap, TyMetaFuncData, TyMetaFuncSpec},
 };
 use serde::{Deserialize, Serialize};
+use term::SuperHeap;
 
 pub mod parse;
 pub mod pattern_dyn;
@@ -16,6 +17,7 @@ pub struct PatternTmfs;
 pub enum PatternTmfsId {
     OrVariable,
     OrVariableZeroOrMore,
+    NamedPattern,
 }
 
 impl TyMetaFuncSpec for PatternTmfs {
@@ -66,6 +68,31 @@ impl TyMetaFuncSpec for PatternTmfs {
                 is_collection_of: Box::new([]),
                 transparency: langspec::tymetafunc::Transparency::Visible,
             },
+            PatternTmfsId::NamedPattern => TyMetaFuncData {
+                name: Name {
+                    human: "named-pattern".into(),
+                    camel: "NamedPattern".into(),
+                    snake: "named_pattern".into(),
+                },
+                args: Box::new([Name {
+                    human: "pattern".into(),
+                    camel: "Pattern".into(),
+                    snake: "pattern".into(),
+                }]),
+                imp: RustTyMap {
+                    ty_func: syn::parse_quote! { pattern_tmf::NamedPattern },
+                },
+                idby: langspec::tymetafunc::IdentifiedBy::FirstTmfArg,
+                heapbak: RustTyMap {
+                    ty_func: syn::parse_quote! {
+                        pattern_tmf::NamedPatternHeapBak
+                    },
+                },
+                canonical_froms: Box::new([]),
+                size_depends_on: Box::new([ArgId(0)]),
+                is_collection_of: Box::new([]),
+                transparency: langspec::tymetafunc::Transparency::Visible,
+            },
         }
     }
 }
@@ -100,6 +127,31 @@ pub enum OrVariableZeroOrMore<Heap, MatchedTy> {
     Variable { name: Symbol },
     Ignored(std::marker::PhantomData<Heap>),
     ZeroOrMore { name: Symbol },
+}
+
+#[derive(Derivative)]
+#[derivative(Default(bound = ""))]
+pub struct NamedPatternHeapBak<Heap, Pattern> {
+    names: string_interner::DefaultStringInterner,
+    phantom: std::marker::PhantomData<(Heap, Pattern)>,
+}
+#[derive(Derivative)]
+#[derivative(Clone(bound = "Pattern: Clone"))]
+#[derivative(Copy(bound = "Pattern: Copy"))]
+pub struct NamedPattern<Heap, Pattern> {
+    pub pattern: Pattern,
+    name: Symbol,
+    phantom: std::marker::PhantomData<Heap>,
+}
+
+impl<Heap, Pattern> NamedPattern<Heap, Pattern>
+where
+    Heap: SuperHeap<NamedPatternHeapBak<Heap, Pattern>>,
+{
+    pub fn name(&self, heap: &Heap) -> String {
+        let subheap = heap.subheap::<NamedPatternHeapBak<_, _>>();
+        subheap.names.resolve(self.name).unwrap().to_string()
+    }
 }
 
 impl<Heap, MatchedTy> DirectlyCanonicallyConstructibleFrom<Heap, (MatchedTy, ())>

@@ -5,11 +5,11 @@ use visitor::{PatternBuilder, PbResultError};
 
 pub mod tmfscore;
 pub mod visitor;
-#[derive(Debug)]
-pub struct NamedDynPattern<SortId> {
-    pub snake_ident: String,
-    pub pattern: DynPattern<SortId>,
-}
+// #[derive(Debug)]
+// pub struct NamedDynPattern<SortId> {
+//     pub snake_ident: String,
+//     pub pattern: DynPattern<SortId>,
+// }
 #[derive(Debug)]
 pub enum DynPattern<SortId> {
     Composite(CompositePattern<SortId>),
@@ -17,6 +17,7 @@ pub enum DynPattern<SortId> {
     ZeroOrMore(Variable<SortId>),
     Variable(Variable<SortId>),
     Literal(LiteralPattern<SortId>),
+    Named(String, Box<DynPattern<SortId>>),
 }
 #[derive(Debug)]
 pub struct Variable<SortId> {

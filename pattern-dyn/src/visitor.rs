@@ -93,6 +93,10 @@ impl<L, SortId: Clone> PatternBuilder<L, SortId> {
                 .clone(),
         ))
     }
+    pub fn named(&mut self, name: String) {
+        let child = Box::new(self.stack.pop().unwrap());
+        self.stack.push(DynPattern::Named(name, child))
+    }
     pub(crate) fn result(mut self) -> Result<DynPattern<SortId>, PbResultError> {
         match self.stack.len() {
             0 => Err(PbResultError::Empty),
