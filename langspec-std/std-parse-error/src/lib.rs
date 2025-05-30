@@ -5,7 +5,7 @@ use langspec::{
     tymetafunc::{IdentifiedBy, RustTyMap, TyMetaFuncSpec},
 };
 use serde::{Deserialize, Serialize};
-use term::Heaped;
+use term::{Heaped, TyMetaFunc};
 
 pub fn parse_error() -> LangSpecFlat<ParseErrorTmfs> {
     let lsh: LangSpecHuman<ParseErrorTmfs> = serde_json::from_str(
@@ -44,11 +44,11 @@ impl TyMetaFuncSpec for ParseErrorTmfs {
                 imp: RustTyMap {
                     ty_func: syn::parse_quote! {std_parse_error::ParseError},
                 },
+                heapbak: RustTyMap {
+                    ty_func: syn::parse_quote! {std_parse_error::ParseErrorHeapBak},
+                },
                 idby: IdentifiedBy::Tmf,
                 transparency: langspec::tymetafunc::Transparency::Transparent,
-                heapbak: RustTyMap {
-                    ty_func: syn::parse_quote! {std_parse_error::ParseErrorBak},
-                },
                 canonical_froms: Box::new([]),
                 size_depends_on: Box::new([]),
                 is_collection_of: Box::new([]),
@@ -61,8 +61,11 @@ impl TyMetaFuncSpec for ParseErrorTmfs {
 #[derivative(Clone(bound = ""))]
 #[derivative(Copy(bound = ""))]
 pub struct ParseError<Heap>(pub parse::ParseError, std::marker::PhantomData<Heap>);
+impl<Heap: Default> TyMetaFunc for ParseError<Heap> {
+    type HeapBak = ParseErrorHeapBak<Heap>;
+}
 #[derive(Default)]
-pub struct ParseErrorBak<Heap: ?Sized>(std::marker::PhantomData<Heap>);
+pub struct ParseErrorHeapBak<Heap: ?Sized>(std::marker::PhantomData<Heap>);
 impl<Heap> Heaped for ParseError<Heap> {
     type Heap = Heap;
 }

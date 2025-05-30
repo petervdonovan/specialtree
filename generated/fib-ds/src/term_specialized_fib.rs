@@ -86,7 +86,7 @@ pub mod heap {
 pub mod superheap {
     term::impl_superheap!(
         crate ::term_specialized_fib::Heap; tymetafuncspec_core::SetHeapBak < crate
-        ::term_specialized_fib::Heap, crate ::term_specialized_fib::Nat >; set nat
+        ::term_specialized_fib::Heap, crate ::term_specialized_fib::Nat, >; set nat
     );
     term::impl_superheap!(
         crate ::term_specialized_fib::Heap; tymetafuncspec_core::BoundedNatHeapBak <
@@ -94,11 +94,11 @@ pub mod superheap {
     );
     term::impl_superheap!(
         crate ::term_specialized_fib::Heap; tymetafuncspec_core::IdxBoxHeapBak < crate
-        ::term_specialized_fib::Heap, crate ::term_specialized_fib::F >; idx_box f
+        ::term_specialized_fib::Heap, crate ::term_specialized_fib::F, >; idx_box f
     );
     term::impl_superheap!(
         crate ::term_specialized_fib::Heap; tymetafuncspec_core::IdxBoxHeapBak < crate
-        ::term_specialized_fib::Heap, crate ::term_specialized_fib::Plus >; idx_box plus
+        ::term_specialized_fib::Heap, crate ::term_specialized_fib::Plus, >; idx_box plus
     );
 }
 #[derive(Clone, Copy)]

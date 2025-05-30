@@ -76,9 +76,6 @@ impl<'langs> CgDepList<'langs> {
             }
         })
     }
-    // pub fn self_path(&self) -> Box<dyn for<'a> Fn(&'a Component2SynPath) -> syn::Path + 'static> {
-
-    // }
     pub fn subtree(&self) -> CgDepList<'langs> {
         CgDepList {
             codegen_deps: vec![],
@@ -181,6 +178,26 @@ impl<'langs> Crate<'langs> {
     }
     pub fn provides(&self, id: &KebabCodegenId) -> bool {
         self.provides.iter().any(|it| it.id == *id)
+    }
+    pub fn plus(
+        self,
+        provides: Vec<CodegenInstance<'langs>>,
+        deps: Vec<(&'static str, &'static Path)>,
+    ) -> Self {
+        let added_provides = provides.into_iter();
+        let added_deps = deps.into_iter();
+        let Self {
+            id,
+            mut provides,
+            mut global_workspace_deps,
+        } = self;
+        provides.extend(added_provides);
+        global_workspace_deps.extend(added_deps);
+        Self {
+            id,
+            provides,
+            global_workspace_deps,
+        }
     }
     fn generate_dep_contents(&self, c2sp: &mut Component2SynPath) -> Vec<syn::ItemMod> {
         let mut current_c2sp = Component2SynPath(c2sp.0.clone());

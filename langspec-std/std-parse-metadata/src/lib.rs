@@ -5,7 +5,7 @@ use langspec::{
     tymetafunc::{IdentifiedBy, RustTyMap, TyMetaFuncSpec},
 };
 use serde::{Deserialize, Serialize};
-use term::Heaped;
+use term::{Heaped, TyMetaFunc};
 
 pub fn parse_metadata() -> LangSpecFlat<ParseMetadataTmfs> {
     let lsh: LangSpecHuman<ParseMetadataTmfs> = serde_json::from_str(
@@ -44,11 +44,11 @@ impl TyMetaFuncSpec for ParseMetadataTmfs {
                 imp: RustTyMap {
                     ty_func: syn::parse_quote! {std_parse_metadata::ParseMetadata},
                 },
+                heapbak: RustTyMap {
+                    ty_func: syn::parse_quote! {std_parse_metadata::ParseMetadataHeapBak},
+                },
                 idby: IdentifiedBy::Tmf,
                 transparency: langspec::tymetafunc::Transparency::Visible,
-                heapbak: RustTyMap {
-                    ty_func: syn::parse_quote! {std_parse_metadata::ParseMetadataBak},
-                },
                 canonical_froms: Box::new([]),
                 size_depends_on: Box::new([]),
                 is_collection_of: Box::new([]),
@@ -62,7 +62,10 @@ impl TyMetaFuncSpec for ParseMetadataTmfs {
 #[derivative(Copy(bound = ""))]
 pub struct ParseMetadata<Heap>(pub parse::ParseMetadata, std::marker::PhantomData<Heap>);
 #[derive(Default)]
-pub struct ParseMetadataBak<Heap: ?Sized>(std::marker::PhantomData<Heap>);
+pub struct ParseMetadataHeapBak<Heap: ?Sized>(std::marker::PhantomData<Heap>);
+impl<Heap: Default> TyMetaFunc for ParseMetadata<Heap> {
+    type HeapBak = ParseMetadataHeapBak<Heap>;
+}
 impl<Heap> Heaped for ParseMetadata<Heap> {
     type Heap = Heap;
 }

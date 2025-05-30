@@ -286,10 +286,12 @@ name = "fib-pat-ds"
 version = "0.0.0"
 dependencies = [
  "ccf",
+ "fib",
  "fib-pat",
  "file-tmf",
  "pattern-tmf",
  "term",
+ "term-bridge-gen",
  "term-pattern-match-strategy-provider-impl-gen",
  "term-specialized-gen",
  "term-specialized-impl-gen",
@@ -388,6 +390,7 @@ dependencies = [
  "names-langspec-sort-gen",
  "parse-gen",
  "pattern-gen",
+ "term-bridge-gen",
  "term-pattern-match-strategy-provider-gen",
  "term-pattern-match-strategy-provider-impl-gen",
  "term-specialized-gen",
@@ -693,6 +696,7 @@ version = "0.1.0"
 dependencies = [
  "ccf",
  "derivative",
+ "langspec",
  "names-langspec-sort",
  "pmsp",
  "syn 2.0.100",

@@ -7,12 +7,13 @@ use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Set, SetHeapBak};
 use visit::{Visit, visiteventsink::VisitEventSink};
 use words::Implements;
 
-impl<SortId, Heap, L, MappedBNat: Copy>
-    Visit<TmfMetadata<BoundedNat<Heap>, ()>, MappedBNat, Heap, L> for PatternBuilder<L, SortId>
+impl<SortId, Heap, L, LSub, MappedBNat: Copy>
+    Visit<TmfMetadata<BoundedNat<Heap>, ()>, MappedBNat, Heap, L>
+    for PatternBuilder<L, LSub, SortId>
 where
     MappedBNat: CanonicallyConstructibleFrom<Heap, (BoundedNat<Heap>, ())>,
-    MappedBNat: Implements<Heap, L>,
-    <MappedBNat as Implements<Heap, L>>::LWord: NamesLangspecSort<L>,
+    MappedBNat: Implements<Heap, LSub>,
+    <MappedBNat as Implements<Heap, LSub>>::LWord: NamesLangspecSort<LSub>,
     SortId: Clone,
 {
     fn visit(&mut self, heap: &Heap, t: &MappedBNat) {
@@ -22,15 +23,15 @@ where
     }
 }
 
-impl<SortId: Clone, Heap, L, Elem, MappedSet: Copy, ElemTmfMetadata>
+impl<SortId: Clone, Heap, L, LSub, Elem, MappedSet: Copy, ElemTmfMetadata>
     Visit<TmfMetadata<Set<Heap, Elem>, (ElemTmfMetadata, ())>, MappedSet, Heap, L>
-    for PatternBuilder<L, SortId>
+    for PatternBuilder<L, LSub, SortId>
 where
     Heap: term::SuperHeap<SetHeapBak<Heap, Elem>>,
     MappedSet: CanonicallyConstructibleFrom<Heap, (Set<Heap, Elem>, ())>,
-    MappedSet: Implements<Heap, L>,
-    <MappedSet as Implements<Heap, L>>::LWord: NamesLangspecSort<L>,
-    PatternBuilder<L, SortId>: Visit<ElemTmfMetadata, Elem, Heap, L>,
+    MappedSet: Implements<Heap, LSub>,
+    <MappedSet as Implements<Heap, LSub>>::LWord: NamesLangspecSort<LSub>,
+    PatternBuilder<L, LSub, SortId>: Visit<ElemTmfMetadata, Elem, Heap, L>,
 {
     fn visit(&mut self, heap: &Heap, t: &MappedSet) {
         // todo: generalize over all collections
@@ -45,13 +46,13 @@ where
     }
 }
 
-impl<SortId, Heap, L, Elem, MappedIdxBox: Copy, ElemTmfMetadata>
+impl<SortId, Heap, L, LSub, Elem, MappedIdxBox: Copy, ElemTmfMetadata>
     Visit<TmfMetadata<IdxBox<Heap, Elem>, (ElemTmfMetadata, ())>, MappedIdxBox, Heap, L>
-    for PatternBuilder<L, SortId>
+    for PatternBuilder<L, LSub, SortId>
 where
     Heap: term::SuperHeap<IdxBoxHeapBak<Heap, Elem>>,
     MappedIdxBox: CanonicallyConstructibleFrom<Heap, (IdxBox<Heap, Elem>, ())>,
-    PatternBuilder<L, SortId>: Visit<ElemTmfMetadata, Elem, Heap, L>,
+    PatternBuilder<L, LSub, SortId>: Visit<ElemTmfMetadata, Elem, Heap, L>,
 {
     fn visit(&mut self, heap: &Heap, t: &MappedIdxBox) {
         // todo: generalize over all transparent tmfs

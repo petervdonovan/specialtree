@@ -5,7 +5,7 @@ use langspec::{
     tymetafunc::{ArgId, RustTyMap, TyMetaFuncData, TyMetaFuncSpec},
 };
 use serde::{Deserialize, Serialize};
-use term::SuperHeap;
+use term::{SuperHeap, TyMetaFunc};
 
 pub mod parse;
 pub mod pattern_dyn;
@@ -40,10 +40,10 @@ impl TyMetaFuncSpec for PatternTmfs {
                 imp: RustTyMap {
                     ty_func: syn::parse_quote! { pattern_tmf::OrVariable },
                 },
-                idby: langspec::tymetafunc::IdentifiedBy::FirstTmfArg,
                 heapbak: RustTyMap {
                     ty_func: syn::parse_quote! { pattern_tmf::OrVariableHeapBak },
                 },
+                idby: langspec::tymetafunc::IdentifiedBy::FirstTmfArg,
                 canonical_froms: Box::new([Box::new([ArgId(0)])]),
                 size_depends_on: Box::new([ArgId(0)]),
                 is_collection_of: Box::new([]),
@@ -59,10 +59,10 @@ impl TyMetaFuncSpec for PatternTmfs {
                 imp: RustTyMap {
                     ty_func: syn::parse_quote! { pattern_tmf::OrVariableZeroOrMore },
                 },
-                idby: langspec::tymetafunc::IdentifiedBy::FirstTmfArg,
                 heapbak: RustTyMap {
                     ty_func: syn::parse_quote! { pattern_tmf::OrVariableZeroOrMoreHeapBak },
                 },
+                idby: langspec::tymetafunc::IdentifiedBy::FirstTmfArg,
                 canonical_froms: Box::new([Box::new([ArgId(0)])]),
                 size_depends_on: Box::new([ArgId(0)]),
                 is_collection_of: Box::new([]),
@@ -82,12 +82,10 @@ impl TyMetaFuncSpec for PatternTmfs {
                 imp: RustTyMap {
                     ty_func: syn::parse_quote! { pattern_tmf::NamedPattern },
                 },
-                idby: langspec::tymetafunc::IdentifiedBy::FirstTmfArg,
                 heapbak: RustTyMap {
-                    ty_func: syn::parse_quote! {
-                        pattern_tmf::NamedPatternHeapBak
-                    },
+                    ty_func: syn::parse_quote! { pattern_tmf::NamedPatternHeapBak },
                 },
+                idby: langspec::tymetafunc::IdentifiedBy::FirstTmfArg,
                 canonical_froms: Box::new([]),
                 size_depends_on: Box::new([ArgId(0)]),
                 is_collection_of: Box::new([]),
@@ -112,6 +110,9 @@ pub enum OrVariable<Heap, MatchedTy> {
     Variable { name: Symbol },
     Ignored(std::marker::PhantomData<Heap>),
 }
+impl<Heap, MatchedTy> TyMetaFunc for OrVariable<Heap, MatchedTy> {
+    type HeapBak = OrVariableHeapBak<Heap, MatchedTy>;
+}
 
 #[derive(Derivative)]
 #[derivative(Default(bound = ""))]
@@ -128,7 +129,9 @@ pub enum OrVariableZeroOrMore<Heap, MatchedTy> {
     Ignored(std::marker::PhantomData<Heap>),
     ZeroOrMore { name: Symbol },
 }
-
+impl<Heap, MatchedTy> TyMetaFunc for OrVariableZeroOrMore<Heap, MatchedTy> {
+    type HeapBak = OrVariableZeroOrMoreHeapBak<Heap, MatchedTy>;
+}
 #[derive(Derivative)]
 #[derivative(Default(bound = ""))]
 pub struct NamedPatternHeapBak<Heap, Pattern> {
@@ -142,6 +145,9 @@ pub struct NamedPattern<Heap, Pattern> {
     pub pattern: Pattern,
     name: Symbol,
     phantom: std::marker::PhantomData<Heap>,
+}
+impl<Heap, Pattern> TyMetaFunc for NamedPattern<Heap, Pattern> {
+    type HeapBak = NamedPatternHeapBak<Heap, Pattern>;
 }
 
 impl<Heap, Pattern> NamedPattern<Heap, Pattern>

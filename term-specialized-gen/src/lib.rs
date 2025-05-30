@@ -83,11 +83,12 @@ pub fn gen_heap<L: LangSpec>(
     let (module_names, modules_resolved) =
         gen_modules_with_prefix(base_path, &[], &heapbak_modules);
     let superheap_impls = hgd.iter().map(|hgd| {
-        let ty_func = &hgd.ty_func.ty_func;
+        // let ty_func = &hgd.ty_func.ty_func;
         let identifiers = &hgd.identifiers;
-        let ty_args = (hgd.ty_args)(HeapType(syn::parse_quote!{#base_path::Heap}), abp.clone(), None);
+        let heapbak = (hgd.heapbak)(&HeapType(syn::parse_quote! {#base_path::Heap}), abp, None);
+        // let heap_ty = lg.sort2heap_ty(langspec::langspec::SortId::TyMetaFunc(hgd.mt), ht, abp)
         quote::quote! {
-            term::impl_superheap!(#base_path::Heap ; #ty_func<#base_path::Heap, #(#ty_args),*> ; #(#identifiers)*);
+            term::impl_superheap!(#base_path::Heap ; #heapbak ; #(#identifiers)*);
         }
     });
     let byline = byline!();
@@ -114,15 +115,16 @@ pub(crate) fn gen_heapbak_module(
     hgd: &HeapbakGenData,
 ) -> (Vec<syn::Ident>, syn::Item) {
     let byline = byline!();
-    let heapbak_ty_func = &hgd.ty_func.ty_func;
-    let heapbak_ty_args = (hgd.ty_args)(
-        HeapType(syn::parse_quote! {#heap_path::Heap}),
-        abp.clone(),
-        None,
-    );
+    // let heapbak_ty_func = &hgd.ty_func.ty_func;
+    // let heapbak_ty_args = (hgd.ty_args)(
+    //     HeapType(syn::parse_quote! {#heap_path::Heap}),
+    //     abp.clone(),
+    //     None,
+    // );
+    let heapbak = (hgd.heapbak)(&HeapType(syn::parse_quote! {#heap_path::Heap}), abp, None);
     let ts = quote::quote! {
         #[derive(Default)]
-        pub struct Bak(pub #heapbak_ty_func<#heap_path::Heap, #(#heapbak_ty_args),*>);
+        pub struct Bak(pub #heapbak);
     };
     (
         hgd.identifiers.clone(),

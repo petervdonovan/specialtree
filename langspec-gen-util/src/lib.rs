@@ -70,6 +70,8 @@ macro_rules! transpose {
 
 type HgdTyArgs<'a> =
     Box<dyn Fn(HeapType, AlgebraicsBasePath, Option<&syn::Path>) -> Vec<syn::Type> + 'a>;
+type HgdHeapBak<'a> =
+    Box<dyn Fn(&HeapType, &AlgebraicsBasePath, Option<&syn::Path>) -> syn::Type + 'a>;
 
 pub struct TyGenData<'a, L: LangSpec> {
     pub id: Option<AlgebraicSortId<L::ProductId, L::SumId>>,
@@ -81,7 +83,8 @@ pub struct TyGenData<'a, L: LangSpec> {
 }
 pub struct HeapbakGenData<'a> {
     pub identifiers: Vec<syn::Ident>,
-    pub ty_func: RustTyMap,
+    // pub ty_func: RustTyMap,
+    pub heapbak: HgdHeapBak<'a>,
     pub ty_arg_camels: Vec<syn::Ident>,
     pub ty_args: HgdTyArgs<'a>,
 }
@@ -200,6 +203,9 @@ impl<L: LangSpec> LsGen<'_, L> {
             })
             .collect::<Vec<_>>();
         for desired_pair in all_tems.into_iter() {
+            // todo: iterate over the existing ucps targeting anything under tmfs that don't have a unit ccf,
+            // starting of course with the reflexive ucp, until you exhaust the combinations. Only then, panic.
+            // Yes I know this is potentially very inefficient. Is it time to rethink this? Is it appropriate, now, to "preserve, don't recover?" Or is it appropriate only to update fromshallow?
             ucp_acc.insert(
                 find_ucp(
                     direct_ccf_rels.as_slice(),
@@ -290,13 +296,13 @@ impl<L: LangSpec> LsGen<'_, L> {
                                                 .zip(self.product_heap_sort_snake_idents(&pid)),
                                         )
                                         .filter_map(|(sort, (camel, snake))| {
-                                            self.sort2heap_ty(sort, &ht, &abp).map(|heap_sort_ty| {
-                                                HstData {
+                                            self.sort2heap_ty(sort, &ht, &abp, None).map(
+                                                |heap_sort_ty| HstData {
                                                     heap_sort_ty,
                                                     heap_sort_snake_ident: snake,
                                                     heap_sort_camel_ident: camel,
-                                                }
-                                            })
+                                                },
+                                            )
                                         })
                                         .collect()
                                 }
@@ -360,13 +366,13 @@ impl<L: LangSpec> LsGen<'_, L> {
                                             .zip(self.sum_heap_sort_snake_idents(&sid)),
                                     )
                                     .filter_map(|(sort, (camel, snake))| {
-                                        self.sort2heap_ty(sort, &ht, &abp).map(|heap_sort_ty| {
-                                            HstData {
+                                        self.sort2heap_ty(sort, &ht, &abp, None).map(
+                                            |heap_sort_ty| HstData {
                                                 heap_sort_ty,
                                                 heap_sort_snake_ident: snake,
                                                 heap_sort_camel_ident: camel,
-                                            }
-                                        })
+                                            },
+                                        )
                                     })
                                     .collect()
                             }
@@ -414,7 +420,8 @@ impl<L: LangSpec> LsGen<'_, L> {
     pub fn heapbak_gen_datas(&self) -> Vec<HeapbakGenData> {
         let mut ret: Vec<HeapbakGenData> = vec![];
         call_on_all_tmf_monomorphizations(self.bak, &mut |mt| {
-            let polish_name = sortid_polish_name(self.bak, &SortId::TyMetaFunc(mt.clone()));
+            let sid = SortId::TyMetaFunc(mt.clone());
+            let polish_name = sortid_polish_name(self.bak, &sid);
             let ty_arg_camels = polish_name
                 .iter()
                 .map(|name| syn::Ident::new(&name.camel, proc_macro2::Span::call_site()))
@@ -422,10 +429,13 @@ impl<L: LangSpec> LsGen<'_, L> {
             let ty_arg_snakes = polish_name
                 .iter()
                 .map(|name| syn::Ident::new(&name.snake, proc_macro2::Span::call_site()));
-            let ty_func = <L::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(&mt.f).heapbak;
+            // let ty_func = <L::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(&mt.f).heapbak;
             ret.push(HeapbakGenData {
                 identifiers: ty_arg_snakes.collect(),
-                ty_func,
+                // ty_func,
+                heapbak: Box::new(move |ht, abp, words_path| {
+                    self.sort2heap_ty(sid.clone(), ht, abp, words_path).unwrap()
+                }),
                 ty_arg_camels,
                 ty_args: Box::new({
                     let a = mt.a.clone();
@@ -519,17 +529,42 @@ impl<L: LangSpec> LsGen<'_, L> {
         sort: SortIdOf<L>,
         ht: &HeapType,
         abp: &AlgebraicsBasePath,
+        words_path: Option<&syn::Path>,
     ) -> Option<syn::Type> {
-        match sort {
+        match &sort {
             SortId::Algebraic(_) => None,
             SortId::TyMetaFunc(MappedType { f, a }) => {
-                let TyMetaFuncData {
-                    heapbak: RustTyMap { ty_func },
-                    ..
-                } = L::Tmfs::ty_meta_func_data(&f);
-                let args = a.iter().map(|arg| self.sort2rs_ty(arg.clone(), ht, abp));
-                let ht = &ht.0;
-                Some(syn::parse_quote! { #ty_func<#ht, #( #args, )* > })
+                // let TyMetaFuncData {
+                //     heapbak: RustTyMap { ty_func },
+                //     ..
+                // } = L::Tmfs::ty_meta_func_data(&f);
+                // // let args = a.iter().map(|arg| self.sort2rs_ty(arg.clone(), ht, abp));
+                // let args: Vec<_> = match words_path {
+                //     Some(wp) => a
+                //         .iter()
+                //         .map(|arg| self.sort2tmfmapped_rs_ty(arg.clone(), ht, abp, wp))
+                //         .collect(),
+                //     None => a
+                //         .iter()
+                //         .map(|arg| self.sort2rs_ty(arg.clone(), ht, abp))
+                //         .collect(),
+                // };
+                // let ht = &ht.0;
+                match words_path {
+                    Some(wp) => {
+                        let ty = self.sort2tmfmapped_rs_ty(sort, ht, abp, wp);
+                        Some(syn::parse_quote! { <#ty as term::TyMetaFunc>::HeapBak })
+                    }
+                    None => {
+                        let TyMetaFuncData {
+                            heapbak: RustTyMap { ty_func },
+                            ..
+                        } = L::Tmfs::ty_meta_func_data(&f);
+                        let args = a.iter().map(|arg| self.sort2rs_ty(arg.clone(), ht, abp));
+                        let ht = &ht.0;
+                        Some(syn::parse_quote! { #ty_func<#ht, #( #args, )* > })
+                    }
+                }
             }
         }
     }

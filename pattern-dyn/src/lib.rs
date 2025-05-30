@@ -1,3 +1,4 @@
+use langspec::langspec::{LangSpec, SortIdOf};
 use pmsp::AdtMetadata;
 use thiserror::Error;
 use visit::Visit;
@@ -54,18 +55,27 @@ pub enum ToDynPatternError {
     InvalidSequenceOfComponents(),
 }
 
-pub fn to_pattern<L, Heap, T>(heap: &Heap, t: &T) -> Result<DynPattern<u32>, PbResultError>
+// pub fn to_pattern<L, Heap, Ls, T>(
+//     heap: &Heap,
+//     ls: &Ls,
+//     t: &T,
+// ) -> Result<DynPattern<SortIdOf<Ls>>, PbResultError>
+// where
+//     PatternBuilder<L, SortIdOf<Ls>>: Visit<AdtMetadata, T, Heap, L>,
+//     Ls: LangSpec,
+// {
+//     let sids = ls.all_sort_ids().collect::<Vec<_>>();
+//     let mut pb = PatternBuilder::new(sids.clone());
+//     <PatternBuilder<L, SortIdOf<Ls>> as Visit<_, _, _, _>>::visit(&mut pb, heap, t);
+//     pb.result()
+// }
+
+pub fn to_pattern<L, LSub, Heap, T>(heap: &Heap, t: &T) -> Result<DynPattern<u32>, PbResultError>
 where
-    PatternBuilder<L, u32>: Visit<AdtMetadata, T, Heap, L>,
+    PatternBuilder<L, LSub, u32>: Visit<AdtMetadata, T, Heap, L>,
     // L: LangSpec,
 {
     let mut pb = PatternBuilder::new((0..100).collect());
-    <PatternBuilder<L, u32> as Visit<_, _, _, _>>::visit(&mut pb, heap, t);
+    <PatternBuilder<L, LSub, u32> as Visit<_, _, _, _>>::visit(&mut pb, heap, t);
     pb.result()
 }
-
-// pub trait ToDynPattern<L, SortId> {
-//     fn pattern(&self) -> Result<DynPattern<SortId>, ToDynPatternError>;
-// }
-
-// impl ToDyn

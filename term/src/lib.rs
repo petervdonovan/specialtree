@@ -24,6 +24,10 @@ macro_rules! auto_impl_ccf {
     };
 }
 
+pub trait TyMetaFunc {
+    type HeapBak: Default;
+}
+
 // #[repr(transparent)]
 // pub struct Owned<T>(std::mem::ManuallyDrop<T>);
 // // impl<T> Heaped for Owned<T>
@@ -62,7 +66,7 @@ pub trait Heaped {
 }
 pub trait MapsTmf<LWord, TmfMonomorphization>: Sized {
     type TmfFrom;
-    type TmfTo: CanonicallyConstructibleFrom<Self, (Self::TmfFrom, ())>;
+    type TmfTo: CanonicallyConstructibleFrom<Self, (Self::TmfFrom, ())> + TyMetaFunc;
 }
 pub trait SuperHeap<SubHeap> {
     fn subheap<T>(&self) -> &SubHeap

@@ -1,5 +1,5 @@
 use langspec::{
-    langspec::{AlgebraicSortId, LangSpec, Name, SortId, SortIdOf},
+    langspec::{AlgebraicSortId, LangSpec, SortId, SortIdOf},
     sublang::Sublangs,
 };
 use langspec_gen_util::{
@@ -68,7 +68,7 @@ pub(crate) fn gen_maps_tmf(
             impl<TmfMonomorphization> term::MapsTmf<#words::L, TmfMonomorphization>
                 for #data_structure::Heap
             where
-                TmfMonomorphization: ccf::CanonicallyConstructibleFrom<Self, (TmfMonomorphization, ())>
+                TmfMonomorphization: ccf::CanonicallyConstructibleFrom<Self, (TmfMonomorphization, ())> + term::TyMetaFunc
             {
                 type TmfFrom = TmfMonomorphization;
                 type TmfTo = TmfMonomorphization;

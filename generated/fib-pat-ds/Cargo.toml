@@ -1,6 +1,9 @@
 [dependencies.ccf]
 path = "../.././ccf"
 
+[dependencies.fib]
+path = "../fib"
+
 [dependencies.fib-pat]
 path = "../fib-pat"
 
@@ -12,6 +15,9 @@ path = "../.././pattern-tmf"
 
 [dependencies.term]
 path = "../.././term"
+
+[dependencies.term-bridge-gen]
+path = "../.././term-bridge-gen"
 
 [dependencies.term-pattern-match-strategy-provider-impl-gen]
 path = "../.././term-pattern-match-strategy-provider-impl-gen"

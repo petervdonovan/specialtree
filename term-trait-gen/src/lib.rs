@@ -51,14 +51,14 @@ fn generate_superheap_bounds<L: LangSpec>(
     ls.heapbak_gen_datas()
         .iter()
         .map(|hgd| -> syn::Type {
-            let ty_func = &hgd.ty_func.ty_func;
-            let args = (hgd.ty_args)(
-                HeapType(syn::parse_quote! {Self}),
-                AlgebraicsBasePath::new(quote::quote! {Self::}),
+            // let ty_func = &hgd.ty_func.ty_func;
+            let heapbak = (hgd.heapbak)(
+                &HeapType(syn::parse_quote! {Self}),
+                &AlgebraicsBasePath::new(quote::quote! {Self::}),
                 Some(words_path),
             );
             syn::parse_quote! {
-                #ty_func<Self, #(#args),*>
+                #heapbak
             }
         })
         .map(|ty| {

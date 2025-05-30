@@ -5,7 +5,7 @@ use langspec::{
     tymetafunc::{ArgId, RustTyMap, TyMetaFuncData, TyMetaFuncSpec},
 };
 use serde::{Deserialize, Serialize};
-use term::SuperHeap;
+use term::{SuperHeap, TyMetaFunc};
 
 pub mod parse;
 pub mod unparse;
@@ -33,10 +33,10 @@ impl TyMetaFuncSpec for FileTmfs {
             imp: RustTyMap {
                 ty_func: syn::parse_quote! { file_tmf::File },
             },
-            idby: langspec::tymetafunc::IdentifiedBy::Tmf,
             heapbak: RustTyMap {
                 ty_func: syn::parse_quote! { file_tmf::FileHeapBak },
             },
+            idby: langspec::tymetafunc::IdentifiedBy::Tmf,
             canonical_froms: Box::new([]),
             size_depends_on: Box::new([]),
             is_collection_of: Box::new([ArgId(0)]),
@@ -51,6 +51,9 @@ pub struct File<Heap, Item> {
     // name: Option<Filename>,
     items: usize,
     phantom: std::marker::PhantomData<(Heap, Item)>,
+}
+impl<Heap, Item> TyMetaFunc for File<Heap, Item> {
+    type HeapBak = FileHeapBak<Heap, Item>;
 }
 #[derive(Derivative)]
 #[derivative(Default(bound = ""))]

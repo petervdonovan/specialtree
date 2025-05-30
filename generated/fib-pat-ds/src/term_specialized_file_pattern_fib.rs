@@ -287,24 +287,24 @@ pub mod superheap {
     term::impl_superheap!(
         crate ::term_specialized_file_pattern_fib::Heap; pattern_tmf::OrVariableHeapBak <
         crate ::term_specialized_file_pattern_fib::Heap, crate
-        ::term_specialized_file_pattern_fib::LeftOperand >; or_variable left_operand
+        ::term_specialized_file_pattern_fib::LeftOperand, >; or_variable left_operand
     );
     term::impl_superheap!(
         crate ::term_specialized_file_pattern_fib::Heap; pattern_tmf::OrVariableHeapBak <
         crate ::term_specialized_file_pattern_fib::Heap, crate
-        ::term_specialized_file_pattern_fib::RightOperand >; or_variable right_operand
+        ::term_specialized_file_pattern_fib::RightOperand, >; or_variable right_operand
     );
     term::impl_superheap!(
         crate ::term_specialized_file_pattern_fib::Heap; pattern_tmf::OrVariableHeapBak <
         crate ::term_specialized_file_pattern_fib::Heap, crate
-        ::term_specialized_file_pattern_fib::Nat >; or_variable nat
+        ::term_specialized_file_pattern_fib::Nat, >; or_variable nat
     );
     term::impl_superheap!(
         crate ::term_specialized_file_pattern_fib::Heap; pattern_tmf::OrVariableHeapBak <
         crate ::term_specialized_file_pattern_fib::Heap, tymetafuncspec_core::Set < crate
         ::term_specialized_file_pattern_fib::Heap, pattern_tmf::OrVariableZeroOrMore <
         crate ::term_specialized_file_pattern_fib::Heap, crate
-        ::term_specialized_file_pattern_fib::Nat, >, > >; or_variable set
+        ::term_specialized_file_pattern_fib::Nat, >, >, >; or_variable set
         or_variable_zero_or_more nat
     );
     term::impl_superheap!(
@@ -312,13 +312,13 @@ pub mod superheap {
         < crate ::term_specialized_file_pattern_fib::Heap,
         pattern_tmf::OrVariableZeroOrMore < crate
         ::term_specialized_file_pattern_fib::Heap, crate
-        ::term_specialized_file_pattern_fib::Nat, > >; set or_variable_zero_or_more nat
+        ::term_specialized_file_pattern_fib::Nat, >, >; set or_variable_zero_or_more nat
     );
     term::impl_superheap!(
         crate ::term_specialized_file_pattern_fib::Heap;
         pattern_tmf::OrVariableZeroOrMoreHeapBak < crate
         ::term_specialized_file_pattern_fib::Heap, crate
-        ::term_specialized_file_pattern_fib::Nat >; or_variable_zero_or_more nat
+        ::term_specialized_file_pattern_fib::Nat, >; or_variable_zero_or_more nat
     );
     term::impl_superheap!(
         crate ::term_specialized_file_pattern_fib::Heap;
@@ -329,43 +329,43 @@ pub mod superheap {
         crate ::term_specialized_file_pattern_fib::Heap;
         tymetafuncspec_core::IdxBoxHeapBak < crate
         ::term_specialized_file_pattern_fib::Heap, crate
-        ::term_specialized_file_pattern_fib::F >; idx_box f
+        ::term_specialized_file_pattern_fib::F, >; idx_box f
     );
     term::impl_superheap!(
         crate ::term_specialized_file_pattern_fib::Heap;
         tymetafuncspec_core::IdxBoxHeapBak < crate
         ::term_specialized_file_pattern_fib::Heap, crate
-        ::term_specialized_file_pattern_fib::Plus >; idx_box plus
+        ::term_specialized_file_pattern_fib::Plus, >; idx_box plus
     );
     term::impl_superheap!(
         crate ::term_specialized_file_pattern_fib::Heap; pattern_tmf::NamedPatternHeapBak
         < crate ::term_specialized_file_pattern_fib::Heap, crate
-        ::term_specialized_file_pattern_fib::Plus >; named_pattern plus
+        ::term_specialized_file_pattern_fib::Plus, >; named_pattern plus
     );
     term::impl_superheap!(
         crate ::term_specialized_file_pattern_fib::Heap; pattern_tmf::NamedPatternHeapBak
         < crate ::term_specialized_file_pattern_fib::Heap, crate
-        ::term_specialized_file_pattern_fib::LeftOperand >; named_pattern left_operand
+        ::term_specialized_file_pattern_fib::LeftOperand, >; named_pattern left_operand
     );
     term::impl_superheap!(
         crate ::term_specialized_file_pattern_fib::Heap; pattern_tmf::NamedPatternHeapBak
         < crate ::term_specialized_file_pattern_fib::Heap, crate
-        ::term_specialized_file_pattern_fib::RightOperand >; named_pattern right_operand
+        ::term_specialized_file_pattern_fib::RightOperand, >; named_pattern right_operand
     );
     term::impl_superheap!(
         crate ::term_specialized_file_pattern_fib::Heap; pattern_tmf::NamedPatternHeapBak
         < crate ::term_specialized_file_pattern_fib::Heap, crate
-        ::term_specialized_file_pattern_fib::F >; named_pattern f
+        ::term_specialized_file_pattern_fib::F, >; named_pattern f
     );
     term::impl_superheap!(
         crate ::term_specialized_file_pattern_fib::Heap; pattern_tmf::NamedPatternHeapBak
         < crate ::term_specialized_file_pattern_fib::Heap, crate
-        ::term_specialized_file_pattern_fib::Sum >; named_pattern sum
+        ::term_specialized_file_pattern_fib::Sum, >; named_pattern sum
     );
     term::impl_superheap!(
         crate ::term_specialized_file_pattern_fib::Heap; file_tmf::FileHeapBak < crate
         ::term_specialized_file_pattern_fib::Heap, crate
-        ::term_specialized_file_pattern_fib::FileItem >; file file_item
+        ::term_specialized_file_pattern_fib::FileItem, >; file file_item
     );
 }
 #[derive(Clone, Copy)]

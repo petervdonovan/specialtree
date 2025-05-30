@@ -7,7 +7,7 @@ use langspec::{
 
 use ccf::DirectlyCanonicallyConstructibleFrom;
 use serde::{Deserialize, Serialize};
-use term::{Heaped, SuperHeap};
+use term::{Heaped, SuperHeap, TyMetaFunc};
 use to_literal::ToLiteral;
 
 pub struct Core;
@@ -45,12 +45,12 @@ thread_local! {
             imp: RustTyMap {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::BoundedNat),
             },
-            args: Box::new([]),
-            idby: IdentifiedBy::Tmf,
-            transparency: Transparency::Visible,
             heapbak: RustTyMap {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::BoundedNatHeapBak),
             },
+            args: Box::new([]),
+            idby: IdentifiedBy::Tmf,
+            transparency: Transparency::Visible,
             canonical_froms: Box::new([]),
             size_depends_on: Box::new([]),
             is_collection_of: Box::new([])
@@ -64,6 +64,9 @@ thread_local! {
             imp: RustTyMap {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::Set),
             },
+                        heapbak: RustTyMap {
+                ty_func: syn::parse_quote!(tymetafuncspec_core::SetHeapBak),
+            },
             args: Box::new([
                 Name {
                     human: "elem".into(),
@@ -73,9 +76,6 @@ thread_local! {
             ]),
             idby: IdentifiedBy::Tmf,
             transparency: Transparency::Visible,
-            heapbak: RustTyMap {
-                ty_func: syn::parse_quote!(tymetafuncspec_core::SetHeapBak),
-            },
             canonical_froms: Box::new([]),
             size_depends_on: Box::new([]),
             is_collection_of: Box::new([ArgId(0)])
@@ -89,6 +89,9 @@ thread_local! {
             imp: RustTyMap {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::Seq),
             },
+                        heapbak: RustTyMap {
+                ty_func: syn::parse_quote!(tymetafuncspec_core::SeqHeapBak),
+            },
             args: Box::new([
                 Name {
                     human: "elem".into(),
@@ -98,9 +101,6 @@ thread_local! {
             ]),
             idby: IdentifiedBy::Tmf,
             transparency: Transparency::Visible,
-            heapbak: RustTyMap {
-                ty_func: syn::parse_quote!(tymetafuncspec_core::SeqHeapBak),
-            },
             canonical_froms: Box::new([]),
             size_depends_on: Box::new([]),
             is_collection_of: Box::new([ArgId(0)])
@@ -114,6 +114,9 @@ thread_local! {
             imp: RustTyMap {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::IdxBox),
             },
+                        heapbak: RustTyMap {
+                ty_func: syn::parse_quote!(tymetafuncspec_core::IdxBoxHeapBak),
+            },
             args: vec![
                 Name {
                     human: "elem".into(),
@@ -124,9 +127,6 @@ thread_local! {
             .into_boxed_slice(),
             idby: IdentifiedBy::FirstTmfArg,
             transparency: Transparency::Visible,
-            heapbak: RustTyMap {
-                ty_func: syn::parse_quote!(tymetafuncspec_core::IdxBoxHeapBak),
-            },
             canonical_froms: Box::new([Box::new([ArgId(0)])]),
             size_depends_on: Box::new([]),
             is_collection_of: Box::new([])
@@ -142,9 +142,9 @@ thread_local! {
                 Name {human: "r".into(), camel: "R".into(), snake: "r".into()},
             ]),
             imp: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::Either) },
+            heapbak: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::EitherHeapBak) },
             idby: IdentifiedBy::FirstTmfArg,
             transparency: Transparency::Transparent,
-            heapbak: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::EitherHeapBak) },
             canonical_froms: Box::new([Box::new([ArgId(0)]), Box::new([ArgId(1)])]),
             size_depends_on: Box::new([ArgId(0), ArgId(1)]),
             is_collection_of: Box::new([])
@@ -159,9 +159,9 @@ thread_local! {
                 Name {human: "t".into(), camel: "T".into(), snake: "t".into()},
             ]),
             imp: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::Maybe) },
+            heapbak: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::MaybeHeapBak) },
             idby: IdentifiedBy::FirstTmfArg,
             transparency: Transparency::Transparent,
-            heapbak: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::MaybeHeapBak) },
             canonical_froms: Box::new([Box::new([ArgId(0)])]),
             size_depends_on: Box::new([ArgId(0)]),
             is_collection_of: Box::new([])
@@ -177,9 +177,9 @@ thread_local! {
                 Name {human: "r".into(), camel: "R".into(), snake: "r".into()},
             ]),
             imp: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::Pair) },
+            heapbak: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::PairHeapBak) },
             idby: IdentifiedBy::FirstTmfArg,
             transparency: Transparency::Visible,
-            heapbak: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::PairHeapBak) },
             canonical_froms: Box::new([Box::new([ArgId(0)]), Box::new([ArgId(1)])]),
             size_depends_on: Box::new([ArgId(0), ArgId(1)]),
             is_collection_of: Box::new([])
@@ -223,6 +223,9 @@ impl<Heap> ToLiteral for BoundedNat<Heap> {
     }
 }
 empty_heap_bak!(BoundedNatHeapBak);
+impl<Heap> TyMetaFunc for BoundedNat<Heap> {
+    type HeapBak = BoundedNatHeapBak<Heap>;
+}
 #[derive(derivative::Derivative)]
 #[derivative(Debug(bound = ""))]
 #[derivative(Clone(bound = ""))]
@@ -233,6 +236,9 @@ pub struct Set<Heap, Elem> {
 }
 impl<Heap, Elem: Heaped<Heap = Heap>> Heaped for Set<Heap, Elem> {
     type Heap = Heap;
+}
+impl<Heap, Elem> TyMetaFunc for Set<Heap, Elem> {
+    type HeapBak = SetHeapBak<Heap, Elem>;
 }
 #[derive(derivative::Derivative)]
 #[derivative(Default(bound = ""))]
@@ -287,6 +293,9 @@ pub struct Seq<Heap, Elem> {
 impl<Heap, Elem> Heaped for Seq<Heap, Elem> {
     type Heap = Heap;
 }
+impl<Heap, Elem> TyMetaFunc for Seq<Heap, Elem> {
+    type HeapBak = SeqHeapBak<Heap, Elem>;
+}
 empty_heap_bak!(SeqHeapBak, Elem);
 #[derive(derivative::Derivative)]
 #[derivative(Debug(bound = ""))]
@@ -295,6 +304,9 @@ empty_heap_bak!(SeqHeapBak, Elem);
 pub struct IdxBox<Heap, Elem> {
     phantom: std::marker::PhantomData<(Heap, Elem)>,
     pub idx: u32,
+}
+impl<Heap, Elem> TyMetaFunc for IdxBox<Heap, Elem> {
+    type HeapBak = IdxBoxHeapBak<Heap, Elem>;
 }
 impl<Heap: SuperHeap<IdxBoxHeapBak<Heap, Elem>>, Elem> Heaped for IdxBox<Heap, Elem> {
     type Heap = Heap;
@@ -386,6 +398,9 @@ impl<Heap, L, R> Either<Heap, L, R> {
 impl<Heap, L, R> Heaped for Either<Heap, L, R> {
     type Heap = Heap;
 }
+impl<Heap, L, R> TyMetaFunc for Either<Heap, L, R> {
+    type HeapBak = EitherHeapBak<Heap, L, R>;
+}
 pub trait DefinedInTmfsCore {}
 impl<Heap, L, R> DirectlyCanonicallyConstructibleFrom<Heap, (L, ())> for Either<Heap, L, R> {
     fn construct(_: &mut Heap, t: (L, ())) -> Self {
@@ -419,6 +434,9 @@ pub enum Maybe<Heap, T> {
 }
 impl<Heap, T> Heaped for Maybe<Heap, T> {
     type Heap = Heap;
+}
+impl<Heap, T> TyMetaFunc for Maybe<Heap, T> {
+    type HeapBak = MaybeHeapBak<Heap, T>;
 }
 empty_heap_bak!(MaybeHeapBak, T);
 #[derive(derivative::Derivative)]
@@ -462,6 +480,9 @@ impl<Heap, L, R> Pair<Heap, L, R> {
 }
 impl<Heap, L, R> Heaped for Pair<Heap, L, R> {
     type Heap = Heap;
+}
+impl<Heap, L, R> TyMetaFunc for Pair<Heap, L, R> {
+    type HeapBak = PairHeapBak<Heap, L, R>;
 }
 impl<Heap, L, R> DirectlyCanonicallyConstructibleFrom<Heap, (L, ())> for Pair<Heap, L, R>
 where

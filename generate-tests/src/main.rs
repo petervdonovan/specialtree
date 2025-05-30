@@ -33,7 +33,34 @@ pub fn main() {
             global_workspace_deps: fib_deps.to_vec(),
         },
         traits_crate(&arena, &root_cgd, "fib-pat", &fib_pat, &pat_deps),
-        ds_crate(&arena, &root_cgd, "fib-pat-ds", &fib_pat, &pat_deps),
+        // ds_crate(&arena, &root_cgd, "fib-pat-ds", &fib_pat, &pat_deps).plus(
+        //     vec![term_bridge_gen::targets::default(
+        //         &arena,
+        //         root_cgd.subtree(),
+        //         &fib_pat,
+        //         &fib,
+        //     )],
+        //     vec![],
+        // ),
+        Crate {
+            id: "fib-pat-ds".into(),
+            provides: vec![
+                term_specialized_gen::targets::default(&arena, root_cgd.subtree(), &fib_pat),
+                // term_specialized_impl_gen::targets::default(&arena, root_cgd.subtree(), &fib_pat),
+                term_pattern_match_strategy_provider_impl_gen::targets::words_impls(
+                    &arena,
+                    root_cgd.subtree(),
+                    &fib_pat,
+                ),
+                term_pattern_match_strategy_provider_impl_gen::targets::default(
+                    &arena,
+                    root_cgd.subtree(),
+                    &fib_pat,
+                ),
+                term_bridge_gen::targets::default(&arena, root_cgd.subtree(), &fib_pat, &fib),
+            ],
+            global_workspace_deps: pat_deps.to_vec(),
+        },
         Crate {
             id: "fib-pat-parse".into(),
             provides: vec![parse_gen::targets::default(
