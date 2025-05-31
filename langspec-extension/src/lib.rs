@@ -94,19 +94,20 @@ where
             })
     }
 
-    fn sublang<'c, LSub: LangSpec>(
-        &'c self,
-    ) -> Option<Sublang<'c, LSub::AsLifetime<'c>, SortIdOf<Self>>> {
+    fn sublang<'lsub: 'this, 'this, LSub: LangSpec>(
+        &'this self,
+        lsub: &'lsub LSub,
+    ) -> Option<Sublang<'this, LSub::AsLifetime<'this>, SortIdOf<Self>>> {
         if TypeId::of::<LSub::AsLifetime<'static>>() == TypeId::of::<Self::AsLifetime<'static>>() {
             unsafe {
                 Some(std::mem::transmute::<
                     Sublang<Self, SortIdOf<Self>>,
-                    Sublang<LSub::AsLifetime<'c>, SortIdOf<Self>>,
+                    Sublang<LSub::AsLifetime<'this>, SortIdOf<Self>>,
                 >(reflexive_sublang(self)))
             }
         } else {
-            self.l0.sublang::<LSub>().map(
-                |sublang: Sublang<'c, LSub::AsLifetime<'c>, SortIdOf<L0>>| Sublang {
+            self.l0.sublang::<LSub>(lsub).map(
+                |sublang: Sublang<'this, LSub::AsLifetime<'this>, SortIdOf<L0>>| Sublang {
                     lsub: sublang.lsub,
                     map: Box::new(move |name| {
                         let id = (sublang.map)(name);

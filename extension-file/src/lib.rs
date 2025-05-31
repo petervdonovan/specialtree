@@ -129,8 +129,9 @@ impl<'a, L: LangSpec> LangSpec for FileExtension<'a, L> {
         })
     }
 
-    fn sublang<'this, LSub: LangSpec>(
+    fn sublang<'lsub: 'this, 'this, LSub: LangSpec>(
         &'this self,
+        lsub: &'lsub LSub,
     ) -> Option<Sublang<'this, LSub::AsLifetime<'this>, SortIdOf<Self>>> {
         if TypeId::of::<LSub::AsLifetime<'static>>() == TypeId::of::<Self::AsLifetime<'static>>() {
             unsafe {
@@ -141,7 +142,7 @@ impl<'a, L: LangSpec> LangSpec for FileExtension<'a, L> {
             }
         } else {
             self.l
-                .sublang::<LSub>()
+                .sublang::<LSub>(lsub)
                 .map(|Sublang { lsub, map, tems }| Sublang {
                     lsub,
                     map: Box::new(move |name| {
@@ -159,6 +160,7 @@ impl<'a, L: LangSpec> LangSpec for FileExtension<'a, L> {
                 })
         }
     }
+    
 
     // fn sublangs(&self) -> Vec<langspec::sublang::Sublang<langspec::langspec::SortIdOf<Self>>> {
     //     self.l

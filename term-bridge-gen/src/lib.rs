@@ -209,20 +209,91 @@ pub mod targets {
     use std::path::Path;
 
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
+    use langspec::{
+        langspec::SortIdOf,
+        sublang::{Sublangs, SublangsList},
+    };
     use langspec_gen_util::kebab_id;
 
-    pub fn default<'langs, L: super::LangSpec, LSub: super::LangSpec>(
+    pub fn default<
+        'langs,
+        L: super::LangSpec,
+        Sl: Sublangs<SortIdOf<L>> + SublangsList<'langs, SortIdOf<L>>,
+    >(
         arena: &'langs bumpalo::Bump,
         mut codegen_deps: CgDepList<'langs>,
         l: &'langs L,
-        lsublang: &'langs LSub,
+        sl: &'langs Sl,
     ) -> CodegenInstance<'langs> {
         let ext_lg = super::LsGen::from(l);
-        let oglsg = super::LsGen::from(l);
+        // let oglsg = super::LsGen::from(l);
         CodegenInstance {
             id: kebab_id!(l),
             generate: {
+                let _ =
+                    codegen_deps.add(term_specialized_impl_gen::targets::term_specialized_impl(
+                        arena,
+                        codegen_deps.subtree(),
+                        l,
+                        sl,
+                    ));
                 // let sublang_name = lsublang.name().clone();
+                // let _ = codegen_deps.add(term_specialized_impl_gen::targets::default(
+                //     arena,
+                //     codegen_deps.subtree(),
+                //     l,
+                // ));
+                let _ = codegen_deps.add(rec(arena, codegen_deps.subtree(), l, sl));
+                Box::new(move |_, _| {
+                    // super::generate(
+                    //     &ext_lg,
+                    //     // &oglsg,
+                    //     &l.sublang::<LSub>().unwrap(),
+                    //     &crate::BasePaths {
+                    //         ext_data_structure: ext_data_structure(c2sp),
+                    //         og_term_trait: og_term_trait(c2sp),
+                    //         og_words_base_path: og_words_base_path(c2sp),
+                    //     },
+                    // )
+                    syn::parse_quote! {
+                        #[doc(intentionally empty)]
+                        pub mod bridge {
+                        }
+                    }
+                })
+            },
+            external_deps: vec![],
+            workspace_deps: vec![
+                ("term-bridge-gen", Path::new(".")),
+                ("words", Path::new(".")),
+            ],
+            codegen_deps,
+        }
+    }
+    fn rec<
+        'langs,
+        L: super::LangSpec,
+        Sl: Sublangs<SortIdOf<L>> + SublangsList<'langs, SortIdOf<L>>,
+    >(
+        arena: &'langs bumpalo::Bump,
+        mut codegen_deps: CgDepList<'langs>,
+        l: &'langs L,
+        sl: &'langs Sl,
+    ) -> CodegenInstance<'langs> {
+        let ext_lg = super::LsGen::from(l);
+        // let oglsg = super::LsGen::from(l);
+        CodegenInstance {
+            id: codegen_component::KebabCodegenId(sl.kebab("term-specialized-impl")),
+            generate: {
+                // let _ =
+                //     codegen_deps.add(term_specialized_impl_gen::targets::term_specialized_impl(
+                //         arena,
+                //         codegen_deps.subtree(),
+                //         l,
+                //         sl,
+                //     ));
+                // let sublang_name = lsublang.name().clone();
+                let car = sl.car();
                 let ext_data_structure = codegen_deps.add(term_specialized_gen::targets::default(
                     arena,
                     codegen_deps.subtree(),
@@ -231,33 +302,26 @@ pub mod targets {
                 let og_term_trait = codegen_deps.add(term_trait_gen::targets::default(
                     arena,
                     codegen_deps.subtree(),
-                    lsublang,
+                    car.lsub,
                 ));
                 let og_words_base_path = codegen_deps.add(words::targets::words_mod(
                     arena,
                     codegen_deps.subtree(),
-                    lsublang,
+                    car.lsub,
                 ));
+                if Sl::LENGTH > 1 {
+                    let _ = codegen_deps.add(rec(arena, codegen_deps.subtree(), l, sl.cdr()));
+                }
                 // let _ = codegen_deps.add(term_specialized_impl_gen::targets::default(
                 //     arena,
                 //     codegen_deps.subtree(),
                 //     l,
                 // ));
-                let _ =
-                    codegen_deps.add(term_specialized_impl_gen::targets::term_specialized_impl(
-                        arena,
-                        codegen_deps.subtree(),
-                        l,
-                        (
-                            l.sublang::<L>().unwrap(),
-                            (l.sublang::<LSub>().unwrap(), ()),
-                        ),
-                    ));
                 Box::new(move |c2sp, _| {
                     super::generate(
                         &ext_lg,
                         // &oglsg,
-                        &l.sublang::<LSub>().unwrap(),
+                        car,
                         &crate::BasePaths {
                             ext_data_structure: ext_data_structure(c2sp),
                             og_term_trait: og_term_trait(c2sp),

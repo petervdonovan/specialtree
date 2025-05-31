@@ -154,12 +154,17 @@ pub mod targets {
     use std::path::Path;
 
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
+    use langspec::{
+        langspec::{LangSpec as _, SortIdOf},
+        sublang::Sublangs,
+    };
     use langspec_gen_util::kebab_id;
 
     pub fn default<'langs, L: super::LangSpec>(
         arena: &'langs bumpalo::Bump,
         mut codegen_deps: CgDepList<'langs>,
         l: &'langs L,
+        other_sublangs: impl Sublangs<SortIdOf<L>> + 'langs,
     ) -> CodegenInstance<'langs> {
         CodegenInstance {
             id: kebab_id!(l),
@@ -218,11 +223,12 @@ pub mod targets {
                     codegen_deps.subtree(),
                     cst,
                 ));
+                let sublang = cst.sublang(l).unwrap();
                 let _ = codegen_deps.add(term_bridge_gen::targets::default(
                     arena,
                     codegen_deps.subtree(),
                     cst,
-                    l,
+                    arena.alloc((sublang, other_sublangs.push_through(cst))),
                 ));
                 // let _ = codegen_deps.add(term_pattern_match_strategy_provider_impl_gen::targets::uses_strategy_for_traversal_impls(arena, codegen_deps.subtree(), cst, &[cst.name().clone(), l.name().clone()]));
                 Box::new(move |c2sp, sp| {

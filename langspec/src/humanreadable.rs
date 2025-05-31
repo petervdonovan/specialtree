@@ -92,30 +92,10 @@ impl<Tmfs: TyMetaFuncSpec + 'static> crate::langspec::LangSpec
             .unwrap()
     }
 
-    fn sublang<'a, LSub: LangSpec>(
-        &'a self,
-    ) -> Option<Sublang<'a, LSub::AsLifetime<'a>, SortIdOf<Self>>> {
-        // vec![reflexive_sublang(self)]
-        // if <LSub as std::any::Any>::type_id() == <Self as std::any::Any>::type_id() {
-        // } else {
-        //     None
-        // }
-        if TypeId::of::<LSub::AsLifetime<'static>>() == TypeId::of::<Self>() {
-            // let reflexive: Sublang<'a, Self, SortIdOf<Self>> = reflexive_sublang(self);
-            // let reflexive_box: Box<Sublang<'a, Self, SortIdOf<Self>>> = Box::new(reflexive);
-            // unsafe {
-            //     let reflexive_box_transmuted =
-            // }
-            // let any: Box<dyn Any + '_> = Box::<&Sublang<'a, Self, SortIdOf<Self>>>::new(&reflexive);
-            // // if let Ok(ret) = any.downcast::<Sublang<'_, LSub, SortIdOf<Self>>>() {
-            // //     Some(*ret)
-            // // } else {
-            // //     None
-            // // }
-            // todo!()
-            unsafe { Some(std::mem::transmute(reflexive_sublang(self))) }
-        } else {
-            None
-        }
+    fn sublang<'lsub: 'this, 'this, LSub: LangSpec>(
+        &'this self,
+        _lsub: &'lsub LSub,
+    ) -> Option<Sublang<'this, LSub::AsLifetime<'this>, SortIdOf<Self>>> {
+        unimplemented!()
     }
 }

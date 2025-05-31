@@ -484,6 +484,7 @@ dependencies = [
 name = "langspec"
 version = "0.1.0"
 dependencies = [
+ "conslist",
  "derive_more",
  "functor_derive",
  "proc-macro2",

@@ -135,8 +135,9 @@ pub trait LangSpec: Sized + AsLifetime {
     fn canonical_into<Bot: TerminalLangSpec<Tmfs = Self::Tmfs>>(&self) -> Bot {
         Bot::canonical_from(self)
     }
-    fn sublang<'this, LSub: LangSpec>(
+    fn sublang<'lsub: 'this, 'this, LSub: LangSpec>(
         &'this self,
+        lsub: &'lsub LSub,
     ) -> Option<Sublang<'this, LSub::AsLifetime<'this>, SortIdOf<Self>>>;
     fn tmf_roots(&self) -> impl Iterator<Item = MappedTypeOf<Self>> {
         std::iter::empty()

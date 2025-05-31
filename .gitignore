@@ -3,3 +3,6 @@ target/
 todo.md
 flamegraph.svg
 depgraph.png
+
+# ad hoc ast-grep rules
+patch.yml

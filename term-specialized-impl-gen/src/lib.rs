@@ -394,24 +394,21 @@ pub mod targets {
 
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
     use extension_autobox::autobox;
-    use langspec::{
-        langspec::SortIdOf,
-        sublang::{Sublangs, reflexive_sublang},
-    };
+    use langspec::{langspec::SortIdOf, sublang::Sublangs};
 
-    pub fn default<'langs, L: super::LangSpec>(
-        arena: &'langs bumpalo::Bump,
-        codegen_deps: CgDepList<'langs>,
-        l: &'langs L,
-    ) -> CodegenInstance<'langs> {
-        term_specialized_impl(arena, codegen_deps, l, (reflexive_sublang(l), ()))
-    }
+    // pub fn default<'langs, L: super::LangSpec>(
+    //     arena: &'langs bumpalo::Bump,
+    //     codegen_deps: CgDepList<'langs>,
+    //     l: &'langs L,
+    // ) -> CodegenInstance<'langs> {
+    //     term_specialized_impl(arena, codegen_deps, l, (reflexive_sublang(l), ()))
+    // }
 
     pub fn term_specialized_impl<'langs, L: super::LangSpec>(
         arena: &'langs bumpalo::Bump,
         mut codegen_deps: CgDepList<'langs>,
         l: &'langs L,
-        sublangs: impl Sublangs<SortIdOf<L>> + 'langs,
+        sublangs: &'langs (impl Sublangs<SortIdOf<L>> + 'langs),
     ) -> CodegenInstance<'langs> {
         // let sublang_names_dedup =
         //     std::iter::once(l.name())
@@ -422,16 +419,16 @@ pub mod targets {
         //             }
         //             acc
         //         });
-        let kebab = sublangs.names().fold(String::new(), |acc, l| {
-            let kebab = l.snake.replace("_", "-");
-            if acc.is_empty() {
-                kebab
-            } else {
-                format!("{acc}-{kebab}")
-            }
-        });
+        // let kebab = sublangs.names().fold(String::new(), |acc, l| {
+        //     let kebab = l.snake.replace("_", "-");
+        //     if acc.is_empty() {
+        //         kebab
+        //     } else {
+        //         format!("{acc}-{kebab}")
+        //     }
+        // });
         CodegenInstance {
-            id: codegen_component::KebabCodegenId(format!("term-specialized-impl-{kebab}")),
+            id: codegen_component::KebabCodegenId(sublangs.kebab("term-specialized-impl")),
             generate: {
                 let data_structure = codegen_deps.add(term_specialized_gen::targets::default(
                     arena,

@@ -99,14 +99,17 @@ impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::flat::LangSpecFl
         self.sums[id].sorts.iter().cloned()
     }
 
-    fn sublang<'a, LSub: LangSpec>(
-        &'a self,
-    ) -> Option<crate::sublang::Sublang<'a, LSub::AsLifetime<'a>, SortIdOf<Self>>> {
-        if TypeId::of::<LSub::AsLifetime<'static>>() == TypeId::of::<Self>() {
+    fn sublang<'lsub: 'this, 'this, LSub: LangSpec>(
+        &'this self,
+        lsub: &'lsub LSub,
+    ) -> Option<crate::sublang::Sublang<'this, LSub::AsLifetime<'this>, SortIdOf<Self>>> {
+        if TypeId::of::<LSub::AsLifetime<'static>>() == TypeId::of::<Self>()
+            && lsub.name() == self.name()
+        {
             unsafe {
                 Some(std::mem::transmute::<
                     Sublang<Self, SortIdOf<Self>>,
-                    Sublang<LSub::AsLifetime<'a>, SortIdOf<Self>>,
+                    Sublang<LSub::AsLifetime<'this>, SortIdOf<Self>>,
                 >(reflexive_sublang(self)))
             }
         } else {

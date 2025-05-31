@@ -88,11 +88,12 @@ where
         self.l.tmf_roots().map(|mt| mt.fmap_f(Either::Left))
     }
 
-    fn sublang<'this, LSub: LangSpec>(
+    fn sublang<'lsub: 'this, 'this, LSub: LangSpec>(
         &'this self,
+        lsub: &'lsub LSub,
     ) -> Option<langspec::sublang::Sublang<'this, LSub::AsLifetime<'this>, SortIdOf<Self>>> {
         self.l
-            .sublang::<LSub>()
+            .sublang::<LSub>(lsub)
             .map(|Sublang { lsub, map, tems }| Sublang {
                 lsub,
                 map: Box::new(move |sid| Csm::embed_sort_id(map(sid))),
@@ -102,6 +103,7 @@ where
                     .collect(),
             })
     }
+    
 
     // fn sublangs(&self) -> Vec<langspec::sublang::Sublang<SortIdOf<Self>>> {
     //     self.l
