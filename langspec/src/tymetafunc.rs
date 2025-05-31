@@ -42,3 +42,11 @@ pub trait TyMetaFuncSpec: Sized + 'static {
         + Ord;
     fn ty_meta_func_data(id: &Self::TyMetaFuncId) -> TyMetaFuncData;
 }
+
+impl TyMetaFuncSpec for () {
+    type TyMetaFuncId = ();
+
+    fn ty_meta_func_data(_: &Self::TyMetaFuncId) -> TyMetaFuncData {
+        panic!()
+    }
+}

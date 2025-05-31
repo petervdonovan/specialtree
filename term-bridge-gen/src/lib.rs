@@ -213,7 +213,7 @@ pub mod targets {
         langspec::SortIdOf,
         sublang::{Sublangs, SublangsList},
     };
-    use langspec_gen_util::kebab_id;
+    use langspec_gen_util::{byline, kebab_id};
 
     pub fn default<
         'langs,
@@ -230,20 +230,20 @@ pub mod targets {
         CodegenInstance {
             id: kebab_id!(l),
             generate: {
-                let _ =
-                    codegen_deps.add(term_specialized_impl_gen::targets::term_specialized_impl(
-                        arena,
-                        codegen_deps.subtree(),
-                        l,
-                        sl,
-                    ));
+                let _ = codegen_deps.add(term_specialized_impl_gen::targets::default(
+                    arena,
+                    codegen_deps.subtree(),
+                    l,
+                    sl,
+                ));
                 // let sublang_name = lsublang.name().clone();
                 // let _ = codegen_deps.add(term_specialized_impl_gen::targets::default(
                 //     arena,
                 //     codegen_deps.subtree(),
                 //     l,
                 // ));
-                let _ = codegen_deps.add(rec(arena, codegen_deps.subtree(), l, sl));
+                let _ = codegen_deps.add(rec(arena, codegen_deps.subtree(), l, sl.cdr()));
+                let byline = byline!();
                 Box::new(move |_, _| {
                     // super::generate(
                     //     &ext_lg,
@@ -256,7 +256,8 @@ pub mod targets {
                     //     },
                     // )
                     syn::parse_quote! {
-                        #[doc(intentionally empty)]
+                        /// intentionally empty
+                        #byline
                         pub mod bridge {
                         }
                     }
@@ -283,7 +284,7 @@ pub mod targets {
         let ext_lg = super::LsGen::from(l);
         // let oglsg = super::LsGen::from(l);
         CodegenInstance {
-            id: codegen_component::KebabCodegenId(sl.kebab("term-specialized-impl")),
+            id: codegen_component::KebabCodegenId(sl.kebab("term-bridge")),
             generate: {
                 // let _ =
                 //     codegen_deps.add(term_specialized_impl_gen::targets::term_specialized_impl(

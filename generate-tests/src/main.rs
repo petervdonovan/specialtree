@@ -3,8 +3,8 @@ use std::path::{Path, PathBuf};
 use codegen_component::{CgDepList, Component2SynPath, Crate};
 use langspec::{
     flat::LangSpecFlat,
-    langspec::{LangSpec, TerminalLangSpec},
-    sublang::Sublangs,
+    langspec::{LangSpec, SortIdOf, TerminalLangSpec},
+    sublang::{SublangsList, reflexive_sublang},
 };
 
 pub fn main() {
@@ -44,32 +44,48 @@ pub fn main() {
         //     )],
         //     vec![],
         // ),
-        Crate {
-            id: "fib-pat-ds".into(),
-            provides: vec![
-                term_specialized_gen::targets::default(&arena, root_cgd.subtree(), &fib_pat),
-                // term_specialized_impl_gen::targets::default(&arena, root_cgd.subtree(), &fib_pat),
-                term_pattern_match_strategy_provider_impl_gen::targets::words_impls(
-                    &arena,
-                    root_cgd.subtree(),
-                    &fib_pat,
-                ),
-                term_pattern_match_strategy_provider_impl_gen::targets::default(
-                    &arena,
-                    root_cgd.subtree(),
-                    &fib_pat,
-                ),
-                term_bridge_gen::targets::default(&arena, root_cgd.subtree(), &fib_pat, &fib),
-            ],
-            global_workspace_deps: pat_deps.to_vec(),
-        },
+        // Crate {
+        //     id: "fib-pat-ds".into(),
+        //     provides: vec![
+        //         term_specialized_gen::targets::default(&arena, root_cgd.subtree(), &fib_pat),
+        //         // term_specialized_impl_gen::targets::default(&arena, root_cgd.subtree(), &fib_pat),
+        //         term_pattern_match_strategy_provider_impl_gen::targets::words_impls(
+        //             &arena,
+        //             root_cgd.subtree(),
+        //             &fib_pat,
+        //         ),
+        //         term_pattern_match_strategy_provider_impl_gen::targets::default(
+        //             &arena,
+        //             root_cgd.subtree(),
+        //             &fib_pat,
+        //         ),
+        //         term_bridge_gen::targets::default(
+        //             &arena,
+        //             root_cgd.subtree(),
+        //             &fib_pat,
+        //             arena.alloc((fib_pat.sublang(&fib).unwrap(), ())),
+        //         ),
+        //     ],
+        //     global_workspace_deps: pat_deps.to_vec(),
+        // },
+        ds_crate(
+            &arena,
+            &root_cgd,
+            "fib-pat-ds",
+            &fib_pat,
+            arena.alloc((
+                reflexive_sublang(&fib_pat),
+                (fib_pat.sublang(&fib).unwrap(), ()),
+            )),
+            &pat_deps,
+        ),
         Crate {
             id: "fib-pat-parse".into(),
             provides: vec![parse_gen::targets::default(
                 &arena,
                 root_cgd.subtree(),
                 &fib_pat,
-                (&fib, ()),
+                (fib_pat.sublang(&fib).unwrap(), ()),
             )],
             global_workspace_deps: pat_deps.to_vec(),
         },
@@ -109,16 +125,17 @@ fn traits_crate<'arena: 'b, 'b>(
         global_workspace_deps: global_workspace_deps.to_vec(),
     }
 }
-fn ds_crate<'arena: 'b, 'b, Sl>(
+fn ds_crate<'arena, L, Sl>(
     arena: &'arena bumpalo::Bump,
-    root_cgd: &CgDepList<'b>,
+    root_cgd: &CgDepList<'arena>,
     id: &str,
-    l: &'b impl LangSpec,
+    l: &'arena L,
     sublangs: &'arena Sl,
     global_workspace_deps: &[(&'static str, &'static Path)],
-) -> Crate<'b>
+) -> Crate<'arena>
 where
-    Sl: Sublangs<SortIdOf<L>> + SublangsList<'langs, SortIdOf<L>>,
+    L: LangSpec,
+    Sl: SublangsList<'arena, SortIdOf<L>>,
 {
     Crate {
         id: id.into(),
@@ -150,7 +167,12 @@ fn ds_crate_no_sublangs<'arena: 'b, 'b>(
         id: id.into(),
         provides: vec![
             term_specialized_gen::targets::default(arena, root_cgd.subtree(), l),
-            term_specialized_impl_gen::targets::default(arena, root_cgd.subtree(), l, ()),
+            term_specialized_impl_gen::targets::default(
+                arena,
+                root_cgd.subtree(),
+                l,
+                arena.alloc((reflexive_sublang(l), ())),
+            ),
             term_pattern_match_strategy_provider_impl_gen::targets::words_impls(
                 arena,
                 root_cgd.subtree(),

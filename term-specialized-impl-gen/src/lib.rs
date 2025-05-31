@@ -394,7 +394,7 @@ pub mod targets {
 
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
     use extension_autobox::autobox;
-    use langspec::{langspec::SortIdOf, sublang::Sublangs};
+    use langspec::{langspec::SortIdOf, sublang::SublangsList};
 
     // pub fn default<'langs, L: super::LangSpec>(
     //     arena: &'langs bumpalo::Bump,
@@ -404,11 +404,11 @@ pub mod targets {
     //     term_specialized_impl(arena, codegen_deps, l, (reflexive_sublang(l), ()))
     // }
 
-    pub fn term_specialized_impl<'langs, L: super::LangSpec>(
+    pub fn default<'langs, L: super::LangSpec>(
         arena: &'langs bumpalo::Bump,
         mut codegen_deps: CgDepList<'langs>,
         l: &'langs L,
-        sublangs: &'langs (impl Sublangs<SortIdOf<L>> + 'langs),
+        sublangs: &'langs impl SublangsList<'langs, SortIdOf<L>>,
     ) -> CodegenInstance<'langs> {
         // let sublang_names_dedup =
         //     std::iter::once(l.name())
@@ -443,8 +443,8 @@ pub mod targets {
                 let words =
                     codegen_deps.add(words::targets::words_mod(arena, codegen_deps.subtree(), l));
                 Box::new(move |c2sp, _| {
-                    let lsf_boxed = autobox(l);
-                    let lg = super::LsGen::from(&lsf_boxed);
+                    let lsf_boxed = &*arena.alloc(autobox(l));
+                    let lg = super::LsGen::from(lsf_boxed);
                     super::generate(
                         &crate::BasePaths {
                             data_structure: data_structure(c2sp),
@@ -452,7 +452,7 @@ pub mod targets {
                             words: words(c2sp),
                         },
                         &lg,
-                        sublangs.push_through(&lsf_boxed),
+                        sublangs.push_through(lsf_boxed),
                     )
                 })
             },

@@ -1,6 +1,9 @@
 use functor_derive::Functor;
 
-use crate::langspec::{LangSpec, Name, SortId, SortIdOf};
+use crate::{
+    flat::LangSpecFlat,
+    langspec::{LangSpec, Name, SortId, SortIdOf},
+};
 
 type SublangTyMap<'a, LSub, SortIdSelf> = dyn Fn(&SortIdOf<LSub>) -> SortIdSelf + 'a;
 
@@ -52,15 +55,15 @@ pub fn reflexive_sublang<L: LangSpec>(l: &L) -> Sublang<L, SortIdOf<L>> {
         },
     }
 }
-
+impl<'a, LSub: LangSpec, SortIdSelf> Sublang<'a, LSub, SortIdSelf> {
+    fn push_through<L: LangSpec>(&self, l: &'a L) -> Sublang<'a, impl LangSpec, SortIdOf<L>> {
+        l.sublang::<LSub>(self.lsub).unwrap()
+    }
+}
 pub trait Sublangs<SortIdSelf> {
     fn images(&self) -> impl Iterator<Item = Vec<SortIdSelf>>;
     fn tems(&self) -> impl Iterator<Item = Vec<TmfEndoMapping<SortIdSelf>>>;
     fn names(&self) -> impl Iterator<Item = Name>;
-    fn push_through<'this, 'other: 'this, L: LangSpec>(
-        &'this self,
-        l: &'other L,
-    ) -> impl Sublangs<SortIdOf<L>> + 'this;
     fn kebab(&self, prefix: &str) -> String {
         format!(
             "{prefix}-{}",
@@ -75,43 +78,65 @@ pub trait Sublangs<SortIdSelf> {
         )
     }
 }
-pub trait SublangsList<'langs, SortIdSelf> {
+pub trait SublangsList<'langs, SortIdSelf>: Sublangs<SortIdSelf> {
     type Car: LangSpec;
     type Cdr: SublangsList<'langs, SortIdSelf> + Sublangs<SortIdSelf>;
     const LENGTH: usize;
     fn car<'a>(&'a self) -> &'a Sublang<'langs, Self::Car, SortIdSelf>;
     fn cdr(&self) -> &Self::Cdr;
+    fn push_through<L: LangSpec>(
+        &self,
+        l: &'langs L,
+    ) -> impl SublangsList<'langs, SortIdOf<L>> + 'langs;
 }
-impl<'langs, L, SortIdSelf: Clone> SublangsList<'langs, SortIdSelf>
-    for (Sublang<'langs, L, SortIdSelf>, ())
-where
-    L: LangSpec,
-{
-    type Car = L;
+impl<'langs, SortIdSelf: Clone> SublangsList<'langs, SortIdSelf> for () {
+    type Car = LangSpecFlat<()>;
     type Cdr = Self;
-    const LENGTH: usize = 1;
-    // fn deconstruct<'a>(&'a self) -> (&'a Sublang<'langs, L, SortIdSelf>, &'a Self::Cdr) {
-    //     panic!()
-    // }
+    const LENGTH: usize = 0;
     fn car<'a>(&'a self) -> &'a Sublang<'langs, Self::Car, SortIdSelf> {
-        &self.0
+        panic!("out of elements")
     }
 
     fn cdr(&self) -> &Self::Cdr {
         panic!("out of elements")
     }
+
+    fn push_through<L: LangSpec>(
+        &self,
+        _l: &'langs L,
+    ) -> impl SublangsList<'langs, SortIdOf<L>> + 'langs {
+    }
 }
-impl<'langs, SortIdSelf: Clone, Car, CdrCar, CdrCdr> SublangsList<'langs, SortIdSelf>
-    for (Sublang<'langs, Car, SortIdSelf>, (CdrCar, CdrCdr))
+// impl<'langs, L, SortIdSelf: Clone> SublangsList<'langs, SortIdSelf>
+//     for (Sublang<'langs, L, SortIdSelf>, ())
+// where
+//     L: LangSpec,
+// {
+//     type Car = L;
+//     type Cdr = Self;
+//     const LENGTH: usize = 1;
+//     // fn deconstruct<'a>(&'a self) -> (&'a Sublang<'langs, L, SortIdSelf>, &'a Self::Cdr) {
+//     //     panic!()
+//     // }
+//     fn car<'a>(&'a self) -> &'a Sublang<'langs, Self::Car, SortIdSelf> {
+//         &self.0
+//     }
+
+//     fn cdr(&self) -> &Self::Cdr {
+//         panic!("out of elements")
+//     }
+// }
+impl<'langs, SortIdSelf: Clone, Car, Cdr> SublangsList<'langs, SortIdSelf>
+    for (Sublang<'langs, Car, SortIdSelf>, Cdr)
 where
     Car: LangSpec,
-    (CdrCar, CdrCdr): SublangsList<'langs, SortIdSelf> + Sublangs<SortIdSelf>,
+    Cdr: SublangsList<'langs, SortIdSelf> + Sublangs<SortIdSelf>,
 {
     type Car = Car;
 
-    type Cdr = (CdrCar, CdrCdr);
+    type Cdr = Cdr;
 
-    const LENGTH: usize = <(CdrCar, CdrCdr)>::LENGTH + 1;
+    const LENGTH: usize = Cdr::LENGTH + 1;
 
     fn car<'a>(&'a self) -> &'a Sublang<'langs, Self::Car, SortIdSelf> {
         &self.0
@@ -120,18 +145,22 @@ where
     fn cdr(&self) -> &Self::Cdr {
         &self.1
     }
-    // fn deconstruct<'a>(&'a self) -> (&'a Sublang<'langs, Self::Car, SortIdSelf>, &'a Self::Cdr) {
-    //     (&self.0, &self.1)
-    // }
+
+    fn push_through<L: LangSpec>(
+        &self,
+        l: &'langs L,
+    ) -> impl SublangsList<'langs, SortIdOf<L>> + 'langs {
+        (self.0.push_through(l), self.1.push_through(l))
+    }
 }
 pub trait SublangsElement<SortIdSelf> {
     fn image(&self) -> Vec<SortIdSelf>;
     fn tems(&self) -> Vec<TmfEndoMapping<SortIdSelf>>;
     fn name(&self) -> Name;
-    fn push_through<'this, 'other: 'this, L: LangSpec>(
-        &'this self,
-        l: &'other L,
-    ) -> impl SublangsElement<SortIdOf<L>> + 'this;
+    // fn push_through<'this, 'other: 'this, L: LangSpec>(
+    //     &'this self,
+    //     l: &'other L,
+    // ) -> impl SublangsElement<SortIdOf<L>> + 'this;
 }
 impl<'a, LSub: LangSpec, SortIdSelf: Clone> SublangsElement<SortIdSelf>
     for Sublang<'a, LSub, SortIdSelf>
@@ -148,12 +177,12 @@ impl<'a, LSub: LangSpec, SortIdSelf: Clone> SublangsElement<SortIdSelf>
         self.lsub.name().clone()
     }
 
-    fn push_through<'this, 'other: 'this, L: LangSpec>(
-        &'this self,
-        l: &'other L,
-    ) -> impl SublangsElement<SortIdOf<L>> + 'this {
-        l.sublang::<LSub>(self.lsub).unwrap()
-    }
+    // fn push_through<'this, 'other: 'this, L: LangSpec>(
+    //     &'this self,
+    //     l: &'other L,
+    // ) -> impl SublangsElement<SortIdOf<L>> + 'this {
+    //     l.sublang::<LSub>(self.lsub).unwrap()
+    // }
 }
 impl<SortIdSelf> Sublangs<SortIdSelf> for () {
     fn images(&self) -> impl Iterator<Item = Vec<SortIdSelf>> {
@@ -165,12 +194,6 @@ impl<SortIdSelf> Sublangs<SortIdSelf> for () {
 
     fn names(&self) -> impl Iterator<Item = Name> {
         std::iter::empty()
-    }
-
-    fn push_through<'this, 'other: 'this, L: LangSpec>(
-        &'this self,
-        _l: &'other L,
-    ) -> impl Sublangs<SortIdOf<L>> + 'this {
     }
 }
 impl<SortIdSelf, Car, Cdr> Sublangs<SortIdSelf> for (Car, Cdr)
@@ -188,12 +211,5 @@ where
 
     fn names(&self) -> impl Iterator<Item = Name> {
         std::iter::once(self.0.name()).chain(self.1.names())
-    }
-
-    fn push_through<'this, 'other: 'this, L: LangSpec>(
-        &'this self,
-        l: &'other L,
-    ) -> impl Sublangs<SortIdOf<L>> + 'this {
-        (self.0.push_through(l), self.1.push_through(l))
     }
 }

@@ -1,9 +1,6 @@
 [dependencies.ccf]
 path = "../.././ccf"
 
-[dependencies.fib]
-path = "../fib"
-
 [dependencies.fib-pat]
 path = "../fib-pat"
 

@@ -156,7 +156,7 @@ pub mod targets {
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
     use langspec::{
         langspec::{LangSpec as _, SortIdOf},
-        sublang::Sublangs,
+        sublang::{SublangsList, reflexive_sublang},
     };
     use langspec_gen_util::kebab_id;
 
@@ -164,7 +164,7 @@ pub mod targets {
         arena: &'langs bumpalo::Bump,
         mut codegen_deps: CgDepList<'langs>,
         l: &'langs L,
-        other_sublangs: impl Sublangs<SortIdOf<L>> + 'langs,
+        other_sublangs: impl SublangsList<'langs, SortIdOf<L>> + 'langs,
     ) -> CodegenInstance<'langs> {
         CodegenInstance {
             id: kebab_id!(l),
@@ -228,7 +228,10 @@ pub mod targets {
                     arena,
                     codegen_deps.subtree(),
                     cst,
-                    arena.alloc((sublang, other_sublangs.push_through(cst))),
+                    arena.alloc((
+                        reflexive_sublang(cst),
+                        (sublang, other_sublangs.push_through(cst)),
+                    )),
                 ));
                 // let _ = codegen_deps.add(term_pattern_match_strategy_provider_impl_gen::targets::uses_strategy_for_traversal_impls(arena, codegen_deps.subtree(), cst, &[cst.name().clone(), l.name().clone()]));
                 Box::new(move |c2sp, sp| {

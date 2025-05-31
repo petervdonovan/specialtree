@@ -286,7 +286,6 @@ name = "fib-pat-ds"
 version = "0.0.0"
 dependencies = [
  "ccf",
- "fib",
  "fib-pat",
  "file-tmf",
  "pattern-tmf",
