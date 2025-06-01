@@ -453,6 +453,8 @@ dependencies = [
  "fib-pat",
  "fib-pat-parse",
  "file-tmf",
+ "langspec",
+ "langspec-examples",
  "pattern-dyn",
  "unparse-adt",
 ]

@@ -70,25 +70,33 @@ pub enum ToDynPatternError {
 //     pb.result()
 // }
 
-pub fn to_pattern<L, LSub, Heap, T>(heap: &Heap, t: &T) -> Result<DynPattern<u32>, PbResultError>
+pub fn to_pattern<L, LSub, LSubLs, Heap, T>(
+    heap: &Heap,
+    t: &T,
+    ls: &LSubLs,
+) -> Result<DynPattern<SortIdOf<LSubLs>>, PbResultError>
 where
-    PatternBuilder<L, LSub, u32>: Visit<AdtMetadata, T, Heap, L>,
-    // L: LangSpec,
+    PatternBuilder<L, LSub, SortIdOf<LSubLs>>: Visit<AdtMetadata, T, Heap, L>,
+    LSubLs: LangSpec,
 {
-    let mut pb = PatternBuilder::new((0..100).collect());
-    <PatternBuilder<L, LSub, u32> as Visit<_, _, _, _>>::visit(&mut pb, heap, t);
+    // let mut pb = PatternBuilder::new((0..100).collect());
+    let sids = ls.all_sort_ids().collect::<Vec<_>>();
+    let mut pb = PatternBuilder::new(sids.clone());
+    <PatternBuilder<L, LSub, _> as Visit<_, _, _, _>>::visit(&mut pb, heap, t);
     pb.result()
 }
 
-pub fn to_pattern_skip<L, LSub, Heap, T>(
+pub fn to_pattern_skip<L, LSub, LSubLs, Heap, T>(
     heap: &Heap,
     t: &T,
-) -> Result<DynPattern<u32>, PbResultError>
+    ls: &LSubLs,
+) -> Result<DynPattern<SortIdOf<LSubLs>>, PbResultError>
 where
-    PatternBuilder<L, LSub, u32>: SkipVisit<AdtMetadata, T, Heap, L>,
-    // L: LangSpec,
+    PatternBuilder<L, LSub, SortIdOf<LSubLs>>: SkipVisit<AdtMetadata, T, Heap, L>,
+    LSubLs: LangSpec,
 {
-    let mut pb = PatternBuilder::new((0..100).collect());
-    <PatternBuilder<L, LSub, u32> as SkipVisit<_, _, _, _>>::skip_visit(&mut pb, heap, t);
+    let sids = ls.all_sort_ids().collect::<Vec<_>>();
+    let mut pb = PatternBuilder::new(sids.clone());
+    <PatternBuilder<L, LSub, _> as SkipVisit<_, _, _, _>>::skip_visit(&mut pb, heap, t);
     pb.result()
 }

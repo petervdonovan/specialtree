@@ -1,17 +1,18 @@
 use fib::words_mod_fib::L as LSub;
 use fib_pat::words_mod_file_pattern_fib::L;
 use fib_pat_parse::term_specialized_cst_autoboxed_file_pattern_fib::Heap;
+use langspec::{flat::LangSpecFlat, langspec::TerminalLangSpec as _};
 
 #[test]
 fn test() {
-    // let ls = LangSpecFlat::canonical_from(&langspec_examples::fib());
+    let ls = LangSpecFlat::canonical_from(&langspec_examples::fib());
     {
         println!("test Nat");
         let (heap, v) = fib_pat_parse::parse_file_pattern_fib::nat("3");
         println!("unparse: {}", unparse_adt::unparse::<L, _, _>(&heap, &v));
         println!(
             "pattern: {:?}",
-            pattern_dyn::to_pattern::<L, LSub, _, _>(&heap, &v).unwrap()
+            pattern_dyn::to_pattern::<L, LSub, _, _, _>(&heap, &v, &ls).unwrap()
         );
     }
     {
@@ -20,7 +21,7 @@ fn test() {
         println!("unparse: {}", unparse_adt::unparse::<L, _, _>(&heap, &v));
         println!(
             "pattern: {:?}",
-            pattern_dyn::to_pattern::<L, LSub, _, _>(&heap, &v).unwrap()
+            pattern_dyn::to_pattern::<L, LSub, _, _, _>(&heap, &v, &ls).unwrap()
         );
     }
     {
@@ -29,7 +30,7 @@ fn test() {
         println!("unparse: {}", unparse_adt::unparse::<L, _, _>(&heap, &v));
         println!(
             "pattern: {:?}",
-            pattern_dyn::to_pattern::<L, LSub, _, _>(&heap, &v).unwrap()
+            pattern_dyn::to_pattern::<L, LSub, _, _, _>(&heap, &v, &ls).unwrap()
         );
     }
     {
@@ -38,7 +39,7 @@ fn test() {
         println!("unparse: {}", unparse_adt::unparse::<L, _, _>(&heap, &v));
         println!(
             "pattern: {:?}",
-            pattern_dyn::to_pattern::<L, LSub, _, _>(&heap, &v).unwrap()
+            pattern_dyn::to_pattern::<L, LSub, _, _, _>(&heap, &v, &ls).unwrap()
         );
     }
     {
@@ -48,7 +49,7 @@ fn test() {
         println!("unparse: {}", unparse_adt::unparse::<L, _, _>(&heap, &v));
         println!(
             "pattern: {:?}",
-            pattern_dyn::to_pattern::<L, LSub, _, _>(&heap, &v).unwrap()
+            pattern_dyn::to_pattern::<L, LSub, _, _, _>(&heap, &v, &ls).unwrap()
         );
     }
     {
@@ -59,7 +60,7 @@ fn test() {
         println!("unparse: {}", unparse_adt::unparse::<L, _, _>(&heap, &v));
         println!(
             "pattern: {:?}",
-            pattern_dyn::to_pattern::<L, LSub, _, _>(&heap, &v).unwrap()
+            pattern_dyn::to_pattern::<L, LSub, _, _, _>(&heap, &v, &ls).unwrap()
         );
     }
     {
@@ -75,7 +76,7 @@ fn test() {
         for item in file_tmf::items(&heap, &v) {
             println!(
                 "pattern from file: {:#?}",
-                pattern_dyn::to_pattern_skip::<L, LSub, _, _>(&heap, item).unwrap()
+                pattern_dyn::to_pattern_skip::<L, LSub, _, _, _>(&heap, item, &ls).unwrap()
             );
         }
     }
