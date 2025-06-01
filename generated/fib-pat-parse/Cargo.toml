@@ -4,6 +4,9 @@ path = "../.././ccf"
 [dependencies.covisit]
 path = "../.././covisit"
 
+[dependencies.fib]
+path = "../fib"
+
 [dependencies.fib-pat]
 path = "../fib-pat"
 

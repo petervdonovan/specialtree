@@ -215,11 +215,10 @@ impl<'langs> Crate<'langs> {
         contents: &mut Vec<syn::ItemMod>,
     ) {
         if current_c2sp.0.contains_key(&dep.id) {
-            dbg!(&dep.id.0);
             return;
         }
         for depdep in dep.codegen_deps.codegen_deps.iter() {
-            println!("dep: {} -> {}", dep.id, depdep.id);
+            // println!("dep: {} -> {}", dep.id, depdep.id);
             self.generate_single_dep_contents(depdep, current_c2sp, global_c2sp, contents);
         }
         let dep_ident = &dep.id.to_snake_ident();
@@ -274,17 +273,64 @@ impl<'langs> Crate<'langs> {
         }
         self.provides.iter().flat_map(all_workspace_deps).collect()
     }
+    // fn all_codegen_deps<'a, 'b>(
+    //     &self,
+    //     other_crates: &'a [Crate<'b>],
+    //     result: &mut Vec<&'a Crate<'b>>,
+    // ) {
+    //     // fn all_codegen_deps<'a, 'b>(
+    //     //     provides: &'a Crate<'b>,
+    //     // ) -> Box<dyn Iterator<Item = (&'static str, &'static Path)> + 'a> {
+    //     //     provides.codegen_deps.iter().flat_map(all_codegen_deps)
+    //     // }
+    //     for dep in other_crates.iter().filter(|it| {
+    //         self.provides
+    //             .iter()
+    //             .flat_map(|it| it.codegen_deps.codegen_deps.iter())
+    //             .any(|dep| it.provides(&dep.id))
+    //             && it.id != self.id
+    //     }) {
+    //         if !result.iter().any(|it| std::ptr::eq(*it, dep)) {
+    //             result.push(dep);
+    //             println!(
+    //                 "dbg: adding {} to {}",
+    //                 dep.crate_ident(),
+    //                 self.crate_ident()
+    //             );
+    //             dep.all_codegen_deps(other_crates, result);
+    //         }
+    //     }
+    // }
+    fn all_codegen_deps(&self) -> Vec<&CodegenInstance<'langs>> {
+        fn all_codegen_deps<'a, 'b>(
+            provides: &'a CodegenInstance<'b>,
+        ) -> Box<dyn Iterator<Item = &'a CodegenInstance<'b>> + 'a> {
+            let it = std::iter::once(provides).chain(
+                provides
+                    .codegen_deps
+                    .codegen_deps
+                    .iter()
+                    .flat_map(all_codegen_deps),
+            );
+            Box::new(it)
+        }
+        self.provides.iter().flat_map(all_codegen_deps).collect()
+    }
     fn generate_cargo_toml(&self, other_crates: &[Crate]) -> String {
+        // let depends_on_crates = other_crates
+        //     .iter()
+        //     .filter(|it| {
+        //         self.provides
+        //             .iter()
+        //             .flat_map(|it| it.codegen_deps.codegen_deps.iter())
+        //             .any(|dep| it.provides(&dep.id))
+        //             && it.id != self.id
+        //     })
+        //     .collect::<Vec<_>>();
+        let acd = self.all_codegen_deps();
         let depends_on_crates = other_crates
             .iter()
-            .filter(|it| {
-                self.provides
-                    .iter()
-                    .flat_map(|it| it.codegen_deps.codegen_deps.iter())
-                    .any(|dep| it.provides(&dep.id))
-                    && it.id != self.id
-            })
-            .collect::<Vec<_>>();
+            .filter(|c| c.id != self.id && acd.iter().any(|dep| c.provides(&dep.id)));
         let workspace_dep2entry = |dep: &(&str, &Path)| {
             (
                 dep.0.to_string(),
@@ -334,7 +380,7 @@ impl<'langs> Crate<'langs> {
                                 ),
                             )
                         }))
-                        .chain(depends_on_crates.iter().map(|dep| {
+                        .chain(depends_on_crates.map(|dep| {
                             (
                                 dep.id.to_string(),
                                 toml::Value::Table(

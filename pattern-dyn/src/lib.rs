@@ -1,7 +1,7 @@
 use langspec::langspec::{LangSpec, SortIdOf};
 use pmsp::AdtMetadata;
 use thiserror::Error;
-use visit::Visit;
+use visit::{Visit, skip_visit::SkipVisit};
 use visitor::{PatternBuilder, PbResultError};
 
 pub mod tmfscore;
@@ -77,5 +77,18 @@ where
 {
     let mut pb = PatternBuilder::new((0..100).collect());
     <PatternBuilder<L, LSub, u32> as Visit<_, _, _, _>>::visit(&mut pb, heap, t);
+    pb.result()
+}
+
+pub fn to_pattern_skip<L, LSub, Heap, T>(
+    heap: &Heap,
+    t: &T,
+) -> Result<DynPattern<u32>, PbResultError>
+where
+    PatternBuilder<L, LSub, u32>: SkipVisit<AdtMetadata, T, Heap, L>,
+    // L: LangSpec,
+{
+    let mut pb = PatternBuilder::new((0..100).collect());
+    <PatternBuilder<L, LSub, u32> as SkipVisit<_, _, _, _>>::skip_visit(&mut pb, heap, t);
     pb.result()
 }

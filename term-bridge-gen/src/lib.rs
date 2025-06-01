@@ -35,7 +35,6 @@ pub fn generate<'a, L: LangSpec, LSub: LangSpec>(
             None => None,
         })
         .unzip::<_, _, Vec<_>, Vec<_>>();
-    dbg!(&camel_names);
     let image_ty_under_embeddings = sids
         .iter()
         .map(|sort| {
@@ -125,7 +124,6 @@ pub(crate) fn generate_heap(
         og_words_base_path: _,
     }: &BasePaths,
 ) -> syn::ItemImpl {
-    dbg!(camel_names);
     let byline = langspec_gen_util::byline!();
     syn::parse_quote! {
         #byline
@@ -283,8 +281,11 @@ pub mod targets {
     ) -> CodegenInstance<'langs> {
         let ext_lg = super::LsGen::from(l);
         // let oglsg = super::LsGen::from(l);
+        dbg!(sl.kebab("term-bridge"));
         CodegenInstance {
-            id: codegen_component::KebabCodegenId(sl.kebab("term-bridge")),
+            id: codegen_component::KebabCodegenId(
+                sl.kebab("term-bridge") + "-bridgeto-" + &l.name().snake.replace("_", "-"),
+            ),
             generate: {
                 // let _ =
                 //     codegen_deps.add(term_specialized_impl_gen::targets::term_specialized_impl(

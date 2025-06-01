@@ -74,8 +74,8 @@ fn test() {
         println!("unparse: {}", file_tmf::unparse::file(&heap, &v));
         for item in file_tmf::items(&heap, &v) {
             println!(
-                "pattern: {:#?}",
-                pattern_dyn::to_pattern::<L, LSub, _, _>(&heap, item).unwrap()
+                "pattern from file: {:#?}",
+                pattern_dyn::to_pattern_skip::<L, LSub, _, _>(&heap, item).unwrap()
             );
         }
     }

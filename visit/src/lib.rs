@@ -2,6 +2,7 @@
 #![allow(internal_features)]
 #![feature(rustc_attrs)]
 
+pub mod skip_visit;
 pub mod visiteventsink;
 
 #[rustc_coinductive]

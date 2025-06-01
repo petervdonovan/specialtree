@@ -16,25 +16,25 @@ impl<SortId, Heap, L, LSub, MatchedTy, MappedOrVariable: Copy, MatchedTyMetadata
         L,
     > for PatternBuilder<L, LSub, SortId>
 where
-// SortId: Clone,
-// Heap: term::SuperHeap<OrVariableHeapBak<Heap, MatchedTy>>,
-// MappedOrVariable: CanonicallyConstructibleFrom<Heap, (OrVariable<Heap, MatchedTy>, ())>,
-// PatternBuilder<L, LSub, SortId>: Visit<MatchedTyMetadata, MatchedTy, Heap, L>,
-// MatchedTy: words::Implements<Heap, LSub>,
-// <MatchedTy as words::Implements<Heap, LSub>>::LWord:
-//     names_langspec_sort::NamesLangspecSort<LSub>,
+    SortId: Clone,
+    Heap: term::SuperHeap<OrVariableHeapBak<Heap, MatchedTy>>,
+    MappedOrVariable: CanonicallyConstructibleFrom<Heap, (OrVariable<Heap, MatchedTy>, ())>,
+    PatternBuilder<L, LSub, SortId>: Visit<MatchedTyMetadata, MatchedTy, Heap, L>,
+    MatchedTy: words::Implements<Heap, LSub>,
+    <MatchedTy as words::Implements<Heap, LSub>>::LWord:
+        names_langspec_sort::NamesLangspecSort<LSub>,
 {
     fn visit(&mut self, heap: &Heap, t: &MappedOrVariable) {
-        // let (ov, ()) = (*t).deconstruct(heap);
-        // match ov {
-        //     OrVariable::Ctor(t) => self.visit(heap, &t),
-        //     OrVariable::Variable { name } => {
-        //         let subheap = heap.subheap::<OrVariableHeapBak<_, _>>();
-        //         self.variable::<Heap, MatchedTy>(subheap.names.resolve(name).unwrap().to_string())
-        //     }
-        //     OrVariable::Ignored(_) => self.ignored::<Heap, MatchedTy>(),
-        // }
-        todo!()
+        let (ov, ()) = (*t).deconstruct(heap);
+        match ov {
+            OrVariable::Ctor(t) => self.visit(heap, &t),
+            OrVariable::Variable { name } => {
+                let subheap = heap.subheap::<OrVariableHeapBak<_, _>>();
+                self.variable::<Heap, MatchedTy>(subheap.names.resolve(name).unwrap().to_string())
+            }
+            OrVariable::Ignored(_) => self.ignored::<Heap, MatchedTy>(),
+        }
+        // todo!()
     }
 }
 
