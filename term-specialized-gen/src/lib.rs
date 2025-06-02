@@ -17,9 +17,9 @@ pub fn generate<L: LangSpec>(base_path: &syn::Path, lg: &LsGen<L>, serde: bool) 
     parse_quote! {
         #byline
         pub mod data_structure {
-            #heap
             #(#algebraics)*
             #heaped_impls
+            #heap
         }
     }
 }

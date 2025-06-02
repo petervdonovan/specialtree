@@ -27,6 +27,377 @@ use crate::term_specialized_cst_autoboxed_file_pattern_fib::heap::maybe as tscaf
 use crate::term_specialized_cst_autoboxed_file_pattern_fib::heap::idx_box as tscafpfhib;
 use crate::term_specialized_cst_autoboxed_file_pattern_fib::heap::file as tscafpfhf;
 use crate::term_specialized_cst_autoboxed_file_pattern_fib::heap::either as tscafpfhe;
+#[derive(Clone, Copy)]
+pub struct Plus {
+    pub left_operand: Either<
+        tscafpf::Heap,
+        Pair<
+            tscafpf::Heap,
+            OrVariable<
+                tscafpf::Heap,
+                Either<
+                    tscafpf::Heap,
+                    Pair<
+                        tscafpf::Heap,
+                        tscafpf::LeftOperand,
+                        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                    >,
+                    ParseError<tscafpf::Heap>,
+                >,
+            >,
+            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+        >,
+        ParseError<tscafpf::Heap>,
+    >,
+    pub right_operand: Either<
+        tscafpf::Heap,
+        Pair<
+            tscafpf::Heap,
+            OrVariable<
+                tscafpf::Heap,
+                Either<
+                    tscafpf::Heap,
+                    Pair<
+                        tscafpf::Heap,
+                        tscafpf::RightOperand,
+                        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                    >,
+                    ParseError<tscafpf::Heap>,
+                >,
+            >,
+            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+        >,
+        ParseError<tscafpf::Heap>,
+    >,
+}
+#[derive(Clone, Copy)]
+pub struct LeftOperand {
+    pub nat: Either<
+        tscafpf::Heap,
+        Pair<
+            tscafpf::Heap,
+            OrVariable<
+                tscafpf::Heap,
+                Either<
+                    tscafpf::Heap,
+                    Pair<
+                        tscafpf::Heap,
+                        tscafpf::Nat,
+                        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                    >,
+                    ParseError<tscafpf::Heap>,
+                >,
+            >,
+            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+        >,
+        ParseError<tscafpf::Heap>,
+    >,
+}
+#[derive(Clone, Copy)]
+pub struct RightOperand {
+    pub nat: Either<
+        tscafpf::Heap,
+        Pair<
+            tscafpf::Heap,
+            OrVariable<
+                tscafpf::Heap,
+                Either<
+                    tscafpf::Heap,
+                    Pair<
+                        tscafpf::Heap,
+                        tscafpf::Nat,
+                        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                    >,
+                    ParseError<tscafpf::Heap>,
+                >,
+            >,
+            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+        >,
+        ParseError<tscafpf::Heap>,
+    >,
+}
+#[derive(Clone, Copy)]
+pub struct F {
+    pub nat: Either<
+        tscafpf::Heap,
+        Pair<
+            tscafpf::Heap,
+            OrVariable<
+                tscafpf::Heap,
+                Either<
+                    tscafpf::Heap,
+                    Pair<
+                        tscafpf::Heap,
+                        tscafpf::Nat,
+                        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                    >,
+                    ParseError<tscafpf::Heap>,
+                >,
+            >,
+            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+        >,
+        ParseError<tscafpf::Heap>,
+    >,
+}
+#[derive(Clone, Copy)]
+pub struct Sum {
+    pub set: Either<
+        tscafpf::Heap,
+        Pair<
+            tscafpf::Heap,
+            OrVariable<
+                tscafpf::Heap,
+                Either<
+                    tscafpf::Heap,
+                    Pair<
+                        tscafpf::Heap,
+                        Set<
+                            tscafpf::Heap,
+                            Either<
+                                tscafpf::Heap,
+                                Pair<
+                                    tscafpf::Heap,
+                                    OrVariableZeroOrMore<
+                                        tscafpf::Heap,
+                                        Either<
+                                            tscafpf::Heap,
+                                            Pair<
+                                                tscafpf::Heap,
+                                                tscafpf::Nat,
+                                                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                                            >,
+                                            ParseError<tscafpf::Heap>,
+                                        >,
+                                    >,
+                                    Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                                >,
+                                ParseError<tscafpf::Heap>,
+                            >,
+                        >,
+                        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                    >,
+                    ParseError<tscafpf::Heap>,
+                >,
+            >,
+            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+        >,
+        ParseError<tscafpf::Heap>,
+    >,
+}
+#[derive(Clone, Copy)]
+pub enum Nat {
+    NatLit(
+        Either<
+            tscafpf::Heap,
+            Pair<
+                tscafpf::Heap,
+                BoundedNat<tscafpf::Heap>,
+                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+            >,
+            ParseError<tscafpf::Heap>,
+        >,
+    ),
+    F(
+        Either<
+            tscafpf::Heap,
+            Pair<
+                tscafpf::Heap,
+                IdxBox<
+                    tscafpf::Heap,
+                    Either<
+                        tscafpf::Heap,
+                        Pair<
+                            tscafpf::Heap,
+                            tscafpf::F,
+                            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                        >,
+                        ParseError<tscafpf::Heap>,
+                    >,
+                >,
+                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+            >,
+            ParseError<tscafpf::Heap>,
+        >,
+    ),
+    Plus(
+        Either<
+            tscafpf::Heap,
+            Pair<
+                tscafpf::Heap,
+                IdxBox<
+                    tscafpf::Heap,
+                    Either<
+                        tscafpf::Heap,
+                        Pair<
+                            tscafpf::Heap,
+                            tscafpf::Plus,
+                            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                        >,
+                        ParseError<tscafpf::Heap>,
+                    >,
+                >,
+                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+            >,
+            ParseError<tscafpf::Heap>,
+        >,
+    ),
+    Sum(
+        Either<
+            tscafpf::Heap,
+            Pair<
+                tscafpf::Heap,
+                tscafpf::Sum,
+                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+            >,
+            ParseError<tscafpf::Heap>,
+        >,
+    ),
+}
+#[derive(Clone, Copy)]
+pub enum FileItem {
+    Plus(
+        Either<
+            tscafpf::Heap,
+            Pair<
+                tscafpf::Heap,
+                NamedPattern<
+                    tscafpf::Heap,
+                    Either<
+                        tscafpf::Heap,
+                        Pair<
+                            tscafpf::Heap,
+                            tscafpf::Plus,
+                            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                        >,
+                        ParseError<tscafpf::Heap>,
+                    >,
+                >,
+                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+            >,
+            ParseError<tscafpf::Heap>,
+        >,
+    ),
+    LeftOperand(
+        Either<
+            tscafpf::Heap,
+            Pair<
+                tscafpf::Heap,
+                NamedPattern<
+                    tscafpf::Heap,
+                    Either<
+                        tscafpf::Heap,
+                        Pair<
+                            tscafpf::Heap,
+                            tscafpf::LeftOperand,
+                            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                        >,
+                        ParseError<tscafpf::Heap>,
+                    >,
+                >,
+                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+            >,
+            ParseError<tscafpf::Heap>,
+        >,
+    ),
+    RightOperand(
+        Either<
+            tscafpf::Heap,
+            Pair<
+                tscafpf::Heap,
+                NamedPattern<
+                    tscafpf::Heap,
+                    Either<
+                        tscafpf::Heap,
+                        Pair<
+                            tscafpf::Heap,
+                            tscafpf::RightOperand,
+                            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                        >,
+                        ParseError<tscafpf::Heap>,
+                    >,
+                >,
+                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+            >,
+            ParseError<tscafpf::Heap>,
+        >,
+    ),
+    F(
+        Either<
+            tscafpf::Heap,
+            Pair<
+                tscafpf::Heap,
+                NamedPattern<
+                    tscafpf::Heap,
+                    Either<
+                        tscafpf::Heap,
+                        Pair<
+                            tscafpf::Heap,
+                            tscafpf::F,
+                            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                        >,
+                        ParseError<tscafpf::Heap>,
+                    >,
+                >,
+                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+            >,
+            ParseError<tscafpf::Heap>,
+        >,
+    ),
+    Sum(
+        Either<
+            tscafpf::Heap,
+            Pair<
+                tscafpf::Heap,
+                NamedPattern<
+                    tscafpf::Heap,
+                    Either<
+                        tscafpf::Heap,
+                        Pair<
+                            tscafpf::Heap,
+                            tscafpf::Sum,
+                            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+                        >,
+                        ParseError<tscafpf::Heap>,
+                    >,
+                >,
+                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
+            >,
+            ParseError<tscafpf::Heap>,
+        >,
+    ),
+}
+/// @generated by [term_specialized_gen::gen_heaped_impls]
+pub mod heaped {
+    use crate::term_specialized_cst_autoboxed_file_pattern_fib as tscafpf;
+    /// @generated by [term_specialized_gen::gen_heaped_impls::heaped_impl]
+    impl term::Heaped for tscafpf::Plus {
+        type Heap = tscafpf::Heap;
+    }
+    /// @generated by [term_specialized_gen::gen_heaped_impls::heaped_impl]
+    impl term::Heaped for tscafpf::LeftOperand {
+        type Heap = tscafpf::Heap;
+    }
+    /// @generated by [term_specialized_gen::gen_heaped_impls::heaped_impl]
+    impl term::Heaped for tscafpf::RightOperand {
+        type Heap = tscafpf::Heap;
+    }
+    /// @generated by [term_specialized_gen::gen_heaped_impls::heaped_impl]
+    impl term::Heaped for tscafpf::F {
+        type Heap = tscafpf::Heap;
+    }
+    /// @generated by [term_specialized_gen::gen_heaped_impls::heaped_impl]
+    impl term::Heaped for tscafpf::Sum {
+        type Heap = tscafpf::Heap;
+    }
+    /// @generated by [term_specialized_gen::gen_heaped_impls::heaped_impl]
+    impl term::Heaped for tscafpf::Nat {
+        type Heap = tscafpf::Heap;
+    }
+    /// @generated by [term_specialized_gen::gen_heaped_impls::heaped_impl]
+    impl term::Heaped for tscafpf::FileItem {
+        type Heap = tscafpf::Heap;
+    }
+}
 /// @generated by [term_specialized_gen::gen_heap]
 #[derive(Default)]
 pub struct Heap {
@@ -6325,375 +6696,4 @@ pub mod superheap {
         ::term_specialized_cst_autoboxed_file_pattern_fib::Heap, >, >, >; pair file_item
         maybe parse_metadata
     );
-}
-#[derive(Clone, Copy)]
-pub struct Plus {
-    pub left_operand: Either<
-        tscafpf::Heap,
-        Pair<
-            tscafpf::Heap,
-            OrVariable<
-                tscafpf::Heap,
-                Either<
-                    tscafpf::Heap,
-                    Pair<
-                        tscafpf::Heap,
-                        tscafpf::LeftOperand,
-                        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                    >,
-                    ParseError<tscafpf::Heap>,
-                >,
-            >,
-            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-        >,
-        ParseError<tscafpf::Heap>,
-    >,
-    pub right_operand: Either<
-        tscafpf::Heap,
-        Pair<
-            tscafpf::Heap,
-            OrVariable<
-                tscafpf::Heap,
-                Either<
-                    tscafpf::Heap,
-                    Pair<
-                        tscafpf::Heap,
-                        tscafpf::RightOperand,
-                        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                    >,
-                    ParseError<tscafpf::Heap>,
-                >,
-            >,
-            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-        >,
-        ParseError<tscafpf::Heap>,
-    >,
-}
-#[derive(Clone, Copy)]
-pub struct LeftOperand {
-    pub nat: Either<
-        tscafpf::Heap,
-        Pair<
-            tscafpf::Heap,
-            OrVariable<
-                tscafpf::Heap,
-                Either<
-                    tscafpf::Heap,
-                    Pair<
-                        tscafpf::Heap,
-                        tscafpf::Nat,
-                        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                    >,
-                    ParseError<tscafpf::Heap>,
-                >,
-            >,
-            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-        >,
-        ParseError<tscafpf::Heap>,
-    >,
-}
-#[derive(Clone, Copy)]
-pub struct RightOperand {
-    pub nat: Either<
-        tscafpf::Heap,
-        Pair<
-            tscafpf::Heap,
-            OrVariable<
-                tscafpf::Heap,
-                Either<
-                    tscafpf::Heap,
-                    Pair<
-                        tscafpf::Heap,
-                        tscafpf::Nat,
-                        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                    >,
-                    ParseError<tscafpf::Heap>,
-                >,
-            >,
-            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-        >,
-        ParseError<tscafpf::Heap>,
-    >,
-}
-#[derive(Clone, Copy)]
-pub struct F {
-    pub nat: Either<
-        tscafpf::Heap,
-        Pair<
-            tscafpf::Heap,
-            OrVariable<
-                tscafpf::Heap,
-                Either<
-                    tscafpf::Heap,
-                    Pair<
-                        tscafpf::Heap,
-                        tscafpf::Nat,
-                        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                    >,
-                    ParseError<tscafpf::Heap>,
-                >,
-            >,
-            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-        >,
-        ParseError<tscafpf::Heap>,
-    >,
-}
-#[derive(Clone, Copy)]
-pub struct Sum {
-    pub set: Either<
-        tscafpf::Heap,
-        Pair<
-            tscafpf::Heap,
-            OrVariable<
-                tscafpf::Heap,
-                Either<
-                    tscafpf::Heap,
-                    Pair<
-                        tscafpf::Heap,
-                        Set<
-                            tscafpf::Heap,
-                            Either<
-                                tscafpf::Heap,
-                                Pair<
-                                    tscafpf::Heap,
-                                    OrVariableZeroOrMore<
-                                        tscafpf::Heap,
-                                        Either<
-                                            tscafpf::Heap,
-                                            Pair<
-                                                tscafpf::Heap,
-                                                tscafpf::Nat,
-                                                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                                            >,
-                                            ParseError<tscafpf::Heap>,
-                                        >,
-                                    >,
-                                    Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                                >,
-                                ParseError<tscafpf::Heap>,
-                            >,
-                        >,
-                        Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                    >,
-                    ParseError<tscafpf::Heap>,
-                >,
-            >,
-            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-        >,
-        ParseError<tscafpf::Heap>,
-    >,
-}
-#[derive(Clone, Copy)]
-pub enum Nat {
-    NatLit(
-        Either<
-            tscafpf::Heap,
-            Pair<
-                tscafpf::Heap,
-                BoundedNat<tscafpf::Heap>,
-                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-            >,
-            ParseError<tscafpf::Heap>,
-        >,
-    ),
-    F(
-        Either<
-            tscafpf::Heap,
-            Pair<
-                tscafpf::Heap,
-                IdxBox<
-                    tscafpf::Heap,
-                    Either<
-                        tscafpf::Heap,
-                        Pair<
-                            tscafpf::Heap,
-                            tscafpf::F,
-                            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                        >,
-                        ParseError<tscafpf::Heap>,
-                    >,
-                >,
-                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-            >,
-            ParseError<tscafpf::Heap>,
-        >,
-    ),
-    Plus(
-        Either<
-            tscafpf::Heap,
-            Pair<
-                tscafpf::Heap,
-                IdxBox<
-                    tscafpf::Heap,
-                    Either<
-                        tscafpf::Heap,
-                        Pair<
-                            tscafpf::Heap,
-                            tscafpf::Plus,
-                            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                        >,
-                        ParseError<tscafpf::Heap>,
-                    >,
-                >,
-                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-            >,
-            ParseError<tscafpf::Heap>,
-        >,
-    ),
-    Sum(
-        Either<
-            tscafpf::Heap,
-            Pair<
-                tscafpf::Heap,
-                tscafpf::Sum,
-                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-            >,
-            ParseError<tscafpf::Heap>,
-        >,
-    ),
-}
-#[derive(Clone, Copy)]
-pub enum FileItem {
-    Plus(
-        Either<
-            tscafpf::Heap,
-            Pair<
-                tscafpf::Heap,
-                NamedPattern<
-                    tscafpf::Heap,
-                    Either<
-                        tscafpf::Heap,
-                        Pair<
-                            tscafpf::Heap,
-                            tscafpf::Plus,
-                            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                        >,
-                        ParseError<tscafpf::Heap>,
-                    >,
-                >,
-                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-            >,
-            ParseError<tscafpf::Heap>,
-        >,
-    ),
-    LeftOperand(
-        Either<
-            tscafpf::Heap,
-            Pair<
-                tscafpf::Heap,
-                NamedPattern<
-                    tscafpf::Heap,
-                    Either<
-                        tscafpf::Heap,
-                        Pair<
-                            tscafpf::Heap,
-                            tscafpf::LeftOperand,
-                            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                        >,
-                        ParseError<tscafpf::Heap>,
-                    >,
-                >,
-                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-            >,
-            ParseError<tscafpf::Heap>,
-        >,
-    ),
-    RightOperand(
-        Either<
-            tscafpf::Heap,
-            Pair<
-                tscafpf::Heap,
-                NamedPattern<
-                    tscafpf::Heap,
-                    Either<
-                        tscafpf::Heap,
-                        Pair<
-                            tscafpf::Heap,
-                            tscafpf::RightOperand,
-                            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                        >,
-                        ParseError<tscafpf::Heap>,
-                    >,
-                >,
-                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-            >,
-            ParseError<tscafpf::Heap>,
-        >,
-    ),
-    F(
-        Either<
-            tscafpf::Heap,
-            Pair<
-                tscafpf::Heap,
-                NamedPattern<
-                    tscafpf::Heap,
-                    Either<
-                        tscafpf::Heap,
-                        Pair<
-                            tscafpf::Heap,
-                            tscafpf::F,
-                            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                        >,
-                        ParseError<tscafpf::Heap>,
-                    >,
-                >,
-                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-            >,
-            ParseError<tscafpf::Heap>,
-        >,
-    ),
-    Sum(
-        Either<
-            tscafpf::Heap,
-            Pair<
-                tscafpf::Heap,
-                NamedPattern<
-                    tscafpf::Heap,
-                    Either<
-                        tscafpf::Heap,
-                        Pair<
-                            tscafpf::Heap,
-                            tscafpf::Sum,
-                            Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-                        >,
-                        ParseError<tscafpf::Heap>,
-                    >,
-                >,
-                Maybe<tscafpf::Heap, ParseMetadata<tscafpf::Heap>>,
-            >,
-            ParseError<tscafpf::Heap>,
-        >,
-    ),
-}
-/// @generated by [term_specialized_gen::gen_heaped_impls]
-pub mod heaped {
-    use crate::term_specialized_cst_autoboxed_file_pattern_fib as tscafpf;
-    /// @generated by [term_specialized_gen::gen_heaped_impls::heaped_impl]
-    impl term::Heaped for tscafpf::Plus {
-        type Heap = tscafpf::Heap;
-    }
-    /// @generated by [term_specialized_gen::gen_heaped_impls::heaped_impl]
-    impl term::Heaped for tscafpf::LeftOperand {
-        type Heap = tscafpf::Heap;
-    }
-    /// @generated by [term_specialized_gen::gen_heaped_impls::heaped_impl]
-    impl term::Heaped for tscafpf::RightOperand {
-        type Heap = tscafpf::Heap;
-    }
-    /// @generated by [term_specialized_gen::gen_heaped_impls::heaped_impl]
-    impl term::Heaped for tscafpf::F {
-        type Heap = tscafpf::Heap;
-    }
-    /// @generated by [term_specialized_gen::gen_heaped_impls::heaped_impl]
-    impl term::Heaped for tscafpf::Sum {
-        type Heap = tscafpf::Heap;
-    }
-    /// @generated by [term_specialized_gen::gen_heaped_impls::heaped_impl]
-    impl term::Heaped for tscafpf::Nat {
-        type Heap = tscafpf::Heap;
-    }
-    /// @generated by [term_specialized_gen::gen_heaped_impls::heaped_impl]
-    impl term::Heaped for tscafpf::FileItem {
-        type Heap = tscafpf::Heap;
-    }
 }
