@@ -478,6 +478,13 @@ impl<L: LangSpec> LsGen<'_, L> {
             }
         }
     }
+    pub fn sort2word_rs_ty(&self, sort: SortIdOf<L>, words_path: &syn::Path) -> syn::Type {
+        self.sort2rs_ty(
+            sort,
+            &HeapType(syn::parse_quote! { () }),
+            &AlgebraicsBasePath::new(syn::parse_quote! { #words_path::sorts:: }),
+        )
+    }
     pub fn sort2tmfmapped_rs_ty(
         &self,
         sort: SortIdOf<L>,

@@ -1,6 +1,9 @@
 #![feature(fundamental)]
-use langspec::langspec::LangSpec;
-use langspec_gen_util::LsGen;
+use langspec::{
+    langspec::{LangSpec, SortIdOf},
+    sublang::Sublang,
+};
+use langspec_gen_util::{AlgebraicsBasePath, HeapType, LsGen, byline};
 
 pub trait Implements<Heap, L> {
     type LWord;
@@ -24,28 +27,37 @@ pub fn words_mod<L: LangSpec>(lg: &LsGen<L>) -> syn::ItemMod {
     }
 }
 
-pub fn words_impls<L: LangSpec>(
-    words_path: &syn::Path,
-    sorts_path: &syn::Path,
-    lg_impl_for: &LsGen<L>,
+pub fn words_impls<L: LangSpec, LSub: LangSpec>(
+    ext_data_structure: &syn::Path,
+    og_words_base_path: &syn::Path,
+    sublang: &Sublang<'_, LSub, SortIdOf<L>>,
+    elsg: &LsGen<L>,
 ) -> syn::ItemMod {
-    let sort_camel_idents = lg_impl_for
-        .ty_gen_datas(None)
-        .filter(|it| {
-            lg_impl_for
-                .ty_gen_datas(None) // FIXME: comparing idents
-                .any(|other| other.snake_ident == it.snake_ident)
+    let oglsg = LsGen::from(sublang.lsub);
+    let impls = oglsg
+        .bak()
+        .all_sort_ids()
+        .map(|sid| {
+            let skeleton = oglsg.sort2word_rs_ty(sid.clone(), og_words_base_path);
+            let ty = elsg.sort2rs_ty(
+                (sublang.map)(&sid),
+                &HeapType(syn::parse_quote! { #ext_data_structure::Heap }),
+                &AlgebraicsBasePath::new(syn::parse_quote! { #ext_data_structure:: }),
+            );
+            (ty, skeleton)
         })
-        .map(|it| it.camel_ident);
-    let byline = langspec_gen_util::byline!();
+        .map(|(ty, skeleton)| -> syn::ItemImpl {
+            syn::parse_quote! {
+                impl words::Implements<#ext_data_structure::Heap, #og_words_base_path::L> for #ty {
+                    type LWord = #skeleton;
+                }
+            }
+        });
+    let byline = byline!();
     syn::parse_quote! {
         #byline
         pub mod words_impls {
-            #(
-                impl words::Implements<#sorts_path::Heap, #words_path::L> for #sorts_path::#sort_camel_idents {
-                    type LWord = #words_path::sorts::#sort_camel_idents;
-                }
-            )*
+            #(#impls)*
         }
     }
 }

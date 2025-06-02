@@ -72,7 +72,10 @@ fn test() {
             @c = f 9
         "#,
         );
-        println!("unparse: {}", file_tmf::unparse::file(&heap, &v));
+        println!(
+            "unparse: {}",
+            file_tmf::unparse::file::<L, _, _, _>(&heap, &v)
+        );
         for item in file_tmf::items(&heap, &v) {
             println!(
                 "pattern from file: {:#?}",
