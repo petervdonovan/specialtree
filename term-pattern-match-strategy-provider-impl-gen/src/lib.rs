@@ -33,6 +33,7 @@ pub mod targets {
     use std::path::Path;
 
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
+    use langspec::sublang::reflexive_sublang;
     use langspec_gen_util::kebab_id;
 
     pub fn default<'langs, L: super::LangSpec>(
@@ -84,7 +85,12 @@ pub mod targets {
                 Box::new(move |c, _| {
                     let words_path = words_path(c);
                     let sorts_path = data_structure(c);
-                    words::words_impls(&words_path, &sorts_path, &super::LsGen::from(lif))
+                    words::words_impls(
+                        &sorts_path,
+                        &words_path,
+                        &reflexive_sublang(lif),
+                        &super::LsGen::from(lif),
+                    )
                 })
             },
             external_deps: vec![],

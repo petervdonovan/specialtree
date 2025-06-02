@@ -3,6 +3,7 @@ use langspec::{
     sublang::Sublang,
 };
 use langspec_gen_util::{AlgebraicsBasePath, HeapType, LsGen, byline};
+use words::words_impls;
 
 pub struct BasePaths {
     pub ext_data_structure: syn::Path,
@@ -47,7 +48,12 @@ pub fn generate<'a, L: LangSpec, LSub: LangSpec>(
         .collect::<Vec<_>>();
     let heap = generate_heap(&camel_names, &image_ty_under_embeddings, bps);
     let owned_impls = generate_owned_impls(&camel_names, &image_ty_under_embeddings, bps);
-    let words_impls = bridge_words_impls(bps, sublang, ext_lg);
+    let words_impls = words_impls(
+        &bps.ext_data_structure,
+        &bps.og_words_base_path,
+        sublang,
+        ext_lg,
+    );
     let maps_tmf_impls = generate_maps_tmf_impls(ext_lg, sublang, bps);
     syn::parse_quote! {
         mod bridge {
@@ -55,62 +61,6 @@ pub fn generate<'a, L: LangSpec, LSub: LangSpec>(
             #owned_impls
             #words_impls
             #maps_tmf_impls
-        }
-    }
-}
-
-pub(crate) fn bridge_words_impls<L: LangSpec, LSub: LangSpec>(
-    BasePaths {
-        ext_data_structure,
-        og_term_trait,
-        og_words_base_path,
-    }: &BasePaths,
-    sublang: &Sublang<'_, LSub, SortIdOf<L>>,
-    // oglsg: &LsGen<LSub>,
-    elsg: &LsGen<L>,
-) -> syn::ItemMod {
-    // let impls = elsg
-    //     .ty_gen_datas(Some(og_words_base_path.clone()))
-    //     .map(|tgd| -> syn::ItemImpl {
-    //         let camel_ident = &tgd.camel_ident;
-    //         let ty: syn::Type = syn::parse_quote! {
-    //             <#ext_data_structure::Heap as #og_term_trait::Heap>::#camel_ident
-    //         };
-    //         syn::parse_quote! {
-    //             impl words::Implements<#ext_data_structure::Heap, #og_words_base_path::L> for #ty {
-    //                 type LWord = #og_words_base_path::sorts::#camel_ident;
-    //             }
-    //         }
-    //     });
-    let oglsg = LsGen::from(sublang.lsub);
-    let impls = oglsg
-        .bak()
-        .all_sort_ids()
-        .map(|sid| {
-            let skeleton = oglsg.sort2rs_ty(
-                sid.clone(),
-                &HeapType(syn::parse_quote! { () }),
-                &AlgebraicsBasePath::new(syn::parse_quote! { #og_words_base_path::sorts:: }),
-            );
-            let ty = elsg.sort2rs_ty(
-                (sublang.map)(&sid),
-                &HeapType(syn::parse_quote! { #ext_data_structure::Heap }),
-                &AlgebraicsBasePath::new(syn::parse_quote! { #ext_data_structure:: }),
-            );
-            (ty, skeleton)
-        })
-        .map(|(ty, skeleton)| -> syn::ItemImpl {
-            syn::parse_quote! {
-                impl words::Implements<#ext_data_structure::Heap, #og_words_base_path::L> for #ty {
-                    type LWord = #skeleton;
-                }
-            }
-        });
-    let byline = byline!();
-    syn::parse_quote! {
-        #byline
-        pub mod words_impls {
-            #(#impls)*
         }
     }
 }
