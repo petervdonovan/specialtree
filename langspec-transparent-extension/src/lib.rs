@@ -1,3 +1,5 @@
+use std::any::TypeId;
+
 use either_id::Either;
 use langspec::{
     langspec::{AlgebraicSortId, AsLifetime, LangSpec, MappedType, Name, SortId, SortIdOf},
@@ -92,18 +94,56 @@ where
         &'this self,
         lsub: &'lsub LSub,
     ) -> Option<langspec::sublang::Sublang<'this, LSub::AsLifetime<'this>, SortIdOf<Self>>> {
-        self.l
-            .sublang::<LSub>(lsub)
-            .map(|Sublang { lsub, map, tems }| Sublang {
-                lsub,
-                map: Box::new(move |sid| Csm::embed_sort_id(map(sid))),
-                tems: tems
-                    .into_iter()
-                    .map(|it| it.fmap(Csm::embed_sort_id))
-                    .collect(),
-            })
+        if TypeId::of::<LSub::AsLifetime<'static>>() == TypeId::of::<Self::AsLifetime<'static>>()
+            && lsub.name() == self.name()
+        {
+            unsafe {
+                Some(std::mem::transmute::<
+                    Sublang<Self, SortIdOf<Self>>,
+                    Sublang<LSub::AsLifetime<'this>, SortIdOf<Self>>,
+                >(reflexive_sublang(self)))
+            }
+        } else {
+            None
+        }
+        .or_else(|| {
+            self.l
+                .sublang::<LSub>(lsub)
+                .map(|Sublang { lsub, map, tems }| Sublang {
+                    lsub,
+                    map: Box::new(move |sid| Csm::embed_sort_id(map(sid))),
+                    tems: tems
+                        .into_iter()
+                        .map(|it| it.fmap(Csm::embed_sort_id))
+                        .collect(),
+                })
+        })
+        // self.l
+        //     .sublang::<LSub>(lsub)
+        //     .map(|Sublang { lsub, map, tems }| Sublang {
+        //         lsub,
+        //         map: Box::new(move |sid| Csm::embed_sort_id(map(sid))),
+        //         tems: tems
+        //             .into_iter()
+        //             .map(|it| it.fmap(Csm::embed_sort_id))
+        //             .collect(),
+        //     })
+        //     .or_else(|| {
+        //         if TypeId::of::<LSub::AsLifetime<'static>>()
+        //             == TypeId::of::<Self::AsLifetime<'static>>()
+        //             && lsub.name() == self.name()
+        //         {
+        //             unsafe {
+        //                 Some(std::mem::transmute::<
+        //                     Sublang<Self, SortIdOf<Self>>,
+        //                     Sublang<LSub::AsLifetime<'this>, SortIdOf<Self>>,
+        //                 >(reflexive_sublang(self)))
+        //             }
+        //         } else {
+        //             None
+        //         }
+        //     })
     }
-    
 
     // fn sublangs(&self) -> Vec<langspec::sublang::Sublang<SortIdOf<Self>>> {
     //     self.l

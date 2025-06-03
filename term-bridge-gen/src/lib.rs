@@ -3,7 +3,7 @@ use langspec::{
     sublang::Sublang,
 };
 use langspec_gen_util::{AlgebraicsBasePath, HeapType, LsGen};
-use words::words_impls;
+// use words::words_impls;
 
 pub struct BasePaths {
     pub ext_data_structure: syn::Path,
@@ -41,12 +41,12 @@ pub fn generate<'a, L: LangSpec, LSub: LangSpec>(
         .collect::<Vec<_>>();
     let heap = generate_heap(&bps.ext_data_structure, &bps.og_term_trait);
     let owned_impls = generate_owned_impls(&camel_names, &image_ty_under_embeddings, bps);
-    let words_impls = words_impls(
-        &bps.ext_data_structure,
-        &bps.og_words_base_path,
-        sublang,
-        ext_lg,
-    );
+    // let words_impls = words_impls(
+    //     &bps.ext_data_structure,
+    //     &bps.og_words_base_path,
+    //     sublang,
+    //     ext_lg,
+    // );
     let inverse_implements_impls = words::words_inverse_impls(
         &bps.ext_data_structure,
         &bps.og_words_base_path,
@@ -57,7 +57,7 @@ pub fn generate<'a, L: LangSpec, LSub: LangSpec>(
         mod bridge {
             #heap
             #owned_impls
-            #words_impls
+            // #words_impls
             #inverse_implements_impls
         }
     }
@@ -131,7 +131,7 @@ pub mod targets {
                 //     codegen_deps.subtree(),
                 //     l,
                 // ));
-                let _ = codegen_deps.add(rec(arena, codegen_deps.subtree(), l, sl.cdr()));
+                let _ = codegen_deps.add(rec(arena, codegen_deps.subtree(), l, sl));
                 let byline = byline!();
                 Box::new(move |_, _| {
                     // super::generate(
@@ -205,6 +205,12 @@ pub mod targets {
                 if Sl::LENGTH > 1 {
                     let _ = codegen_deps.add(rec(arena, codegen_deps.subtree(), l, sl.cdr()));
                 }
+                let _ = codegen_deps.add(term_specialized_impl_gen::targets::words_impls(
+                    arena,
+                    codegen_deps.subtree(),
+                    l,
+                    car,
+                ));
                 // let _ = codegen_deps.add(term_specialized_impl_gen::targets::default(
                 //     arena,
                 //     codegen_deps.subtree(),

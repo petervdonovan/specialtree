@@ -154,6 +154,7 @@ pub mod targets {
     use std::path::Path;
 
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
+    use extension_autobox::autobox;
     use langspec::{
         langspec::{LangSpec as _, SortIdOf},
         sublang::{SublangsList, reflexive_sublang},
@@ -169,20 +170,20 @@ pub mod targets {
         CodegenInstance {
             id: kebab_id!(l),
             generate: {
+                let l_autobox = arena.alloc(autobox(l));
                 let words =
                     codegen_deps.add(words::targets::words_mod(arena, codegen_deps.subtree(), l));
                 let data_structure = codegen_deps.add(term_specialized_gen::targets::default(
                     arena,
                     codegen_deps.subtree(),
-                    l,
+                    l_autobox,
                 ));
-                let _ = codegen_deps.add(
-                    term_pattern_match_strategy_provider_impl_gen::targets::words_impls(
-                        arena,
-                        codegen_deps.subtree(),
-                        l,
-                    ),
-                );
+                let _ = codegen_deps.add(term_specialized_impl_gen::targets::words_impls(
+                    arena,
+                    codegen_deps.subtree(),
+                    l_autobox,
+                    arena.alloc(l_autobox.sublang(l).unwrap()),
+                ));
                 let term_trait = codegen_deps.add(term_trait_gen::targets::default(
                     arena,
                     codegen_deps.subtree(),

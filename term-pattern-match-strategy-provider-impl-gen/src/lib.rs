@@ -49,7 +49,12 @@ pub mod targets {
                     codegen_deps.subtree(),
                     l,
                 ));
-                let _ = codegen_deps.add(words_impls(arena, codegen_deps.subtree(), l));
+                let _ = codegen_deps.add(term_specialized_impl_gen::targets::words_impls(
+                    arena,
+                    codegen_deps.subtree(),
+                    l,
+                    arena.alloc(reflexive_sublang(l)),
+                ));
                 Box::new(move |c2sp, _| {
                     let lg = super::LsGen::from(l);
                     super::generate(&data_structure(c2sp), &lg)
@@ -60,41 +65,6 @@ pub mod targets {
                 "term-pattern-match-strategy-provider-impl-gen",
                 Path::new("."),
             )],
-            codegen_deps,
-        }
-    }
-
-    pub fn words_impls<'langs, LImplFor: super::LangSpec>(
-        arena: &'langs bumpalo::Bump,
-        mut codegen_deps: CgDepList<'langs>,
-        lif: &'langs LImplFor,
-    ) -> CodegenInstance<'langs> {
-        CodegenInstance {
-            id: kebab_id!(lif),
-            generate: {
-                let words_path = codegen_deps.add(words::targets::words_mod::<LImplFor>(
-                    arena,
-                    codegen_deps.subtree(),
-                    lif,
-                ));
-                let data_structure = codegen_deps.add(term_specialized_gen::targets::default(
-                    arena,
-                    codegen_deps.subtree(),
-                    lif,
-                ));
-                Box::new(move |c, _| {
-                    let words_path = words_path(c);
-                    let sorts_path = data_structure(c);
-                    words::words_impls(
-                        &sorts_path,
-                        &words_path,
-                        &reflexive_sublang(lif),
-                        &super::LsGen::from(lif),
-                    )
-                })
-            },
-            external_deps: vec![],
-            workspace_deps: vec![("words", Path::new("."))],
             codegen_deps,
         }
     }
