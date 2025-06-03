@@ -1,6 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use codegen_component::{CgDepList, Component2SynPath, Crate};
+use extension_autobox::autobox;
 use langspec::{
     flat::LangSpecFlat,
     langspec::{LangSpec, SortIdOf, TerminalLangSpec},
@@ -10,8 +11,10 @@ use langspec::{
 pub fn main() {
     let arena = bumpalo::Bump::new();
     let fib = LangSpecFlat::canonical_from(&langspec_examples::fib());
+    let fib_autobox = autobox(&fib);
     // let fib_cst = cst(&arena, &fib);
     let fib_pat = extension_pattern::patternfy(&arena, &fib);
+    let fib_pat_autobox = autobox(&fib_pat);
     // let fib_pat_file = extension_file::filefy_all_tmf(&fib_pat, );
     // let fib_pat_cst = cst(&arena, &fib_pat);
     let root_cgd = CgDepList::new();
@@ -23,7 +26,17 @@ pub fn main() {
     ];
     let crates = vec![
         traits_crate(&arena, &root_cgd, "fib", &fib, &fib_deps),
-        ds_crate_no_sublangs(&arena, &root_cgd, "fib-ds", &fib, &fib_deps),
+        ds_crate(
+            &arena,
+            &root_cgd,
+            "fib-ds",
+            &fib_autobox,
+            arena.alloc((
+                reflexive_sublang(&fib_autobox),
+                (fib_autobox.sublang(&fib).unwrap(), ()),
+            )),
+            &fib_deps,
+        ),
         Crate {
             id: "fib-parse".into(),
             provides: vec![parse_gen::targets::default(
@@ -72,10 +85,13 @@ pub fn main() {
             &arena,
             &root_cgd,
             "fib-pat-ds",
-            &fib_pat,
+            &fib_pat_autobox,
             arena.alloc((
-                reflexive_sublang(&fib_pat),
-                (fib_pat.sublang(&fib).unwrap(), ()),
+                reflexive_sublang(&fib_pat_autobox),
+                (
+                    fib_pat_autobox.sublang(&fib_pat).unwrap(),
+                    (fib_pat_autobox.sublang(&fib).unwrap(), ()),
+                ),
             )),
             &pat_deps,
         ),
@@ -142,11 +158,7 @@ where
         provides: vec![
             term_specialized_gen::targets::default(arena, root_cgd.subtree(), l),
             term_bridge_gen::targets::default(arena, root_cgd.subtree(), l, sublangs),
-            term_pattern_match_strategy_provider_impl_gen::targets::words_impls(
-                arena,
-                root_cgd.subtree(),
-                l,
-            ),
+            // term_specialized_impl_gen::targets::words_impls(arena, root_cgd.subtree(), l),
             term_pattern_match_strategy_provider_impl_gen::targets::default(
                 arena,
                 root_cgd.subtree(),
@@ -156,34 +168,34 @@ where
         global_workspace_deps: global_workspace_deps.to_vec(),
     }
 }
-fn ds_crate_no_sublangs<'arena: 'b, 'b>(
-    arena: &'arena bumpalo::Bump,
-    root_cgd: &CgDepList<'b>,
-    id: &str,
-    l: &'b impl LangSpec,
-    global_workspace_deps: &[(&'static str, &'static Path)],
-) -> Crate<'b> {
-    Crate {
-        id: id.into(),
-        provides: vec![
-            term_specialized_gen::targets::default(arena, root_cgd.subtree(), l),
-            term_specialized_impl_gen::targets::default(
-                arena,
-                root_cgd.subtree(),
-                l,
-                arena.alloc((reflexive_sublang(l), ())),
-            ),
-            term_pattern_match_strategy_provider_impl_gen::targets::words_impls(
-                arena,
-                root_cgd.subtree(),
-                l,
-            ),
-            term_pattern_match_strategy_provider_impl_gen::targets::default(
-                arena,
-                root_cgd.subtree(),
-                l,
-            ),
-        ],
-        global_workspace_deps: global_workspace_deps.to_vec(),
-    }
-}
+// fn ds_crate_no_sublangs<'arena: 'b, 'b>(
+//     arena: &'arena bumpalo::Bump,
+//     root_cgd: &CgDepList<'b>,
+//     id: &str,
+//     l: &'b impl LangSpec,
+//     global_workspace_deps: &[(&'static str, &'static Path)],
+// ) -> Crate<'b> {
+//     Crate {
+//         id: id.into(),
+//         provides: vec![
+//             term_specialized_gen::targets::default(arena, root_cgd.subtree(), l),
+//             term_specialized_impl_gen::targets::default(
+//                 arena,
+//                 root_cgd.subtree(),
+//                 l,
+//                 arena.alloc((reflexive_sublang(l), ())),
+//             ),
+//             term_pattern_match_strategy_provider_impl_gen::targets::words_impls(
+//                 arena,
+//                 root_cgd.subtree(),
+//                 l,
+//             ),
+//             term_pattern_match_strategy_provider_impl_gen::targets::default(
+//                 arena,
+//                 root_cgd.subtree(),
+//                 l,
+//             ),
+//         ],
+//         global_workspace_deps: global_workspace_deps.to_vec(),
+//     }
+// }

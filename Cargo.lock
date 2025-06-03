@@ -226,6 +226,7 @@ dependencies = [
  "ccf",
  "fib",
  "term",
+ "term-bridge-gen",
  "term-pattern-match-strategy-provider-impl-gen",
  "term-specialized-gen",
  "term-specialized-impl-gen",
@@ -384,6 +385,7 @@ version = "0.1.0"
 dependencies = [
  "bumpalo",
  "codegen-component",
+ "extension-autobox",
  "extension-file",
  "extension-pattern",
  "langspec",

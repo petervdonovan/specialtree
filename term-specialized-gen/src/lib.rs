@@ -219,7 +219,7 @@ pub(crate) fn gen_heaped_impls<L: LangSpec>(base_path: &syn::Path, lg: &LsGen<L>
 
 pub mod targets {
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
-    use extension_autobox::autobox;
+    // use extension_autobox::autobox;
     use langspec_gen_util::kebab_id;
 
     pub fn default<'langs, L: super::LangSpec>(
@@ -231,8 +231,8 @@ pub mod targets {
             id: kebab_id!(l),
             generate: {
                 Box::new(move |_, sp| {
-                    let lsf_boxed = autobox(l);
-                    let lg = super::LsGen::from(&lsf_boxed);
+                    // let lsf_boxed = autobox(l);
+                    let lg = super::LsGen::from(l);
                     super::generate(&sp, &lg, false)
                 })
             },

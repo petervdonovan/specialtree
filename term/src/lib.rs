@@ -1,5 +1,3 @@
-#![feature(fundamental)]
-use ccf::CanonicallyConstructibleFrom;
 pub use type_equals;
 
 pub mod drop;

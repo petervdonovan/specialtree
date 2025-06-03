@@ -20,3 +20,4 @@ names-langspec-sort-gen = { version = "0.1.0", path = "../names-langspec-sort-ge
 extension-pattern = { version = "0.1.0", path = "../extension-pattern" }
 extension-file = { version = "0.1.0", path = "../extension-file" }
 term-bridge-gen = { version = "0.1.0", path = "../term-bridge-gen" }
+extension-autobox = { version = "0.1.0", path = "../extension-autobox" }

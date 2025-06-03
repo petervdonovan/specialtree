@@ -1,6 +1,6 @@
 use langspec::{
     langspec::{AlgebraicSortId, LangSpec, SortId, SortIdOf},
-    sublang::{Sublangs, reflexive_sublang},
+    sublang::Sublangs,
 };
 use langspec_gen_util::{
     AlgebraicsBasePath, CcfPaths, HeapType, LsGen, TyGenData, byline, cons_list_index_range,
@@ -17,49 +17,16 @@ pub fn generate<L: LangSpec>(
     lsg: &LsGen<L>,
     important_sublangs: impl Sublangs<SortIdOf<L>>,
 ) -> syn::ItemMod {
-    let owned_mod = gen_owned_mod(bps, lsg);
     let ccf_mod = gen_ccf_mod(bps, lsg);
     let transitive_ccf_mod = gen_transitive_ccf_mod(&bps.data_structure, lsg, important_sublangs);
     let ccf_auto_impls = gen_ccf_auto_impls(&bps.data_structure, &bps.words, lsg);
-    let heap_impl = gen_heap_impl(bps);
-    // let maps_tmf_impls = gen_maps_tmf(bps);
-    let inverse_implements_impls = words::words_inverse_impls(
-        &bps.data_structure,
-        &bps.words,
-        &reflexive_sublang(lsg.bak()),
-        lsg,
-    );
     let byline = byline!();
     syn::parse_quote! {
         #byline
         pub mod term_impls {
-            #heap_impl
-            #owned_mod
             #ccf_mod
             #transitive_ccf_mod
             #ccf_auto_impls
-            // #maps_tmf_impls
-            #inverse_implements_impls
-        }
-    }
-}
-
-pub(crate) fn gen_owned_mod<L: LangSpec>(
-    BasePaths {
-        data_structure,
-        term_trait,
-        words,
-    }: &BasePaths,
-    data_structure_lsg: &LsGen<L>,
-) -> syn::ItemMod {
-    let camels = data_structure_lsg
-        .ty_gen_datas(Some(syn::parse_quote!(#words)))
-        .map(|td| td.camel_ident.clone());
-    let byline = byline!();
-    syn::parse_quote! {
-        #byline
-        pub mod owned_impls {
-            #(impl #term_trait::owned::#camels<#data_structure::Heap> for #data_structure::#camels {})*
         }
     }
 }
@@ -335,41 +302,15 @@ pub(crate) fn gen_ccf_impl_sum(
     }
 }
 
-pub(crate) fn gen_heap_impl(
-    BasePaths {
-        data_structure,
-        term_trait,
-        words,
-    }: &BasePaths,
-    // _data_structure_lsg: &LsGen<L>,
-    // term_trait_lsg: &LsGen<L>,
-) -> syn::ItemImpl {
-    let byline = byline!();
-    // let camels = term_trait_lsg
-    //     .ty_gen_datas(Some(syn::parse_quote!(#words)))
-    //     .map(|td| td.camel_ident.clone());
-    syn::parse_quote! {
-        #byline
-        impl #term_trait::Heap for #data_structure::Heap {
-            // #(type #camels = #data_structure::#camels;)*
-        }
-    }
-}
-
 pub mod targets {
     use std::path::Path;
 
-    use codegen_component::{CgDepList, CodegenInstance, bumpalo};
+    use codegen_component::{CgDepList, CodegenInstance, KebabCodegenId, bumpalo};
     use extension_autobox::autobox;
-    use langspec::{langspec::SortIdOf, sublang::SublangsList};
-
-    // pub fn default<'langs, L: super::LangSpec>(
-    //     arena: &'langs bumpalo::Bump,
-    //     codegen_deps: CgDepList<'langs>,
-    //     l: &'langs L,
-    // ) -> CodegenInstance<'langs> {
-    //     term_specialized_impl(arena, codegen_deps, l, (reflexive_sublang(l), ()))
-    // }
+    use langspec::{
+        langspec::SortIdOf,
+        sublang::{Sublang, SublangsList},
+    };
 
     pub fn default<'langs, L: super::LangSpec>(
         arena: &'langs bumpalo::Bump,
@@ -377,23 +318,6 @@ pub mod targets {
         l: &'langs L,
         sublangs: &'langs impl SublangsList<'langs, SortIdOf<L>>,
     ) -> CodegenInstance<'langs> {
-        // let sublang_names_dedup =
-        //     std::iter::once(l.name())
-        //         .chain(sublangs.iter())
-        //         .fold(Vec::new(), |mut acc, l| {
-        //             if !acc.contains(l) {
-        //                 acc.push(l.clone());
-        //             }
-        //             acc
-        //         });
-        // let kebab = sublangs.names().fold(String::new(), |acc, l| {
-        //     let kebab = l.snake.replace("_", "-");
-        //     if acc.is_empty() {
-        //         kebab
-        //     } else {
-        //         format!("{acc}-{kebab}")
-        //     }
-        // });
         CodegenInstance {
             id: codegen_component::KebabCodegenId(sublangs.kebab("term-specialized-impl")),
             generate: {
@@ -429,6 +353,39 @@ pub mod targets {
                 ("term-specialized-impl-gen", Path::new(".")),
                 ("ccf", Path::new(".")),
             ],
+            codegen_deps,
+        }
+    }
+    pub fn words_impls<'langs, LImplFor: super::LangSpec, LSub: super::LangSpec>(
+        arena: &'langs bumpalo::Bump,
+        mut codegen_deps: CgDepList<'langs>,
+        lif: &'langs LImplFor,
+        sublang: &'langs Sublang<'langs, LSub, SortIdOf<LImplFor>>,
+    ) -> CodegenInstance<'langs> {
+        CodegenInstance {
+            id: KebabCodegenId(format!(
+                "words-impls-{}",
+                sublang.lsub.name().clone().merge(lif.name()).snake
+            )),
+            generate: {
+                let words_path = codegen_deps.add(words::targets::words_mod::<LSub>(
+                    arena,
+                    codegen_deps.subtree(),
+                    sublang.lsub,
+                ));
+                let data_structure = codegen_deps.add(term_specialized_gen::targets::default(
+                    arena,
+                    codegen_deps.subtree(),
+                    lif,
+                ));
+                Box::new(move |c, _| {
+                    let words_path = words_path(c);
+                    let sorts_path = data_structure(c);
+                    words::words_impls(&sorts_path, &words_path, sublang, &super::LsGen::from(lif))
+                })
+            },
+            external_deps: vec![],
+            workspace_deps: vec![("words", Path::new("."))],
             codegen_deps,
         }
     }
