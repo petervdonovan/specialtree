@@ -24,6 +24,12 @@ impl Name {
         self.snake += &other.snake;
         self
     }
+    pub fn camel(&self) -> syn::Ident {
+        syn::Ident::new(&self.camel.clone(), proc_macro2::Span::call_site())
+    }
+    pub fn snake(&self) -> syn::Ident {
+        syn::Ident::new(&self.snake.clone(), proc_macro2::Span::call_site())
+    }
 }
 #[allow(type_alias_bounds)]
 pub type SortIdOf<L: LangSpec> =

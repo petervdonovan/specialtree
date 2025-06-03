@@ -2,7 +2,7 @@ use langspec::{
     langspec::{LangSpec, SortId, SortIdOf},
     sublang::Sublang,
 };
-use langspec_gen_util::{AlgebraicsBasePath, HeapType, LsGen, byline};
+use langspec_gen_util::{AlgebraicsBasePath, HeapType, LsGen};
 use words::words_impls;
 
 pub struct BasePaths {
@@ -13,7 +13,6 @@ pub struct BasePaths {
 
 pub fn generate<'a, L: LangSpec, LSub: LangSpec>(
     ext_lg: &LsGen<L>,
-    // oglsg: &LsGen<LSub>,
     sublang: &Sublang<'a, LSub, SortIdOf<L>>,
     bps: &BasePaths,
 ) -> syn::ItemMod {
@@ -22,12 +21,6 @@ pub fn generate<'a, L: LangSpec, LSub: LangSpec>(
         og_term_trait: _,
         og_words_base_path: _,
     } = bps;
-    // let sublang = ext_lg
-    //     .bak()
-    //     .sublangs()
-    //     .into_iter()
-    //     .find(|sublang| sublang.name == *sublang_name)
-    //     .expect("Sublang not found");
     dbg!(sublang.lsub.name());
     let (camel_names, sids): (Vec<_>, Vec<SortIdOf<LSub>>) = LsGen::from(sublang.lsub)
         .ty_gen_datas(None)
@@ -46,7 +39,7 @@ pub fn generate<'a, L: LangSpec, LSub: LangSpec>(
             )
         })
         .collect::<Vec<_>>();
-    let heap = generate_heap(&camel_names, &image_ty_under_embeddings, bps);
+    let heap = generate_heap(&bps.ext_data_structure, &bps.og_term_trait);
     let owned_impls = generate_owned_impls(&camel_names, &image_ty_under_embeddings, bps);
     let words_impls = words_impls(
         &bps.ext_data_structure,
@@ -54,34 +47,30 @@ pub fn generate<'a, L: LangSpec, LSub: LangSpec>(
         sublang,
         ext_lg,
     );
-    let maps_tmf_impls = generate_maps_tmf_impls(ext_lg, sublang, bps);
+    let inverse_implements_impls = words::words_inverse_impls(
+        &bps.ext_data_structure,
+        &bps.og_words_base_path,
+        sublang,
+        ext_lg,
+    );
     syn::parse_quote! {
         mod bridge {
             #heap
             #owned_impls
             #words_impls
-            #maps_tmf_impls
+            #inverse_implements_impls
         }
     }
 }
 
 pub(crate) fn generate_heap(
-    camel_names: &[syn::Ident],
-    image_ty_under_embeddings: &[syn::Type],
-    BasePaths {
-        ext_data_structure,
-        og_term_trait,
-        og_words_base_path: _,
-    }: &BasePaths,
+    ext_data_structure: &syn::Path,
+    og_term_trait: &syn::Path,
 ) -> syn::ItemImpl {
     let byline = langspec_gen_util::byline!();
     syn::parse_quote! {
         #byline
-        impl #og_term_trait::Heap for #ext_data_structure::Heap {
-            #(
-                type #camel_names = #image_ty_under_embeddings;
-            )*
-        }
+        impl #og_term_trait::Heap for #ext_data_structure::Heap {}
     }
 }
 
@@ -100,54 +89,6 @@ pub(crate) fn generate_owned_impls(
         pub mod owned_impls {
             #(
                 impl #og_term_trait::owned::#camel_names<#ext_data_structure::Heap> for #image_ty_under_embeddings {}
-            )*
-        }
-    }
-}
-
-pub(crate) fn generate_maps_tmf_impls<L: LangSpec, LSub: LangSpec>(
-    ext_lg: &LsGen<L>,
-    sublang: &Sublang<LSub, SortIdOf<L>>,
-    BasePaths {
-        ext_data_structure,
-        og_term_trait,
-        og_words_base_path,
-    }: &BasePaths,
-) -> syn::ItemMod {
-    let byline = langspec_gen_util::byline!();
-    let (ogtys, mapped_tys) = sublang
-        .tems
-        .iter()
-        .map(|tmf| {
-            let ogty_shallow = ext_lg.sort2rs_ty(
-                tmf.fromshallow.clone(),
-                &HeapType(syn::parse_quote! {#ext_data_structure::Heap}),
-                &AlgebraicsBasePath::new(quote::quote! { #ext_data_structure:: }),
-            );
-            let ogty_rec = ext_lg.sort2rs_ty(
-                tmf.fromrec.clone(),
-                &HeapType(syn::parse_quote! {#ext_data_structure::Heap}),
-                &AlgebraicsBasePath::new(
-                    quote::quote! {<#ext_data_structure::Heap as #og_term_trait::Heap>::},
-                ),
-            );
-            let mapped_ty = ext_lg.sort2rs_ty(
-                tmf.to.clone(),
-                &HeapType(syn::parse_quote! {#ext_data_structure::Heap}),
-                &AlgebraicsBasePath::new(quote::quote! {#ext_data_structure::}),
-            );
-            ((ogty_shallow, ogty_rec), mapped_ty)
-        })
-        .unzip::<_, _, Vec<_>, Vec<_>>();
-    let (ogtys_shallow, ogtys_rec) = ogtys.into_iter().unzip::<_, _, Vec<_>, Vec<_>>();
-    syn::parse_quote! {
-        #byline
-        pub mod maps_tmf_impls {
-            #(
-                impl term::MapsTmf<#og_words_base_path::L, #ogtys_rec> for #ext_data_structure::Heap {
-                    type TmfFrom = #ogtys_shallow;
-                    type TmfTo = #mapped_tys;
-                }
             )*
         }
     }

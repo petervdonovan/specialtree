@@ -1,6 +1,6 @@
 use langspec::{
     langspec::{AlgebraicSortId, LangSpec, SortId, SortIdOf},
-    sublang::Sublangs,
+    sublang::{Sublangs, reflexive_sublang},
 };
 use langspec_gen_util::{
     AlgebraicsBasePath, CcfPaths, HeapType, LsGen, TyGenData, byline, cons_list_index_range,
@@ -21,8 +21,14 @@ pub fn generate<L: LangSpec>(
     let ccf_mod = gen_ccf_mod(bps, lsg);
     let transitive_ccf_mod = gen_transitive_ccf_mod(&bps.data_structure, lsg, important_sublangs);
     let ccf_auto_impls = gen_ccf_auto_impls(&bps.data_structure, &bps.words, lsg);
-    let heap_impl = gen_heap_impl(bps, lsg, lsg);
-    let maps_tmf_impls = gen_maps_tmf(bps);
+    let heap_impl = gen_heap_impl(bps);
+    // let maps_tmf_impls = gen_maps_tmf(bps);
+    let inverse_implements_impls = words::words_inverse_impls(
+        &bps.data_structure,
+        &bps.words,
+        &reflexive_sublang(lsg.bak()),
+        lsg,
+    );
     let byline = byline!();
     syn::parse_quote! {
         #byline
@@ -32,47 +38,8 @@ pub fn generate<L: LangSpec>(
             #ccf_mod
             #transitive_ccf_mod
             #ccf_auto_impls
-            #maps_tmf_impls
-        }
-    }
-}
-
-pub fn generate_bridge<L: LangSpec>(
-    bps: &BasePaths,
-    data_structure_lsg: &LsGen<L>,
-    term_trait_lsg: &LsGen<L>,
-) -> syn::ItemMod {
-    let heap_impl = gen_heap_impl(bps, data_structure_lsg, term_trait_lsg);
-    let owned_mod = gen_owned_mod(bps, data_structure_lsg);
-    let byline = byline!();
-    syn::parse_quote! {
-        #byline
-        pub mod term_impls {
-            #heap_impl
-            #owned_mod
-        }
-    }
-}
-
-pub(crate) fn gen_maps_tmf(
-    BasePaths {
-        data_structure,
-        term_trait: _,
-        words,
-    }: &BasePaths,
-) -> syn::ItemMod {
-    let byline = byline!();
-    syn::parse_quote! {
-        #byline
-        pub mod maps_tmf_impls {
-            impl<TmfMonomorphization> term::MapsTmf<#words::L, TmfMonomorphization>
-                for #data_structure::Heap
-            where
-                TmfMonomorphization: ccf::CanonicallyConstructibleFrom<Self, (TmfMonomorphization, ())> + term::TyMetaFunc
-            {
-                type TmfFrom = TmfMonomorphization;
-                type TmfTo = TmfMonomorphization;
-            }
+            // #maps_tmf_impls
+            #inverse_implements_impls
         }
     }
 }
@@ -368,23 +335,23 @@ pub(crate) fn gen_ccf_impl_sum(
     }
 }
 
-pub(crate) fn gen_heap_impl<L: LangSpec>(
+pub(crate) fn gen_heap_impl(
     BasePaths {
         data_structure,
         term_trait,
         words,
     }: &BasePaths,
-    _data_structure_lsg: &LsGen<L>,
-    term_trait_lsg: &LsGen<L>,
+    // _data_structure_lsg: &LsGen<L>,
+    // term_trait_lsg: &LsGen<L>,
 ) -> syn::ItemImpl {
     let byline = byline!();
-    let camels = term_trait_lsg
-        .ty_gen_datas(Some(syn::parse_quote!(#words)))
-        .map(|td| td.camel_ident.clone());
+    // let camels = term_trait_lsg
+    //     .ty_gen_datas(Some(syn::parse_quote!(#words)))
+    //     .map(|td| td.camel_ident.clone());
     syn::parse_quote! {
         #byline
         impl #term_trait::Heap for #data_structure::Heap {
-            #(type #camels = #data_structure::#camels;)*
+            // #(type #camels = #data_structure::#camels;)*
         }
     }
 }

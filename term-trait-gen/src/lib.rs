@@ -27,19 +27,19 @@ pub(crate) fn heap_trait<L: LangSpec>(
     words_path: &syn::Path,
     ls: &LsGen<L>,
 ) -> syn::ItemTrait {
-    transpose!(
-        ls.ty_gen_datas(Some(syn::parse_quote! {#words_path})),
-        camel_ident
-    );
+    // transpose!(
+    //     ls.ty_gen_datas(Some(syn::parse_quote! {#words_path})),
+    //     camel_ident
+    // );
     let byline = byline!();
     let superheap_bounds = generate_superheap_bounds(ls, words_path);
-    let maps_tmf_bounds = generate_maps_tmf_bounds(words_path, ls);
+    let inverse_implements_bounds = generate_inverse_implements_bounds(base_path, words_path, ls);
     parse_quote! {
         #byline
-        pub trait Heap: Sized #(+ #maps_tmf_bounds)* #(+ #superheap_bounds)* {
-            #(
-                type #camel_ident: #base_path::owned::#camel_ident<Self>;
-            )*
+        pub trait Heap: Sized #(+ #inverse_implements_bounds)* #(+ #superheap_bounds)* {
+            // #(
+            //     type #camel_ident: #base_path::owned::#camel_ident<Self>;
+            // )*
         }
     }
 }
@@ -69,22 +69,33 @@ fn generate_superheap_bounds<L: LangSpec>(
         .collect()
 }
 
-fn generate_maps_tmf_bounds<L: LangSpec>(
+fn generate_inverse_implements_bounds<L: LangSpec>(
+    base_path: &syn::Path,
     words_path: &syn::Path,
     ls: &LsGen<L>,
 ) -> impl Iterator<Item = syn::TraitBound> {
-    let mut bounds = vec![];
-    langspec::langspec::call_on_all_tmf_monomorphizations(ls.bak(), &mut |mt| {
-        let tmf = ls.sort2rs_ty(
-            SortId::TyMetaFunc(mt.clone()),
-            &HeapType(syn::parse_quote! {Self}),
-            &AlgebraicsBasePath::new(quote::quote! {Self::}),
-        );
-        bounds.push(syn::parse_quote! {
-            term::MapsTmf<#words_path::L, #tmf>
-        });
-    });
-    bounds.into_iter()
+    ls.bak().all_sort_ids().map(move |sid| {
+        let lword = ls.sort2word_rs_ty(sid.clone(), words_path);
+        match sid {
+            SortId::Algebraic(asi) => {
+                let camel_ident = ls.bak().algebraic_sort_name(asi).camel();
+                syn::parse_quote! {
+                    words::InverseImplements<
+                        #words_path::L,
+                        #lword,
+                        StructuralImplementor: #base_path::owned::#camel_ident<Self>
+                    >
+                }
+            }
+            SortId::TyMetaFunc(_) => syn::parse_quote! {
+                words::InverseImplements<
+                    #words_path::L,
+                    #lword,
+                    ExternBehavioralImplementor: TyMetaFunc
+                >
+            },
+        }
+    })
 }
 
 mod owned {

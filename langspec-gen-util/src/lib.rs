@@ -195,11 +195,11 @@ impl<L: LangSpec> LsGen<'_, L> {
         let all_tems = important_sublangs
             .tems()
             .flatten()
-            .filter(|it| it.fromshallow != it.to)
+            .filter(|it| it.from_extern_behavioral != it.to_structural)
             .filter(|it| {
-                !ucp_acc
-                    .iter()
-                    .any(|existing| existing.from == it.fromshallow && existing.to == it.to)
+                !ucp_acc.iter().any(|existing| {
+                    existing.from == it.from_extern_behavioral && existing.to == it.to_structural
+                })
             })
             .collect::<Vec<_>>();
         for desired_pair in all_tems.into_iter() {
@@ -210,8 +210,8 @@ impl<L: LangSpec> LsGen<'_, L> {
                 find_ucp(
                     direct_ccf_rels.as_slice(),
                     UcpPair {
-                        from: desired_pair.fromshallow.clone(),
-                        to: desired_pair.to.clone(),
+                        from: desired_pair.from_extern_behavioral.clone(),
+                        to: desired_pair.to_structural.clone(),
                     },
                 )
                 .unwrap_or_else(|| panic!("Cannot find UCP for {:?}", &desired_pair)),
@@ -241,7 +241,7 @@ impl<L: LangSpec> LsGen<'_, L> {
         let sort2rs_ty = move |ht: HeapType, abp: AlgebraicsBasePath| {
             let words_path = words_path.clone();
             move |sort: SortIdOf<L>| match words_path {
-                Some(ref words_path) => self.sort2tmfmapped_rs_ty(sort, &ht, &abp, words_path),
+                Some(ref words_path) => self.sort2structural_from_word_rs_ty(sort, &ht, words_path),
                 None => self.sort2rs_ty(sort, &ht, &abp),
             }
         };
@@ -254,14 +254,8 @@ impl<L: LangSpec> LsGen<'_, L> {
                     TyGenData {
                         id: Some(AlgebraicSortId::Product(pid.clone())),
                         // fingerprint: pid_fingerprint(self.bak, &pid),
-                        snake_ident: syn::Ident::new(
-                            &self.bak.product_name(pid.clone()).snake.clone(),
-                            proc_macro2::Span::call_site(),
-                        ),
-                        camel_ident: syn::Ident::new(
-                            &self.bak.product_name(pid.clone()).camel.clone(),
-                            proc_macro2::Span::call_site(),
-                        ),
+                        snake_ident: self.bak.product_name(pid.clone()).snake(),
+                        camel_ident: self.bak.product_name(pid.clone()).camel(),
                         ccf_sortses,
                         ccf: CanonicallyConstructibleFromGenData {
                             ccf_sort_tys: Box::new({
@@ -442,9 +436,11 @@ impl<L: LangSpec> LsGen<'_, L> {
                     move |ht, abp, words_path| {
                         a.iter()
                             .map(|arg| match words_path {
-                                Some(words_path) => {
-                                    self.sort2tmfmapped_rs_ty(arg.clone(), &ht, &abp, words_path)
-                                }
+                                Some(words_path) => self.sort2structural_from_word_rs_ty(
+                                    arg.clone(),
+                                    &ht,
+                                    words_path,
+                                ),
                                 None => self.sort2rs_ty(arg.clone(), &ht, &abp),
                             })
                             .collect()
@@ -485,50 +481,26 @@ impl<L: LangSpec> LsGen<'_, L> {
             &AlgebraicsBasePath::new(syn::parse_quote! { #words_path::sorts:: }),
         )
     }
-    pub fn sort2tmfmapped_rs_ty(
+    pub fn sort2structural_from_word_rs_ty(
         &self,
         sort: SortIdOf<L>,
-        ht: &HeapType,
-        abp: &AlgebraicsBasePath,
+        HeapType(ht): &HeapType,
         words_path: &syn::Path,
     ) -> syn::Type {
-        match &sort {
-            SortId::Algebraic(asi) => {
-                let name = self.bak.algebraic_sort_name(asi.clone());
-                let ident = syn::Ident::new(&name.camel, proc_macro2::Span::call_site());
-                let abp = &abp.0;
-                syn::parse_quote! { #abp #ident }
-            }
-            SortId::TyMetaFunc(_) => {
-                let rs_ty = self.sort2rs_ty(sort.clone(), ht, abp);
-                // let rs_ty = self.sort2rs_ty_with_tmfmapped_args(sort.clone(), ht, abp, words_path);
-                let ht = &ht.0;
-                let ret = quote::quote! {<#ht as term::MapsTmf<#words_path::L, #rs_ty>>::TmfTo};
-                syn::parse_quote! { #ret }
-            }
+        let word_rs_ty = self.sort2word_rs_ty(sort, words_path);
+        syn::parse_quote! {
+            <#ht as words::InverseImplements<#words_path::L, #word_rs_ty>>::StructuralImplementor
         }
     }
-    pub fn sort2from_tmfmapped_rs_ty(
+    pub fn sort2externbehavioral_from_word_rs_ty(
         &self,
         sort: SortIdOf<L>,
-        ht: &HeapType,
-        abp: &AlgebraicsBasePath,
+        HeapType(ht): &HeapType,
         words_path: &syn::Path,
     ) -> syn::Type {
-        match &sort {
-            SortId::Algebraic(asi) => {
-                let name = self.bak.algebraic_sort_name(asi.clone());
-                let ident = syn::Ident::new(&name.camel, proc_macro2::Span::call_site());
-                let abp = &abp.0;
-                syn::parse_quote! { #abp #ident }
-            }
-            SortId::TyMetaFunc(_) => {
-                let rs_ty = self.sort2rs_ty(sort.clone(), ht, abp);
-                // let rs_ty = self.sort2rs_ty_with_tmfmapped_args(sort.clone(), ht, abp, words_path);
-                let ht = &ht.0;
-                let ret = quote::quote! {<#ht as term::MapsTmf<#words_path::L, #rs_ty>>::TmfFrom};
-                syn::parse_quote! { #ret }
-            }
+        let word_rs_ty = self.sort2word_rs_ty(sort, words_path);
+        syn::parse_quote! {
+            <#ht as words::InverseImplements<#words_path::L, #word_rs_ty>>::ExternBehavioralImplementor
         }
     }
     pub fn sort2heap_ty(
@@ -559,7 +531,7 @@ impl<L: LangSpec> LsGen<'_, L> {
                 // let ht = &ht.0;
                 match words_path {
                     Some(wp) => {
-                        let ty = self.sort2tmfmapped_rs_ty(sort, ht, abp, wp);
+                        let ty = self.sort2externbehavioral_from_word_rs_ty(sort, ht, wp);
                         Some(syn::parse_quote! { <#ty as term::TyMetaFunc>::HeapBak })
                     }
                     None => {

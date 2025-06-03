@@ -152,15 +152,14 @@ impl<'a, L: LangSpec> LangSpec for FileExtension<'a, L> {
                     tems: tems
                         .into_iter()
                         .map(|tem| TmfEndoMapping::<SortIdOf<Self>> {
-                            fromshallow: embed::<L>(tem.fromshallow),
-                            fromrec: embed::<L>(tem.fromrec),
-                            to: embed::<L>(tem.to),
+                            from_extern_behavioral: embed::<L>(tem.from_extern_behavioral),
+                            // fromrec: embed::<L>(tem.fromrec),
+                            to_structural: embed::<L>(tem.to_structural),
                         })
                         .collect(),
                 })
         }
     }
-    
 
     // fn sublangs(&self) -> Vec<langspec::sublang::Sublang<langspec::langspec::SortIdOf<Self>>> {
     //     self.l
