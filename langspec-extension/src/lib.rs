@@ -117,7 +117,7 @@ where
                         .tems
                         .into_iter()
                         .map(|tem| TmfEndoMapping::<SortIdOf<Self>> {
-                            fromshallow: match tem.fromshallow {
+                            from_extern_behavioral: match tem.from_extern_behavioral {
                                 SortId::Algebraic(_) => panic!(),
                                 SortId::TyMetaFunc(mapped_type) => SortId::TyMetaFunc(MappedType {
                                     f: Either::Left(Either::Left(mapped_type.f.clone())),
@@ -128,8 +128,8 @@ where
                                         .collect(),
                                 }),
                             },
-                            fromrec: l0_as_my_sid::<L0, L1>(tem.fromrec),
-                            to: L0M::l0_map(self, tem.to.clone()),
+                            // fromrec: l0_as_my_sid::<L0, L1>(tem.fromrec),
+                            to_structural: L0M::l0_map(self, tem.to_structural.clone()),
                         })
                         .collect(),
                 },

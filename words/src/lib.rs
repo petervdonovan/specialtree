@@ -8,6 +8,10 @@ use langspec_gen_util::{AlgebraicsBasePath, HeapType, LsGen, byline};
 pub trait Implements<Heap, L> {
     type LWord;
 }
+pub trait InverseImplements<L, LWord> {
+    type ExternBehavioralImplementor;
+    type StructuralImplementor;
+}
 #[fundamental]
 pub trait Adt {}
 
@@ -38,18 +42,18 @@ pub fn words_impls<L: LangSpec, LSub: LangSpec>(
         .bak()
         .all_sort_ids()
         .map(|sid| {
-            let skeleton = oglsg.sort2word_rs_ty(sid.clone(), og_words_base_path);
-            let ty = elsg.sort2rs_ty(
+            let word = oglsg.sort2word_rs_ty(sid.clone(), og_words_base_path);
+            let structural_implementor = elsg.sort2rs_ty(
                 (sublang.map)(&sid),
                 &HeapType(syn::parse_quote! { #ext_data_structure::Heap }),
                 &AlgebraicsBasePath::new(syn::parse_quote! { #ext_data_structure:: }),
             );
-            (ty, skeleton)
+            (structural_implementor, word)
         })
-        .map(|(ty, skeleton)| -> syn::ItemImpl {
+        .map(|(structural_implementor, word)| -> syn::ItemImpl {
             syn::parse_quote! {
-                impl words::Implements<#ext_data_structure::Heap, #og_words_base_path::L> for #ty {
-                    type LWord = #skeleton;
+                impl words::Implements<#ext_data_structure::Heap, #og_words_base_path::L> for #structural_implementor {
+                    type LWord = #word;
                 }
             }
         });
@@ -61,6 +65,86 @@ pub fn words_impls<L: LangSpec, LSub: LangSpec>(
         }
     }
 }
+
+pub fn words_inverse_impls<L: LangSpec, LSub: LangSpec>(
+    ext_data_structure: &syn::Path,
+    og_words_base_path: &syn::Path,
+    sublang: &Sublang<'_, LSub, SortIdOf<L>>,
+    elsg: &LsGen<L>,
+) -> syn::ItemMod {
+    let oglsg = LsGen::from(sublang.lsub);
+    let impls = oglsg
+        .bak()
+        .all_sort_ids()
+        .map(|sid| {
+            let word = oglsg.sort2word_rs_ty(sid.clone(), og_words_base_path);
+            let structural_implementor_sid = (sublang.map)(&sid);
+            let ht = HeapType(syn::parse_quote! { #ext_data_structure::Heap });
+            let abp = AlgebraicsBasePath::new(syn::parse_quote! { #ext_data_structure:: });
+            let structural_implementor =
+                elsg.sort2rs_ty(structural_implementor_sid.clone(), &ht, &abp);
+            let behavioral_implementor = sublang
+                .tems
+                .iter()
+                .find(|it| it.to_structural == structural_implementor_sid)
+                .map(|tem| elsg.sort2rs_ty(tem.from_extern_behavioral.clone(), &ht, &abp))
+                .unwrap_or_else(|| structural_implementor.clone());
+            (structural_implementor, behavioral_implementor, word)
+        })
+        .map(
+            |(structural_implementor, behavioral_implementor, word)| -> syn::ItemImpl {
+                syn::parse_quote! {
+                    impl words::InverseImplements<#og_words_base_path::L, #word> for #ext_data_structure::Heap {
+                        type ExternBehavioralImplementor = #behavioral_implementor;
+                        type StructuralImplementor = #structural_implementor;
+                    }
+                }
+            },
+        );
+    let byline = byline!();
+    syn::parse_quote! {
+        #byline
+        pub mod words_inverse_impls {
+            #(#impls)*
+        }
+    }
+}
+
+// pub fn words_inverse_impls<L: LangSpec, LSub: LangSpec>(
+//     ext_data_structure: &syn::Path,
+//     og_words_base_path: &syn::Path,
+//     sublang: &Sublang<'_, LSub, SortIdOf<L>>,
+//     elsg: &LsGen<L>,
+// ) -> syn::ItemMod {
+//     let oglsg = LsGen::from(sublang.lsub);
+//     let impls = oglsg
+//         .bak()
+//         .all_sort_ids()
+//         .map(|sid| {
+//             let word = oglsg.sort2word_rs_ty(sid.clone(), og_words_base_path);
+//             let structural_implementor = elsg.sort2rs_ty(
+//                 (sublang.map)(&sid),
+//                 &HeapType(syn::parse_quote! { #ext_data_structure::Heap }),
+//                 &AlgebraicsBasePath::new(syn::parse_quote! { #ext_data_structure:: }),
+//             );
+//             (structural_implementor, word)
+//         })
+//         .map(|(ty, word)| -> syn::ItemImpl {
+//             syn::parse_quote! {
+//                 impl words::InverseImplements<#word> for #ext_data_structure::Heap {
+//                     type ExternBehavioralImplementor = ;
+//                     type StructuralImplementor = #structural_implementor;
+//                 }
+//             }
+//         });
+//     let byline = byline!();
+//     syn::parse_quote! {
+//         #byline
+//         pub mod words_impls {
+//             #(#impls)*
+//         }
+//     }
+// }
 
 pub mod targets {
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
