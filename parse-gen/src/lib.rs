@@ -47,6 +47,7 @@ pub(crate) fn generate_parse<LCst: LangSpec>(
     cst_tgd: &TyGenData<LCst>,
 ) -> syn::Item {
     let snake_ident = &cst_tgd.snake_ident;
+    let camel_ident = &cst_tgd.camel_ident;
     let cst_data_structure_bp = &bps.cst_data_structure;
     let my_cstfied_ty = cstfied_ty(&bps.cst_data_structure, cst_tgd);
     let byline = byline!();
@@ -56,7 +57,7 @@ pub(crate) fn generate_parse<LCst: LangSpec>(
         pub fn #snake_ident(source: &str) -> (#cst_data_structure_bp::Heap, #my_cstfied_ty) {
             let mut parser = parse_adt::Parser::new(source);
             let mut heap = #cst_data_structure_bp::Heap::default();
-            let ret = <parse_adt::Parser<'_, #words::L> as covisit::Covisit<pmsp::AdtMetadata, #my_cstfied_ty, #cst_data_structure_bp::Heap, #words::L>>::covisit(&mut parser, &mut heap);
+            let ret = <parse_adt::Parser<'_, #words::L> as covisit::Covisit<#words::sorts::#camel_ident, #words::L, #my_cstfied_ty, #cst_data_structure_bp::Heap, words::AdtLike>>::covisit(&mut parser, &mut heap);
             (heap, ret)
         }
     }
