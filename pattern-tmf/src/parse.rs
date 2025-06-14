@@ -1,27 +1,35 @@
-use ccf::CanonicallyConstructibleFrom;
+use ccf::{CanonicallyConstructibleFrom, VisitationInfo};
 use covisit::Covisit;
 use parse_adt::{
     Lookahead, ParseCursor, Parser,
     cstfy::{Cstfy, cstfy_ok},
 };
-use pmsp::TmfMetadata;
 use term::SuperHeap;
+use words::{InverseImplements, NotAdtLike};
 
 use crate::{
     NamedPattern, NamedPatternHeapBak, OrVariable, OrVariableHeapBak, OrVariableZeroOrMore,
     OrVariableZeroOrMoreHeapBak,
 };
 
-impl<'a, Heap, L, MatchedTy, MatchedTyTmfMetadata, OvMapped>
-    Covisit<
-        TmfMetadata<OrVariable<Heap, MatchedTy>, (MatchedTyTmfMetadata, ())>,
-        Cstfy<Heap, OvMapped>,
-        Heap,
-        L,
-    > for Parser<'a, L>
+impl<'a, Heap, L, MatchedTy, MatchedTyLWord, OvMapped>
+    Covisit<OrVariable<(), MatchedTyLWord>, L, Cstfy<Heap, OvMapped>, Heap, NotAdtLike>
+    for Parser<'a, L>
 where
     Heap: SuperHeap<OrVariableHeapBak<Heap, MatchedTy>>,
-    Parser<'a, L>: Covisit<MatchedTyTmfMetadata, MatchedTy, Heap, L>,
+    Heap: InverseImplements<
+            L,
+            OrVariable<(), MatchedTyLWord>,
+            ExternBehavioralImplementor = OrVariable<Heap, MatchedTy>,
+        >,
+    MatchedTyLWord: VisitationInfo,
+    Parser<'a, L>: Covisit<
+            MatchedTyLWord,
+            L,
+            MatchedTy,
+            Heap,
+            <MatchedTyLWord as VisitationInfo>::AdtLikeOrNot,
+        >,
     OvMapped: CanonicallyConstructibleFrom<Heap, (OrVariable<Heap, MatchedTy>, ())>,
 {
     fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, OvMapped> {
@@ -48,16 +56,24 @@ where
     }
 }
 
-impl<'a, Heap, L, MatchedTy, MatchedTyTmfMetadata, OvZomMapped>
-    Covisit<
-        TmfMetadata<OrVariableZeroOrMore<Heap, MatchedTy>, (MatchedTyTmfMetadata, ())>,
-        Cstfy<Heap, OvZomMapped>,
-        Heap,
-        L,
-    > for Parser<'a, L>
+impl<'a, Heap, L, MatchedTy, MatchedTyLWord, OvZomMapped>
+    Covisit<OrVariableZeroOrMore<(), MatchedTyLWord>, L, Cstfy<Heap, OvZomMapped>, Heap, NotAdtLike>
+    for Parser<'a, L>
 where
     Heap: SuperHeap<OrVariableZeroOrMoreHeapBak<Heap, MatchedTy>>,
-    Parser<'a, L>: Covisit<MatchedTyTmfMetadata, MatchedTy, Heap, L>,
+    Heap: InverseImplements<
+            L,
+            OrVariable<(), MatchedTyLWord>,
+            ExternBehavioralImplementor = OrVariableZeroOrMore<Heap, MatchedTy>,
+        >,
+    MatchedTyLWord: VisitationInfo,
+    Parser<'a, L>: Covisit<
+            MatchedTyLWord,
+            L,
+            MatchedTy,
+            Heap,
+            <MatchedTyLWord as VisitationInfo>::AdtLikeOrNot,
+        >,
     OvZomMapped: CanonicallyConstructibleFrom<Heap, (OrVariableZeroOrMore<Heap, MatchedTy>, ())>,
 {
     fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, OvZomMapped> {
@@ -92,16 +108,19 @@ where
     }
 }
 
-impl<'a, Heap, L, Pattern, PatternTmfMetadata, NamedPatternMapped>
-    Covisit<
-        TmfMetadata<NamedPattern<Heap, Pattern>, (PatternTmfMetadata, ())>,
-        Cstfy<Heap, NamedPatternMapped>,
-        Heap,
-        L,
-    > for Parser<'a, L>
+impl<'a, Heap, L, Pattern, PatternLWord, NamedPatternMapped>
+    Covisit<NamedPattern<(), PatternLWord>, L, Cstfy<Heap, NamedPatternMapped>, Heap, NotAdtLike>
+    for Parser<'a, L>
 where
     Heap: SuperHeap<NamedPatternHeapBak<Heap, Pattern>>,
-    Parser<'a, L>: Covisit<PatternTmfMetadata, Pattern, Heap, L>,
+    Heap: InverseImplements<
+            L,
+            NamedPattern<(), PatternLWord>,
+            ExternBehavioralImplementor = NamedPattern<Heap, Pattern>,
+        >,
+    PatternLWord: VisitationInfo,
+    Parser<'a, L>:
+        Covisit<PatternLWord, L, Pattern, Heap, <PatternLWord as VisitationInfo>::AdtLikeOrNot>,
     NamedPatternMapped: CanonicallyConstructibleFrom<Heap, (NamedPattern<Heap, Pattern>, ())>,
 {
     fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, NamedPatternMapped> {

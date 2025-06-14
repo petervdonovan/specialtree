@@ -1,8 +1,9 @@
+use ccf::VisitationInfo;
 use langspec::langspec::{LangSpec, SortIdOf};
-use pmsp::AdtMetadata;
 use thiserror::Error;
-use visit::{Visit, skip_visit::SkipVisit};
+use visit::Visit;
 use visitor::{PatternBuilder, PbResultError};
+use words::Implements;
 
 pub mod tmfscore;
 pub mod visitor;
@@ -76,27 +77,35 @@ pub fn to_pattern<L, LSub, LSubLs, Heap, T>(
     ls: &LSubLs,
 ) -> Result<DynPattern<SortIdOf<LSubLs>>, PbResultError>
 where
-    PatternBuilder<L, LSub, SortIdOf<LSubLs>>: Visit<AdtMetadata, T, Heap, L>,
+    T: Implements<Heap, L>,
+    <T as Implements<Heap, L>>::LWord: VisitationInfo,
+    PatternBuilder<L, LSub, SortIdOf<LSubLs>>: Visit<
+            <T as Implements<Heap, L>>::LWord,
+            L,
+            T,
+            Heap,
+            <<T as Implements<Heap, L>>::LWord as VisitationInfo>::AdtLikeOrNot,
+        >,
     LSubLs: LangSpec,
 {
     // let mut pb = PatternBuilder::new((0..100).collect());
     let sids = ls.all_sort_ids().collect::<Vec<_>>();
     let mut pb = PatternBuilder::new(sids.clone());
-    <PatternBuilder<L, LSub, _> as Visit<_, _, _, _>>::visit(&mut pb, heap, t);
+    <PatternBuilder<L, LSub, _> as Visit<_, _, _, _, _>>::visit(&mut pb, heap, t);
     pb.result()
 }
 
-pub fn to_pattern_skip<L, LSub, LSubLs, Heap, T>(
-    heap: &Heap,
-    t: &T,
-    ls: &LSubLs,
-) -> Result<DynPattern<SortIdOf<LSubLs>>, PbResultError>
-where
-    PatternBuilder<L, LSub, SortIdOf<LSubLs>>: SkipVisit<AdtMetadata, T, Heap, L>,
-    LSubLs: LangSpec,
-{
-    let sids = ls.all_sort_ids().collect::<Vec<_>>();
-    let mut pb = PatternBuilder::new(sids.clone());
-    <PatternBuilder<L, LSub, _> as SkipVisit<_, _, _, _>>::skip_visit(&mut pb, heap, t);
-    pb.result()
-}
+// pub fn to_pattern_skip<L, LSub, LSubLs, Heap, T>(
+//     heap: &Heap,
+//     t: &T,
+//     ls: &LSubLs,
+// ) -> Result<DynPattern<SortIdOf<LSubLs>>, PbResultError>
+// where
+//     PatternBuilder<L, LSub, SortIdOf<LSubLs>>: SkipVisit<AdtMetadata, T, Heap, L>,
+//     LSubLs: LangSpec,
+// {
+//     let sids = ls.all_sort_ids().collect::<Vec<_>>();
+//     let mut pb = PatternBuilder::new(sids.clone());
+//     <PatternBuilder<L, LSub, _> as SkipVisit<_, _, _, _>>::skip_visit(&mut pb, heap, t);
+//     pb.result()
+// }

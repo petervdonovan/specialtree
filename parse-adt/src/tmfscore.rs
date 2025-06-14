@@ -1,9 +1,10 @@
 use core::panic;
 
-use ccf::CanonicallyConstructibleFrom;
+use ccf::{CanonicallyConstructibleFrom, VisitationInfo};
 use covisit::Covisit;
-use pmsp::TmfMetadata;
 use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Set, SetHeapBak};
+use words::InverseImplements;
+use words::{AdtLike, NotAdtLike};
 
 use crate::{
     Lookahead, ParseCursor, Parser,
@@ -11,8 +12,8 @@ use crate::{
     return_if_err,
 };
 
-impl<Heap, L, MappedBNat>
-    Covisit<TmfMetadata<BoundedNat<Heap>, ()>, Cstfy<Heap, MappedBNat>, Heap, L> for Parser<'_, L>
+impl<Heap, L, MappedBNat> Covisit<BoundedNat<()>, L, Cstfy<Heap, MappedBNat>, Heap, NotAdtLike>
+    for Parser<'_, L>
 where
     MappedBNat: CanonicallyConstructibleFrom<Heap, (BoundedNat<Heap>, ())>,
 {
@@ -35,13 +36,32 @@ where
 
 // ((tymetafuncspec_core::Either<term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Pair<term_specialized_cst_autoboxed_pattern_fib::Heap, pattern_tmf::OrVariable<term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Either<term_specialized_cst_autoboxed_pattern_fib::Heap, tymetafuncspec_core::Pair<term_specialized_cst_autoboxed_pattern_fib::Heap, term_specialized_cst_autoboxed_pattern_fib::Nat, tymetafuncspec_core::Maybe<term_specialized_cst_autoboxed_pattern_fib::Heap, std_parse_metadata::ParseMetadata<term_specialized_cst_autoboxed_pattern_fib::Heap>>>, std_parse_error::ParseError<term_specialized_cst_autoboxed_pattern_fib::Heap>>>, tymetafuncspec_core::Maybe<term_specialized_cst_autoboxed_pattern_fib::Heap, std_parse_metadata::ParseMetadata<term_specialized_cst_autoboxed_pattern_fib::Heap>>>, std_parse_error::ParseError<term_specialized_cst_autoboxed_pattern_fib::Heap>>, ()), ())
 
-impl<'a, Heap, L, Elem, TyMetadata, MappedSet>
-    Covisit<TmfMetadata<Set<Heap, Elem>, (TyMetadata, ())>, Cstfy<Heap, MappedSet>, Heap, L>
-    for Parser<'a, L>
+impl<'a, Heap, L, ElemLWord, MappedSet, MappedElem>
+    Covisit<Set<(), ElemLWord>, L, Cstfy<Heap, MappedSet>, Heap, NotAdtLike> for Parser<'a, L>
 where
-    Heap: term::SuperHeap<SetHeapBak<Heap, Elem>>,
-    Parser<'a, L>: Covisit<TyMetadata, Elem, Heap, L>,
-    MappedSet: CanonicallyConstructibleFrom<Heap, (Set<Heap, Elem>, ())>,
+    Heap: InverseImplements<L, ElemLWord>,
+    Heap: InverseImplements<
+            L,
+            Set<(), ElemLWord>,
+            ExternBehavioralImplementor = Set<Heap, MappedElem>,
+        >,
+    Heap: term::SuperHeap<SetHeapBak<Heap, MappedElem>>,
+    ElemLWord: VisitationInfo,
+    Parser<'a, L>: Covisit<
+            ElemLWord,
+            L,
+            <Heap as InverseImplements<L, ElemLWord>>::StructuralImplementor,
+            Heap,
+            <ElemLWord as VisitationInfo>::AdtLikeOrNot,
+        >,
+    MappedSet: CanonicallyConstructibleFrom<Heap, (Set<Heap, MappedElem>, ())>,
+    MappedElem: CanonicallyConstructibleFrom<
+            Heap,
+            (
+                <Heap as InverseImplements<L, ElemLWord>>::StructuralImplementor,
+                (),
+            ),
+        >,
 {
     fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, MappedSet> {
         let mut items = Vec::new();
@@ -58,7 +78,9 @@ where
         loop {
             println!("dbg: loop");
             let item = Self::covisit(self, heap);
-            items.push(item);
+            items.push(
+                <MappedElem as CanonicallyConstructibleFrom<_, _>>::construct(heap, (item, ())),
+            );
             match self.pc.pop_word() {
                 Some("}") => break,
                 Some(",") => {}
@@ -82,27 +104,27 @@ where
     }
 }
 
-impl<'a, Heap, L, Elem, TyMetadata, MappedIdxBox>
-    Covisit<TmfMetadata<IdxBox<Heap, Elem>, (TyMetadata, ())>, Cstfy<Heap, MappedIdxBox>, Heap, L>
-    for Parser<'a, L>
-where
-    Elem: Lookahead<Heap, L>,
-    Self: Covisit<TyMetadata, Elem, Heap, L>,
-    Heap: term::SuperHeap<IdxBoxHeapBak<Heap, Elem>>,
-    MappedIdxBox: CanonicallyConstructibleFrom<Heap, (IdxBox<Heap, Elem>, ())>,
-{
-    fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, MappedIdxBox> {
-        let initial_offset = self.pc.position;
-        let item = Self::covisit(self, heap);
-        let final_offset = self.pc.position;
-        let ib = IdxBox::new(heap, item);
-        cstfy_ok(
-            MappedIdxBox::construct(heap, (ib, ())),
-            initial_offset,
-            final_offset,
-        )
-    }
-}
+// impl<'a, Heap, L, Elem, TyMetadata, MappedIdxBox>
+//     Covisit<TmfMetadata<IdxBox<Heap, Elem>, (TyMetadata, ())>, Cstfy<Heap, MappedIdxBox>, Heap, L>
+//     for Parser<'a, L>
+// where
+//     Elem: Lookahead<Heap, L>,
+//     Self: Covisit<TyMetadata, Elem, Heap, L>,
+//     Heap: term::SuperHeap<IdxBoxHeapBak<Heap, Elem>>,
+//     MappedIdxBox: CanonicallyConstructibleFrom<Heap, (IdxBox<Heap, Elem>, ())>,
+// {
+//     fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, MappedIdxBox> {
+//         let initial_offset = self.pc.position;
+//         let item = Self::covisit(self, heap);
+//         let final_offset = self.pc.position;
+//         let ib = IdxBox::new(heap, item);
+//         cstfy_ok(
+//             MappedIdxBox::construct(heap, (ib, ())),
+//             initial_offset,
+//             final_offset,
+//         )
+//     }
+// }
 
 impl<Heap, L> Lookahead<Heap, L> for BoundedNat<Heap> {
     fn matches(parser: &ParseCursor<'_>) -> bool {

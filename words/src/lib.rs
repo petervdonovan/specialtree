@@ -1,4 +1,5 @@
 #![feature(fundamental)]
+use conslist::ConsList;
 use langspec::{
     langspec::{LangSpec, SortIdOf},
     sublang::Sublang,
@@ -12,8 +13,43 @@ pub trait InverseImplements<L, LWord> {
     type ExternBehavioralImplementor;
     type StructuralImplementor;
 }
+pub trait InverseImplementsAll<L, LWords: ConsList>:
+    InverseImplements<L, <LWords as ConsList>::Car>
+{
+    type ExternBehavioralImplementors: ConsList;
+    type StructuralImplementors: ConsList;
+}
+impl<Heap, L> InverseImplements<L, ()> for Heap {
+    type ExternBehavioralImplementor = ();
+    type StructuralImplementor = ();
+}
+impl<Heap, L, Car, Cdr> InverseImplementsAll<L, (Car, Cdr)> for Heap
+where
+    Cdr: ConsList,
+    Heap: InverseImplementsAll<L, Cdr> + InverseImplements<L, Car>,
+{
+    type ExternBehavioralImplementors = (
+        <Heap as InverseImplements<L, Car>>::ExternBehavioralImplementor,
+        <Heap as InverseImplementsAll<L, Cdr>>::ExternBehavioralImplementors,
+    );
+    type StructuralImplementors = (
+        <Heap as InverseImplements<L, Car>>::StructuralImplementor,
+        <Heap as InverseImplementsAll<L, Cdr>>::StructuralImplementors,
+    );
+}
+impl<Heap, L> InverseImplementsAll<L, ()> for Heap {
+    type ExternBehavioralImplementors = ();
+    type StructuralImplementors = ();
+}
 #[fundamental]
 pub trait Adt {}
+
+pub struct AdtLike;
+pub struct NotAdtLike;
+pub enum AdtLikeOrNot {
+    AdtLike,
+    NonAdtLike,
+}
 
 pub fn words_mod<L: LangSpec>(lg: &LsGen<L>) -> syn::ItemMod {
     let sort_camel_idents = lg.ty_gen_datas(None).map(|it| it.camel_ident);

@@ -24,10 +24,7 @@ pub fn generate<'a, L: LangSpec, LSub: LangSpec>(
     dbg!(sublang.lsub.name());
     let (camel_names, sids): (Vec<_>, Vec<SortIdOf<LSub>>) = LsGen::from(sublang.lsub)
         .ty_gen_datas(None)
-        .filter_map(|tgd| match tgd.id {
-            Some(asi) => Some((tgd.camel_ident, SortId::Algebraic(asi))),
-            None => None,
-        })
+        .map(|tgd| (tgd.camel_ident, SortId::Algebraic(tgd.id)))
         .unzip::<_, _, Vec<_>, Vec<_>>();
     let image_ty_under_embeddings = sids
         .iter()

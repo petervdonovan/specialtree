@@ -1,7 +1,5 @@
-use langspec::langspec::{LangSpec, SortIdOf};
-use langspec_gen_util::{
-    AlgebraicsBasePath, CanonicallyConstructibleFromGenData, HeapType, LsGen, cons_list,
-};
+use langspec::langspec::{LangSpec, SortId, SortIdOf};
+use langspec_gen_util::{HeapType, LsGen, cons_list, tmf_ccf_sortses};
 
 pub struct BasePaths {
     pub term_trait: syn::Path,
@@ -11,16 +9,28 @@ pub struct BasePaths {
 
 pub fn generate<L: LangSpec>(base_paths: &BasePaths, lg: &LsGen<L>) -> syn::ItemMod {
     let byline = langspec_gen_util::byline!();
-    let impls = lg.ty_gen_datas(Some(base_paths.words.clone())).map(|tgd| {
-        let camel_ident = tgd.camel_ident;
-        impl_has_pattern_match_strategy_for(
-            base_paths,
-            lg,
-            &camel_ident,
-            tgd.ccf_sortses.as_slice(),
-            tgd.ccf,
-        )
-    });
+    let impls = lg
+        .ty_gen_datas(Some(base_paths.words.clone()))
+        .map(|tgd| {
+            // let camel_ident = tgd.camel_ident;
+            impl_has_pattern_match_strategy_for(
+                &base_paths.words,
+                lg,
+                SortId::Algebraic(tgd.id.clone()),
+                tgd.ccf_sortses.as_slice(),
+                // tgd.ccf,
+            )
+        })
+        .chain(lg.tmfs_monomorphizations().map(|mt| {
+            let tcs = tmf_ccf_sortses::<L>(&mt);
+            impl_has_pattern_match_strategy_for(
+                &base_paths.words,
+                lg,
+                SortId::TyMetaFunc(mt),
+                tcs.as_slice(),
+                // ccf,
+            )
+        }));
     // let term_trait = &base_paths.term_trait;
     // let words = &base_paths.words;
     // let data_structure = &base_paths.data_structure;
@@ -41,34 +51,38 @@ pub fn generate<L: LangSpec>(base_paths: &BasePaths, lg: &LsGen<L>) -> syn::Item
 }
 
 pub(crate) fn impl_has_pattern_match_strategy_for<L: LangSpec>(
-    BasePaths {
-        term_trait,
-        words,
-        strategy_provider: _,
-    }: &BasePaths,
+    words_path: &syn::Path,
     lg: &LsGen<L>,
-    camel_ident: &syn::Ident,
+    sid: SortIdOf<L>,
     ccf_sortses: &[Vec<SortIdOf<L>>],
-    ccf: CanonicallyConstructibleFromGenData<'_>,
+    // ccf: CanonicallyConstructibleFromGenData<'_>,
 ) -> syn::ItemImpl {
     let byline = langspec_gen_util::byline!();
-    let ht = HeapType(syn::parse_quote! {Heap});
-    let abp = AlgebraicsBasePath::new(quote::quote! {Heap::});
+    // let ht = HeapType(syn::parse_quote! {Heap});
+    // let abp = AlgebraicsBasePath::new(quote::quote! {Heap::});
     let strategy: syn::Type = cons_list(
-        (ccf.ccf_sort_tyses)(ht.clone(), abp.clone())
-            .into_iter()
-            .map(|it| cons_list(it.into_iter())),
+        // (ccf_sortses.iter)(ht.clone(), abp.clone())
+        //     .into_iter()
+        //     .map(|it| cons_list(it.into_iter())),
+        ccf_sortses.iter().map(|ccf_sorts| {
+            cons_list(
+                ccf_sorts
+                    .iter()
+                    .map(|sid| lg.sort2word_rs_ty(sid.clone(), words_path)),
+            )
+        }),
     );
-    let tymetadatas: syn::Type = cons_list(
-        ccf_sortses
-            .iter()
-            .map(|ccf_sorts| tymetadatas(lg, ccf_sorts.as_slice(), &ht, words)),
-    );
+    // let tymetadatas: syn::Type = cons_list(
+    //     ccf_sortses
+    //         .iter()
+    //         .map(|ccf_sorts| tymetadatas(lg, ccf_sorts.as_slice(), &ht, words_path)),
+    // );
+    let word = lg.sort2word_rs_ty(sid, words_path);
     syn::parse_quote! {
         #byline
-        impl<Heap: #term_trait::Heap> pmsp::NamesPatternMatchStrategyGivenContext<Heap> for #words::sorts::#camel_ident {
+        impl pmsp::NamesPatternMatchStrategy<#words_path::L> for #word {
             type Strategy = #strategy;
-            type TyMetadatas = #tymetadatas;
+            // type TyMetadatas = #tymetadatas;
         }
     }
 }

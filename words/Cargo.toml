@@ -8,3 +8,4 @@ langspec = { path = "../langspec" }
 codegen-component = { path = "../codegen-component" }
 langspec-gen-util = { path = "../langspec-gen-util" }
 syn = { workspace = true }
+conslist = { version = "0.1.0", path = "../conslist" }

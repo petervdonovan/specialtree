@@ -1,20 +1,26 @@
-use ccf::CanonicallyConstructibleFrom;
-use pmsp::TmfMetadata;
+use ccf::{CanonicallyConstructibleFrom, VisitationInfo};
 use term::SuperHeap;
 use unparse_adt::Unparser;
 use visit::Visit;
+use words::{InverseImplements, NotAdtLike};
 
 use crate::{
     NamedPattern, NamedPatternHeapBak, OrVariable, OrVariableHeapBak, OrVariableZeroOrMore,
     OrVariableZeroOrMoreHeapBak,
 };
 
-impl<'a, Heap, L, MatchedTy, MatchedTyTmfMetadata, OvMapped: Copy>
-    Visit<TmfMetadata<OrVariable<Heap, MatchedTy>, (MatchedTyTmfMetadata, ())>, OvMapped, Heap, L>
-    for Unparser<'a, L>
+impl<'a, Heap, L, MatchedTy, MatchedTyLWord, OvMapped: Copy>
+    Visit<OrVariable<(), MatchedTyLWord>, L, OvMapped, Heap, NotAdtLike> for Unparser<'a, L>
 where
     Heap: SuperHeap<OrVariableHeapBak<Heap, MatchedTy>>,
-    Unparser<'a, L>: Visit<MatchedTyTmfMetadata, MatchedTy, Heap, L>,
+    Heap: InverseImplements<
+            L,
+            OrVariable<(), MatchedTyLWord>,
+            ExternBehavioralImplementor = OrVariable<Heap, MatchedTy>,
+        >,
+    MatchedTyLWord: VisitationInfo,
+    Unparser<'a, L>:
+        Visit<MatchedTyLWord, L, MatchedTy, Heap, <MatchedTyLWord as VisitationInfo>::AdtLikeOrNot>,
     OvMapped: CanonicallyConstructibleFrom<Heap, (OrVariable<Heap, MatchedTy>, ())>,
 {
     fn visit(&mut self, heap: &Heap, ov: &OvMapped) {
@@ -32,16 +38,19 @@ where
     }
 }
 
-impl<'a, Heap, L, MatchedTy, MatchedTyTmfMetadata, OvZomMapped: Copy>
-    Visit<
-        TmfMetadata<OrVariableZeroOrMore<Heap, MatchedTy>, (MatchedTyTmfMetadata, ())>,
-        OvZomMapped,
-        Heap,
-        L,
-    > for Unparser<'a, L>
+impl<'a, Heap, L, MatchedTy, MatchedTyLWord, OvZomMapped: Copy>
+    Visit<OrVariableZeroOrMore<(), MatchedTyLWord>, L, OvZomMapped, Heap, NotAdtLike>
+    for Unparser<'a, L>
 where
     Heap: SuperHeap<OrVariableZeroOrMoreHeapBak<Heap, MatchedTy>>,
-    Unparser<'a, L>: Visit<MatchedTyTmfMetadata, MatchedTy, Heap, L>,
+    Heap: InverseImplements<
+            L,
+            OrVariable<(), MatchedTyLWord>,
+            ExternBehavioralImplementor = OrVariableZeroOrMore<Heap, MatchedTy>,
+        >,
+    MatchedTyLWord: VisitationInfo,
+    Unparser<'a, L>:
+        Visit<MatchedTyLWord, L, MatchedTy, Heap, <MatchedTyLWord as VisitationInfo>::AdtLikeOrNot>,
     OvZomMapped: CanonicallyConstructibleFrom<Heap, (OrVariableZeroOrMore<Heap, MatchedTy>, ())>,
 {
     fn visit(&mut self, heap: &Heap, ovzom: &OvZomMapped) {
@@ -65,16 +74,19 @@ where
     }
 }
 
-impl<'a, Heap, L, Pattern, PatternTmfMetadata, NamedPatternMapped: Copy>
-    Visit<
-        TmfMetadata<NamedPattern<Heap, Pattern>, (PatternTmfMetadata, ())>,
-        NamedPatternMapped,
-        Heap,
-        L,
-    > for Unparser<'a, L>
+impl<'a, Heap, L, Pattern, PatternLWord, NamedPatternMapped: Copy>
+    Visit<NamedPattern<Heap, PatternLWord>, L, NamedPatternMapped, Heap, NotAdtLike>
+    for Unparser<'a, L>
 where
     Heap: SuperHeap<NamedPatternHeapBak<Heap, Pattern>>,
-    Unparser<'a, L>: Visit<PatternTmfMetadata, Pattern, Heap, L>,
+    Heap: InverseImplements<
+            L,
+            NamedPattern<(), PatternLWord>,
+            ExternBehavioralImplementor = NamedPattern<Heap, Pattern>,
+        >,
+    PatternLWord: VisitationInfo,
+    Unparser<'a, L>:
+        Visit<PatternLWord, L, Pattern, Heap, <PatternLWord as VisitationInfo>::AdtLikeOrNot>,
     NamedPatternMapped: CanonicallyConstructibleFrom<Heap, (NamedPattern<Heap, Pattern>, ())>,
 {
     fn visit(&mut self, heap: &Heap, np: &NamedPatternMapped) {
