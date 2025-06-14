@@ -1,20 +1,15 @@
 use ccf::CanonicallyConstructibleFrom;
-use pmsp::AdtMetadata;
 
 use crate::{
     Predicate,
     traits::{BoundVariable, Pattern, Subpatterns},
 };
 
-pub struct Literal<TyMetadata, T, F>(std::marker::PhantomData<(TyMetadata, T, F)>);
-pub struct Variable<TyMetadata, T>(std::marker::PhantomData<(TyMetadata, T)>);
-pub struct ZeroOrMore<TyMetadata, T, Subpattern>(
-    std::marker::PhantomData<(TyMetadata, T, Subpattern)>,
-);
-pub struct Ignored<TyMetadata, T>(std::marker::PhantomData<(TyMetadata, T)>);
-pub struct Composite<TyMetadata, T, Subpatterns>(
-    std::marker::PhantomData<(TyMetadata, T, Subpatterns)>,
-);
+pub struct Literal<T, F>(std::marker::PhantomData<(T, F)>);
+pub struct Variable<T>(std::marker::PhantomData<T>);
+pub struct ZeroOrMore<T, Subpattern>(std::marker::PhantomData<(T, Subpattern)>);
+pub struct Ignored<T>(std::marker::PhantomData<T>);
+pub struct Composite<T, Subpatterns>(std::marker::PhantomData<(T, Subpatterns)>);
 
 pub struct BoundVarBaseCase<T>(T);
 
@@ -32,7 +27,7 @@ impl<T: Copy, Heap> BoundVariable<Heap> for BoundVarBaseCase<T> {
     }
 }
 
-impl<TyMetadata, Heap, L, T: Copy, F> Pattern<Heap, L> for Literal<TyMetadata, T, F>
+impl<Heap, L, T: Copy, F> Pattern<Heap, L> for Literal<T, F>
 where
     F: Predicate<Heap, T>,
 {
@@ -44,7 +39,7 @@ where
         if F::eval(t, heap) { Some(()) } else { None }
     }
 }
-impl<TyMetadata, Heap, L, T: Copy> Pattern<Heap, L> for Variable<TyMetadata, T> {
+impl<Heap, L, T: Copy> Pattern<Heap, L> for Variable<T> {
     type Input = T;
 
     type Output = BoundVarBaseCase<T>;
@@ -53,7 +48,7 @@ impl<TyMetadata, Heap, L, T: Copy> Pattern<Heap, L> for Variable<TyMetadata, T> 
         Some(BoundVarBaseCase(*t))
     }
 }
-impl<TyMetadata, Heap, L, T: Copy> Pattern<Heap, L> for Ignored<TyMetadata, T> {
+impl<Heap, L, T: Copy> Pattern<Heap, L> for Ignored<T> {
     type Input = T;
 
     type Output = ();
@@ -62,7 +57,7 @@ impl<TyMetadata, Heap, L, T: Copy> Pattern<Heap, L> for Ignored<TyMetadata, T> {
         Some(())
     }
 }
-impl<Heap, L, T: Copy, Sp> Pattern<Heap, L> for Composite<AdtMetadata, T, Sp>
+impl<Heap, L, T: Copy, Sp> Pattern<Heap, L> for Composite<T, Sp>
 where
     Sp: Subpatterns<Heap, L>,
     T: CanonicallyConstructibleFrom<Heap, Sp::AllInputs>,

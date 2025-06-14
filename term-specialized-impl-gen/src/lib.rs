@@ -35,7 +35,7 @@ pub(crate) fn gen_ccf_mod<L: LangSpec>(bps: &BasePaths, term_trait_lsg: &LsGen<L
     let words = &bps.words;
     let ccf_impls = term_trait_lsg
         .ty_gen_datas(Some(syn::parse_quote!(#words)))
-        .map(|tgd| gen_ccf_impls(bps, &tgd));
+        .map(|tgd| gen_ccf_impls(term_trait_lsg, bps, &tgd));
     let byline = byline!();
     syn::parse_quote! {
         #byline
@@ -58,17 +58,18 @@ pub(crate) fn gen_ccf_auto_impls<L: LangSpec>(
                 term::auto_impl_ccf!(#ds_base_path::Heap, #ds_base_path::#camel_ident);
             }
         });
-    let mut tmf_ccf_impls: Vec<syn::ItemMacro> = Default::default();
-    term_trait_lsg.tmfs_monomorphizations(&mut |tmf| {
-        let ty = term_trait_lsg.sort2rs_ty(
-            SortId::TyMetaFunc(tmf.clone()),
-            &HeapType(syn::parse_quote! {#ds_base_path::Heap}),
-            &AlgebraicsBasePath::new(quote::quote! { #ds_base_path:: }),
-        );
-        tmf_ccf_impls.push(syn::parse_quote! {
-            term::auto_impl_ccf!(#ds_base_path::Heap, #ty);
+    let tmf_ccf_impls = term_trait_lsg
+        .tmfs_monomorphizations()
+        .map(|tmf| -> syn::ItemMacro {
+            let ty = term_trait_lsg.sort2rs_ty(
+                SortId::TyMetaFunc(tmf.clone()),
+                &HeapType(syn::parse_quote! {#ds_base_path::Heap}),
+                &AlgebraicsBasePath::new(quote::quote! { #ds_base_path:: }),
+            );
+            syn::parse_quote! {
+                term::auto_impl_ccf!(#ds_base_path::Heap, #ty);
+            }
         });
-    });
     let byline = byline!();
     syn::parse_quote! {
         #byline
@@ -159,7 +160,11 @@ pub(crate) fn tac_impls<'a, 'b, 'c, L: LangSpec>(
     })
 }
 
-pub(crate) fn gen_ccf_impls<L: LangSpec>(bps: &BasePaths, tgd: &TyGenData<L>) -> syn::ItemMod {
+pub(crate) fn gen_ccf_impls<L: LangSpec>(
+    lg: &LsGen<L>,
+    bps: &BasePaths,
+    tgd: &TyGenData<L>,
+) -> syn::ItemMod {
     let byline = byline!();
     let camel = &tgd.camel_ident;
     let snake = &tgd.snake_ident;
@@ -168,13 +173,26 @@ pub(crate) fn gen_ccf_impls<L: LangSpec>(bps: &BasePaths, tgd: &TyGenData<L>) ->
         HeapType(syn::parse_quote!(<Self as term::Heaped>::Heap)),
         AlgebraicsBasePath::new(syn::parse_quote!(#data_structure::)),
     );
-    let ccf_tys_flattened = (tgd.ccf.ccf_sort_tyses)(
-        HeapType(syn::parse_quote!(<Self as term::Heaped>::Heap)),
-        AlgebraicsBasePath::new(syn::parse_quote!(#data_structure::)),
-    )
-    .into_iter()
-    .flatten()
-    .collect::<Vec<_>>();
+    // let ccf_tys_flattened = (tgd.ccf.ccf_sort_tyses)(
+    //     HeapType(syn::parse_quote!(<Self as term::Heaped>::Heap)),
+    //     AlgebraicsBasePath::new(syn::parse_quote!(#data_structure::)),
+    // )
+    // .into_iter()
+    // .flatten()
+    // .collect::<Vec<_>>();
+    let ccf_tys_flattened = tgd
+        .ccf_sortses
+        .iter()
+        .flat_map(|sids| {
+            sids.iter().map(|sid| {
+                lg.sort2rs_ty(
+                    sid.clone(),
+                    &HeapType(syn::parse_quote!(<Self as term::Heaped>::Heap)),
+                    &AlgebraicsBasePath::new(syn::parse_quote!(#data_structure::)),
+                )
+            })
+        })
+        .collect::<Vec<_>>();
     let ccf_sort_snake_idents = (tgd.ccf.ccf_sort_snake_idents)()
         .into_iter()
         .flatten()
@@ -184,8 +202,7 @@ pub(crate) fn gen_ccf_impls<L: LangSpec>(bps: &BasePaths, tgd: &TyGenData<L>) ->
         .flatten()
         .collect::<Vec<_>>();
     let ccf_impls = match tgd.id {
-        None => vec![],
-        Some(AlgebraicSortId::Product(_)) => {
+        AlgebraicSortId::Product(_) => {
             vec![gen_ccf_impl_prod(
                 bps,
                 camel,
@@ -194,7 +211,7 @@ pub(crate) fn gen_ccf_impls<L: LangSpec>(bps: &BasePaths, tgd: &TyGenData<L>) ->
                 &ccf_sort_snake_idents,
             )]
         }
-        Some(AlgebraicSortId::Sum(_)) => ccf_tys
+        AlgebraicSortId::Sum(_) => ccf_tys
             .iter()
             .zip(ccf_sort_camel_idents.iter())
             .map(|(ccfty, ccf_camel)| gen_ccf_impl_sum(bps, camel, ccfty, ccf_camel))

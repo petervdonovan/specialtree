@@ -348,6 +348,7 @@ dependencies = [
  "term",
  "unparse-adt",
  "visit",
+ "words",
 ]
 
 [[package]]
@@ -1264,6 +1265,7 @@ dependencies = [
  "syn 2.0.100",
  "term",
  "to-literal",
+ "words",
 ]
 
 [[package]]
@@ -1377,6 +1379,7 @@ name = "words"
 version = "0.1.0"
 dependencies = [
  "codegen-component",
+ "conslist",
  "langspec",
  "langspec-gen-util",
  "syn 2.0.100",

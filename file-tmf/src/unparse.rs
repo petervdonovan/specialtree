@@ -1,17 +1,18 @@
-use ccf::CanonicallyConstructibleFrom;
-use pmsp::{AdtMetadata, TmfMetadata};
+use ccf::{CanonicallyConstructibleFrom, VisitationInfo};
 use term::SuperHeap;
 use unparse_adt::Unparser;
 use visit::Visit;
+use words::{InverseImplements, NotAdtLike};
 
 use crate::{File, FileHeapBak};
 
-impl<'a, Heap, L, Item, ItemTmfMetadata, FileMapped: Copy>
-    Visit<TmfMetadata<File<Heap, Item>, (ItemTmfMetadata, ())>, FileMapped, Heap, L>
-    for Unparser<'a, L>
+impl<'a, Heap, L, Item, ItemLWord, FileMapped: Copy>
+    Visit<File<(), ItemLWord>, L, FileMapped, Heap, NotAdtLike> for Unparser<'a, L>
 where
     Heap: SuperHeap<FileHeapBak<Heap, Item>>,
-    Unparser<'a, L>: Visit<ItemTmfMetadata, Item, Heap, L>,
+    Heap: InverseImplements<L, File<(), ItemLWord>, ExternBehavioralImplementor = File<Heap, Item>>,
+    ItemLWord: VisitationInfo,
+    Unparser<'a, L>: Visit<ItemLWord, L, Item, Heap, <ItemLWord as VisitationInfo>::AdtLikeOrNot>,
     FileMapped: CanonicallyConstructibleFrom<Heap, (File<Heap, Item>, ())>,
 {
     fn visit(&mut self, heap: &Heap, t: &FileMapped) {
@@ -27,14 +28,13 @@ where
     }
 }
 
-pub fn file<L, Heap, Item, FileMapped>(heap: &Heap, t: &FileMapped) -> String
+pub fn file<L, Heap, Item, ItemLWord, FileMapped>(heap: &Heap, t: &FileMapped) -> String
 where
     FileMapped: CanonicallyConstructibleFrom<Heap, (File<Heap, Item>, ())>,
-    for<'a> Unparser<'a, L>:
-        Visit<TmfMetadata<File<Heap, Item>, (AdtMetadata, ())>, FileMapped, Heap, L>,
+    for<'a> Unparser<'a, L>: Visit<File<(), ItemLWord>, L, FileMapped, Heap, NotAdtLike>,
 {
     let arena = bumpalo::Bump::new();
     let mut unparser = Unparser::new(&arena);
-    <Unparser<'_, L> as Visit<_, _, _, _>>::visit(&mut unparser, heap, t);
+    <Unparser<'_, L> as Visit<_, _, _, _, _>>::visit(&mut unparser, heap, t);
     format!("{}", &unparser.unparse)
 }

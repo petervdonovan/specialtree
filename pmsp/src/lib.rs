@@ -5,26 +5,25 @@
 use conslist::ConsList;
 use words::Implements;
 
-pub trait NamesPatternMatchStrategyGivenContext<Heap> {
+pub trait NamesPatternMatchStrategy<L> {
     type Strategy: Strategy;
-    type TyMetadatas: Strategy;
+    // type TyMetadatas: Strategy;
 }
-#[fundamental] // opt TmfMetadata out of the "covers" rule for when OgType is a local type
-pub struct TmfMetadata<OgType, ArgMetadatas>(std::marker::PhantomData<(OgType, ArgMetadatas)>);
-pub struct AdtMetadata;
+// #[fundamental] // opt TmfMetadata out of the "covers" rule for when OgType is a local type
+// pub struct TmfMetadata<OgType, ArgMetadatas>(std::marker::PhantomData<(OgType, ArgMetadatas)>);
+// pub struct AdtMetadata;
 
 pub type StrategyOf<T, Heap, L>
-    = <<T as Implements<Heap, L>>::LWord as NamesPatternMatchStrategyGivenContext<Heap>>::Strategy
+    = <<T as Implements<Heap, L>>::LWord as NamesPatternMatchStrategy<L>>::Strategy
 where
     T: Implements<Heap, L>,
-    <T as Implements<Heap, L>>::LWord: NamesPatternMatchStrategyGivenContext<Heap>;
+    <T as Implements<Heap, L>>::LWord: NamesPatternMatchStrategy<L>;
 
-pub type TyMetadataOf<T, Heap, L>
-    =
-    <<T as Implements<Heap, L>>::LWord as NamesPatternMatchStrategyGivenContext<Heap>>::TyMetadatas
-where
-    T: Implements<Heap, L>,
-    <T as Implements<Heap, L>>::LWord: NamesPatternMatchStrategyGivenContext<Heap>;
+// pub type TyMetadataOf<T, Heap, L>
+//     = <<T as Implements<Heap, L>>::LWord as NamesPatternMatchStrategy>::TyMetadatas
+// where
+//     T: Implements<Heap, L>,
+//     <T as Implements<Heap, L>>::LWord: NamesPatternMatchStrategy;
 
 pub trait Strategy {
     type Car: ConsList;

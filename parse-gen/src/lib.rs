@@ -25,16 +25,14 @@ pub fn generate<L: LangSpec>(bps: &BasePaths, lg: &LsGen<L>) -> syn::ItemMod {
     let cst = cst(&arena, lg.bak());
     let lg_cst = LsGen::from(cst);
     let cst_tgds = lg_cst.ty_gen_datas(None).collect::<Vec<_>>();
-    let parses = lg.ty_gen_datas(None).filter_map(|tgd| {
-        tgd.id.as_ref().map(|_| {
-            generate_parse(
-                bps,
-                cst_tgds
-                    .iter()
-                    .find(|cst_tgd| cst_tgd.snake_ident == tgd.snake_ident)
-                    .unwrap(),
-            )
-        })
+    let parses = lg.ty_gen_datas(None).map(|tgd| {
+        generate_parse(
+            bps,
+            cst_tgds
+                .iter()
+                .find(|cst_tgd| cst_tgd.snake_ident == tgd.snake_ident)
+                .unwrap(),
+        )
     });
     parse_quote! {
         #byline
@@ -282,17 +280,15 @@ pub mod targets {
                     let cst = super::cst(arena, l);
                     let lg_cst = super::LsGen::from(cst);
                     let cst_tgds = lg_cst.ty_gen_datas(None).collect::<Vec<_>>();
-                    let parsells = lg.ty_gen_datas(None).filter_map(|tgd| {
-                        tgd.id.as_ref().map(|_| {
-                            super::generate_parsell(
-                                &words(c2sp),
-                                cst_tgds
-                                    .iter()
-                                    .find(|cst_tgd| cst_tgd.snake_ident == tgd.snake_ident)
-                                    .unwrap(),
-                                &tgd,
-                            )
-                        })
+                    let parsells = lg.ty_gen_datas(None).map(|tgd| {
+                        super::generate_parsell(
+                            &words(c2sp),
+                            cst_tgds
+                                .iter()
+                                .find(|cst_tgd| cst_tgd.snake_ident == tgd.snake_ident)
+                                .unwrap(),
+                            &tgd,
+                        )
                     });
                     syn::parse_quote! {
                         #byline

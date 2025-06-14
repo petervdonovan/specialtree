@@ -1,5 +1,5 @@
 use langspec::langspec::{MappedTypeOf, Name, call_on_all_tmf_monomorphizations};
-use langspec::sublang::Sublangs;
+use langspec::sublang::{Sublang, Sublangs};
 use langspec::tymetafunc::{IdentifiedBy, RustTyMap, Transparency, TyMetaFuncSpec};
 use langspec::{
     langspec::{AlgebraicSortId, LangSpec, MappedType, SortId, SortIdOf},
@@ -74,7 +74,7 @@ type HgdHeapBak<'a> =
     Box<dyn Fn(&HeapType, &AlgebraicsBasePath, Option<&syn::Path>) -> syn::Type + 'a>;
 
 pub struct TyGenData<'a, L: LangSpec> {
-    pub id: Option<AlgebraicSortId<L::ProductId, L::SumId>>,
+    pub id: AlgebraicSortId<L::ProductId, L::SumId>,
     pub snake_ident: syn::Ident,
     pub camel_ident: syn::Ident,
     pub ccf_sortses: Vec<Vec<SortIdOf<L>>>,
@@ -110,7 +110,7 @@ pub struct HeapType(pub syn::Type);
 pub struct CanonicallyConstructibleFromGenData<'a> {
     pub ccf_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
     pub heap_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<HstData> + 'a>,
-    pub ccf_sort_tyses: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<Vec<syn::Type>> + 'a>,
+    // pub ccf_sort_tyses: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<Vec<syn::Type>> + 'a>,
     pub ccf_sort_transparencies: Box<dyn Fn() -> Vec<Vec<Transparency>> + 'a>,
     pub ccf_sort_camel_idents: Box<dyn Fn() -> Vec<Vec<syn::Ident>> + 'a>,
     pub ccf_sort_snake_idents: Box<dyn Fn() -> Vec<Vec<syn::Ident>> + 'a>,
@@ -139,6 +139,11 @@ pub struct CcfPaths<SortId> {
     pub units: Vec<TransitiveUnitCcfRelation<SortId>>,
     pub non_units: Vec<TransitiveNonUnitCcfRelation<SortId>>,
 }
+// pub struct Implementors {
+//     structural_implementor: syn::Type,
+//     behavioral_implementor: syn::Type,
+//     word: syn::Type,
+// }
 impl<L: LangSpec> LsGen<'_, L> {
     pub fn bak(&self) -> &L {
         self.bak
@@ -226,13 +231,14 @@ impl<L: LangSpec> LsGen<'_, L> {
             non_units: non_units_sorted,
         }
     }
-    pub fn tmfs_monomorphizations<
-        F: FnMut(&MappedType<L::ProductId, L::SumId, <L::Tmfs as TyMetaFuncSpec>::TyMetaFuncId>),
-    >(
+    pub fn tmfs_monomorphizations(
         &self,
-        f: &mut F,
-    ) {
-        call_on_all_tmf_monomorphizations(self.bak, f);
+    ) -> impl Iterator<
+        Item = MappedType<L::ProductId, L::SumId, <L::Tmfs as TyMetaFuncSpec>::TyMetaFuncId>,
+    > {
+        let mut ret = vec![];
+        call_on_all_tmf_monomorphizations(self.bak, &mut |it| ret.push(it.clone()));
+        ret.into_iter()
     }
     pub fn ty_gen_datas(
         &self,
@@ -252,7 +258,7 @@ impl<L: LangSpec> LsGen<'_, L> {
                 move |pid| {
                     let ccf_sortses = vec![self.bak.product_sorts(pid.clone()).collect()];
                     TyGenData {
-                        id: Some(AlgebraicSortId::Product(pid.clone())),
+                        id: AlgebraicSortId::Product(pid.clone()),
                         // fingerprint: pid_fingerprint(self.bak, &pid),
                         snake_ident: self.bak.product_name(pid.clone()).snake(),
                         camel_ident: self.bak.product_name(pid.clone()).camel(),
@@ -301,18 +307,18 @@ impl<L: LangSpec> LsGen<'_, L> {
                                         .collect()
                                 }
                             }),
-                            ccf_sort_tyses: Box::new({
-                                let pid = pid.clone();
-                                let sort2rs_ty = sort2rs_ty.clone();
-                                move |ht, abp| {
-                                    vec![
-                                        self.bak
-                                            .product_sorts(pid.clone())
-                                            .map(sort2rs_ty(ht, abp))
-                                            .collect(),
-                                    ]
-                                }
-                            }),
+                            // ccf_sort_tyses: Box::new({
+                            //     let pid = pid.clone();
+                            //     let sort2rs_ty = sort2rs_ty.clone();
+                            //     move |ht, abp| {
+                            //         vec![
+                            //             self.bak
+                            //                 .product_sorts(pid.clone())
+                            //                 .map(sort2rs_ty(ht, abp))
+                            //                 .collect(),
+                            //         ]
+                            //     }
+                            // }),
                             ccf_sort_camel_idents: Box::new({
                                 let pid = pid.clone();
                                 move || vec![self.product_heap_sort_camel_idents(&pid)]
@@ -328,7 +334,7 @@ impl<L: LangSpec> LsGen<'_, L> {
             .chain(self.bak.sums().map(move |sid| {
                 let ccf_sortses = self.bak.sum_sorts(sid.clone()).map(|it| vec![it]).collect();
                 TyGenData {
-                    id: Some(AlgebraicSortId::Sum(sid.clone())),
+                    id: AlgebraicSortId::Sum(sid.clone()),
                     snake_ident: syn::Ident::new(
                         &self.bak.sum_name(sid.clone()).snake.clone(),
                         proc_macro2::Span::call_site(),
@@ -380,17 +386,17 @@ impl<L: LangSpec> LsGen<'_, L> {
                                     .collect()
                             })
                         },
-                        ccf_sort_tyses: Box::new({
-                            let sid = sid.clone();
-                            let sort2rs_ty = sort2rs_ty.clone();
-                            move |ht, abp| {
-                                self.bak
-                                    .sum_sorts(sid.clone())
-                                    .map(sort2rs_ty(ht, abp))
-                                    .map(|it| vec![it])
-                                    .collect()
-                            }
-                        }),
+                        // ccf_sort_tyses: Box::new({
+                        //     let sid = sid.clone();
+                        //     let sort2rs_ty = sort2rs_ty.clone();
+                        //     move |ht, abp| {
+                        //         self.bak
+                        //             .sum_sorts(sid.clone())
+                        //             .map(sort2rs_ty(ht, abp))
+                        //             .map(|it| vec![it])
+                        //             .collect()
+                        //     }
+                        // }),
                         ccf_sort_camel_idents: Box::new({
                             let sid = sid.clone();
                             move || {
@@ -450,6 +456,32 @@ impl<L: LangSpec> LsGen<'_, L> {
         });
         ret
     }
+    // pub fn implementors<LSub: LangSpec>(
+    //     &self,
+    //     sublang: Sublang<LSub, SortIdOf<L>>,
+    //     og_words_base_path: &syn::Path,
+    //     ext_data_structure_path: &syn::Path,
+    // ) -> impl Iterator<Item = Implementors> {
+    //     sublang.lsub.all_sort_ids().map(move |sid| {
+    //         let word = LsGen::from(sublang.lsub).sort2word_rs_ty(sid.clone(), og_words_base_path);
+    //         let structural_implementor_sid = (sublang.map)(&sid);
+    //         let ht = HeapType(syn::parse_quote! { #ext_data_structure_path::Heap });
+    //         let abp = AlgebraicsBasePath::new(syn::parse_quote! { #ext_data_structure_path:: });
+    //         let structural_implementor =
+    //             self.sort2rs_ty(structural_implementor_sid.clone(), &ht, &abp);
+    //         let behavioral_implementor = sublang
+    //             .tems
+    //             .iter()
+    //             .find(|it| it.to_structural == structural_implementor_sid)
+    //             .map(|tem| self.sort2rs_ty(tem.from_extern_behavioral.clone(), &ht, &abp))
+    //             .unwrap_or_else(|| structural_implementor.clone());
+    //         Implementors {
+    //             structural_implementor,
+    //             behavioral_implementor,
+    //             word,
+    //         }
+    //     })
+    // }
     pub fn sort2rs_ty(
         &self,
         sort: SortIdOf<L>,
@@ -538,7 +570,7 @@ impl<L: LangSpec> LsGen<'_, L> {
                         let TyMetaFuncData {
                             heapbak: RustTyMap { ty_func },
                             ..
-                        } = L::Tmfs::ty_meta_func_data(&f);
+                        } = L::Tmfs::ty_meta_func_data(f);
                         let args = a.iter().map(|arg| self.sort2rs_ty(arg.clone(), ht, abp));
                         let ht = &ht.0;
                         Some(syn::parse_quote! { #ty_func<#ht, #( #args, )* > })
@@ -620,6 +652,14 @@ fn sort_ident<L: LangSpec>(
             )
         }
     }
+}
+
+pub fn tmf_ccf_sortses<L: LangSpec>(mt: &MappedTypeOf<L>) -> Vec<Vec<SortIdOf<L>>> {
+    let tmfd = <L::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(&mt.f);
+    tmfd.canonical_froms
+        .iter()
+        .map(|argids| argids.iter().map(|argid| mt.a[argid.0].clone()).collect())
+        .collect()
 }
 
 pub fn number_range(n: usize) -> impl Iterator<Item = syn::LitInt> {
@@ -1031,7 +1071,7 @@ mod tests {
         type L = LangSpecHuman<tymetafuncspec_core::Core>;
         let dcr = get_direct_ccf_rels(&ls);
         for rel in &dcr {
-            println!("{:?}\n", rel);
+            println!("{rel:?}\n");
         }
         let non_transparent_sorts = &[
             langspec::humanreadable::SortId::<tymetafuncspec_core::Core>::Algebraic(
@@ -1043,11 +1083,11 @@ mod tests {
             non_transparent_sorts,
         );
         for rel in &ucr {
-            println!("{:?}\n", rel);
+            println!("{rel:?}\n");
         }
         let cebup = ccfs_exploded_by_unit_paths(dcr.as_slice(), &ucr, non_transparent_sorts);
         for rel in &cebup {
-            println!("{:?}\n", rel);
+            println!("{rel:?}\n");
         }
         println!("Direct CCF relations: {}", dcr.len());
         println!("Unit CCF relations: {}", ucr.len());

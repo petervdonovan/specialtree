@@ -18,3 +18,4 @@ syn.workspace = true
 term = { version = "0.1.0", path = "../term" }
 unparse-adt = { version = "0.1.0", path = "../unparse-adt" }
 visit = { version = "0.1.0", path = "../visit" }
+words = { version = "0.1.0", path = "../words" }

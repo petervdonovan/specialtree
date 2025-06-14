@@ -1,5 +1,5 @@
+use ccf::VisitationInfo;
 use parse_adt::NamesParseLL;
-use pmsp::AdtMetadata;
 // use parse_adt::NamesParseLL;
 // use term::{
 //     case_split::HasBorrowedHeapRef,
@@ -18,13 +18,14 @@ pub struct Unparser<'arena, L> {
     phantom: std::marker::PhantomData<L>,
 }
 
-pub fn unparse<L, Heap, T>(heap: &Heap, t: &T) -> String
+pub fn unparse<LWord, L, T, Heap>(heap: &Heap, t: &T) -> String
 where
-    for<'a> Unparser<'a, L>: Visit<AdtMetadata, T, Heap, L>,
+    LWord: VisitationInfo,
+    for<'a> Unparser<'a, L>: Visit<LWord, L, T, Heap, <LWord as VisitationInfo>::AdtLikeOrNot>,
 {
     let arena = bumpalo::Bump::new();
     let mut unparser = Unparser::new(&arena);
-    <Unparser<'_, L> as Visit<_, _, _, _>>::visit(&mut unparser, heap, t);
+    <Unparser<'_, L> as Visit<_, _, _, _, _>>::visit(&mut unparser, heap, t);
     format!("{}", &unparser.unparse)
 }
 

@@ -5,8 +5,7 @@ use syn::parse_quote;
 pub fn generate<L: LangSpec>(base_path: &syn::Path, lg: &LsGen<L>, serde: bool) -> syn::ItemMod {
     let algebraics = lg
         .ty_gen_datas(None)
-        .filter(|it| it.id.is_some())
-        .map(|tgd| alg_dt(serde, base_path, tgd));
+        .map(|tgd| alg_dt(lg, serde, base_path, tgd));
     let heaped_impls = gen_heaped_impls(base_path, lg);
     let heap = gen_heap(
         base_path,
@@ -25,12 +24,14 @@ pub fn generate<L: LangSpec>(base_path: &syn::Path, lg: &LsGen<L>, serde: bool) 
 }
 
 pub(crate) fn alg_dt<L: LangSpec>(
+    lg: &LsGen<L>,
     serde: bool,
     base_path: &syn::Path,
     TyGenData {
         id,
         camel_ident,
         ccf,
+        ccf_sortses,
         ..
     }: TyGenData<L>,
 ) -> syn::Item {
@@ -39,13 +40,22 @@ pub(crate) fn alg_dt<L: LangSpec>(
     } else {
         quote::quote!()
     };
-    let sort_rs_types = (ccf.ccf_sort_tyses)(
-        HeapType(parse_quote!(#base_path::Heap)),
-        AlgebraicsBasePath::new(quote::quote!(#base_path::)),
-    )
-    .into_iter()
-    .flatten();
-    let ret = match id.unwrap() {
+    // let sort_rs_types = (ccf.ccf_sort_tyses)(
+    //     HeapType(parse_quote!(#base_path::Heap)),
+    //     AlgebraicsBasePath::new(quote::quote!(#base_path::)),
+    // )
+    // .into_iter()
+    // .flatten();
+    let sort_rs_types = ccf_sortses.iter().flat_map(|sids| {
+        sids.iter().map(|sid| {
+            lg.sort2rs_ty(
+                sid.clone(),
+                &HeapType(parse_quote!(#base_path::Heap)),
+                &AlgebraicsBasePath::new(quote::quote!(#base_path::)),
+            )
+        })
+    });
+    let ret = match id {
         AlgebraicSortId::Product(_) => {
             let sort_rs_snake_idents = (ccf.ccf_sort_snake_idents)().into_iter().flatten();
             quote::quote! {
