@@ -52,7 +52,10 @@ pub enum AdtLikeOrNot {
 }
 
 pub fn words_mod<L: LangSpec>(lg: &LsGen<L>) -> syn::ItemMod {
-    let sort_camel_idents = lg.ty_gen_datas(None).map(|it| it.camel_ident);
+    let sort_camel_idents = lg
+        .ty_gen_datas(None)
+        .map(|it| it.camel_ident)
+        .collect::<Vec<_>>();
     let byline = langspec_gen_util::byline!();
     syn::parse_quote! {
         #byline
@@ -61,6 +64,13 @@ pub fn words_mod<L: LangSpec>(lg: &LsGen<L>) -> syn::ItemMod {
             pub mod sorts {
                 #(
                     pub struct #sort_camel_idents;
+                )*
+            }
+            pub mod impls {
+                #(
+                    impl ccf::VisitationInfo for super::sorts::#sort_camel_idents {
+                        type AdtLikeOrNot = words::AdtLike;
+                    }
                 )*
             }
         }

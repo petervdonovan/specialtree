@@ -12,3 +12,30 @@ pub mod sorts {
     pub struct Sum;
     pub struct Nat;
 }
+pub mod impls {
+    use words::AdtLike;
+    use super::sorts::Sum;
+    use super::sorts::RightOperand;
+    use super::sorts::Plus;
+    use super::sorts::Nat;
+    use super::sorts::LeftOperand;
+    use super::sorts::F;
+    impl ccf::VisitationInfo for Plus {
+        type AdtLikeOrNot = AdtLike;
+    }
+    impl ccf::VisitationInfo for LeftOperand {
+        type AdtLikeOrNot = AdtLike;
+    }
+    impl ccf::VisitationInfo for RightOperand {
+        type AdtLikeOrNot = AdtLike;
+    }
+    impl ccf::VisitationInfo for F {
+        type AdtLikeOrNot = AdtLike;
+    }
+    impl ccf::VisitationInfo for Sum {
+        type AdtLikeOrNot = AdtLike;
+    }
+    impl ccf::VisitationInfo for Nat {
+        type AdtLikeOrNot = AdtLike;
+    }
+}

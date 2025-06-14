@@ -13,3 +13,34 @@ pub mod sorts {
     pub struct Nat;
     pub struct FileItem;
 }
+pub mod impls {
+    use words::AdtLike;
+    use super::sorts::Sum;
+    use super::sorts::RightOperand;
+    use super::sorts::Plus;
+    use super::sorts::Nat;
+    use super::sorts::LeftOperand;
+    use super::sorts::FileItem;
+    use super::sorts::F;
+    impl ccf::VisitationInfo for Plus {
+        type AdtLikeOrNot = AdtLike;
+    }
+    impl ccf::VisitationInfo for LeftOperand {
+        type AdtLikeOrNot = AdtLike;
+    }
+    impl ccf::VisitationInfo for RightOperand {
+        type AdtLikeOrNot = AdtLike;
+    }
+    impl ccf::VisitationInfo for F {
+        type AdtLikeOrNot = AdtLike;
+    }
+    impl ccf::VisitationInfo for Sum {
+        type AdtLikeOrNot = AdtLike;
+    }
+    impl ccf::VisitationInfo for Nat {
+        type AdtLikeOrNot = AdtLike;
+    }
+    impl ccf::VisitationInfo for FileItem {
+        type AdtLikeOrNot = AdtLike;
+    }
+}
