@@ -12,6 +12,6 @@ pub trait DirectlyCanonicallyConstructibleFrom<Heap, T>: Sized {
     fn deconstruct(self, heap: &Heap) -> T;
 }
 
-pub trait VisitationInfo {
-    type AdtLikeOrNot;
-}
+// pub trait VisitationInfo {
+//     type AdtLikeOrNot;
+// }

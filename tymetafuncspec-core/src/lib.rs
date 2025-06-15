@@ -5,11 +5,12 @@ use langspec::{
     tymetafunc::{ArgId, IdentifiedBy, RustTyMap, Transparency, TyMetaFuncData, TyMetaFuncSpec},
 };
 
-use ccf::{DirectlyCanonicallyConstructibleFrom, VisitationInfo};
+use ccf::DirectlyCanonicallyConstructibleFrom;
+use pmsp::Visitation;
 use serde::{Deserialize, Serialize};
 use term::{Heaped, SuperHeap, TyMetaFunc};
 use to_literal::ToLiteral;
-use words::{AdtLike, NotAdtLike};
+use words::{AdtLike, Adtishness, NotAdtLike};
 
 pub struct Core;
 #[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize, Hash, PartialOrd, Ord)]
@@ -204,8 +205,8 @@ pub struct BoundedNat<Heap> {
     heap: std::marker::PhantomData<Heap>,
     pub n: usize,
 }
-impl VisitationInfo for BoundedNat<()> {
-    type AdtLikeOrNot = NotAdtLike;
+impl Adtishness<Visitation> for BoundedNat<()> {
+    type X = NotAdtLike;
 }
 impl<Heap> Heaped for BoundedNat<Heap> {
     type Heap = Heap;
@@ -238,8 +239,8 @@ pub struct Set<Heap, Elem> {
     heap: std::marker::PhantomData<(Heap, Elem)>,
     items: usize,
 }
-impl<ElemLWord> VisitationInfo for Set<(), ElemLWord> {
-    type AdtLikeOrNot = NotAdtLike;
+impl<ElemLWord> Adtishness<Visitation> for Set<(), ElemLWord> {
+    type X = NotAdtLike;
 }
 impl<Heap, Elem: Heaped<Heap = Heap>> Heaped for Set<Heap, Elem> {
     type Heap = Heap;
@@ -312,8 +313,8 @@ pub struct IdxBox<Heap, Elem> {
     phantom: std::marker::PhantomData<(Heap, Elem)>,
     pub idx: u32,
 }
-impl<ElemLWord> VisitationInfo for IdxBox<(), ElemLWord> {
-    type AdtLikeOrNot = AdtLike;
+impl<ElemLWord> Adtishness<Visitation> for IdxBox<(), ElemLWord> {
+    type X = AdtLike;
 }
 impl<Heap, Elem> TyMetaFunc for IdxBox<Heap, Elem> {
     type HeapBak = IdxBoxHeapBak<Heap, Elem>;

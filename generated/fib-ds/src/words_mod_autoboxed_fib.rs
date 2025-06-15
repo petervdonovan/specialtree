@@ -13,6 +13,7 @@ pub mod sorts {
     pub struct Nat;
 }
 pub mod impls {
+    use words::Aspect;
     use words::AdtLike;
     use super::sorts::Sum;
     use super::sorts::RightOperand;
@@ -20,22 +21,22 @@ pub mod impls {
     use super::sorts::Nat;
     use super::sorts::LeftOperand;
     use super::sorts::F;
-    impl ccf::VisitationInfo for Plus {
-        type AdtLikeOrNot = AdtLike;
+    impl<A: Aspect> words::Adtishness<A> for Plus {
+        type X = AdtLike;
     }
-    impl ccf::VisitationInfo for LeftOperand {
-        type AdtLikeOrNot = AdtLike;
+    impl<A: Aspect> words::Adtishness<A> for LeftOperand {
+        type X = AdtLike;
     }
-    impl ccf::VisitationInfo for RightOperand {
-        type AdtLikeOrNot = AdtLike;
+    impl<A: Aspect> words::Adtishness<A> for RightOperand {
+        type X = AdtLike;
     }
-    impl ccf::VisitationInfo for F {
-        type AdtLikeOrNot = AdtLike;
+    impl<A: Aspect> words::Adtishness<A> for F {
+        type X = AdtLike;
     }
-    impl ccf::VisitationInfo for Sum {
-        type AdtLikeOrNot = AdtLike;
+    impl<A: Aspect> words::Adtishness<A> for Sum {
+        type X = AdtLike;
     }
-    impl ccf::VisitationInfo for Nat {
-        type AdtLikeOrNot = AdtLike;
+    impl<A: Aspect> words::Adtishness<A> for Nat {
+        type X = AdtLike;
     }
 }

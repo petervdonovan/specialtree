@@ -1260,6 +1260,7 @@ dependencies = [
  "functor_derive",
  "langspec",
  "once_cell",
+ "pmsp",
  "serde",
  "slab",
  "syn 2.0.100",

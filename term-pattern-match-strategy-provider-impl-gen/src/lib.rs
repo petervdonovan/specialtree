@@ -16,7 +16,7 @@ pub fn generate<L: LangSpec>(data_structure: &syn::Path, ls: &LsGen<L>) -> syn::
     syn::parse_quote! {
         #byline
         pub mod pattern_match_strategy_impls {
-            #(#impls)*
+            // #(#impls)*
         }
     }
 }

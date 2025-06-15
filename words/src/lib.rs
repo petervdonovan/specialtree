@@ -41,14 +41,22 @@ impl<Heap, L> InverseImplementsAll<L, ()> for Heap {
     type ExternBehavioralImplementors = ();
     type StructuralImplementors = ();
 }
-#[fundamental]
-pub trait Adt {}
+// #[fundamental]
+// pub trait Adt {}
 
 pub struct AdtLike;
 pub struct NotAdtLike;
-pub enum AdtLikeOrNot {
-    AdtLike,
-    NonAdtLike,
+// pub enum AdtLikeOrNot {
+//     AdtLike,
+//     NonAdtLike,
+// }
+pub trait AdtLikeOrNot {}
+impl AdtLikeOrNot for AdtLike {}
+impl AdtLikeOrNot for NotAdtLike {}
+pub trait Aspect {}
+
+pub trait Adtishness<A: Aspect> {
+    type X: AdtLikeOrNot;
 }
 
 pub fn words_mod<L: LangSpec>(lg: &LsGen<L>) -> syn::ItemMod {
@@ -68,8 +76,8 @@ pub fn words_mod<L: LangSpec>(lg: &LsGen<L>) -> syn::ItemMod {
             }
             pub mod impls {
                 #(
-                    impl ccf::VisitationInfo for super::sorts::#sort_camel_idents {
-                        type AdtLikeOrNot = words::AdtLike;
+                    impl<A: words::Aspect> words::Adtishness<A> for super::sorts::#sort_camel_idents {
+                        type X = words::AdtLike;
                     }
                 )*
             }

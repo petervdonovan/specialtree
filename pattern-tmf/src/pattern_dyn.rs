@@ -1,7 +1,8 @@
-use ccf::{CanonicallyConstructibleFrom, VisitationInfo};
+use ccf::CanonicallyConstructibleFrom;
 use pattern_dyn::visitor::PatternBuilder;
+use pmsp::Visitation;
 use visit::Visit;
-use words::{InverseImplements, NotAdtLike};
+use words::{Adtishness, InverseImplements, NotAdtLike};
 
 use crate::{
     NamedPattern, NamedPatternHeapBak, OrVariable, OrVariableHeapBak, OrVariableZeroOrMore,
@@ -20,9 +21,9 @@ where
             ExternBehavioralImplementor = OrVariable<Heap, MatchedTy>,
         >,
     MappedOrVariable: CanonicallyConstructibleFrom<Heap, (OrVariable<Heap, MatchedTy>, ())>,
-    MatchedTyLWord: VisitationInfo,
+    MatchedTyLWord: Adtishness<Visitation>,
     PatternBuilder<L, LSub, SortId>:
-        Visit<MatchedTyLWord, L, MatchedTy, Heap, <MatchedTyLWord as VisitationInfo>::AdtLikeOrNot>,
+        Visit<MatchedTyLWord, L, MatchedTy, Heap, <MatchedTyLWord as Adtishness<Visitation>>::X>,
     MatchedTy: words::Implements<Heap, LSub>,
     <MatchedTy as words::Implements<Heap, LSub>>::LWord:
         names_langspec_sort::NamesLangspecSort<LSub>,
@@ -54,9 +55,9 @@ where
         >,
     MappedOrVariableZeroOrMore:
         CanonicallyConstructibleFrom<Heap, (OrVariableZeroOrMore<Heap, MatchedTy>, ())>,
-    MatchedTyLWord: VisitationInfo,
+    MatchedTyLWord: Adtishness<Visitation>,
     PatternBuilder<L, LSub, SortId>:
-        Visit<MatchedTyLWord, L, MatchedTy, Heap, <MatchedTyLWord as VisitationInfo>::AdtLikeOrNot>,
+        Visit<MatchedTyLWord, L, MatchedTy, Heap, <MatchedTyLWord as Adtishness<Visitation>>::X>,
     MatchedTy: words::Implements<Heap, LSub>,
     <MatchedTy as words::Implements<Heap, LSub>>::LWord:
         names_langspec_sort::NamesLangspecSort<LSub>,
@@ -90,9 +91,9 @@ where
             ExternBehavioralImplementor = NamedPattern<Heap, Pattern>,
         >,
     MappedNamedPattern: CanonicallyConstructibleFrom<Heap, (NamedPattern<Heap, Pattern>, ())>,
-    PatternLWord: VisitationInfo,
+    PatternLWord: Adtishness<Visitation>,
     PatternBuilder<L, LSub, SortId>:
-        Visit<PatternLWord, L, Pattern, Heap, <PatternLWord as VisitationInfo>::AdtLikeOrNot>,
+        Visit<PatternLWord, L, Pattern, Heap, <PatternLWord as Adtishness<Visitation>>::X>,
     Pattern: words::Implements<Heap, LSub>,
     <Pattern as words::Implements<Heap, LSub>>::LWord: names_langspec_sort::NamesLangspecSort<LSub>,
 {

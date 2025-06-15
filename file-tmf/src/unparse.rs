@@ -1,8 +1,9 @@
-use ccf::{CanonicallyConstructibleFrom, VisitationInfo};
+use ccf::CanonicallyConstructibleFrom;
+use pmsp::Visitation;
 use term::SuperHeap;
 use unparse_adt::Unparser;
 use visit::Visit;
-use words::{InverseImplements, NotAdtLike};
+use words::{Adtishness, InverseImplements, NotAdtLike};
 
 use crate::{File, FileHeapBak};
 
@@ -11,8 +12,8 @@ impl<'a, Heap, L, Item, ItemLWord, FileMapped: Copy>
 where
     Heap: SuperHeap<FileHeapBak<Heap, Item>>,
     Heap: InverseImplements<L, File<(), ItemLWord>, ExternBehavioralImplementor = File<Heap, Item>>,
-    ItemLWord: VisitationInfo,
-    Unparser<'a, L>: Visit<ItemLWord, L, Item, Heap, <ItemLWord as VisitationInfo>::AdtLikeOrNot>,
+    ItemLWord: Adtishness<Visitation>,
+    Unparser<'a, L>: Visit<ItemLWord, L, Item, Heap, <ItemLWord as Adtishness<Visitation>>::X>,
     FileMapped: CanonicallyConstructibleFrom<Heap, (File<Heap, Item>, ())>,
 {
     fn visit(&mut self, heap: &Heap, t: &FileMapped) {

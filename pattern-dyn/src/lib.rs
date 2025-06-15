@@ -1,9 +1,9 @@
-use ccf::VisitationInfo;
 use langspec::langspec::{LangSpec, SortIdOf};
+use pmsp::Visitation;
 use thiserror::Error;
 use visit::Visit;
 use visitor::{PatternBuilder, PbResultError};
-use words::Implements;
+use words::{Adtishness, Implements};
 
 pub mod tmfscore;
 pub mod visitor;
@@ -78,13 +78,13 @@ pub fn to_pattern<L, LSub, LSubLs, Heap, T>(
 ) -> Result<DynPattern<SortIdOf<LSubLs>>, PbResultError>
 where
     T: Implements<Heap, L>,
-    <T as Implements<Heap, L>>::LWord: VisitationInfo,
+    <T as Implements<Heap, L>>::LWord: Adtishness<Visitation>,
     PatternBuilder<L, LSub, SortIdOf<LSubLs>>: Visit<
             <T as Implements<Heap, L>>::LWord,
             L,
             T,
             Heap,
-            <<T as Implements<Heap, L>>::LWord as VisitationInfo>::AdtLikeOrNot,
+            <<T as Implements<Heap, L>>::LWord as Adtishness<Visitation>>::X,
         >,
     LSubLs: LangSpec,
 {

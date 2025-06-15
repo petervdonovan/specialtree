@@ -24,11 +24,11 @@ pub(crate) mod helper_traits {
     }
 }
 mod impls {
-    use ccf::{CanonicallyConstructibleFrom, VisitationInfo};
+    use ccf::CanonicallyConstructibleFrom;
     use conslist::{ConsList, NonemptyConsList};
-    use pmsp::{NonemptyStrategy, StrategyOf};
+    use pmsp::{NonemptyStrategy, StrategyOf, Visitation};
     use take_mut::Poisonable;
-    use words::{AdtLike, Implements, InverseImplementsAll};
+    use words::{AdtLike, Adtishness, Implements, InverseImplementsAll};
 
     use crate::Covisit;
     use crate::covisiteventsink::CovisitEventSink;
@@ -110,13 +110,13 @@ mod impls {
     where
         ConcreteCase: NonemptyConsList,
         ConcreteCase::Car: Implements<Heap, L>,
-        <ConcreteCase::Car as Implements<Heap, L>>::LWord: VisitationInfo,
+        <ConcreteCase::Car as Implements<Heap, L>>::LWord: Adtishness<Visitation>,
         Covisitor: Covisit<
                 <ConcreteCase::Car as Implements<Heap, L>>::LWord,
                 L,
                 ConcreteCase::Car,
                 Heap,
-                <<ConcreteCase::Car as Implements<Heap, L>>::LWord as VisitationInfo>::AdtLikeOrNot,
+                <<ConcreteCase::Car as Implements<Heap, L>>::LWord as Adtishness<Visitation>>::X,
             >,
         Covisitor: AllCovisit<LWord, L, T, Heap, ConcreteCase::Cdr>,
         Covisitor: CovisitEventSink<LWord>,

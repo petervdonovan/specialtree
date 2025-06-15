@@ -1,7 +1,8 @@
-use ccf::{CanonicallyConstructibleFrom, VisitationInfo};
+use ccf::CanonicallyConstructibleFrom;
+use pmsp::Visitation;
 // use visit::Visit;
 use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Set, SetHeapBak};
-use words::{InverseImplements, NotAdtLike};
+use words::{Adtishness, InverseImplements, NotAdtLike};
 
 use crate::{Unparser, Visit};
 
@@ -20,7 +21,7 @@ impl<'arena, Heap, L, ElemLWord, MappedSet: Copy, MappedElem>
     Visit<Set<(), ElemLWord>, L, MappedSet, Heap, NotAdtLike> for Unparser<'arena, L>
 where
     Heap: term::SuperHeap<SetHeapBak<Heap, MappedElem>>,
-    ElemLWord: VisitationInfo,
+    ElemLWord: Adtishness<Visitation>,
     Heap: InverseImplements<L, ElemLWord>,
     Heap: InverseImplements<
             L,
@@ -41,7 +42,7 @@ where
             L,
             <Heap as InverseImplements<L, ElemLWord>>::StructuralImplementor,
             Heap,
-            <ElemLWord as VisitationInfo>::AdtLikeOrNot,
+            <ElemLWord as Adtishness<Visitation>>::X,
         >,
 {
     fn visit(&mut self, heap: &Heap, t: &MappedSet) {

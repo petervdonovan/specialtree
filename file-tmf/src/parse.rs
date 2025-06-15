@@ -1,11 +1,12 @@
-use ccf::{CanonicallyConstructibleFrom, VisitationInfo};
+use ccf::CanonicallyConstructibleFrom;
 use covisit::Covisit;
 use parse_adt::{
     Lookahead, ParseCursor, Parser,
     cstfy::{Cstfy, cstfy_ok},
 };
+use pmsp::Visitation;
 use term::SuperHeap;
-use words::{AdtLikeOrNot, InverseImplements, NotAdtLike};
+use words::{AdtLikeOrNot, Adtishness, InverseImplements, NotAdtLike};
 
 use crate::{File, FileHeapBak};
 
@@ -14,8 +15,8 @@ impl<'a, Heap, L, Item, ItemLWord, FileMapped>
 where
     Heap: SuperHeap<FileHeapBak<Heap, Item>>,
     Heap: InverseImplements<L, File<(), ItemLWord>, ExternBehavioralImplementor = File<Heap, Item>>,
-    ItemLWord: VisitationInfo,
-    Parser<'a, L>: Covisit<ItemLWord, L, Item, Heap, <ItemLWord as VisitationInfo>::AdtLikeOrNot>,
+    ItemLWord: Adtishness<Visitation>,
+    Parser<'a, L>: Covisit<ItemLWord, L, Item, Heap, <ItemLWord as Adtishness<Visitation>>::X>,
     FileMapped: CanonicallyConstructibleFrom<Heap, (File<Heap, Item>, ())>,
 {
     fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, FileMapped> {
