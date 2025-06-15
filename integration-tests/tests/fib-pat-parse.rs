@@ -83,7 +83,7 @@ fn test() {
     }
     {
         println!("test File");
-        let (heap, v) = file_tmf::parse::file::<Heap, L, _>(
+        let (heap, v) = file_tmf::parse::file::<Heap, L, _, _>(
             r#"
             @a = f plus left_operand $a right_operand $b
             @b = sum { 4 , 5 , ...c }

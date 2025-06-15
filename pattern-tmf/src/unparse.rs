@@ -76,7 +76,7 @@ where
 }
 
 impl<'a, Heap, L, Pattern, PatternLWord, NamedPatternMapped: Copy>
-    Visit<NamedPattern<Heap, PatternLWord>, L, NamedPatternMapped, Heap, NotAdtLike>
+    Visit<NamedPattern<(), PatternLWord>, L, NamedPatternMapped, Heap, NotAdtLike>
     for Unparser<'a, L>
 where
     Heap: SuperHeap<NamedPatternHeapBak<Heap, Pattern>>,
