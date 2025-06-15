@@ -37,7 +37,7 @@ where
         )
     }
 }
-impl<Heap, L, Item> Lookahead<Heap, L> for File<Heap, Item> {
+impl<ItemLWord> Lookahead<NotAdtLike> for File<(), ItemLWord> {
     fn matches(_: &ParseCursor<'_>) -> bool {
         true
     }

@@ -17,7 +17,7 @@ where
     type AcceptingRemainingCases: AcceptingCases<Cases::Cdr, Done = Self::Done>;
     fn try_case(self) -> Result<Self::Done, Self::AcceptingRemainingCases>;
 }
-pub trait AdmitNoMatchingCase<Heap, T>
+pub trait AdmitNoMatchingCase<LWord, L, T, Heap>
 where
     Self: AcceptingCases<()>,
 {

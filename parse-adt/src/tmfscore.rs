@@ -126,7 +126,7 @@ where
 //     }
 // }
 
-impl<Heap, L> Lookahead<Heap, L> for BoundedNat<Heap> {
+impl Lookahead<NotAdtLike> for BoundedNat<()> {
     fn matches(parser: &ParseCursor<'_>) -> bool {
         parser
             .peek_words()
@@ -134,16 +134,16 @@ impl<Heap, L> Lookahead<Heap, L> for BoundedNat<Heap> {
             .is_some_and(|word| word.1.parse::<usize>().is_ok())
     }
 }
-impl<Heap, L, Elem> Lookahead<Heap, L> for IdxBox<Heap, Cstfy<Heap, Elem>>
+impl<ElemLWord> Lookahead<NotAdtLike> for IdxBox<(), ElemLWord>
 where
-    Elem: Lookahead<Heap, L>,
+    ElemLWord: Lookahead<AdtLike>, // todo
 {
     fn matches(parser: &ParseCursor<'_>) -> bool {
         println!("dbg: checking if matches Idxbox Cstfy");
-        Elem::matches(parser)
+        ElemLWord::matches(parser)
     }
 }
-impl<Heap, L, Elem> Lookahead<Heap, L> for Set<Heap, Elem> {
+impl<ElemLWord> Lookahead<NotAdtLike> for Set<(), ElemLWord> {
     fn matches(parser: &ParseCursor<'_>) -> bool {
         println!("dbg: checking if matches Set");
         parser.peek_words().next().is_some_and(|word| word.1 == "{")

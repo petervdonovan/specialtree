@@ -7,7 +7,7 @@ use cstfy::Cstfy;
 use parse::{KeywordSequence, UnexpectedTokenError};
 use pmsp::{AtLeastTwoStrategy, Strategy};
 use take_mut::Poisonable;
-use words::Implements;
+use words::{AdtLike, Implements};
 
 pub mod cstfy;
 mod tmfscore;
@@ -92,17 +92,15 @@ pub trait NamesParseLL {
     const END: KeywordSequence;
 }
 
-pub trait Lookahead<Heap, L> {
+pub trait Lookahead<AdtLikeOrNot> {
     fn matches<'a>(parser: &ParseCursor<'a>) -> bool;
 }
-impl<T, Heap, L> Lookahead<Heap, L> for T
+impl<LWord> Lookahead<AdtLike> for LWord
 where
-    T: words::Adt,
-    Cstfy<Heap, T>: words::Implements<Heap, L>,
-    <Cstfy<Heap, T> as words::Implements<Heap, L>>::LWord: NamesParseLL,
+    LWord: NamesParseLL,
 {
     fn matches(parser: &ParseCursor<'_>) -> bool {
-        let kw = &<<Cstfy<Heap, T> as words::Implements<Heap, L>>::LWord as NamesParseLL>::START;
+        let kw = &<LWord as NamesParseLL>::START;
         parser.match_keywords(kw).is_some()
     }
 }
@@ -122,17 +120,16 @@ impl<'a, L, Cases> FromSelectCase for ParserSelecting<'a, L, Cases> {
     type Done = Parser<'a, L>;
 }
 
-impl<'a, Heap, A, L, Cases, AllCurrentCases> AcceptingCases<Cases>
+impl<'a, L, Cases, AllCurrentCases> AcceptingCases<Cases>
     for ParserSelecting<'a, L, AllCurrentCases>
 where
-    Cases: AtLeastTwoStrategy<Car = (Cstfy<Heap, A>, ())>,
+    Cases: AtLeastTwoStrategy<Car: ConsList<Car: Lookahead<AdtLike>>>,
     Self: AcceptingCases<Cases::Cdr, Done = Parser<'a, L>>,
-    A: Lookahead<Heap, L>,
 {
     type AcceptingRemainingCases = Self;
 
     fn try_case(self) -> Result<Self::Done, Self::AcceptingRemainingCases> {
-        if A::matches(&self.pc) {
+        if <<Cases::Car as ConsList>::Car as Lookahead<_>>::matches(&self.pc) {
             Ok(self.done())
         } else {
             Err(self)
@@ -160,23 +157,19 @@ impl<'a, L, AllCurrentCases> AcceptingCases<()> for ParserSelecting<'a, L, AllCu
     }
 }
 
-impl<Heap, A, L> CovisitEventSink<Cstfy<Heap, A>> for Parser<'_, L>
+impl<LWord, L> CovisitEventSink<LWord> for Parser<'_, L>
 where
     // A: words::Adt,
-    Cstfy<Heap, A>: Implements<Heap, L>,
-    <Cstfy<Heap, A> as Implements<Heap, L>>::LWord: NamesParseLL,
+    LWord: NamesParseLL,
 {
     fn push(&mut self) {
         self.pc.position = self
             .pc
-            .match_keywords(
-                &<<Cstfy<Heap, A> as Implements<Heap, L>>::LWord as NamesParseLL>::START,
-            )
+            .match_keywords(&<LWord as NamesParseLL>::START)
             .unwrap_or_else(|| {
                 panic!(
                     "Expected start keyword \"{}\" but got \"{}\" at position {}",
-                    &<<Cstfy<Heap, A> as Implements<Heap, L>>::LWord as NamesParseLL>::START.0[0]
-                        .get(),
+                    &<LWord as NamesParseLL>::START.0[0].get(),
                     &self.pc.source[self.pc.position.offset()..],
                     self.pc.position.offset()
                 );
@@ -184,15 +177,11 @@ where
     }
 
     fn proceed(&mut self, idx: u32, _total: u32) {
-        if let Some(kw) = <<Cstfy<Heap, A> as Implements<Heap, L>>::LWord as NamesParseLL>::PROCEED
-            .get(idx as usize)
-        {
+        if let Some(kw) = <LWord as NamesParseLL>::PROCEED.get(idx as usize) {
             self.pc.position = self.pc.match_keywords(kw).unwrap_or_else(|| {
                 panic!("Expected proceed keyword: {:?}", kw.0[0]);
             }); // todo: do not use 0
-        } else if let Some(kw) =
-            <<Cstfy<Heap, A> as Implements<Heap, L>>::LWord as NamesParseLL>::PROCEED.last()
-        {
+        } else if let Some(kw) = <LWord as NamesParseLL>::PROCEED.last() {
             self.pc.position = self.pc.match_keywords(kw).unwrap_or_else(|| {
                 panic!("Expected proceed keyword: {:?}", kw.0[0]);
             }); // todo: do not use 0
@@ -204,20 +193,20 @@ where
     fn pop(&mut self) {
         self.pc.position = self
             .pc
-            .match_keywords(&<<Cstfy<Heap, A> as Implements<Heap, L>>::LWord as NamesParseLL>::END)
+            .match_keywords(&<LWord as NamesParseLL>::END)
             .unwrap_or_else(|| {
                 panic!(
                     "Expected end keyword: {:?}",
-                    &<<Cstfy<Heap, A> as Implements<Heap, L>>::LWord as NamesParseLL>::END.0[0]
+                    &<LWord as NamesParseLL>::END.0[0]
                 );
             });
     }
 }
 
-impl<Heap, A, L, AllCases> AdmitNoMatchingCase<Heap, Cstfy<Heap, A>>
+impl<Heap, A, LWord, L, AllCases> AdmitNoMatchingCase<LWord, L, Cstfy<Heap, A>, Heap>
     for ParserSelecting<'_, L, AllCases>
 where
-    A: Lookahead<Heap, L>,
+    A: Lookahead<AdtLike>,
 {
     fn admit(self, _: &mut Heap) -> (Self::Done, Cstfy<Heap, A>) {
         let err = tymetafuncspec_core::Either::Right(

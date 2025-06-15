@@ -84,17 +84,17 @@ mod impls {
             >,
         AC::AcceptingRemainingCases:
             AnyCovisit<LWord, L, T, Heap, RemainingCases::Cdr, <AC as FromSelectCase>::Done>,
-        <AC as FromSelectCase>::Done: CovisitEventSink<T>,
+        <AC as FromSelectCase>::Done: CovisitEventSink<LWord>,
     {
         fn any_covisit(self, heap: &mut Heap) -> (<AC as FromSelectCase>::Done, T) {
             self.try_case()
                 .map(|mut x| {
-                    <<AC as FromSelectCase>::Done as CovisitEventSink<T>>::push(&mut x);
+                    <<AC as FromSelectCase>::Done as CovisitEventSink<_>>::push(&mut x);
                     let case =
                         <<AC as FromSelectCase>::Done as AllCovisit<_, _, _, _, _>>::all_covisit(
                             &mut x, heap, 0,
                         );
-                    <<AC as FromSelectCase>::Done as CovisitEventSink<T>>::pop(&mut x);
+                    <<AC as FromSelectCase>::Done as CovisitEventSink<_>>::pop(&mut x);
                     let ret = <T as CanonicallyConstructibleFrom<Heap, _>>::construct(heap, case);
                     (x, ret)
                 })
@@ -119,7 +119,7 @@ mod impls {
                 <<ConcreteCase::Car as Implements<Heap, L>>::LWord as VisitationInfo>::AdtLikeOrNot,
             >,
         Covisitor: AllCovisit<LWord, L, T, Heap, ConcreteCase::Cdr>,
-        Covisitor: CovisitEventSink<T>,
+        Covisitor: CovisitEventSink<LWord>,
     {
         fn all_covisit(&mut self, heap: &mut Heap, idx: u32) -> ConcreteCase {
             ConsList::reconstruct(
@@ -142,7 +142,7 @@ mod impls {
         }
         impl<AC, LWord, L, T, Heap> AnyCovisit<LWord, L, T, Heap, (), <AC as FromSelectCase>::Done> for AC
         where
-            AC: AdmitNoMatchingCase<Heap, T>,
+            AC: AdmitNoMatchingCase<LWord, L, T, Heap>,
         {
             fn any_covisit(self, heap: &mut Heap) -> (<AC as FromSelectCase>::Done, T) {
                 self.admit(heap)

@@ -5,7 +5,7 @@ use parse_adt::{
     cstfy::{Cstfy, cstfy_ok},
 };
 use term::SuperHeap;
-use words::{InverseImplements, NotAdtLike};
+use words::{AdtLike, InverseImplements, NotAdtLike};
 
 use crate::{
     NamedPattern, NamedPatternHeapBak, OrVariable, OrVariableHeapBak, OrVariableZeroOrMore,
@@ -149,25 +149,25 @@ where
     }
 }
 
-impl<Heap, L, Elem> Lookahead<Heap, L> for OrVariable<Heap, Elem> {
+impl<Elem> Lookahead<NotAdtLike> for OrVariable<(), Elem> {
     fn matches(_: &ParseCursor<'_>) -> bool {
         true // OK because we must be in a single-possibility context
     }
 }
-impl<Heap, L, Elem> Lookahead<Heap, L> for OrVariableZeroOrMore<Heap, Elem> {
+impl<Elem> Lookahead<NotAdtLike> for OrVariableZeroOrMore<(), Elem> {
     fn matches(_: &ParseCursor<'_>) -> bool {
         true // OK because we must be in a single-possibility context
     }
 }
-impl<Heap, L, Elem> Lookahead<Heap, L> for NamedPattern<Heap, Cstfy<Heap, Elem>>
+impl<ElemLWord> Lookahead<NotAdtLike> for NamedPattern<(), Cstfy<(), ElemLWord>>
 where
-    Elem: Lookahead<Heap, L>,
+    ElemLWord: Lookahead<AdtLike>,
 {
     fn matches(pc: &ParseCursor<'_>) -> bool {
         let mut pc = *pc;
         while let Some(word) = pc.pop_word()
             && word != "="
         {}
-        Elem::matches(&pc)
+        ElemLWord::matches(&pc)
     }
 }
