@@ -22,10 +22,10 @@ pub(crate) mod helper_traits {
 }
 
 mod impls {
-    use ccf::{CanonicallyConstructibleFrom, VisitationInfo};
+    use ccf::CanonicallyConstructibleFrom;
     use conslist::{ConsList, NonemptyConsList};
-    use pmsp::{NonemptyStrategy, StrategyOf};
-    use words::{AdtLike, Implements, InverseImplementsAll};
+    use pmsp::{NonemptyStrategy, StrategyOf, Visitation};
+    use words::{AdtLike, Adtishness, Implements, InverseImplementsAll};
 
     use crate::{
         Visit,
@@ -81,13 +81,13 @@ mod impls {
         V: AllVisit<LWord, L, T, Heap, ConcreteCase::Cdr>,
         // Heap: InverseImplements<L, Case::Car>,
         ConcreteCase::Car: Implements<Heap, L>,
-        <ConcreteCase::Car as Implements<Heap, L>>::LWord: VisitationInfo,
+        <ConcreteCase::Car as Implements<Heap, L>>::LWord: Adtishness<Visitation>,
         V: Visit<
                 <ConcreteCase::Car as Implements<Heap, L>>::LWord,
                 L,
                 ConcreteCase::Car,
                 Heap,
-                <<ConcreteCase::Car as Implements<Heap, L>>::LWord as VisitationInfo>::AdtLikeOrNot,
+                <<ConcreteCase::Car as Implements<Heap, L>>::LWord as Adtishness<Visitation>>::X,
             >,
         V: VisitEventSink<T, Heap>,
     {

@@ -1,11 +1,12 @@
-use ccf::{CanonicallyConstructibleFrom, VisitationInfo};
+use ccf::CanonicallyConstructibleFrom;
 use covisit::Covisit;
 use parse_adt::{
     Lookahead, ParseCursor, Parser,
     cstfy::{Cstfy, cstfy_ok},
 };
+use pmsp::Visitation;
 use term::SuperHeap;
-use words::{AdtLike, InverseImplements, NotAdtLike};
+use words::{AdtLike, Adtishness, InverseImplements, NotAdtLike};
 
 use crate::{
     NamedPattern, NamedPatternHeapBak, OrVariable, OrVariableHeapBak, OrVariableZeroOrMore,
@@ -22,14 +23,9 @@ where
             OrVariable<(), MatchedTyLWord>,
             ExternBehavioralImplementor = OrVariable<Heap, MatchedTy>,
         >,
-    MatchedTyLWord: VisitationInfo,
-    Parser<'a, L>: Covisit<
-            MatchedTyLWord,
-            L,
-            MatchedTy,
-            Heap,
-            <MatchedTyLWord as VisitationInfo>::AdtLikeOrNot,
-        >,
+    MatchedTyLWord: Adtishness<Visitation>,
+    Parser<'a, L>:
+        Covisit<MatchedTyLWord, L, MatchedTy, Heap, <MatchedTyLWord as Adtishness<Visitation>>::X>,
     OvMapped: CanonicallyConstructibleFrom<Heap, (OrVariable<Heap, MatchedTy>, ())>,
 {
     fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, OvMapped> {
@@ -66,14 +62,9 @@ where
             OrVariable<(), MatchedTyLWord>,
             ExternBehavioralImplementor = OrVariableZeroOrMore<Heap, MatchedTy>,
         >,
-    MatchedTyLWord: VisitationInfo,
-    Parser<'a, L>: Covisit<
-            MatchedTyLWord,
-            L,
-            MatchedTy,
-            Heap,
-            <MatchedTyLWord as VisitationInfo>::AdtLikeOrNot,
-        >,
+    MatchedTyLWord: Adtishness<Visitation>,
+    Parser<'a, L>:
+        Covisit<MatchedTyLWord, L, MatchedTy, Heap, <MatchedTyLWord as Adtishness<Visitation>>::X>,
     OvZomMapped: CanonicallyConstructibleFrom<Heap, (OrVariableZeroOrMore<Heap, MatchedTy>, ())>,
 {
     fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, OvZomMapped> {
@@ -118,9 +109,9 @@ where
             NamedPattern<(), PatternLWord>,
             ExternBehavioralImplementor = NamedPattern<Heap, Pattern>,
         >,
-    PatternLWord: VisitationInfo,
+    PatternLWord: Adtishness<Visitation>,
     Parser<'a, L>:
-        Covisit<PatternLWord, L, Pattern, Heap, <PatternLWord as VisitationInfo>::AdtLikeOrNot>,
+        Covisit<PatternLWord, L, Pattern, Heap, <PatternLWord as Adtishness<Visitation>>::X>,
     NamedPatternMapped: CanonicallyConstructibleFrom<Heap, (NamedPattern<Heap, Pattern>, ())>,
 {
     fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, NamedPatternMapped> {

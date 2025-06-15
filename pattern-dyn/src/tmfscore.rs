@@ -1,10 +1,11 @@
 use crate::visitor::PatternBuilder;
-use ccf::{CanonicallyConstructibleFrom, VisitationInfo};
+use ccf::CanonicallyConstructibleFrom;
 use names_langspec_sort::NamesLangspecSort;
+use pmsp::Visitation;
 use to_literal::ToLiteral as _;
 use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Set, SetHeapBak};
 use visit::{Visit, visiteventsink::VisitEventSink};
-use words::{AdtLikeOrNot, NotAdtLike};
+use words::{AdtLikeOrNot, Adtishness, NotAdtLike};
 use words::{Implements, InverseImplements};
 
 impl<SortId, Heap, L, LSub, MappedBNat: Copy> Visit<BoundedNat<()>, L, MappedBNat, Heap, NotAdtLike>
@@ -13,7 +14,7 @@ where
     MappedBNat: CanonicallyConstructibleFrom<Heap, (BoundedNat<Heap>, ())>,
     MappedBNat: Implements<Heap, LSub>,
     <MappedBNat as Implements<Heap, LSub>>::LWord: NamesLangspecSort<LSub>,
-    <MappedBNat as Implements<Heap, LSub>>::LWord: VisitationInfo<AdtLikeOrNot = NotAdtLike>,
+    <MappedBNat as Implements<Heap, LSub>>::LWord: Adtishness<Visitation, X = NotAdtLike>,
     SortId: Clone,
 {
     fn visit(&mut self, heap: &Heap, t: &MappedBNat) {
@@ -38,13 +39,13 @@ where
         >,
     MappedSet: Implements<Heap, LSub, LWord = Set<(), MappedElem>>,
     <MappedSet as Implements<Heap, LSub>>::LWord: NamesLangspecSort<LSub>,
-    ElemLWord: VisitationInfo,
+    ElemLWord: Adtishness<Visitation>,
     PatternBuilder<L, LSub, SortId>: Visit<
             ElemLWord,
             L,
             <Heap as InverseImplements<L, ElemLWord>>::StructuralImplementor,
             Heap,
-            <ElemLWord as VisitationInfo>::AdtLikeOrNot,
+            <ElemLWord as Adtishness<Visitation>>::X,
         >,
 {
     fn visit(&mut self, heap: &Heap, t: &MappedSet) {

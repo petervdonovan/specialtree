@@ -3,7 +3,7 @@
 #![feature(fundamental)]
 
 use conslist::ConsList;
-use words::Implements;
+use words::{Aspect, Implements};
 
 pub trait NamesPatternMatchStrategy<L> {
     type Strategy: Strategy;
@@ -24,7 +24,8 @@ where
 // where
 //     T: Implements<Heap, L>,
 //     <T as Implements<Heap, L>>::LWord: NamesPatternMatchStrategy;
-
+pub struct Visitation;
+impl Aspect for Visitation {}
 pub trait Strategy {
     type Car: ConsList;
     type Cdr: Strategy;
@@ -48,7 +49,6 @@ where
 }
 impl Strategy for () {
     type Car = ();
-
     type Cdr = ();
     const LENGTH: u32 = 0;
 }

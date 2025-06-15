@@ -7,10 +7,13 @@ use cstfy::Cstfy;
 use parse::{KeywordSequence, UnexpectedTokenError};
 use pmsp::{AtLeastTwoStrategy, Strategy};
 use take_mut::Poisonable;
-use words::{AdtLike, Implements};
+use words::{AdtLike, Adtishness, Aspect, Implements};
 
 pub mod cstfy;
 mod tmfscore;
+
+pub struct LookaheadAspect;
+impl Aspect for LookaheadAspect {}
 
 pub struct Parser<'a, L> {
     pub pc: ParseCursor<'a>,
@@ -120,10 +123,12 @@ impl<'a, L, Cases> FromSelectCase for ParserSelecting<'a, L, Cases> {
     type Done = Parser<'a, L>;
 }
 
-impl<'a, L, Cases, AllCurrentCases> AcceptingCases<Cases>
+impl<'a, L, CarCar, Cases, AllCurrentCases> AcceptingCases<Cases>
     for ParserSelecting<'a, L, AllCurrentCases>
 where
-    Cases: AtLeastTwoStrategy<Car: ConsList<Car: Lookahead<AdtLike>>>,
+    CarCar: Adtishness<LookaheadAspect>,
+    CarCar: Lookahead<<CarCar as Adtishness<LookaheadAspect>>::X>,
+    Cases: AtLeastTwoStrategy<Car: ConsList<Car = CarCar>>,
     Self: AcceptingCases<Cases::Cdr, Done = Parser<'a, L>>,
 {
     type AcceptingRemainingCases = Self;
@@ -206,7 +211,7 @@ where
 impl<Heap, A, LWord, L, AllCases> AdmitNoMatchingCase<LWord, L, Cstfy<Heap, A>, Heap>
     for ParserSelecting<'_, L, AllCases>
 where
-    A: Lookahead<AdtLike>,
+// A: Lookahead<AdtLike>,
 {
     fn admit(self, _: &mut Heap) -> (Self::Done, Cstfy<Heap, A>) {
         let err = tymetafuncspec_core::Either::Right(

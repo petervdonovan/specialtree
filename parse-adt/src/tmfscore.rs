@@ -1,11 +1,13 @@
 use core::panic;
 
-use ccf::{CanonicallyConstructibleFrom, VisitationInfo};
+use ccf::CanonicallyConstructibleFrom;
 use covisit::Covisit;
+use pmsp::Visitation;
 use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Set, SetHeapBak};
-use words::InverseImplements;
 use words::{AdtLike, NotAdtLike};
+use words::{Adtishness, InverseImplements};
 
+use crate::LookaheadAspect;
 use crate::{
     Lookahead, ParseCursor, Parser,
     cstfy::{Cstfy, cstfy_ok},
@@ -46,13 +48,13 @@ where
             ExternBehavioralImplementor = Set<Heap, MappedElem>,
         >,
     Heap: term::SuperHeap<SetHeapBak<Heap, MappedElem>>,
-    ElemLWord: VisitationInfo,
+    ElemLWord: Adtishness<Visitation>,
     Parser<'a, L>: Covisit<
             ElemLWord,
             L,
             <Heap as InverseImplements<L, ElemLWord>>::StructuralImplementor,
             Heap,
-            <ElemLWord as VisitationInfo>::AdtLikeOrNot,
+            <ElemLWord as Adtishness<Visitation>>::X,
         >,
     MappedSet: CanonicallyConstructibleFrom<Heap, (Set<Heap, MappedElem>, ())>,
     MappedElem: CanonicallyConstructibleFrom<
@@ -125,6 +127,16 @@ where
 //         )
 //     }
 // }
+
+impl Adtishness<LookaheadAspect> for BoundedNat<()> {
+    type X = NotAdtLike;
+}
+impl<ElemLWord> Adtishness<LookaheadAspect> for IdxBox<(), ElemLWord> {
+    type X = NotAdtLike;
+}
+impl<ElemLWord> Adtishness<LookaheadAspect> for Set<(), ElemLWord> {
+    type X = NotAdtLike;
+}
 
 impl Lookahead<NotAdtLike> for BoundedNat<()> {
     fn matches(parser: &ParseCursor<'_>) -> bool {

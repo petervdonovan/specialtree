@@ -1,5 +1,5 @@
-use ccf::VisitationInfo;
 use parse_adt::NamesParseLL;
+use pmsp::Visitation;
 // use parse_adt::NamesParseLL;
 // use term::{
 //     case_split::HasBorrowedHeapRef,
@@ -10,6 +10,7 @@ use visit::{
     Visit,
     visiteventsink::{PopOrProceed, VisitEventSink},
 };
+use words::Adtishness;
 
 pub mod tmfscore;
 
@@ -20,8 +21,8 @@ pub struct Unparser<'arena, L> {
 
 pub fn unparse<LWord, L, T, Heap>(heap: &Heap, t: &T) -> String
 where
-    LWord: VisitationInfo,
-    for<'a> Unparser<'a, L>: Visit<LWord, L, T, Heap, <LWord as VisitationInfo>::AdtLikeOrNot>,
+    LWord: Adtishness<Visitation>,
+    for<'a> Unparser<'a, L>: Visit<LWord, L, T, Heap, <LWord as Adtishness<Visitation>>::X>,
 {
     let arena = bumpalo::Bump::new();
     let mut unparser = Unparser::new(&arena);
