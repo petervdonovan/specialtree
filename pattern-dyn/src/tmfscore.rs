@@ -8,8 +8,8 @@ use visit::{Visit, visiteventsink::VisitEventSink};
 use words::{AdtLikeOrNot, Adtishness, NotAdtLike};
 use words::{Implements, InverseImplements};
 
-impl<SortId, Heap, L, LSub, MappedBNat: Copy> Visit<BoundedNat<()>, L, MappedBNat, Heap, NotAdtLike>
-    for PatternBuilder<L, LSub, SortId>
+impl<SortId, Heap, L, LSub, MappedBNat: Copy>
+    Visit<BoundedNat<()>, LSub, MappedBNat, Heap, NotAdtLike> for PatternBuilder<L, LSub, SortId>
 where
     MappedBNat: CanonicallyConstructibleFrom<Heap, (BoundedNat<Heap>, ())>,
     MappedBNat: Implements<Heap, LSub>,
@@ -25,25 +25,30 @@ where
 }
 
 impl<SortId: Clone, Heap, L, LSub, ElemLWord, MappedSet: Copy, MappedElem: Copy>
-    Visit<Set<(), ElemLWord>, L, MappedSet, Heap, NotAdtLike> for PatternBuilder<L, LSub, SortId>
+    Visit<Set<(), ElemLWord>, LSub, MappedSet, Heap, NotAdtLike> for PatternBuilder<L, LSub, SortId>
 where
     Heap: term::SuperHeap<SetHeapBak<Heap, MappedElem>>,
-    Heap: InverseImplements<L, ElemLWord>,
+    Heap: InverseImplements<LSub, ElemLWord>,
+    Heap: InverseImplements<
+            LSub,
+            Set<(), ElemLWord>,
+            ExternBehavioralImplementor = Set<Heap, MappedElem>,
+        >,
     MappedSet: CanonicallyConstructibleFrom<Heap, (Set<Heap, MappedElem>, ())>,
     MappedElem: CanonicallyConstructibleFrom<
             Heap,
             (
-                <Heap as InverseImplements<L, ElemLWord>>::StructuralImplementor,
+                <Heap as InverseImplements<LSub, ElemLWord>>::StructuralImplementor,
                 (),
             ),
         >,
-    MappedSet: Implements<Heap, LSub, LWord = Set<(), MappedElem>>,
+    MappedSet: Implements<Heap, LSub, LWord = Set<(), ElemLWord>>,
     <MappedSet as Implements<Heap, LSub>>::LWord: NamesLangspecSort<LSub>,
     ElemLWord: Adtishness<Visitation>,
     PatternBuilder<L, LSub, SortId>: Visit<
             ElemLWord,
-            L,
-            <Heap as InverseImplements<L, ElemLWord>>::StructuralImplementor,
+            LSub,
+            <Heap as InverseImplements<LSub, ElemLWord>>::StructuralImplementor,
             Heap,
             <ElemLWord as Adtishness<Visitation>>::X,
         >,

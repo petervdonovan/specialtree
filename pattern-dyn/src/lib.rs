@@ -71,21 +71,16 @@ pub enum ToDynPatternError {
 //     pb.result()
 // }
 
-pub fn to_pattern<L, LSub, LSubLs, Heap, T>(
+pub fn to_pattern<LWord, L, T, Heap, LSub, LSubLs>(
     heap: &Heap,
     t: &T,
     ls: &LSubLs,
 ) -> Result<DynPattern<SortIdOf<LSubLs>>, PbResultError>
 where
-    T: Implements<Heap, L>,
-    <T as Implements<Heap, L>>::LWord: Adtishness<Visitation>,
-    PatternBuilder<L, LSub, SortIdOf<LSubLs>>: Visit<
-            <T as Implements<Heap, L>>::LWord,
-            L,
-            T,
-            Heap,
-            <<T as Implements<Heap, L>>::LWord as Adtishness<Visitation>>::X,
-        >,
+    // T: Implements<Heap, L>,
+    LWord: Adtishness<Visitation>,
+    PatternBuilder<L, LSub, SortIdOf<LSubLs>>:
+        Visit<LWord, LSub, T, Heap, <LWord as Adtishness<Visitation>>::X>,
     LSubLs: LangSpec,
 {
     // let mut pb = PatternBuilder::new((0..100).collect());
