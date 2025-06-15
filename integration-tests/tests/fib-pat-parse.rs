@@ -1,6 +1,7 @@
 use fib::words_mod_fib::{L as LSub, sorts};
-use fib_pat::words_mod_file_pattern_fib::L;
+use fib_pat::words_mod_file_pattern_fib::{L, sorts as supsorts};
 use fib_pat_parse::term_specialized_cst_autoboxed_file_pattern_fib::Heap;
+use file_tmf::File;
 use langspec::{flat::LangSpecFlat, langspec::TerminalLangSpec as _};
 
 #[test]
@@ -97,7 +98,10 @@ fn test() {
         for item in file_tmf::items(&heap, &v) {
             println!(
                 "pattern from file: {:#?}",
-                pattern_dyn::to_pattern_skip::<L, LSub, _, _, _>(&heap, item, &ls).unwrap()
+                pattern_dyn::to_pattern_skip::<supsorts::FileItem, L, LSub, _, _, _>(
+                    &heap, item, &ls
+                )
+                .unwrap()
             );
         }
     }
