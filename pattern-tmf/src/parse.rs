@@ -1,7 +1,7 @@
 use ccf::CanonicallyConstructibleFrom;
 use covisit::Covisit;
 use parse_adt::{
-    Lookahead, ParseCursor, Parser,
+    Lookahead, LookaheadAspect, ParseCursor, Parser,
     cstfy::{Cstfy, cstfy_ok},
 };
 use pmsp::Visitation;
@@ -59,7 +59,7 @@ where
     Heap: SuperHeap<OrVariableZeroOrMoreHeapBak<Heap, MatchedTy>>,
     Heap: InverseImplements<
             L,
-            OrVariable<(), MatchedTyLWord>,
+            OrVariableZeroOrMore<(), MatchedTyLWord>,
             ExternBehavioralImplementor = OrVariableZeroOrMore<Heap, MatchedTy>,
         >,
     MatchedTyLWord: Adtishness<Visitation>,
@@ -139,7 +139,15 @@ where
         )
     }
 }
-
+impl<Elem> Adtishness<LookaheadAspect> for OrVariable<(), Elem> {
+    type X = NotAdtLike;
+}
+impl<Elem> Adtishness<LookaheadAspect> for OrVariableZeroOrMore<(), Elem> {
+    type X = NotAdtLike;
+}
+impl<Elem> Adtishness<LookaheadAspect> for NamedPattern<(), Elem> {
+    type X = NotAdtLike;
+}
 impl<Elem> Lookahead<NotAdtLike> for OrVariable<(), Elem> {
     fn matches(_: &ParseCursor<'_>) -> bool {
         true // OK because we must be in a single-possibility context
@@ -150,9 +158,10 @@ impl<Elem> Lookahead<NotAdtLike> for OrVariableZeroOrMore<(), Elem> {
         true // OK because we must be in a single-possibility context
     }
 }
-impl<ElemLWord> Lookahead<NotAdtLike> for NamedPattern<(), Cstfy<(), ElemLWord>>
+impl<ElemLWord> Lookahead<NotAdtLike> for NamedPattern<(), ElemLWord>
 where
-    ElemLWord: Lookahead<AdtLike>,
+    ElemLWord: Adtishness<LookaheadAspect>,
+    ElemLWord: Lookahead<<ElemLWord as Adtishness<LookaheadAspect>>::X>,
 {
     fn matches(pc: &ParseCursor<'_>) -> bool {
         let mut pc = *pc;
