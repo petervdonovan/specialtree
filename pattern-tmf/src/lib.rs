@@ -4,8 +4,10 @@ use langspec::{
     langspec::Name,
     tymetafunc::{ArgId, RustTyMap, TyMetaFuncData, TyMetaFuncSpec},
 };
+use pmsp::Visitation;
 use serde::{Deserialize, Serialize};
 use term::{SuperHeap, TyMetaFunc};
+use words::{Adtishness, NotAdtLike};
 
 pub mod parse;
 pub mod pattern_dyn;
@@ -198,4 +200,14 @@ impl<Heap, MatchedTy> DirectlyCanonicallyConstructibleFrom<Heap, (MatchedTy, ())
             panic!()
         }
     }
+}
+
+impl<Elem> Adtishness<Visitation> for OrVariable<(), Elem> {
+    type X = NotAdtLike;
+}
+impl<Elem> Adtishness<Visitation> for OrVariableZeroOrMore<(), Elem> {
+    type X = NotAdtLike;
+}
+impl<Elem> Adtishness<Visitation> for NamedPattern<(), Elem> {
+    type X = NotAdtLike;
 }
