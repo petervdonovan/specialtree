@@ -48,7 +48,7 @@ pub fn file<Heap, L, Item, ItemLWord>(source: &str) -> (Heap, Cstfy<Heap, File<H
 where
     Heap: Default,
     for<'a> Parser<'a, L>:
-        covisit::Covisit<File<Heap, ItemLWord>, L, Cstfy<Heap, File<Heap, Item>>, Heap, NotAdtLike>,
+        covisit::Covisit<File<(), ItemLWord>, L, Cstfy<Heap, File<Heap, Item>>, Heap, NotAdtLike>,
 {
     let mut parser = parse_adt::Parser::new(source);
     let mut heap = Heap::default();
