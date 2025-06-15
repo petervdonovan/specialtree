@@ -1,7 +1,7 @@
 use langspec::langspec::{LangSpec, SortIdOf};
 use pmsp::Visitation;
 use thiserror::Error;
-use visit::Visit;
+use visit::{Visit, skip_visit::SkipVisit};
 use visitor::{PatternBuilder, PbResultError};
 use words::{Adtishness, Implements};
 
@@ -90,17 +90,19 @@ where
     pb.result()
 }
 
-// pub fn to_pattern_skip<L, LSub, LSubLs, Heap, T>(
-//     heap: &Heap,
-//     t: &T,
-//     ls: &LSubLs,
-// ) -> Result<DynPattern<SortIdOf<LSubLs>>, PbResultError>
-// where
-//     PatternBuilder<L, LSub, SortIdOf<LSubLs>>: SkipVisit<AdtMetadata, T, Heap, L>,
-//     LSubLs: LangSpec,
-// {
-//     let sids = ls.all_sort_ids().collect::<Vec<_>>();
-//     let mut pb = PatternBuilder::new(sids.clone());
-//     <PatternBuilder<L, LSub, _> as SkipVisit<_, _, _, _>>::skip_visit(&mut pb, heap, t);
-//     pb.result()
-// }
+pub fn to_pattern_skip<LWord, L, LSub, LSubLs, Heap, T>(
+    heap: &Heap,
+    t: &T,
+    ls: &LSubLs,
+) -> Result<DynPattern<SortIdOf<LSubLs>>, PbResultError>
+where
+    LWord: Adtishness<Visitation>,
+    PatternBuilder<L, LSub, SortIdOf<LSubLs>>:
+        SkipVisit<LWord, L, T, Heap, <LWord as Adtishness<Visitation>>::X>,
+    LSubLs: LangSpec,
+{
+    let sids = ls.all_sort_ids().collect::<Vec<_>>();
+    let mut pb = PatternBuilder::new(sids.clone());
+    <PatternBuilder<L, LSub, _> as SkipVisit<_, _, _, _, _>>::skip_visit(&mut pb, heap, t);
+    pb.result()
+}

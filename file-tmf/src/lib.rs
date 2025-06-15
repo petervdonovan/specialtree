@@ -4,8 +4,10 @@ use langspec::{
     langspec::Name,
     tymetafunc::{ArgId, RustTyMap, TyMetaFuncData, TyMetaFuncSpec},
 };
+use pmsp::Visitation;
 use serde::{Deserialize, Serialize};
 use term::{SuperHeap, TyMetaFunc};
+use words::{Adtishness, NotAdtLike};
 
 pub mod parse;
 pub mod unparse;
@@ -74,4 +76,7 @@ where
     let subheap = heap.subheap::<FileHeapBak<Heap, Item>>();
     let items = subheap.vecs.get(f.items).unwrap();
     items.iter()
+}
+impl<ItemLWord> Adtishness<Visitation> for File<(), ItemLWord> {
+    type X = NotAdtLike;
 }
