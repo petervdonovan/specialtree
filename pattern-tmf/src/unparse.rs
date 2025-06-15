@@ -46,7 +46,7 @@ where
     Heap: SuperHeap<OrVariableZeroOrMoreHeapBak<Heap, MatchedTy>>,
     Heap: InverseImplements<
             L,
-            OrVariable<(), MatchedTyLWord>,
+            OrVariableZeroOrMore<(), MatchedTyLWord>,
             ExternBehavioralImplementor = OrVariableZeroOrMore<Heap, MatchedTy>,
         >,
     MatchedTyLWord: Adtishness<Visitation>,
