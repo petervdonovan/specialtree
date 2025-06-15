@@ -3,7 +3,7 @@ use pmsp::Visitation;
 use thiserror::Error;
 use visit::{Visit, skip_visit::SkipVisit};
 use visitor::{PatternBuilder, PbResultError};
-use words::{Adtishness, Implements};
+use words::{Adtishness, Implements, NotAdtLike};
 
 pub mod tmfscore;
 pub mod visitor;
@@ -97,8 +97,7 @@ pub fn to_pattern_skip<LWord, L, LSub, LSubLs, Heap, T>(
 ) -> Result<DynPattern<SortIdOf<LSubLs>>, PbResultError>
 where
     LWord: Adtishness<Visitation>,
-    PatternBuilder<L, LSub, SortIdOf<LSubLs>>:
-        SkipVisit<LWord, L, T, Heap, <LWord as Adtishness<Visitation>>::X>,
+    PatternBuilder<L, LSub, SortIdOf<LSubLs>>: SkipVisit<LWord, LSub, T, Heap, NotAdtLike>,
     LSubLs: LangSpec,
 {
     let sids = ls.all_sort_ids().collect::<Vec<_>>();
