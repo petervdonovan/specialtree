@@ -1,3 +1,5 @@
+#![feature(let_chains)]
+
 use ccf::DirectlyCanonicallyConstructibleFrom;
 use derivative::Derivative;
 use langspec::{

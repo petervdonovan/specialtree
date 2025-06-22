@@ -80,7 +80,7 @@ where
     // T: Implements<Heap, L>,
     LWord: Adtishness<Visitation>,
     PatternBuilder<L, LSub, SortIdOf<LSubLs>>:
-        Visit<LWord, LSub, T, Heap, <LWord as Adtishness<Visitation>>::X>,
+        Visit<LWord, L, T, Heap, <LWord as Adtishness<Visitation>>::X>,
     LSubLs: LangSpec,
 {
     // let mut pb = PatternBuilder::new((0..100).collect());

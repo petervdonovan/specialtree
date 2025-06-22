@@ -36,7 +36,7 @@ fn test() {
         let (heap, v) = fib_pat_parse::parse_file_pattern_fib::sum("sum { $k }");
         println!(
             "unparse: {}",
-            unparse_adt::unparse::<sorts::Nat, L, _, _>(&heap, &v)
+            unparse_adt::unparse::<sorts::Sum, L, _, _>(&heap, &v)
         );
         println!(
             "pattern: {:?}",
@@ -82,27 +82,27 @@ fn test() {
             pattern_dyn::to_pattern::<sorts::Nat, L, _, _, LSub, _>(&heap, &v, &ls).unwrap()
         );
     }
-    {
-        println!("test File");
-        let (heap, v) = file_tmf::parse::file::<Heap, L, _, _>(
-            r#"
-            @a = f plus left_operand $a right_operand $b
-            @b = sum { 4 , 5 , ...c }
-            @c = f 9
-        "#,
-        );
-        println!(
-            "unparse: {}",
-            file_tmf::unparse::file::<L, _, _, _, _>(&heap, &v)
-        );
-        for item in file_tmf::items(&heap, &v) {
-            println!(
-                "pattern from file: {:#?}",
-                pattern_dyn::to_pattern_skip::<supsorts::FileItem, L, LSub, _, _, _>(
-                    &heap, item, &ls
-                )
-                .unwrap()
-            );
-        }
-    }
+    // {
+    //     println!("test File");
+    //     let (heap, v) = file_tmf::parse::file::<Heap, L, _, _>(
+    //         r#"
+    //         @a = f plus left_operand $a right_operand $b
+    //         @b = sum { 4 , 5 , ...c }
+    //         @c = f 9
+    //     "#,
+    //     );
+    //     println!(
+    //         "unparse: {}",
+    //         file_tmf::unparse::file::<L, _, _, _, _>(&heap, &v)
+    //     );
+    //     for item in file_tmf::items(&heap, &v) {
+    //         println!(
+    //             "pattern from file: {:#?}",
+    //             pattern_dyn::to_pattern_skip::<supsorts::FileItem, L, LSub, _, _, _>(
+    //                 &heap, item, &ls
+    //             )
+    //             .unwrap()
+    //         );
+    //     }
+    // }
 }

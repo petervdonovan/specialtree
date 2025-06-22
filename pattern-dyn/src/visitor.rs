@@ -27,77 +27,55 @@ impl<L, LSub, SortId: Clone> PatternBuilder<L, LSub, SortId> {
             phantom: std::marker::PhantomData,
         }
     }
-    pub fn literal<Heap, CurrentNode>(&mut self, literal: syn::Expr)
+    pub fn literal<Heap, CurrentNodeLWord>(&mut self, literal: syn::Expr)
     where
-        CurrentNode: Implements<Heap, LSub>,
-        <CurrentNode as Implements<Heap, LSub>>::LWord: NamesLangspecSort<LSub>,
+        CurrentNodeLWord: NamesLangspecSort<LSub>,
     {
         self.stack.push(DynPattern::Literal(crate::LiteralPattern {
-            sid:
-                self.int2sid
-                    .get(
-                        <<CurrentNode as Implements<Heap, LSub>>::LWord as NamesLangspecSort<
-                            LSub,
-                        >>::sort_idx() as usize,
-                    )
-                    .unwrap()
-                    .clone(),
+            sid: self
+                .int2sid
+                .get(<CurrentNodeLWord as NamesLangspecSort<LSub>>::sort_idx() as usize)
+                .unwrap()
+                .clone(),
             equal_to: literal,
         }))
     }
-    pub fn variable<Heap, CurrentNode>(&mut self, name: String)
+    pub fn variable<Heap, CurrentNodeLWord>(&mut self, name: String)
     where
-        CurrentNode: Implements<Heap, LSub>,
-        <CurrentNode as Implements<Heap, LSub>>::LWord: NamesLangspecSort<LSub>,
+        CurrentNodeLWord: NamesLangspecSort<LSub>,
     {
         self.stack.push(DynPattern::Variable(crate::Variable {
-            sid:
-                self.int2sid
-                    .get(
-                        <<CurrentNode as Implements<Heap, LSub>>::LWord as NamesLangspecSort<
-                            LSub,
-                        >>::sort_idx() as usize,
-                    )
-                    .unwrap()
-                    .clone(),
+            sid: self
+                .int2sid
+                .get(<CurrentNodeLWord as NamesLangspecSort<LSub>>::sort_idx() as usize)
+                .unwrap()
+                .clone(),
             ident: name,
         }))
     }
-    pub fn vzom<Heap, CurrentNode>(&mut self, name: String)
+    pub fn vzom<Heap, CurrentNodeLWord>(&mut self, name: String)
     where
-        CurrentNode: Implements<Heap, LSub>,
-        <CurrentNode as Implements<Heap, LSub>>::LWord: NamesLangspecSort<LSub>,
+        CurrentNodeLWord: NamesLangspecSort<LSub>,
     {
         self.stack.push(DynPattern::ZeroOrMore(crate::Variable {
-            sid:
-                self.int2sid
-                    .get(
-                        <<CurrentNode as Implements<Heap, LSub>>::LWord as NamesLangspecSort<
-                            LSub,
-                        >>::sort_idx() as usize,
-                    )
-                    .unwrap()
-                    .clone(),
+            sid: self
+                .int2sid
+                .get(<CurrentNodeLWord as NamesLangspecSort<LSub>>::sort_idx() as usize)
+                .unwrap()
+                .clone(),
             ident: name,
         }))
     }
-    pub fn ignored<Heap, CurrentNode>(&mut self)
+    pub fn ignored<Heap, CurrentNodeLWord>(&mut self)
     where
-        CurrentNode: Implements<Heap, LSub>,
-        <CurrentNode as Implements<Heap, LSub>>::LWord: NamesLangspecSort<LSub>,
+        CurrentNodeLWord: NamesLangspecSort<LSub>,
     {
-        self.stack.push(
-            DynPattern::Ignored(
-                self.int2sid
-                    .get(
-                        <<CurrentNode as Implements<Heap, LSub>>::LWord as NamesLangspecSort<
-                            LSub,
-                        >>::sort_idx() as usize,
-                    )
-                    .unwrap()
-                    .clone(),
-            ),
-        )
+        self.stack.push(DynPattern::Ignored(
+            self.int2sid
+                .get(<CurrentNodeLWord as NamesLangspecSort<LSub>>::sort_idx() as usize)
+                .unwrap()
+                .clone(),
+        ))
     }
     pub fn named(&mut self, name: String) {
         let child = Box::new(self.stack.pop().unwrap());
