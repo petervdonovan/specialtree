@@ -1,0 +1,1 @@
+This repository contains experimental code related to the generation and processing of AST-like data structures. Nothing here works properly. If you were looking for something that might be useful to you, please go away.
