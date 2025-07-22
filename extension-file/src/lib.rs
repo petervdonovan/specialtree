@@ -48,7 +48,7 @@ pub fn filefy_all_tmf<'a, L: LangSpec>(
     )
 }
 
-fn embed<'a, L: LangSpec>(sid: SortIdOf<L>) -> SortIdOf<FileExtension<'a, L>> {
+fn embed<'a, L: LangSpec + 'a>(sid: SortIdOf<L>) -> SortIdOf<FileExtension<'a, L>> {
     sid.fmap_f(Either::Left).fmap_s(Either::Left)
 }
 
