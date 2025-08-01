@@ -1,1 +1,1 @@
-This repository contains experimental code related to the generation and processing of AST-like data structures. Nothing here works properly. If you were looking for something that might be useful to you, please go away.
+This repository contains experimental code related to the generation and processing of AST-like data structures. Nothing is complete yet, but a high-level view of the code generation process is available at `generate-tests/src/main.rs`, and generated code (with cross-references back to the code generator crates) can be found in the `generated/` directory.
