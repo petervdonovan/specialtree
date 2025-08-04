@@ -11,14 +11,14 @@ pub fn generate<L: LangSpec>(
     ls: &L,
 ) -> syn::ItemMod {
     let lg = LsGen::from(ls);
-    let owned = owned::generate(base_path, words_path, &lg);
+    // let owned = owned::generate(base_path, words_path, &lg);
     let heap_trait = heap_trait(base_path, words_path, &lg);
     let byline = byline!();
     parse_quote!(
         #byline
         pub mod term_trait {
             #heap_trait
-            #owned
+            // #owned
         }
     )
 }
@@ -98,52 +98,52 @@ fn generate_inverse_implements_bounds<L: LangSpec>(
     })
 }
 
-mod owned {
+// mod owned {
 
-    use super::*;
-    pub fn generate<L: LangSpec>(
-        base_path: &syn::Path,
-        words_path: &syn::Path,
-        ls: &LsGen<L>,
-    ) -> syn::ItemMod {
-        let traits = ls.ty_gen_datas(Some(syn::parse_quote! {#words_path})).map(
-            |TyGenData {
-                 camel_ident,
-                 ccf: CanonicallyConstructibleFromGenData { ccf_sort_tys, .. },
-                 ..
-             }|
-             -> syn::ItemTrait {
-                let path = quote::quote! {
-                    <Heap as #base_path::Heap>
-                };
-                let ccf_sort_tys = ccf_sort_tys(
-                    HeapType(syn::parse_quote! {Heap}),
-                    AlgebraicsBasePath::new(quote::quote! { #path:: }),
-                );
-                let ccf_bounds = ccf_sort_tys.iter().map(|ccf| -> syn::TraitBound {
-                    syn::parse_quote! {
-                        ccf::CanonicallyConstructibleFrom<Heap, #ccf>
-                    }
-                });
-                parse_quote! {
-                    pub trait #camel_ident<Heap>: #(#ccf_bounds )+*
-                    where Heap: #base_path::Heap,
-                    {
-                    }
-                }
-            },
-        );
-        let byline = byline!();
-        parse_quote! {
-            #byline
-            pub mod owned {
-                #(
-                    #traits
-                )*
-            }
-        }
-    }
-}
+//     use super::*;
+//     pub fn generate<L: LangSpec>(
+//         base_path: &syn::Path,
+//         words_path: &syn::Path,
+//         ls: &LsGen<L>,
+//     ) -> syn::ItemMod {
+//         let traits = ls.ty_gen_datas(Some(syn::parse_quote! {#words_path})).map(
+//             |TyGenData {
+//                  camel_ident,
+//                  ccf: CanonicallyConstructibleFromGenData { ccf_sort_tys, .. },
+//                  ..
+//              }|
+//              -> syn::ItemTrait {
+//                 let path = quote::quote! {
+//                     <Heap as #base_path::Heap>
+//                 };
+//                 let ccf_sort_tys = ccf_sort_tys(
+//                     HeapType(syn::parse_quote! {Heap}),
+//                     AlgebraicsBasePath::new(quote::quote! { #path:: }),
+//                 );
+//                 let ccf_bounds = ccf_sort_tys.iter().map(|ccf| -> syn::TraitBound {
+//                     syn::parse_quote! {
+//                         ccf::CanonicallyConstructibleFrom<Heap, #ccf>
+//                     }
+//                 });
+//                 parse_quote! {
+//                     pub trait #camel_ident<Heap>: #(#ccf_bounds )+*
+//                     where Heap: #base_path::Heap,
+//                     {
+//                     }
+//                 }
+//             },
+//         );
+//         let byline = byline!();
+//         parse_quote! {
+//             #byline
+//             pub mod owned {
+//                 #(
+//                     #traits
+//                 )*
+//             }
+//         }
+//     }
+// }
 
 pub mod targets {
     use std::path::Path;
