@@ -1,0 +1,11 @@
+[package]
+name = "tree-token"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+syn.workspace = true
+arbitrary = { version = "1", features = ["derive"] }
+thiserror.workspace = true
+expect-test.workspace = true
+rand.workspace = true

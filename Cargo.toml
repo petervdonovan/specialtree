@@ -50,7 +50,10 @@ members = [
     "to-literal",
     "generate-tests-stage2",
     "extension-pattern",
-    "pattern-tmf", "extension-file", "file-tmf",
+    "pattern-tmf",
+    "extension-file",
+    "file-tmf",
+    "tree-token",
 ]
 
 [profile.release]
@@ -61,6 +64,7 @@ version = "0.1.0"
 edition = "2024"
 
 [workspace.dependencies]
+arbitrary = { version = "1", features = ["derive"] }
 bumpalo = "3.17.0"
 derivative = "2.2.0"
 derive_more = "0.99.20"
