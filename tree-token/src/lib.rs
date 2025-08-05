@@ -1,20 +1,26 @@
 use arbitrary::{Arbitrary, Result, Unstructured};
 use thiserror::Error;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum TreeToken {
+    Leaf(Leaf),
+    List(Box<[TreeToken]>),
+}
+
 #[derive(Debug, Error, Clone, PartialEq, Eq)]
 pub enum LeafError {
-    #[error("Leaf string must be lowercase")]
-    NotLowercase,
+    #[error("Leaf string '{0}' must be lowercase")]
+    NotLowercase(String),
     #[error(
-        "Leaf string must start with an alphabetic character that has distinct uppercase and lowercase forms"
+        "Leaf string '{0}' must start with an alphabetic character that has distinct uppercase and lowercase forms"
     )]
-    InvalidStartChar,
-    #[error("Leaf string must contain only alphanumeric characters")]
-    NonAlphanumeric,
-    #[error("Leaf string cannot be camel case open token")]
-    CamelOpen,
-    #[error("Leaf string cannot be camel case close token")]
-    CamelClose,
+    InvalidStartChar(String),
+    #[error("Leaf string '{0}' must contain only alphanumeric characters")]
+    NonAlphanumeric(String),
+    #[error("Leaf string '{0}' cannot be camel case open token")]
+    CamelOpen(String),
+    #[error("Leaf string '{0}' cannot be camel case close token")]
+    CamelClose(String),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -23,24 +29,24 @@ pub struct Leaf(String);
 impl Leaf {
     pub fn new(s: String) -> Result<Self, LeafError> {
         if s.is_empty() {
-            return Err(LeafError::InvalidStartChar);
+            return Err(LeafError::InvalidStartChar(s));
         }
         if s.to_lowercase() != s {
-            return Err(LeafError::NotLowercase);
+            return Err(LeafError::NotLowercase(s));
         }
         if !s.chars().next().is_some_and(|c| {
             c.is_alphabetic() && !(c.to_uppercase().zip(c.to_lowercase()).all(|(a, b)| a == b))
         }) {
-            return Err(LeafError::InvalidStartChar);
+            return Err(LeafError::InvalidStartChar(s));
         }
         if !s.chars().all(|c| c.is_alphanumeric()) {
-            return Err(LeafError::NonAlphanumeric);
+            return Err(LeafError::NonAlphanumeric(s));
         }
         if s == OPEN_TOKEN {
-            return Err(LeafError::CamelOpen);
+            return Err(LeafError::CamelOpen(s));
         }
         if s == CLOSE_TOKEN {
-            return Err(LeafError::CamelClose);
+            return Err(LeafError::CamelClose(s));
         }
         Ok(Leaf(s))
     }
@@ -85,12 +91,6 @@ impl<'a> Arbitrary<'a> for Leaf {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum TreeToken {
-    Leaf(Leaf),
-    List(Box<[TreeToken]>),
-}
-
 impl<'a> Arbitrary<'a> for TreeToken {
     fn arbitrary(u: &mut Unstructured<'a>) -> Result<Self> {
         const INITIAL_LIST_PROBABILITY: f64 = 2.0 / 3.0;
@@ -105,7 +105,7 @@ impl TreeToken {
         is_top_level: bool,
     ) -> Result<Self> {
         // Use the probability to decide between leaf and list
-        let threshold = (list_probability * 256.0) as u8;
+        let threshold = (list_probability * 256.0).floor() as u8;
         let should_be_list = u.arbitrary::<u8>()? < threshold;
 
         if should_be_list {
@@ -142,8 +142,84 @@ impl TreeToken {
         TreeToken::List(l)
     }
 
+    fn unparse_to_token_stream(&self) -> Vec<&str> {
+        fn unparse_recursively<'a>(token: &'a TreeToken, tokens: &mut Vec<&'a str>) {
+            match token {
+                TreeToken::Leaf(leaf) => {
+                    tokens.push(leaf.as_str());
+                }
+                TreeToken::List(tree_tokens) => {
+                    tokens.push(OPEN_TOKEN);
+                    for tt in tree_tokens {
+                        unparse_recursively(tt, tokens);
+                    }
+                    tokens.push(CLOSE_TOKEN);
+                }
+            }
+        }
+
+        let mut tokens = Vec::new();
+        match self {
+            TreeToken::Leaf(leaf) => tokens.push(leaf.as_str()),
+            TreeToken::List(tree_tokens) => {
+                for tt in tree_tokens {
+                    unparse_recursively(tt, &mut tokens);
+                }
+            }
+        }
+        tokens
+    }
+
+    fn parse_token_sequence(tokens: &[String]) -> Result<Vec<TreeToken>, String> {
+        let mut result = Vec::new();
+        let mut pos = 0;
+
+        while pos < tokens.len() {
+            let token = &tokens[pos];
+
+            if token == OPEN_TOKEN {
+                pos += 1;
+                let nested = Self::parse_token_sequence_recursive(tokens, &mut pos)?;
+                result.push(TreeToken::List(nested.into_boxed_slice()));
+            } else if token == CLOSE_TOKEN {
+                break;
+            } else {
+                let leaf = Leaf::new(token.clone()).map_err(|e| format!("Invalid leaf: {e}"))?;
+                result.push(TreeToken::Leaf(leaf));
+                pos += 1;
+            }
+        }
+
+        Ok(result)
+    }
+
+    fn parse_token_sequence_recursive(
+        tokens: &[String],
+        pos: &mut usize,
+    ) -> Result<Vec<TreeToken>, String> {
+        let mut result = Vec::new();
+
+        while *pos < tokens.len() {
+            let token = &tokens[*pos];
+
+            if token == OPEN_TOKEN {
+                *pos += 1;
+                let nested = Self::parse_token_sequence_recursive(tokens, pos)?;
+                result.push(TreeToken::List(nested.into_boxed_slice()));
+            } else if token == CLOSE_TOKEN {
+                *pos += 1;
+                break;
+            } else {
+                let leaf = Leaf::new(token.clone()).map_err(|e| format!("Invalid leaf: {e}"))?;
+                result.push(TreeToken::Leaf(leaf));
+                *pos += 1;
+            }
+        }
+
+        Ok(result)
+    }
+
     pub fn from_camel_str(s: &str) -> Result<Self, String> {
-        // Stage 1: Lexing - split on capital letters
         fn lex_camel_str(s: &str) -> Vec<String> {
             if s.is_empty() {
                 return Vec::new();
@@ -154,19 +230,16 @@ impl TreeToken {
 
             for ch in s.chars() {
                 if ch.is_uppercase() {
-                    // Start new token
                     if !current_token.is_empty() {
                         tokens.push(current_token);
                     }
                     current_token = String::new();
                     current_token.push(ch.to_lowercase().next().unwrap());
                 } else {
-                    // Continue current token
                     current_token.push(ch);
                 }
             }
 
-            // Don't forget the last token
             if !current_token.is_empty() {
                 tokens.push(current_token);
             }
@@ -174,86 +247,64 @@ impl TreeToken {
             tokens
         }
 
-        // Stage 2: Parsing - interpret L/R as structural markers
-        fn parse_tokens(tokens: &[String], pos: &mut usize) -> Result<Vec<TreeToken>, String> {
-            let mut result = Vec::new();
-
-            while *pos < tokens.len() {
-                let token = &tokens[*pos];
-
-                if token == "l" {
-                    // L token (lowercase after lexing)
-                    // Start of nested list
-                    *pos += 1;
-                    let nested = parse_tokens(tokens, pos)?;
-                    result.push(TreeToken::List(nested.into_boxed_slice()));
-                } else if token == "r" {
-                    // R token (lowercase after lexing)
-                    // End of current list
-                    *pos += 1;
-                    break;
-                } else {
-                    // Regular leaf token
-                    let leaf =
-                        Leaf::new(token.clone()).map_err(|e| format!("Invalid leaf: {e}"))?;
-                    result.push(TreeToken::Leaf(leaf));
-                    *pos += 1;
-                }
-            }
-
-            Ok(result)
-        }
-
         if s.is_empty() {
             return Ok(TreeToken::List(Box::new([])));
         }
 
         let tokens = lex_camel_str(s);
-        let mut pos = 0;
-        let parsed = parse_tokens(&tokens, &mut pos)?;
+        let parsed = Self::parse_token_sequence(&tokens)?;
+        Ok(TreeToken::List(parsed.into_boxed_slice()))
+    }
+
+    pub fn from_snake_str(s: &str) -> Result<Self, String> {
+        if s.is_empty() {
+            return Ok(TreeToken::List(Box::new([])));
+        }
+
+        let tokens: Vec<String> = s.split('_').map(|s| s.to_string()).collect();
+        let parsed = Self::parse_token_sequence(&tokens)?;
+        Ok(TreeToken::List(parsed.into_boxed_slice()))
+    }
+
+    pub fn from_kebab_str(s: &str) -> Result<Self, String> {
+        if s.is_empty() {
+            return Ok(TreeToken::List(Box::new([])));
+        }
+
+        let tokens: Vec<String> = s.split('-').map(|s| s.to_string()).collect();
+        let parsed = Self::parse_token_sequence(&tokens)?;
         Ok(TreeToken::List(parsed.into_boxed_slice()))
     }
 
     pub fn camel_str(&self) -> String {
-        fn camel_str_rec(this: &TreeToken, s: &mut String) {
-            match this {
-                TreeToken::Leaf(leaf) => {
-                    push_capitalized(leaf.as_str(), s);
-                }
-                TreeToken::List(tree_tokens) => {
-                    push_capitalized(OPEN_TOKEN, s);
-                    for tt in tree_tokens {
-                        camel_str_rec(tt, s);
-                    }
-                    push_capitalized(CLOSE_TOKEN, s);
-                }
-            }
-        }
-        let mut ret = String::new();
-        match self {
-            TreeToken::Leaf(leaf) => push_capitalized(leaf.as_str(), &mut ret),
-            TreeToken::List(tree_tokens) => {
-                for tt in tree_tokens {
-                    camel_str_rec(tt, &mut ret);
-                }
-            }
-        }
-        ret
+        let tokens = self.unparse_to_token_stream();
+        tokens
+            .into_iter()
+            .map(|token| {
+                let mut result = String::new();
+                push_capitalized(token, &mut result);
+                result
+            })
+            .collect()
     }
+
     pub fn snake_str(&self) -> String {
-        todo!()
+        let tokens = self.unparse_to_token_stream();
+        tokens.join("_")
     }
+
     pub fn kebab_str(&self) -> String {
-        todo!()
+        let tokens = self.unparse_to_token_stream();
+        tokens.join("-")
     }
     pub fn camel_ident(&self) -> syn::Ident {
-        todo!()
+        syn::Ident::new(&self.camel_str(), proc_macro2::Span::call_site())
     }
     pub fn snake_ident(&self) -> syn::Ident {
-        todo!()
+        syn::Ident::new(&self.camel_str(), proc_macro2::Span::call_site())
     }
     pub fn kebab_ident(&self) -> syn::Ident {
-        todo!()
+        syn::Ident::new(&self.kebab_str(), proc_macro2::Span::call_site())
     }
 }
 
@@ -284,43 +335,41 @@ mod tests {
 
     #[test]
     fn test_leaf_new_validation_errors() {
-        // Test each validation error type
         assert_eq!(
             Leaf::new("Hello".to_string()).unwrap_err(),
-            LeafError::NotLowercase
+            LeafError::NotLowercase("Hello".to_string())
         );
         assert_eq!(
             Leaf::new("123abc".to_string()).unwrap_err(),
-            LeafError::InvalidStartChar
+            LeafError::InvalidStartChar("123abc".to_string())
         );
         assert_eq!(
             Leaf::new("hello_world".to_string()).unwrap_err(),
-            LeafError::NonAlphanumeric
+            LeafError::NonAlphanumeric("hello_world".to_string())
         );
         assert_eq!(
             Leaf::new("l".to_string()).unwrap_err(),
-            LeafError::CamelOpen
+            LeafError::CamelOpen("l".to_string())
         );
         assert_eq!(
             Leaf::new("r".to_string()).unwrap_err(),
-            LeafError::CamelClose
+            LeafError::CamelClose("r".to_string())
         );
         assert_eq!(
             Leaf::new("".to_string()).unwrap_err(),
-            LeafError::InvalidStartChar
+            LeafError::InvalidStartChar("".to_string())
         );
     }
 
     #[test]
     fn test_leaf_error_display() {
-        // Verify error messages are human-readable
         assert_eq!(
-            LeafError::NotLowercase.to_string(),
-            "Leaf string must be lowercase"
+            LeafError::NotLowercase("Hello".to_string()).to_string(),
+            "Leaf string 'Hello' must be lowercase"
         );
         assert_eq!(
-            LeafError::CamelOpen.to_string(),
-            "Leaf string cannot be camel case open token"
+            LeafError::CamelOpen("l".to_string()).to_string(),
+            "Leaf string 'l' cannot be camel case open token"
         );
     }
 
@@ -372,21 +421,91 @@ mod tests {
 
     #[test]
     fn test_from_camel_str() {
-        // Simple leaf - now wrapped in a list since we always return lists
         let result = TreeToken::from_camel_str("Hello").unwrap();
         check_camel_str(result, expect!["Hello"]);
 
-        // Multiple words
         let result = TreeToken::from_camel_str("HelloWorld").unwrap();
         check_camel_str(result, expect!["HelloWorld"]);
 
-        // Nested structure
         let result = TreeToken::from_camel_str("OuterLInnerLeafREnd").unwrap();
         check_camel_str(result, expect!["OuterLInnerLeafREnd"]);
 
-        // Empty list
         let result = TreeToken::from_camel_str("").unwrap();
         check_camel_str(result, expect![""]);
+    }
+
+    #[test]
+    fn test_snake_str() {
+        let leaf = TreeToken::Leaf(Leaf::new("hello".to_string()).unwrap());
+        assert_eq!(leaf.snake_str(), "hello");
+
+        let multi_leaf = TreeToken::List(Box::new([
+            TreeToken::Leaf(Leaf::new("hello".to_string()).unwrap()),
+            TreeToken::Leaf(Leaf::new("world".to_string()).unwrap()),
+        ]));
+        assert_eq!(multi_leaf.snake_str(), "hello_world");
+
+        let nested = TreeToken::List(Box::new([
+            TreeToken::Leaf(Leaf::new("outer".to_string()).unwrap()),
+            TreeToken::List(Box::new([
+                TreeToken::Leaf(Leaf::new("inner".to_string()).unwrap()),
+                TreeToken::Leaf(Leaf::new("leaf".to_string()).unwrap()),
+            ])),
+            TreeToken::Leaf(Leaf::new("end".to_string()).unwrap()),
+        ]));
+        assert_eq!(nested.snake_str(), "outer_l_inner_leaf_r_end");
+    }
+
+    #[test]
+    fn test_kebab_str() {
+        let leaf = TreeToken::Leaf(Leaf::new("hello".to_string()).unwrap());
+        assert_eq!(leaf.kebab_str(), "hello");
+
+        let multi_leaf = TreeToken::List(Box::new([
+            TreeToken::Leaf(Leaf::new("hello".to_string()).unwrap()),
+            TreeToken::Leaf(Leaf::new("world".to_string()).unwrap()),
+        ]));
+        assert_eq!(multi_leaf.kebab_str(), "hello-world");
+
+        let nested = TreeToken::List(Box::new([
+            TreeToken::Leaf(Leaf::new("outer".to_string()).unwrap()),
+            TreeToken::List(Box::new([
+                TreeToken::Leaf(Leaf::new("inner".to_string()).unwrap()),
+                TreeToken::Leaf(Leaf::new("leaf".to_string()).unwrap()),
+            ])),
+            TreeToken::Leaf(Leaf::new("end".to_string()).unwrap()),
+        ]));
+        assert_eq!(nested.kebab_str(), "outer-l-inner-leaf-r-end");
+    }
+
+    #[test]
+    fn test_from_snake_str() {
+        let result = TreeToken::from_snake_str("hello").unwrap();
+        assert_eq!(result.snake_str(), "hello");
+
+        let result = TreeToken::from_snake_str("hello_world").unwrap();
+        assert_eq!(result.snake_str(), "hello_world");
+
+        let result = TreeToken::from_snake_str("outer_l_inner_leaf_r_end").unwrap();
+        assert_eq!(result.snake_str(), "outer_l_inner_leaf_r_end");
+
+        let result = TreeToken::from_snake_str("").unwrap();
+        assert_eq!(result.snake_str(), "");
+    }
+
+    #[test]
+    fn test_from_kebab_str() {
+        let result = TreeToken::from_kebab_str("hello").unwrap();
+        assert_eq!(result.kebab_str(), "hello");
+
+        let result = TreeToken::from_kebab_str("hello-world").unwrap();
+        assert_eq!(result.kebab_str(), "hello-world");
+
+        let result = TreeToken::from_kebab_str("outer-l-inner-leaf-r-end").unwrap();
+        assert_eq!(result.kebab_str(), "outer-l-inner-leaf-r-end");
+
+        let result = TreeToken::from_kebab_str("").unwrap();
+        assert_eq!(result.kebab_str(), "");
     }
 
     #[test]
@@ -397,7 +516,7 @@ mod tests {
 
         const SEED: u64 = 42;
         const TOTAL_ITERATIONS: usize = 50;
-        const DIVERSITY_SAMPLES: usize = 20; // Show first 20 for diversity check
+        const DIVERSITY_SAMPLES: usize = 20;
         const BYTES_PER_ITERATION: usize = 64;
 
         fn generate_tree_token(rng: &mut StdRng) -> Option<TreeToken> {
@@ -407,14 +526,40 @@ mod tests {
             TreeToken::arbitrary(&mut u).ok()
         }
 
-        fn test_round_trip(token: &TreeToken) -> Result<(), String> {
+        fn test_camel_round_trip(token: &TreeToken) -> Result<(), String> {
             let camel_str = token.camel_str();
-            let parsed =
-                TreeToken::from_camel_str(&camel_str).map_err(|e| format!("Parse failed: {e}"))?;
+            let parsed = TreeToken::from_camel_str(&camel_str)
+                .map_err(|e| format!("Camel parse failed: {e}"))?;
             let reparsed_camel = parsed.camel_str();
             if camel_str != reparsed_camel {
                 return Err(format!(
-                    "Round trip failed: original={token:?}, camel_str={camel_str}, parsed={parsed:?}"
+                    "Camel round trip failed: original={token:?}, camel_str={camel_str}, parsed={parsed:?}"
+                ));
+            }
+            Ok(())
+        }
+
+        fn test_snake_round_trip(token: &TreeToken) -> Result<(), String> {
+            let snake_str = token.snake_str();
+            let parsed = TreeToken::from_snake_str(&snake_str)
+                .map_err(|e| format!("Snake parse failed: {e}"))?;
+            let reparsed_snake = parsed.snake_str();
+            if snake_str != reparsed_snake {
+                return Err(format!(
+                    "Snake round trip failed: original={token:?}, snake_str={snake_str}, parsed={parsed:?}"
+                ));
+            }
+            Ok(())
+        }
+
+        fn test_kebab_round_trip(token: &TreeToken) -> Result<(), String> {
+            let kebab_str = token.kebab_str();
+            let parsed = TreeToken::from_kebab_str(&kebab_str)
+                .map_err(|e| format!("Kebab parse failed: {e}"))?;
+            let reparsed_kebab = parsed.kebab_str();
+            if kebab_str != reparsed_kebab {
+                return Err(format!(
+                    "Kebab round trip failed: original={token:?}, kebab_str={kebab_str}, parsed={parsed:?}"
                 ));
             }
             Ok(())
@@ -426,28 +571,30 @@ mod tests {
 
         for i in 0..TOTAL_ITERATIONS {
             if let Some(token) = generate_tree_token(&mut rng) {
-                // Test round trip
-                if let Err(msg) = test_round_trip(&token) {
+                if let Err(msg) = test_camel_round_trip(&token) {
+                    panic!("{msg}");
+                }
+                if let Err(msg) = test_snake_round_trip(&token) {
+                    panic!("{msg}");
+                }
+                if let Err(msg) = test_kebab_round_trip(&token) {
                     panic!("{msg}");
                 }
                 round_trip_count += 1;
 
-                // Collect diversity samples
                 if i < DIVERSITY_SAMPLES {
-                    diversity_results.push(token.camel_str());
+                    diversity_results.push(token.kebab_str());
                 }
             }
         }
 
-        // Ensure we tested a reasonable number of round trips
         assert!(
             round_trip_count >= TOTAL_ITERATIONS / 2,
             "Too few successful round trips: {round_trip_count}"
         );
 
-        // Check diversity
         let joined = diversity_results.join(", ");
-        expect!["LP0D1tky4R, LW7RLS77aS4vRLJgjkbR, V, XaLugf54Ka19, LZupoqa7I5t8v6R, Hjp0, X, SfrEc2Z, M, LRUg4c3Uwb, LLDghojUoznFkRHdlR, Edwio, U0Qa51Bwrxwmx, Kvlgb, LR, Ak1iLR, QD6pD630b, Eeh2zpw, LR, LDNRA80e67H6"]
+        expect!["l-p0-d1tky4-r, l-w7-r-l-s77a-s4v-r-l-jgjkb-r, v, xa-lugf54-ka19, l-zupoqa7-i5t8v6-r, hjp0, x, sfr-ec2-z, m, l-r-ug4c3-uwb, l-l-dghoj-uozn-fk-r-hdl-r, edwio, u0-qa51-bwrxwmx, kvlgb, l-r, ak1i-l-r, q-d6p-d630b, eeh2zpw, l-r, l-d-n-r-a80e67-h6"]
             .assert_eq(&joined);
     }
 }

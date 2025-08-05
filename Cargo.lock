@@ -1277,6 +1277,7 @@ version = "0.1.0"
 dependencies = [
  "arbitrary",
  "expect-test",
+ "proc-macro2",
  "rand",
  "syn 2.0.100",
  "thiserror 2.0.12",
