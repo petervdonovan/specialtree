@@ -1,5 +1,0 @@
-error: expected reference type with an explicit lifetime
- --> tests/3-expected-reference-type.rs:4:18
-  |
-4 | fn memome(cache: String) {}
-  |                  ^^^^^^

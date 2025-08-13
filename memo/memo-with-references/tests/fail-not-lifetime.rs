@@ -1,6 +1,6 @@
 use memo_with_references::memo;
 
-#[memo()]
+#[memo(a)]
 fn memome() {}
 
 fn main() {}

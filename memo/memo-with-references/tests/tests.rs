@@ -1,16 +1,16 @@
 #[test]
 fn tests() {
     let t = trybuild::TestCases::new();
-    t.pass("tests/0-parse-fn.rs");
-    t.compile_fail("tests/1-not-fn.rs");
-    t.compile_fail("tests/2-explicit-lifetime-required.rs");
-    t.compile_fail("tests/3-expected-reference-type.rs");
-    t.compile_fail("tests/4-fn-parameter-not-found.rs");
-    t.compile_fail("tests/5-expected-token-indicating-cache-arg.rs");
-    t.compile_fail("tests/6-expected-just-single-ident.rs");
-    t.compile_fail("tests/7-expected-an-ident.rs");
-    t.compile_fail("tests/8-cache-param-cannot-be-self.rs");
-    t.compile_fail("tests/9-no-mutable-references.rs");
-    t.compile_fail("tests/10-no-mutable-self.rs");
-    t.pass("tests/11-multiple-same-lifetime.rs");
+    // Compile-fail expectation cases
+    t.compile_fail("tests/fail-no-mutable-references.rs");
+    t.compile_fail("tests/fail-no-mutable-self.rs");
+    t.compile_fail("tests/fail-not-fn.rs");
+    t.compile_fail("tests/fail-not-lifetime.rs");
+    t.compile_fail("tests/fail-cloneable-must-implement-clone.rs");
+    t.compile_fail("tests/fail-empty-attribute.rs");
+    t.compile_fail("tests/fail-multiple-attribute-args.rs");
+
+    // Pass expectation cases
+    t.pass("tests/pass-minimal-working-example.rs");
+    t.pass("tests/pass-working-mixed-lifetimes.rs");
 }

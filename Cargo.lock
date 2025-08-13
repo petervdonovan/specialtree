@@ -651,6 +651,7 @@ name = "memo-cache"
 version = "0.1.0"
 dependencies = [
  "bumpalo",
+ "expect-test",
  "sha2",
  "thiserror 2.0.12",
 ]
@@ -660,6 +661,7 @@ name = "memo-with-references"
 version = "0.1.0"
 dependencies = [
  "bumpalo",
+ "expect-test",
  "memo-cache",
  "proc-macro2",
  "quote",

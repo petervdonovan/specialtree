@@ -1,5 +1,0 @@
-error: fn parameter named nonexistent not found
- --> tests/4-fn-parameter-not-found.rs:3:8
-  |
-3 | #[memo(nonexistent)]
-  |        ^^^^^^^^^^^

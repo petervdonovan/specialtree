@@ -1,7 +1,0 @@
-error: expected token indicating which parameter is the memoization cache
- --> tests/5-expected-token-indicating-cache-arg.rs:3:1
-  |
-3 | #[memo()]
-  | ^^^^^^^^^
-  |
-  = note: this error originates in the attribute macro `memo` (in Nightly builds, run with -Z macro-backtrace for more info)

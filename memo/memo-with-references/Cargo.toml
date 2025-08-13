@@ -17,6 +17,7 @@ path = "tests/memo_runtime.rs"
 
 [dependencies]
 bumpalo.workspace = true
+expect-test.workspace = true
 memo-cache = { path = "../memo-cache" }
 proc-macro2.workspace = true
 quote.workspace = true

@@ -1,5 +1,5 @@
 error: memoizable functions cannot have mutable self parameter
- --> tests/10-no-mutable-self.rs:7:19
+ --> tests/fail-no-mutable-self.rs:7:19
   |
-7 |     fn memome<'a>(&mut self, cache: &'a str) {}
+7 |     fn memome<'a>(&mut self) {}
   |                   ^^^^^^^^^

@@ -1,5 +1,0 @@
-error: cache param cannot be self
- --> tests/8-cache-param-cannot-be-self.rs:6:12
-  |
-6 |     #[memo(self)]
-  |            ^^^^

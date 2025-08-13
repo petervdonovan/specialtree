@@ -1,0 +1,5 @@
+error: unexpected token
+ --> tests/fail-multiple-attribute-args.rs:3:10
+  |
+3 | #[memo('a, 'b)]
+  |          ^

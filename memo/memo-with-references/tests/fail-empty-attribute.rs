@@ -1,6 +1,6 @@
 use memo_with_references::memo;
 
-#[memo(cache)]
-fn memome(cache: String) {}
+#[memo]
+fn test_empty_attribute() {}
 
 fn main() {}

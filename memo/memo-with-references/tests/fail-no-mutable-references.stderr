@@ -1,0 +1,5 @@
+error: memoizable functions cannot have mutable reference parameters
+ --> tests/fail-no-mutable-references.rs:4:21
+  |
+4 | fn memome<'a>(data: &'a mut String) {}
+  |                     ^^^^^^^^^^^^^^
