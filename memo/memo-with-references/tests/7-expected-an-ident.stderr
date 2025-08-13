@@ -1,0 +1,5 @@
+error: expected an ident
+ --> tests/7-expected-an-ident.rs:3:8
+  |
+3 | #[memo(123)]
+  |        ^^^

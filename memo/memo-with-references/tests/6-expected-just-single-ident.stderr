@@ -1,0 +1,5 @@
+error: expected just a single ident
+ --> tests/6-expected-just-single-ident.rs:3:8
+  |
+3 | #[memo(cache other)]
+  |        ^^^^^^^^^^^

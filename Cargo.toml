@@ -54,6 +54,8 @@ members = [
     "extension-file",
     "file-tmf",
     "tree-token",
+    "memo/memo-with-references",
+    "memo/memo-cache",
 ]
 
 [profile.release]
@@ -79,6 +81,7 @@ rand_distr = "0.5.1"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
 serde_yml = "0.0.12"
+sha2 = "0.10.0"
 syn = { version = "2.0.100", features = [
     "full",
     "visit",
@@ -87,6 +90,7 @@ syn = { version = "2.0.100", features = [
 ] }
 "string-interner" = "0.19.0"
 thiserror = "2.0.12"
+trybuild = { version = "1.0.49", features = ["diff"] }
 typed-index-collections = { version = "3.2.3", features = ["serde-std"] }
 typenum = "1.18.0"
 unicode-segmentation = "1.12.0"

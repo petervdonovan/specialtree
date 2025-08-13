@@ -1,0 +1,24 @@
+[package]
+name = "memo-with-references"
+version.workspace = true
+edition.workspace = true
+autotests = false
+
+[lib]
+proc-macro = true
+
+[[test]]
+name = "tests"
+path = "tests/tests.rs"
+
+[[test]]
+name = "memo_runtime"
+path = "tests/memo_runtime.rs"
+
+[dependencies]
+bumpalo.workspace = true
+memo-cache = { path = "../memo-cache" }
+proc-macro2.workspace = true
+quote.workspace = true
+syn.workspace = true
+trybuild.workspace = true

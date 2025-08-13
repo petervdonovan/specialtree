@@ -1,0 +1,5 @@
+error: explicit lifetime required on cache argument span
+ --> tests/2-explicit-lifetime-required.rs:4:18
+  |
+4 | fn memome(cache: &str) {}
+  |                  ^^^^
