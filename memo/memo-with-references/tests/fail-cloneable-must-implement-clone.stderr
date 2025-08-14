@@ -1,13 +1,53 @@
-error[E0599]: no method named `clone` found for struct `NoClone` in the current scope
+error[E0277]: the trait bound `NoClone: Hash` is not satisfied
  --> tests/fail-cloneable-must-implement-clone.rs:7:1
   |
-5 | struct NoClone;
-  | -------------- method `clone` not found for this struct
-6 |
 7 | #[memo('a)]
-  | ^^^^^^^^^^^ method not found in `NoClone`
+  | ^^^^^^^^^^^ the trait `Hash` is not implemented for `NoClone`
   |
-  = help: items from traits can only be used if the trait is implemented and in scope
-  = note: the following trait defines an item `clone`, perhaps you need to implement it:
-          candidate #1: `Clone`
+  = help: see issue #48214
   = note: this error originates in the attribute macro `memo` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: consider annotating `NoClone` with `#[derive(Hash)]`
+  |
+5 + #[derive(Hash)]
+6 | struct NoClone;
+  |
+help: add `#![feature(trivial_bounds)]` to the crate attributes to enable
+  |
+1 + #![feature(trivial_bounds)]
+  |
+
+error[E0277]: the trait bound `NoClone: Eq` is not satisfied
+ --> tests/fail-cloneable-must-implement-clone.rs:7:1
+  |
+7 | #[memo('a)]
+  | ^^^^^^^^^^^ the trait `Eq` is not implemented for `NoClone`
+  |
+  = help: see issue #48214
+  = note: this error originates in the attribute macro `memo` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: consider annotating `NoClone` with `#[derive(Eq)]`
+  |
+5 + #[derive(Eq)]
+6 | struct NoClone;
+  |
+help: add `#![feature(trivial_bounds)]` to the crate attributes to enable
+  |
+1 + #![feature(trivial_bounds)]
+  |
+
+error[E0277]: the trait bound `NoClone: Clone` is not satisfied
+ --> tests/fail-cloneable-must-implement-clone.rs:7:1
+  |
+7 | #[memo('a)]
+  | ^^^^^^^^^^^ the trait `Clone` is not implemented for `NoClone`
+  |
+  = help: see issue #48214
+  = note: this error originates in the attribute macro `memo` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: consider annotating `NoClone` with `#[derive(Clone)]`
+  |
+5 + #[derive(Clone)]
+6 | struct NoClone;
+  |
+help: add `#![feature(trivial_bounds)]` to the crate attributes to enable
+  |
+1 + #![feature(trivial_bounds)]
+  |

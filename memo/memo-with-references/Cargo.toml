@@ -15,6 +15,14 @@ path = "tests/tests.rs"
 name = "memo_runtime"
 path = "tests/memo_runtime.rs"
 
+[[test]]
+name = "memory_error_test"
+path = "tests/memory_error_test.rs"
+
+[[test]]
+name = "impl_block_memory_error_test"
+path = "tests/impl-block-generics-memory-error.rs"
+
 [dependencies]
 bumpalo.workspace = true
 expect-test.workspace = true

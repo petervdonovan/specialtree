@@ -1,5 +1,4 @@
 use proc_macro2::TokenStream;
-use proc_macro2::TokenTree;
 use syn::spanned::Spanned;
 
 #[proc_macro_attribute]
@@ -13,7 +12,6 @@ pub fn memo(
 }
 
 fn memo_inner(attr: TokenStream, item: TokenStream) -> Result<TokenStream, syn::Error> {
-    // Parse and validate all inputs before any mutations
     let item_span = item.span();
     let item = syn::parse2::<syn::Item>(item)?;
     let itemfn = if let syn::Item::Fn(itemfn) = item {
@@ -27,13 +25,15 @@ fn memo_inner(attr: TokenStream, item: TokenStream) -> Result<TokenStream, syn::
     let return_type_info = analyze_return_type(&itemfn.sig.output, &cache_lifetime)?;
     let memoized_args = get_original_memoized_fn_args(&cache_lifetime, &itemfn);
 
-    // Now mutate to build the final function
+    let original_sig = itemfn.sig.clone();
+
     let mut final_fn = itemfn;
     add_cache_parameter(&mut final_fn.sig, &cache_lifetime);
+    add_where_bounds_for_cloneable_params(&mut final_fn.sig, &memoized_args);
     update_return_type(&mut final_fn.sig, &return_type_info, &cache_lifetime);
     let new_body = generate_memo_body(
         &final_fn.block,
-        &cache_key_expr(&memoized_args),
+        &cache_key_expr(&memoized_args, &original_sig, item_span),
         &return_type_info,
         &cache_lifetime,
     );
@@ -54,15 +54,19 @@ fn analyze_return_type(
 ) -> Result<ReturnTypeInfo, syn::Error> {
     match output {
         syn::ReturnType::Default => {
-            // Default () return - will need wrapper
-            Ok(ReturnTypeInfo {
-                lookup_type: syn::parse_quote! { () },
-                needs_ref_wrapper: true,
-            })
+            return Err(syn::Error::new(
+                proc_macro2::Span::call_site(),
+                "memoized functions cannot have unit return type - there is no value to cache",
+            ));
         }
         syn::ReturnType::Type(_, ty) => match ty.as_ref() {
+            syn::Type::Tuple(tuple) if tuple.elems.is_empty() => {
+                return Err(syn::Error::new(
+                    ty.span(),
+                    "memoized functions cannot have unit return type - there is no value to cache",
+                ));
+            }
             syn::Type::Reference(r) => {
-                // Already a reference - check if lifetime matches
                 let lifetime_matches = r
                     .lifetime
                     .as_ref()
@@ -84,13 +88,10 @@ fn analyze_return_type(
                     needs_ref_wrapper: false,
                 })
             }
-            _ => {
-                // Not a reference - will need wrapper
-                Ok(ReturnTypeInfo {
-                    lookup_type: (*ty.as_ref()).clone(),
-                    needs_ref_wrapper: true,
-                })
-            }
+            _ => Ok(ReturnTypeInfo {
+                lookup_type: (*ty.as_ref()).clone(),
+                needs_ref_wrapper: true,
+            }),
         },
     }
 }
@@ -102,7 +103,6 @@ fn get_original_memoized_fn_args(
     let mut frozen = Vec::new();
     let mut cloneable = Vec::new();
 
-    // Process original parameters (before cache injection)
     for param in itemfn.sig.inputs.iter() {
         match param {
             syn::FnArg::Receiver(receiver) => {
@@ -141,14 +141,86 @@ fn get_original_memoized_fn_args(
 }
 
 fn add_cache_parameter(sig: &mut syn::Signature, cache_lifetime: &syn::Lifetime) {
-    // Add a generic logger type parameter
-    let logger_generic: syn::GenericParam = syn::parse_quote! { Logger: memo_cache::MemoCacheLogger };
+    let logger_generic: syn::GenericParam =
+        syn::parse_quote! { Logger: memo_cache::logger::MemoCacheLogger };
     sig.generics.params.push(logger_generic);
-    
+
     let cache_param: syn::FnArg = syn::parse_quote! {
         cache: &#cache_lifetime memo_cache::Cache<#cache_lifetime, Logger>
     };
-    sig.inputs.insert(0, cache_param);
+
+    let insert_pos = if sig
+        .inputs
+        .first()
+        .is_some_and(|arg| matches!(arg, syn::FnArg::Receiver(_)))
+    {
+        1
+    } else {
+        0
+    };
+
+    sig.inputs.insert(insert_pos, cache_param);
+}
+
+fn add_where_bounds_for_cloneable_params(sig: &mut syn::Signature, memoized_args: &MemoizedFnArgs) {
+    let mut types_needing_bounds = Vec::new();
+
+    for param in sig.inputs.iter() {
+        match param {
+            syn::FnArg::Receiver(receiver) => {
+                if receiver.reference.is_none() {
+                    let self_type: syn::Type = syn::parse_quote! { Self };
+                    types_needing_bounds.push(self_type);
+                }
+            }
+            syn::FnArg::Typed(syn::PatType { pat, ty, .. }) => {
+                if let syn::Pat::Ident(pat_ident) = &**pat
+                    && memoized_args
+                        .cloneable
+                        .iter()
+                        .any(|c| c == &pat_ident.ident)
+                {
+                    let bound_type = extract_type_for_bounds(ty);
+                    types_needing_bounds.push(bound_type);
+                }
+            }
+        }
+    }
+
+    for bound_type in types_needing_bounds {
+        add_cache_key_trait_bounds(sig, &bound_type);
+    }
+}
+
+fn extract_type_for_bounds(ty: &syn::Type) -> syn::Type {
+    match ty {
+        syn::Type::Reference(type_ref) => (*type_ref.elem).clone(),
+        _ => ty.clone(),
+    }
+}
+
+fn add_cache_key_trait_bounds(sig: &mut syn::Signature, ty: &syn::Type) {
+    let where_clause = sig
+        .generics
+        .where_clause
+        .get_or_insert_with(|| syn::WhereClause {
+            where_token: syn::Token![where](proc_macro2::Span::call_site()),
+            predicates: syn::punctuated::Punctuated::new(),
+        });
+
+    let clone_bound: syn::WherePredicate = syn::parse_quote! {
+        #ty: Clone
+    };
+    let eq_bound: syn::WherePredicate = syn::parse_quote! {
+        #ty: Eq
+    };
+    let hash_bound: syn::WherePredicate = syn::parse_quote! {
+        #ty: std::hash::Hash
+    };
+
+    where_clause.predicates.push(clone_bound);
+    where_clause.predicates.push(eq_bound);
+    where_clause.predicates.push(hash_bound);
 }
 
 fn update_return_type(
@@ -162,15 +234,19 @@ fn update_return_type(
     }
 }
 
-fn cache_key_expr(memoized_args: &MemoizedFnArgs) -> syn::Expr {
-    get_cache_key(memoized_args)
+fn cache_key_expr(
+    memoized_args: &MemoizedFnArgs,
+    fn_signature: &syn::Signature,
+    span: proc_macro2::Span,
+) -> syn::Expr {
+    get_cache_key(memoized_args, fn_signature, span)
 }
 
 fn generate_memo_body(
     original_body: &syn::Block,
     cache_key_expr: &syn::Expr,
     return_info: &ReturnTypeInfo,
-    cache_lifetime: &syn::Lifetime,
+    _cache_lifetime: &syn::Lifetime,
 ) -> syn::Block {
     let cache_key_ident = syn::Ident::new("__memo_key", proc_macro2::Span::call_site());
     let lookup_type = &return_info.lookup_type;
@@ -193,35 +269,12 @@ fn generate_memo_body(
 
 fn get_cache_lifetime(attr: TokenStream) -> Result<syn::Lifetime, syn::Error> {
     let attr_span = attr.span();
-    // let tokens: Vec<_> = attr.iter().collect();
-
-    // Expect exactly two tokens: apostrophe and identifier
     if attr.is_empty() {
         return Err(syn::Error::new(
             attr_span,
             "expected lifetime in #[memo('a)]",
         ));
     }
-    // else if tokens.len() != 2 {
-    //     return Err(syn::Error::new(
-    //         attr_span,
-    //         "expected at most single lifetime: #[memo('a)]",
-    //     ));
-    // }
-
-    // match (&tokens[0], &tokens[1]) {
-    //     (TokenTree::Punct(p), TokenTree::Ident(id)) if p.as_char() == '\'' => {
-    //         let lifetime_str = format!("'{id}");
-    //         Ok(syn::Lifetime::new(
-    //             &lifetime_str,
-    //             p.span().join(id.span()).unwrap_or(p.span()),
-    //         ))
-    //     }
-    //     _ => Err(syn::Error::new(
-    //         attr_span,
-    //         "expected lifetime identifier inside #[memo(..)]",
-    //     )),
-    // }
     syn::parse2(attr)
 }
 
@@ -256,47 +309,31 @@ struct MemoizedFnArgs {
     cloneable: Box<[proc_macro2::Ident]>,
 }
 
-fn get_pointer_fingerprint(memoized_args: &MemoizedFnArgs) -> syn::Expr {
-    let mut pointer_elements = Vec::new();
+fn get_pointer_fingerprint(
+    memoized_args: &MemoizedFnArgs,
+    _fn_signature: &syn::Signature,
+    _span: proc_macro2::Span,
+) -> syn::Expr {
+    let hasher_updates: Vec<syn::Block> = memoized_args
+        .frozen
+        .iter()
+        .map(|arg| {
+            syn::parse_quote! {{
+                sha_hasher.update(((#arg as *const _) as u64).to_le_bytes());
+            }}
+        })
+        .collect();
 
-    // Add raw pointers for frozen parameters
-    for frozen_param in memoized_args.frozen.iter() {
-        let raw_pointer_expr: syn::Expr = syn::parse_quote! {
-            #frozen_param as *const _
-        };
-        pointer_elements.push(raw_pointer_expr);
-    }
-
-    // Create the tuple expression for pointers
-    let pointer_tuple: syn::Expr = if pointer_elements.is_empty() {
-        // Empty tuple for functions with no frozen parameters
-        syn::parse_quote! { () }
-    } else if pointer_elements.len() == 1 {
-        // Single element - wrap in tuple syntax to ensure it's a tuple
-        let element = &pointer_elements[0];
-        syn::parse_quote! { (#element,) }
-    } else {
-        // Multiple elements - create tuple
-        syn::parse_quote! { (#(#pointer_elements),*) }
-    };
-
-    // Generate code that creates a SHA-256 hash of the pointer tuple
     syn::parse_quote! {
         {
             use memo_cache::sha2::{Sha256, Digest};
-            use std::hash::{Hash, Hasher};
-            use std::collections::hash_map::DefaultHasher;
-
-            let pointer_tuple = #pointer_tuple;
-
-            // First, get a standard hash of the tuple
-            let mut hasher = DefaultHasher::new();
-            pointer_tuple.hash(&mut hasher);
-            let hash64 = hasher.finish();
-
-            // Create a SHA-256 hash for more robust fingerprinting
             let mut sha_hasher = Sha256::new();
-            sha_hasher.update(hash64.to_le_bytes());
+
+            // Include pointer values for frozen arguments only
+            #(
+                #hasher_updates
+            )*
+
             let result = sha_hasher.finalize();
             let mut first16 = [0u8; 16];
             first16.copy_from_slice(&result[..16]);
@@ -305,8 +342,12 @@ fn get_pointer_fingerprint(memoized_args: &MemoizedFnArgs) -> syn::Expr {
     }
 }
 
-fn get_cache_key(memoized_args: &MemoizedFnArgs) -> syn::Expr {
-    let pointer_fingerprint = get_pointer_fingerprint(memoized_args);
+fn get_cache_key(
+    memoized_args: &MemoizedFnArgs,
+    fn_signature: &syn::Signature,
+    span: proc_macro2::Span,
+) -> syn::Expr {
+    let pointer_fingerprint = get_pointer_fingerprint(memoized_args, fn_signature, span);
     let cloneable_tuple = get_cloneable_tuple(memoized_args);
 
     // Generate code that creates a MemoCacheKey with both fingerprint and cloneable data
@@ -318,6 +359,16 @@ fn get_cache_key(memoized_args: &MemoizedFnArgs) -> syn::Expr {
 fn get_cloneable_tuple(memoized_args: &MemoizedFnArgs) -> syn::Expr {
     let mut cloneable_elements = Vec::new();
 
+    // Add a closure TypeId to capture the current monomorphization
+    // The closure will have a different TypeId for each monomorphization
+    let closure_typeid_expr: syn::Expr = syn::parse_quote! {
+        {
+            use std::any::Any;
+            (|| ()).type_id()
+        }
+    };
+    cloneable_elements.push(closure_typeid_expr);
+
     // Add clones for cloneable parameters
     for cloneable_param in memoized_args.cloneable.iter() {
         let clone_expr: syn::Expr = syn::parse_quote! {
@@ -327,10 +378,7 @@ fn get_cloneable_tuple(memoized_args: &MemoizedFnArgs) -> syn::Expr {
     }
 
     // Create the tuple expression for cloneable values
-    if cloneable_elements.is_empty() {
-        // Empty tuple for functions with no cloneable parameters
-        syn::parse_quote! { () }
-    } else if cloneable_elements.len() == 1 {
+    if cloneable_elements.len() == 1 {
         // Single element - wrap in tuple syntax to ensure it's a tuple
         let element = &cloneable_elements[0];
         syn::parse_quote! { (#element,) }
