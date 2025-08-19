@@ -982,6 +982,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "rustgen-utils"
+version = "0.1.0"
+dependencies = [
+ "codegen-component",
+ "expect-test",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.100",
+]
+
+[[package]]
 name = "ryu"
 version = "1.0.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"

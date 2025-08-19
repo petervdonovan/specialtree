@@ -2,6 +2,7 @@
 name = "join-boilerplate"
 version = { workspace = true }
 edition = { workspace = true }
+description = "Boilerplate for implementing language extensions that involve combining two languages"
 
 [dependencies]
 either-id = { path = "../either-id" }

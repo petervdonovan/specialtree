@@ -2,6 +2,7 @@
 name = "parse-gen"
 version = { workspace = true }
 edition = { workspace = true }
+description = "Code generation related to parsing"
 
 [dependencies]
 bumpalo = { workspace = true }

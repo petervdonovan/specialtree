@@ -2,6 +2,7 @@
 name = "langspec"
 version = { workspace = true }
 edition = { workspace = true }
+description = "Specification for a language consisting of to-be-generated ADTs and type metafunctions that have Rust implementations"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

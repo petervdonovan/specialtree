@@ -55,7 +55,7 @@ members = [
     "file-tmf",
     "tree-token",
     "memo/memo-with-references",
-    "memo/memo-cache",
+    "memo/memo-cache", "rustgen-utils",
 ]
 
 [profile.release]

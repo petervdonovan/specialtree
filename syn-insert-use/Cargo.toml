@@ -2,6 +2,7 @@
 name = "syn-insert-use"
 version = { workspace = true }
 edition = { workspace = true }
+description = "Compress/de-obfuscate generated code by replacing fully-qualified paths with use statements"
 
 [dependencies]
 proc-macro2 = { workspace = true }

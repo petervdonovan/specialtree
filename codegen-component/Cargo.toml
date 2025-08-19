@@ -2,6 +2,7 @@
 name = "codegen-component"
 version.workspace = true
 edition.workspace = true
+description = "Representation of a module of generated Rust code and its dependencies"
 
 [dependencies]
 bumpalo.workspace = true

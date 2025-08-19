@@ -2,6 +2,7 @@
 name = "parse"
 version = { workspace = true }
 edition = { workspace = true }
+description = "Data structures referenced by generated parsing functions"
 
 [dependencies]
 miette = { workspace = true }

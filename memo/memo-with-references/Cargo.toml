@@ -3,6 +3,7 @@ name = "memo-with-references"
 version.workspace = true
 edition.workspace = true
 autotests = false
+description = "A memoization proc macro that changes function signatures to accept a cache and return a reference to data in the cache"
 
 [lib]
 proc-macro = true

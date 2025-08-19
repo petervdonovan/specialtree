@@ -2,6 +2,7 @@
 name = "extension-autobox"
 version = { workspace = true }
 edition = { workspace = true }
+description = "Generate an extension of a language with boxing added to prevent inductive data types from having infinite size"
 
 [dependencies]
 derivative = { workspace = true }

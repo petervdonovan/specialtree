@@ -2,6 +2,7 @@
 name = "pattern-gen"
 version.workspace = true
 edition.workspace = true
+description = "Generation of specialized pattern implementations"
 
 [dependencies]
 codegen-component = { path = "../codegen-component" }

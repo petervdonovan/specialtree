@@ -2,6 +2,7 @@
 name = "langspec-gen-util"
 version = { workspace = true }
 edition = { workspace = true }
+description = "Legacy code generation utilities for language specifications (being refactored into smaller crates)"
 
 [dependencies]
 langspec = { path = "../langspec" }

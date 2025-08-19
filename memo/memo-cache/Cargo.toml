@@ -2,6 +2,7 @@
 name = "memo-cache"
 version.workspace = true
 edition.workspace = true
+description = "A data structure for memoization"
 
 [dependencies]
 bumpalo.workspace = true

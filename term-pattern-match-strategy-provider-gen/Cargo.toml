@@ -2,6 +2,7 @@
 name = "term-pattern-match-strategy-provider-gen"
 version = { workspace = true }
 edition = { workspace = true }
+description = "Generation of pattern-matching strategies"
 
 [dependencies]
 codegen-component = { path = "../codegen-component" }

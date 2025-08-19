@@ -2,6 +2,7 @@
 name = "extension-everywhere-alternative"
 version = { workspace = true }
 edition = { workspace = true }
+description = "Language extension that allows a given alternative (e.g., an error) to appear in place of any subterm"
 
 [dependencies]
 either-id = { path = "../either-id" }

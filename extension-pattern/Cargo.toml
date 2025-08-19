@@ -2,6 +2,7 @@
 name = "extension-pattern"
 version.workspace = true
 edition.workspace = true
+description = "Language extension that takes a language and produces the language of patterns that match the language"
 
 [dependencies]
 bumpalo.workspace = true

@@ -2,6 +2,7 @@
 name = "langspec-transparent-extension"
 version.workspace = true
 edition.workspace = true
+description = "Utility for implementing an extension of a language that adds no visible functionality"
 
 [dependencies]
 either-id = { path = "../either-id" }

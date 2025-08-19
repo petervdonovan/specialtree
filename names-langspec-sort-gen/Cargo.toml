@@ -2,6 +2,7 @@
 name = "names-langspec-sort-gen"
 version.workspace = true
 edition.workspace = true
+description = "Generation of implementations for NamesLangspecSort"
 
 [dependencies]
 codegen-component = { version = "0.1.0", path = "../codegen-component" }

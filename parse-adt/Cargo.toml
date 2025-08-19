@@ -2,6 +2,7 @@
 name = "parse-adt"
 version = { workspace = true }
 edition = { workspace = true }
+description = "Parsing code used by ADT-like generated data structures"
 
 [dependencies]
 parse = { path = "../parse" }

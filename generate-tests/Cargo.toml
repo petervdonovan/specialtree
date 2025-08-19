@@ -2,6 +2,7 @@
 name = "generate-tests"
 version = { workspace = true }
 edition = { workspace = true }
+description = "Binary crate for running code generation on an example language"
 
 [dependencies]
 bumpalo.workspace = true

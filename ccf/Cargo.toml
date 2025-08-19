@@ -2,5 +2,6 @@
 name = "ccf"
 version.workspace = true
 edition.workspace = true
+description = "Trait for bidirectional conversion between a type and a (conslist) product of types"
 
 [dependencies]

@@ -83,7 +83,7 @@ fn generate_inverse_implements_bounds<L: LangSpec>(
                     words::InverseImplements<
                         #words_path::L,
                         #lword,
-                        StructuralImplementor: #base_path::owned::#camel_ident<Self>
+                        // StructuralImplementor: #base_path::owned::#camel_ident<Self>
                     >
                 }
             }

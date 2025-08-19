@@ -2,5 +2,6 @@
 name = "names-langspec-sort"
 edition = "2024"
 version.workspace = true
+description = "A trait describing data structures that can provide an ID of the langspec sort that generated them"
 
 [dependencies]

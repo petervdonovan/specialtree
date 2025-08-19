@@ -1,4 +1,5 @@
 .vscode/
+.github/
 target/
 todo.md
 flamegraph.svg

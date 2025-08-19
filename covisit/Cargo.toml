@@ -2,6 +2,7 @@
 name = "covisit"
 version.workspace = true
 edition.workspace = true
+description = "Abstract implementation of steered corecursive construction of possibly inductive data types"
 
 [dependencies]
 ccf = { version = "0.1.0", path = "../ccf" }

@@ -2,6 +2,7 @@
 name = "term-bridge-gen"
 version = { workspace = true }
 edition = { workspace = true }
+description = "Generation of code that bridges between a generated language and a generated extension of that language"
 
 [dependencies]
 codegen-component = { version = "0.1.0", path = "../codegen-component" }

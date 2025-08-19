@@ -2,6 +2,7 @@
 name = "enumerate-random"
 version.workspace = true
 edition.workspace = true
+description = "Random generation of terms in a language"
 
 [dependencies]
 derivative.workspace = true

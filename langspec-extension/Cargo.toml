@@ -2,6 +2,7 @@
 name = "langspec-extension"
 version.workspace = true
 edition.workspace = true
+description = "A utility for implementing language extensions"
 
 [dependencies]
 either-id = { path = "../either-id" }

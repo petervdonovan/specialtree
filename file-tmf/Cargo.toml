@@ -2,6 +2,7 @@
 name = "file-tmf"
 version.workspace = true
 edition.workspace = true
+description = "Type metafunctions related to files"
 
 [dependencies]
 bumpalo.workspace = true

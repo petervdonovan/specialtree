@@ -2,6 +2,7 @@
 name = "either-id"
 version = { workspace = true }
 edition = { workspace = true }
+description = "Either<Left, Right> utility for use in type IDs"
 
 [dependencies]
 functor_derive = "0.4.3"

@@ -2,5 +2,6 @@
 name = "take-mut"
 version.workspace = true
 edition.workspace = true
+description = "Customized implementation of the popular take-mut pattern"
 
 [dependencies]

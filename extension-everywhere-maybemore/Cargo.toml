@@ -2,6 +2,7 @@
 name = "extension-everywhere-maybemore"
 version = { workspace = true }
 edition = { workspace = true }
+description = "Language extension that allows an additional term to optionally be present anywhere"
 
 [dependencies]
 either-id = { path = "../either-id" }

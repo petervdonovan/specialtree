@@ -2,6 +2,7 @@
 name = "pmsp"
 version.workspace = true
 edition.workspace = true
+description = "Pattern-matching strategy providers, where a strategy and its provider are uninstantiated types used for monomorphization"
 
 [dependencies]
 conslist = { version = "0.1.0", path = "../conslist" }

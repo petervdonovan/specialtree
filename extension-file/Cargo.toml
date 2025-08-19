@@ -2,6 +2,7 @@
 name = "extension-file"
 version.workspace = true
 edition.workspace = true
+description = "Language extension that embeds a language inside of files in a file system"
 
 [dependencies]
 either-id = { version = "0.1.0", path = "../either-id" }

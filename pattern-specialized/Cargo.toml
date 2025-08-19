@@ -2,6 +2,7 @@
 name = "pattern-specialized"
 version.workspace = true
 edition.workspace = true
+description = "Generics and traits for monomorphized/statically-typed pattern representations"
 
 [dependencies]
 pattern-dyn.path = "../pattern-dyn"
