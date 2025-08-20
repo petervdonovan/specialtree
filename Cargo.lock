@@ -61,7 +61,6 @@ dependencies = [
  "bumpalo",
  "prettyplease",
  "proc-macro2",
- "serde",
  "syn 2.0.100",
  "syn-insert-use",
  "toml",
@@ -170,9 +169,7 @@ name = "either-id"
 version = "0.1.0"
 dependencies = [
  "functor_derive",
- "langspec",
  "serde",
- "syn 2.0.100",
 ]
 
 [[package]]
@@ -244,7 +241,6 @@ version = "0.1.0"
 dependencies = [
  "either-id",
  "file-tmf",
- "join-boilerplate",
  "langspec",
  "tmfs-join",
  "tree-identifier",
@@ -565,7 +561,7 @@ version = "0.1.0"
 dependencies = [
  "either-id",
  "langspec",
- "tmfs-join",
+ "quote",
  "tree-identifier",
 ]
 
@@ -573,10 +569,8 @@ dependencies = [
 name = "langspec"
 version = "0.1.0"
 dependencies = [
- "conslist",
  "derive_more",
  "functor_derive",
- "proc-macro2",
  "quote",
  "serde",
  "serde_yml",
@@ -618,6 +612,7 @@ dependencies = [
  "rustgen-utils",
  "syn 2.0.100",
  "term",
+ "transitive-ccf",
  "tree-identifier",
  "tymetafuncspec-core",
 ]
@@ -785,13 +780,10 @@ dependencies = [
  "miette",
  "parse",
  "parse-adt",
- "prettyplease",
- "quote",
  "rustgen-utils",
  "std-parse-error",
  "std-parse-metadata",
  "syn 2.0.100",
- "syn-insert-use",
  "term",
  "term-bridge-gen",
  "term-pattern-match-strategy-provider-gen",
@@ -846,8 +838,6 @@ version = "0.1.0"
 dependencies = [
  "ccf",
  "conslist",
- "pattern-dyn",
- "pmsp",
 ]
 
 [[package]]
@@ -1194,7 +1184,6 @@ dependencies = [
  "codegen-component",
  "langspec",
  "langspec-gen-util",
- "proc-macro2",
  "quote",
  "rustgen-utils",
  "syn 2.0.100",
@@ -1213,13 +1202,9 @@ dependencies = [
  "langspec",
  "langspec-examples",
  "langspec-gen-util",
- "prettyplease",
- "quote",
  "rustgen-utils",
  "syn 2.0.100",
  "term",
- "term-specialized-gen",
- "term-specialized-impl-gen",
  "term-trait-gen",
  "tymetafuncspec-core",
  "words",
@@ -1253,12 +1238,9 @@ name = "term-specialized-gen"
 version = "0.1.0"
 dependencies = [
  "codegen-component",
- "expect-test",
- "extension-autobox",
  "langspec",
  "langspec-examples",
  "langspec-gen-util",
- "prettyplease",
  "quote",
  "rustgen-utils",
  "syn 2.0.100",
@@ -1275,14 +1257,13 @@ dependencies = [
  "langspec",
  "langspec-examples",
  "langspec-gen-util",
- "prettyplease",
  "quote",
  "rustgen-utils",
  "syn 2.0.100",
- "syn-insert-use",
  "term",
  "term-specialized-gen",
  "term-trait-gen",
+ "transitive-ccf",
  "tree-identifier",
  "tymetafuncspec-core",
  "words",
@@ -1413,6 +1394,17 @@ name = "toml_write"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "28391a4201ba7eb1984cfeb6862c0b3ea2cfe23332298967c749dddc0d6cd976"
+
+[[package]]
+name = "transitive-ccf"
+version = "0.1.0"
+dependencies = [
+ "langspec",
+ "langspec-examples",
+ "rustgen-utils",
+ "term",
+ "tymetafuncspec-core",
+]
 
 [[package]]
 name = "tree-identifier"

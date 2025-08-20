@@ -6,8 +6,6 @@ description = "Code generation related to parsing"
 
 [dependencies]
 bumpalo = { workspace = true }
-prettyplease = { workspace = true }
-quote = { workspace = true }
 syn = { workspace = true }
 extension-autobox = { path = "../extension-autobox" }
 extension-everywhere-alternative = { path = "../extension-everywhere-alternative" }
@@ -17,7 +15,6 @@ langspec-gen-util = { path = "../langspec-gen-util" }
 rustgen-utils = { path = "../rustgen-utils" }
 std-parse-error = { path = "../langspec-std/std-parse-error" }
 std-parse-metadata = { path = "../langspec-std/std-parse-metadata" }
-syn-insert-use = { path = "../syn-insert-use" }
 tree-identifier = { path = "../tree-identifier" }
 term-bridge-gen = { path = "../term-bridge-gen" }
 term-pattern-match-strategy-provider-gen = { path = "../term-pattern-match-strategy-provider-gen" }

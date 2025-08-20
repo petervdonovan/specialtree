@@ -1,0 +1,14 @@
+[package]
+name = "transitive-ccf"
+version = "0.1.0"
+edition = "2021"
+description = "CCF (Canonically Constructible From) analysis algorithms and data types"
+
+[dependencies]
+langspec = { path = "../langspec" }
+term = { path = "../term" }
+rustgen-utils = { path = "../rustgen-utils" }
+
+[dev-dependencies]
+langspec-examples = { path = "../langspec-examples" }
+tymetafuncspec-core = { path = "../tymetafuncspec-core" }

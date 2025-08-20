@@ -12,9 +12,8 @@ langspec-gen-util = { path = "../langspec-gen-util" }
 rustgen-utils = { path = "../rustgen-utils" }
 term-specialized-gen = { path = "../term-specialized-gen" }
 term-trait-gen = { path = "../term-trait-gen" }
+transitive-ccf = { path = "../transitive-ccf" }
 words = { path = "../words" }
-syn-insert-use = { path = "../syn-insert-use" }
-prettyplease = { workspace = true }
 quote = { workspace = true }
 syn = { workspace = true }
 tree-identifier = { path = "../tree-identifier" }

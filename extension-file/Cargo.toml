@@ -7,7 +7,6 @@ description = "Language extension that embeds a language inside of files in a fi
 [dependencies]
 either-id = { version = "0.1.0", path = "../either-id" }
 file-tmf = { version = "0.1.0", path = "../file-tmf" }
-join-boilerplate = { version = "0.1.0", path = "../join-boilerplate" }
 langspec = { version = "0.1.0", path = "../langspec" }
 tmfs-join = { version = "0.1.0", path = "../tmfs-join" }
 tree-identifier = { path = "../tree-identifier" }

@@ -8,7 +8,6 @@ description = "Generation of code that bridges between a generated language and 
 codegen-component = { version = "0.1.0", path = "../codegen-component" }
 langspec = { path = "../langspec" }
 langspec-gen-util = { path = "../langspec-gen-util" }
-proc-macro2 = { workspace = true }
 quote = { workspace = true }
 rustgen-utils = { path = "../rustgen-utils" }
 syn = { workspace = true }

@@ -7,10 +7,8 @@ description = "Specification for a language consisting of to-be-generated ADTs a
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-conslist = { version = "0.1.0", path = "../conslist" }
 derive_more = { workspace = true }
 functor_derive = { workspace = true }
-proc-macro2.workspace = true
 serde = { workspace = true }
 serde_yml = { workspace = true }
 syn = { workspace = true }

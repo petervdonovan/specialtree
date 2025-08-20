@@ -48,6 +48,7 @@ members = [
     "names-langspec-sort-gen",
     "names-langspec-sort",
     "to-literal",
+    "transitive-ccf",
     "generate-tests-stage2",
     "extension-pattern",
     "pattern-tmf",

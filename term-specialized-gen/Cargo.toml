@@ -8,12 +8,9 @@ description = "Code generation for a family of Rust data structures that togethe
 
 [dependencies]
 codegen-component = { path = "../codegen-component" }
-extension-autobox = { path = "../extension-autobox" }
 langspec-gen-util = { path = "../langspec-gen-util" }
 langspec = { path = "../langspec" }
 rustgen-utils = { path = "../rustgen-utils" }
-expect-test = { workspace = true }
-prettyplease = { workspace = true }
 quote = { workspace = true }
 syn = { workspace = true }
 

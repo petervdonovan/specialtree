@@ -7,5 +7,5 @@ description = "Boilerplate for implementing language extensions that involve com
 [dependencies]
 either-id = { path = "../either-id" }
 langspec = { path = "../langspec" }
-tmfs-join = { version = "0.1.0", path = "../tmfs-join" }
+quote = { workspace = true }
 tree-identifier = { path = "../tree-identifier" }

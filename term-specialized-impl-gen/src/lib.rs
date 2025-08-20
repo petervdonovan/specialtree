@@ -3,9 +3,10 @@ use langspec::{
     sublang::Sublangs,
 };
 use langspec_gen_util::{
-    AlgebraicsBasePath, CcfPaths, HeapType, LsGen, TyGenData, cons_list_index_range,
+    AlgebraicsBasePath, HeapType, LsGen, TyGenData,
 };
-use rustgen_utils::byline;
+use rustgen_utils::{byline, cons_list_index_range};
+use transitive_ccf::CcfPaths;
 
 pub struct BasePaths {
     pub data_structure: syn::Path,
