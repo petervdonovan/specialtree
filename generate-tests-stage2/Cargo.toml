@@ -5,10 +5,6 @@ edition.workspace = true
 description = "Binary crate for running a second stage of code generation on an example language"
 
 [dependencies]
-bumpalo.workspace = true
-codegen-component = { path = "../codegen-component" }
 langspec-examples.path = "../langspec-examples"
 langspec.path = "../langspec"
-parse-gen = { version = "0.1.0", path = "../parse-gen" }
-pattern-gen = { version = "0.1.0", path = "../pattern-gen" }
 tymetafuncspec-core = { version = "0.1.0", path = "../tymetafuncspec-core" }

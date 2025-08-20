@@ -9,4 +9,3 @@ miette = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
 unicode-segmentation = { workspace = true }
-term = { path = "../term" }

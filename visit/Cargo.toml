@@ -8,5 +8,4 @@ description = "Polymorphic implementation of the visitor pattern for arbitrary l
 ccf = { version = "0.1.0", path = "../ccf" }
 conslist = { version = "0.1.0", path = "../conslist" }
 pmsp = { version = "0.1.0", path = "../pmsp" }
-take-mut = { version = "0.1.0", path = "../take-mut" }
 words = { version = "0.1.0", path = "../words" }

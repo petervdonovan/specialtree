@@ -6,7 +6,6 @@ description = "Generate an extension of a language with boxing added to prevent 
 
 [dependencies]
 derivative = { workspace = true }
-once_cell = { workspace = true }
 either-id = { path = "../either-id" }
 langspec = { path = "../langspec" }
 langspec-transparent-extension = { path = "../langspec-transparent-extension" }

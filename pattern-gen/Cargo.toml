@@ -5,8 +5,3 @@ edition.workspace = true
 description = "Generation of specialized pattern implementations"
 
 [dependencies]
-codegen-component = { path = "../codegen-component" }
-langspec = { path = "../langspec" }
-langspec-gen-util = { path = "../langspec-gen-util" }
-pattern-dyn = { path = "../pattern-dyn" }
-syn.workspace = true

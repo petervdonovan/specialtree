@@ -15,7 +15,6 @@ pmsp = { version = "0.1.0", path = "../pmsp" }
 serde.workspace = true
 tree-identifier = { path = "../tree-identifier" }
 slab.workspace = true
-string-interner.workspace = true
 syn.workspace = true
 term = { version = "0.1.0", path = "../term" }
 unparse-adt = { version = "0.1.0", path = "../unparse-adt" }

@@ -5,16 +5,12 @@ edition.workspace = true
 description = "Type metafunctions needed in the pattern language of a language"
 
 [dependencies]
-functor_derive = { workspace = true }
 langspec = { path = "../langspec" }
-once_cell = { workspace = true }
 term = { path = "../term" }
 tree-identifier = { path = "../tree-identifier" }
-tymetafuncspec-core.path = "../tymetafuncspec-core"
 syn = { workspace = true }
 derivative = { workspace = true }
 ccf = { version = "0.1.0", path = "../ccf" }
-to-literal = { version = "0.1.0", path = "../to-literal" }
 serde.workspace = true
 string-interner.workspace = true
 covisit = { version = "0.1.0", path = "../covisit" }

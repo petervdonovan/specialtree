@@ -9,10 +9,7 @@ codegen-component = { path = "../codegen-component" }
 langspec-gen-util = { path = "../langspec-gen-util" }
 langspec = { path = "../langspec" }
 rustgen-utils = { path = "../rustgen-utils" }
-tymetafuncspec-core = { path = "../tymetafuncspec-core" }
 words = { path = "../words" }
-syn-insert-use = { path = "../syn-insert-use" }
-prettyplease = { workspace = true }
 quote = { workspace = true }
 syn = { workspace = true }
 

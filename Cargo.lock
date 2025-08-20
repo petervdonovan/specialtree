@@ -176,12 +176,9 @@ dependencies = [
 name = "enumerate-random"
 version = "0.1.0"
 dependencies = [
- "derivative",
  "rand",
  "rand_distr",
- "term",
  "tymetafuncspec-core",
- "typenum",
 ]
 
 [[package]]
@@ -208,7 +205,6 @@ dependencies = [
  "either-id",
  "langspec",
  "langspec-transparent-extension",
- "once_cell",
  "tree-identifier",
  "tymetafuncspec-core",
 ]
@@ -253,7 +249,6 @@ dependencies = [
  "bumpalo",
  "either-id",
  "extension-file",
- "join-boilerplate",
  "langspec",
  "pattern-tmf",
  "tmfs-join",
@@ -403,7 +398,6 @@ dependencies = [
  "pmsp",
  "serde",
  "slab",
- "string-interner",
  "syn 2.0.100",
  "term",
  "tree-identifier",
@@ -448,18 +442,15 @@ dependencies = [
  "bumpalo",
  "codegen-component",
  "extension-autobox",
- "extension-file",
  "extension-pattern",
  "langspec",
  "langspec-examples",
  "names-langspec-sort-gen",
  "parse-gen",
- "pattern-gen",
  "term-bridge-gen",
  "term-pattern-match-strategy-provider-gen",
  "term-pattern-match-strategy-provider-impl-gen",
  "term-specialized-gen",
- "term-specialized-impl-gen",
  "term-trait-gen",
  "tree-identifier",
  "words",
@@ -469,12 +460,8 @@ dependencies = [
 name = "generate-tests-stage2"
 version = "0.1.0"
 dependencies = [
- "bumpalo",
- "codegen-component",
  "langspec",
  "langspec-examples",
- "parse-gen",
- "pattern-gen",
  "tymetafuncspec-core",
 ]
 
@@ -561,7 +548,6 @@ version = "0.1.0"
 dependencies = [
  "either-id",
  "langspec",
- "quote",
  "tree-identifier",
 ]
 
@@ -608,7 +594,6 @@ dependencies = [
  "langspec",
  "langspec-examples",
  "proc-macro2",
- "quote",
  "rustgen-utils",
  "syn 2.0.100",
  "term",
@@ -662,7 +647,6 @@ dependencies = [
  "bumpalo",
  "expect-test",
  "sha2",
- "thiserror 2.0.12",
 ]
 
 [[package]]
@@ -740,7 +724,6 @@ version = "0.1.0"
 dependencies = [
  "miette",
  "serde",
- "term",
  "thiserror 2.0.12",
  "unicode-segmentation",
 ]
@@ -760,7 +743,6 @@ dependencies = [
  "take-mut",
  "term",
  "tymetafuncspec-core",
- "typenum",
  "unicode-segmentation",
  "words",
 ]
@@ -824,13 +806,6 @@ dependencies = [
 [[package]]
 name = "pattern-gen"
 version = "0.1.0"
-dependencies = [
- "codegen-component",
- "langspec",
- "langspec-gen-util",
- "pattern-dyn",
- "syn 2.0.100",
-]
 
 [[package]]
 name = "pattern-specialized"
@@ -847,10 +822,8 @@ dependencies = [
  "ccf",
  "covisit",
  "derivative",
- "functor_derive",
  "langspec",
  "names-langspec-sort",
- "once_cell",
  "parse-adt",
  "pattern-dyn",
  "pmsp",
@@ -858,9 +831,7 @@ dependencies = [
  "string-interner",
  "syn 2.0.100",
  "term",
- "to-literal",
  "tree-identifier",
- "tymetafuncspec-core",
  "unparse-adt",
  "visit",
  "words",
@@ -1215,20 +1186,14 @@ name = "term-pattern-match-strategy-provider-impl-gen"
 version = "0.1.0"
 dependencies = [
  "codegen-component",
- "extension-autobox",
  "langspec",
  "langspec-examples",
  "langspec-gen-util",
- "prettyplease",
- "quote",
  "rustgen-utils",
  "syn 2.0.100",
- "syn-insert-use",
  "term",
- "term-pattern-match-strategy-provider-gen",
  "term-specialized-gen",
  "term-specialized-impl-gen",
- "term-trait-gen",
  "tymetafuncspec-core",
  "words",
 ]
@@ -1278,13 +1243,10 @@ dependencies = [
  "langspec",
  "langspec-examples",
  "langspec-gen-util",
- "prettyplease",
  "quote",
  "rustgen-utils",
  "syn 2.0.100",
- "syn-insert-use",
  "term",
- "tymetafuncspec-core",
  "words",
 ]
 
@@ -1343,7 +1305,6 @@ version = "0.1.0"
 dependencies = [
  "either-id",
  "langspec",
- "syn 2.0.100",
 ]
 
 [[package]]
@@ -1511,7 +1472,6 @@ dependencies = [
  "pmsp",
  "term",
  "tymetafuncspec-core",
- "typenum",
  "unparse",
  "visit",
  "words",
@@ -1530,7 +1490,6 @@ dependencies = [
  "ccf",
  "conslist",
  "pmsp",
- "take-mut",
  "words",
 ]
 

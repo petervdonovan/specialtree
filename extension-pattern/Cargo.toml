@@ -8,7 +8,6 @@ description = "Language extension that takes a language and produces the languag
 bumpalo.workspace = true
 either-id = { version = "0.1.0", path = "../either-id" }
 extension-file = { version = "0.1.0", path = "../extension-file" }
-join-boilerplate = { version = "0.1.0", path = "../join-boilerplate" }
 langspec = { version = "0.1.0", path = "../langspec" }
 pattern-tmf = { version = "0.1.0", path = "../pattern-tmf" }
 tmfs-join = { version = "0.1.0", path = "../tmfs-join" }

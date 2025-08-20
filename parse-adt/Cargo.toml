@@ -11,7 +11,6 @@ std-parse-metadata = { path = "../langspec-std/std-parse-metadata" }
 term = { path = "../term" }
 tymetafuncspec-core = { path = "../tymetafuncspec-core" }
 miette = { workspace = true }
-typenum = { workspace = true }
 unicode-segmentation = { workspace = true }
 take-mut = { version = "0.1.0", path = "../take-mut" }
 words.path = "../words"
