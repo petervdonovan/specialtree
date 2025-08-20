@@ -1,30 +1,12 @@
 use langspec::langspec::{MappedTypeOf, Name, call_on_all_tmf_monomorphizations};
-use langspec::sublang::{Sublang, Sublangs};
+use langspec::sublang::Sublangs;
 use langspec::tymetafunc::{IdentifiedBy, RustTyMap, Transparency, TyMetaFuncSpec};
 use langspec::{
     langspec::{AlgebraicSortId, LangSpec, MappedType, SortId, SortIdOf},
     tymetafunc::TyMetaFuncData,
 };
-use rustgen_utils::{cons_list, combinations};
+use rustgen_utils::{combinations, cons_list};
 use term::CcfRelation;
-
-pub use proc_macro2;
-#[macro_export]
-macro_rules! transpose {
-    ($records:expr, $($field:ident),*) => {
-        $(
-            let mut $field = vec![];
-        )*
-        for record67142647 in $records {
-            $(
-                $field.push(record67142647.$field);
-            )*
-        }
-        $(
-            let $field = $field;
-        )*
-    };
-}
 
 type HgdTyArgs<'a> =
     Box<dyn Fn(HeapType, AlgebraicsBasePath, Option<&syn::Path>) -> Vec<syn::Type> + 'a>;
@@ -46,10 +28,7 @@ pub struct HeapbakGenData<'a> {
     pub ty_arg_camels: Vec<syn::Ident>,
     pub ty_args: HgdTyArgs<'a>,
 }
-// pub struct CanonicallyMaybeToGenData<'a> {
-//     pub cmt_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
-//     pub algebraic_cmt_sort_tys: Box<dyn Fn(HeapType, AlgebraicsBasePath) -> Vec<syn::Type> + 'a>,
-// }
+
 #[derive(Clone)]
 pub struct AlgebraicsBasePath(proc_macro2::TokenStream); // a prefix of a syn::TypePath
 impl AlgebraicsBasePath {

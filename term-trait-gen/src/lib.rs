@@ -1,6 +1,6 @@
 use langspec::langspec::{LangSpec, SortId};
 use langspec_gen_util::HeapType;
-use langspec_gen_util::{LsGen, transpose};
+use langspec_gen_util::LsGen;
 use rustgen_utils::byline;
 use syn::parse_quote;
 
