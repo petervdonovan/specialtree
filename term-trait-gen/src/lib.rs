@@ -79,7 +79,7 @@ fn generate_inverse_implements_bounds<L: LangSpec>(
         let lword = ls.sort2word_rs_ty(sid.clone(), words_path);
         match sid {
             SortId::Algebraic(asi) => {
-                let camel_ident = ls.bak().algebraic_sort_name(asi).camel();
+                let camel_ident = ls.bak().algebraic_sort_name(asi).camel_ident();
                 syn::parse_quote! {
                     words::InverseImplements<
                         #words_path::L,

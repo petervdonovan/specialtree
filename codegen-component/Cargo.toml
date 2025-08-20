@@ -12,3 +12,4 @@ serde.workspace = true
 syn.workspace = true
 syn-insert-use.path = "../syn-insert-use"
 toml.workspace = true
+tree-identifier.path = "../tree-identifier"

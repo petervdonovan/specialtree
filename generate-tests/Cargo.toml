@@ -6,6 +6,7 @@ description = "Binary crate for running code generation on an example language"
 
 [dependencies]
 bumpalo.workspace = true
+tree-identifier = { path = "../tree-identifier" }
 term-pattern-match-strategy-provider-gen = { path = "../term-pattern-match-strategy-provider-gen" }
 term-pattern-match-strategy-provider-impl-gen = { path = "../term-pattern-match-strategy-provider-impl-gen" }
 term-trait-gen = { path = "../term-trait-gen" }

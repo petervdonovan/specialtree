@@ -1,27 +1,23 @@
 use std::path::{Path, PathBuf};
 
 pub use bumpalo;
+use tree_identifier::Identifier;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct KebabCodegenId(pub String);
+pub struct KebabCodegenId(Identifier);
 impl KebabCodegenId {
     pub fn to_snake_ident(&self) -> syn::Ident {
-        syn::Ident::new(&self.0.replace("-", "_"), proc_macro2::Span::call_site())
+        self.0.snake_ident()
     }
 }
-impl From<String> for KebabCodegenId {
-    fn from(s: String) -> Self {
-        KebabCodegenId(s)
-    }
-}
-impl From<&str> for KebabCodegenId {
-    fn from(s: &str) -> Self {
-        KebabCodegenId(s.to_string())
+impl From<Identifier> for KebabCodegenId {
+    fn from(id: Identifier) -> Self {
+        KebabCodegenId(id)
     }
 }
 impl std::fmt::Display for KebabCodegenId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
+        write!(f, "{}", self.0.kebab_str())
     }
 }
 #[derive(Default)]
@@ -217,10 +213,8 @@ impl<'langs> Crate<'langs> {
         if current_c2sp.0.contains_key(&dep.id) {
             return;
         }
-        for depdep in dep.codegen_deps.codegen_deps.iter() {
-            // println!("dep: {} -> {}", dep.id, depdep.id);
-            self.generate_single_dep_contents(depdep, current_c2sp, global_c2sp, contents);
-        }
+
+        // Insert immediately to prevent recursive processing
         let dep_ident = &dep.id.to_snake_ident();
         let none = current_c2sp.0.insert(
             dep.id.clone(),
@@ -228,7 +222,9 @@ impl<'langs> Crate<'langs> {
                 crate::#dep_ident
             },
         );
-        assert!(none.is_none());
+        if none.is_some() {
+            panic!("Duplicate dependency ID in current_c2sp: {}", dep.id);
+        }
         let crate_ident = self.crate_ident();
         let none = global_c2sp.0.insert(
             dep.id.clone(),
@@ -236,7 +232,17 @@ impl<'langs> Crate<'langs> {
                 #crate_ident::#dep_ident
             },
         );
-        assert!(none.is_none());
+        if none.is_some() {
+            panic!("Duplicate dependency ID in global_c2sp: {}", dep.id);
+        }
+
+        // Now process dependencies
+        for depdep in dep.codegen_deps.codegen_deps.iter() {
+            // println!("dep: {} -> {}", dep.id, depdep.id);
+            self.generate_single_dep_contents(depdep, current_c2sp, global_c2sp, contents);
+        }
+
+        // Generate the module
         let mut m = (dep.generate)(current_c2sp, current_c2sp.0.get(&dep.id).unwrap().clone());
         m.ident = dep_ident.clone();
         contents.push(m);
@@ -245,7 +251,7 @@ impl<'langs> Crate<'langs> {
         self.id.to_snake_ident()
     }
     fn crate_relpath(&self) -> PathBuf {
-        self.id.0.as_str().into()
+        self.id.0.kebab_str().into()
     }
     fn all_external_deps(&self) -> Vec<&'static str> {
         fn all_external_deps<'a, 'b>(
@@ -355,7 +361,10 @@ impl<'langs> Crate<'langs> {
                 String::from("package"),
                 toml::Value::Table(
                     [
-                        ("name".into(), toml::Value::String(self.id.0.clone())),
+                        (
+                            "name".into(),
+                            toml::Value::String(self.id.0.kebab_str().to_owned()),
+                        ),
                         ("version".into(), toml::Value::String("0.0.0".into())),
                         ("edition".into(), toml::Value::String("2024".into())),
                     ]

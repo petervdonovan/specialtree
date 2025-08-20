@@ -17,6 +17,7 @@ syn-insert-use = { path = "../syn-insert-use" }
 prettyplease = { workspace = true }
 quote = { workspace = true }
 syn = { workspace = true }
+tree-identifier = { path = "../tree-identifier" }
 
 [dev-dependencies]
 langspec-examples = { path = "../langspec-examples" }

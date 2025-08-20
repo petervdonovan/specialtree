@@ -2,8 +2,8 @@
 #![rustfmt::skip]
 #![allow(warnings)]
 #![allow(unknown_lints)]
-pub mod words_mod_fib;
-pub mod term_trait_fib;
+pub mod l_words_mod_r_fib;
+pub mod l_term_trait_r_fib;
 pub mod parsells_fib;
-pub mod term_pattern_match_strategy_provider_fib;
-pub mod names_langspec_sort_fib;
+pub mod l_term_pattern_match_strategy_provider_r_fib;
+pub mod l_names_langspec_sort_r_fib;

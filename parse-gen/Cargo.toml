@@ -18,6 +18,7 @@ rustgen-utils = { path = "../rustgen-utils" }
 std-parse-error = { path = "../langspec-std/std-parse-error" }
 std-parse-metadata = { path = "../langspec-std/std-parse-metadata" }
 syn-insert-use = { path = "../syn-insert-use" }
+tree-identifier = { path = "../tree-identifier" }
 term-bridge-gen = { path = "../term-bridge-gen" }
 term-pattern-match-strategy-provider-gen = { path = "../term-pattern-match-strategy-provider-gen" }
 term-pattern-match-strategy-provider-impl-gen = { path = "../term-pattern-match-strategy-provider-impl-gen" }

@@ -5,7 +5,7 @@ use langspec::{
 use langspec_gen_util::{
     AlgebraicsBasePath, CcfPaths, HeapType, LsGen, TyGenData, cons_list_index_range,
 };
-use rustgen_utils::{byline, cons_list};
+use rustgen_utils::byline;
 
 pub struct BasePaths {
     pub data_structure: syn::Path,
@@ -329,6 +329,7 @@ pub mod targets {
         langspec::SortIdOf,
         sublang::{Sublang, SublangsList},
     };
+    use tree_identifier::Identifier;
 
     pub fn default<'langs, L: super::LangSpec>(
         arena: &'langs bumpalo::Bump,
@@ -337,7 +338,9 @@ pub mod targets {
         sublangs: &'langs impl SublangsList<'langs, SortIdOf<L>>,
     ) -> CodegenInstance<'langs> {
         CodegenInstance {
-            id: codegen_component::KebabCodegenId(sublangs.kebab("term-specialized-impl")),
+            id: tree_identifier::Identifier::from_kebab_str(
+                &sublangs.kebab("term-specialized-impl")
+            ).unwrap().into(),
             generate: {
                 let data_structure = codegen_deps.add(term_specialized_gen::targets::default(
                     arena,
@@ -381,10 +384,15 @@ pub mod targets {
         sublang: &'langs Sublang<'langs, LSub, SortIdOf<LImplFor>>,
     ) -> CodegenInstance<'langs> {
         CodegenInstance {
-            id: KebabCodegenId(format!(
-                "words-impls-{}",
-                sublang.lsub.name().clone().merge(lif.name()).snake
-            )),
+            id: KebabCodegenId::from(
+                Identifier::list(vec![
+                    Identifier::from_kebab_str("words-impls").unwrap(),
+                    Identifier::list(vec![
+                        sublang.lsub.name().clone(),
+                        lif.name().clone(),
+                    ].into()),
+                ].into())
+            ),
             generate: {
                 let words_path = codegen_deps.add(words::targets::words_mod::<LSub>(
                     arena,

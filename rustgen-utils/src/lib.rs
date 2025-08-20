@@ -5,6 +5,17 @@
 //! and reduced dependencies.
 
 pub use proc_macro2;
+pub use tree_identifier;
+pub use codegen_component;
+
+/// Creates a hierarchical identifier from function name and language name
+pub fn create_kebab_codegen_id(function_name: &str, language_name: &tree_identifier::Identifier) -> codegen_component::KebabCodegenId {
+    let function_id = tree_identifier::Identifier::from_snake_str(function_name).unwrap();
+    tree_identifier::Identifier::list(vec![
+        function_id,
+        language_name.clone(),
+    ].into()).into()
+}
 
 /// Generates a byline comment indicating the generating function
 #[macro_export]
@@ -22,20 +33,16 @@ macro_rules! byline {
 #[macro_export]
 macro_rules! kebab_id {
     ($l:ident) => {
-        codegen_component::KebabCodegenId({
+        {
             let func = $crate::function!();
-            let id = if func.ends_with("::default") {
+            let function_name = if func.ends_with("::default") {
                 let segment = func.split(":").next().unwrap();
                 segment.strip_suffix("_gen").unwrap_or(segment)
             } else {
                 func.split("::").last().unwrap()
             };
-            format!(
-                "{}-{}",
-                id.replace("_", "-"),
-                $l.name().kebab_str()
-            )
-        })
+            $crate::create_kebab_codegen_id(function_name, $l.name())
+        }
     };
 }
 

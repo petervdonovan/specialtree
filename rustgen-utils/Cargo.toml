@@ -8,6 +8,7 @@ proc-macro2.workspace = true
 syn.workspace = true
 quote.workspace = true
 codegen-component.path = "../codegen-component"
+tree-identifier.path = "../tree-identifier"
 
 [dev-dependencies]
 expect-test.workspace = true

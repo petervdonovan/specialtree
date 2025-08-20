@@ -1,7 +1,7 @@
 use langspec::humanreadable::LangSpecHuman;
 
 pub fn fib() -> LangSpecHuman<tymetafuncspec_core::Core> {
-    serde_json::from_str(
+    let lang_spec: LangSpecHuman<tymetafuncspec_core::Core> = serde_json::from_str(
         r#"
     {
         "name": {
@@ -13,7 +13,7 @@ pub fn fib() -> LangSpecHuman<tymetafuncspec_core::Core> {
                     "Leaf": "f"
                 },
                 "sorts": [
-                    {"Algebraic": {"Sum": "ℕ"}}
+                    {"Algebraic": {"Sum": "nat"}}
                 ]
             },
             {
@@ -21,8 +21,8 @@ pub fn fib() -> LangSpecHuman<tymetafuncspec_core::Core> {
                     "Leaf": "plus"
                 },
                 "sorts": [
-                    {"Algebraic": {"Product": "LeftOperand"}},
-                    {"Algebraic": {"Product": "RightOperand"}}
+                    {"Algebraic": {"Product": "left_operand"}},
+                    {"Algebraic": {"Product": "right_operand"}}
                 ]
             },
             {
@@ -30,7 +30,7 @@ pub fn fib() -> LangSpecHuman<tymetafuncspec_core::Core> {
                     "Leaf": "left_operand"
                 },
                 "sorts": [
-                    {"Algebraic": {"Sum": "ℕ"}}
+                    {"Algebraic": {"Sum": "nat"}}
                 ]
             },
             {
@@ -38,7 +38,7 @@ pub fn fib() -> LangSpecHuman<tymetafuncspec_core::Core> {
                     "Leaf": "right_operand"
                 },
                 "sorts": [
-                    {"Algebraic": {"Sum": "ℕ"}}
+                    {"Algebraic": {"Sum": "nat"}}
                 ]
             },
             {
@@ -46,7 +46,7 @@ pub fn fib() -> LangSpecHuman<tymetafuncspec_core::Core> {
                     "Leaf": "sum"
                 },
                 "sorts": [
-                    {"TyMetaFunc": {"f": 1, "a": [{"Algebraic": {"Sum": "ℕ"}}]}}
+                    {"TyMetaFunc": {"f": 1, "a": [{"Algebraic": {"Sum": "nat"}}]}}
                 ]
             }
         ],
@@ -58,15 +58,20 @@ pub fn fib() -> LangSpecHuman<tymetafuncspec_core::Core> {
                 "sorts": [
                     {"TyMetaFunc": {"f": 0, "a": []}},
                     {"Algebraic": {"Product": "f"}},
-                    {"Algebraic": {"Product": "+"}},
-                    {"Algebraic": {"Product": "∑"}}
+                    {"Algebraic": {"Product": "plus"}},
+                    {"Algebraic": {"Product": "sum"}}
                 ]
             }
         ]
     }
     "#,
     )
-    .unwrap()
+    .unwrap();
+
+    // Validate all sort references to catch naming issues early
+    lang_spec.validate_all_sort_references();
+
+    lang_spec
 }
 
 #[cfg(test)]

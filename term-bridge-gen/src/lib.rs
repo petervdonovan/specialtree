@@ -171,9 +171,11 @@ pub mod targets {
         // let oglsg = super::LsGen::from(l);
         dbg!(sl.kebab("term-bridge"));
         CodegenInstance {
-            id: codegen_component::KebabCodegenId(
-                sl.kebab("term-bridge") + "-bridgeto-" + &l.name().snake.replace("_", "-"),
-            ),
+            id: tree_identifier::Identifier::list(vec![
+                tree_identifier::Identifier::from_kebab_str("term-bridge").unwrap(),
+                tree_identifier::Identifier::from_kebab_str("bridgeto").unwrap(),
+                l.name().clone(),
+            ].into()).into(),
             generate: {
                 // let _ =
                 //     codegen_deps.add(term_specialized_impl_gen::targets::term_specialized_impl(

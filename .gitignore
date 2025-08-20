@@ -4,6 +4,7 @@ target/
 todo.md
 flamegraph.svg
 depgraph.png
+MIGRATION_GUIDE.md
 
 # ad hoc ast-grep rules
 patch.yml

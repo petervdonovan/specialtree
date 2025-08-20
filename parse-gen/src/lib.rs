@@ -2,12 +2,13 @@ use extension_autobox::autobox;
 use extension_everywhere_alternative::everywhere_alternative;
 use extension_everywhere_maybemore::everywhere_maybemore;
 use langspec::{
-    langspec::{LangSpec, MappedType, Name, SortId},
+    langspec::{LangSpec, MappedType, SortId},
     tymetafunc::Transparency,
 };
 use langspec_gen_util::{LsGen, TyGenData};
 use rustgen_utils::byline;
 use syn::parse_quote;
+use tree_identifier::Identifier;
 
 pub struct BasePaths {
     pub parse: syn::Path,
@@ -121,11 +122,7 @@ pub fn cst<'a, 'b: 'a, L: LangSpec>(
 ) -> &'a (impl LangSpec + 'a) {
     let errlang = arena.alloc(std_parse_error::parse_error());
     let fallible_ast = arena.alloc(everywhere_alternative(
-        Name {
-            human: "FallibleAst".into(),
-            camel: "FallibleAst".into(),
-            snake: "fallible_ast".into(),
-        },
+        Identifier::from_camel_str("FallibleAst").unwrap(),
         l,
         errlang,
         SortId::TyMetaFunc(MappedType {
@@ -135,12 +132,10 @@ pub fn cst<'a, 'b: 'a, L: LangSpec>(
     ));
     let parse_metadata = arena.alloc(std_parse_metadata::parse_metadata());
     arena.alloc(everywhere_maybemore(
-        Name {
-            human: "Cst".into(),
-            camel: "Cst".into(),
-            snake: "cst".into(),
-        }
-        .merge(l.name()),
+        Identifier::list(vec![
+            Identifier::from_camel_str("Cst").unwrap(),
+            l.name().clone(),
+        ].into()),
         fallible_ast,
         parse_metadata,
         SortId::TyMetaFunc(MappedType {
