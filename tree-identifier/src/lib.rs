@@ -164,15 +164,23 @@ impl Identifier {
         match self {
             Identifier::Leaf(leaf) => tokens.push(leaf.as_str()),
             Identifier::List(tree_tokens) => {
-                for tt in tree_tokens {
-                    unparse_recursively(tt, &mut tokens);
+                // For single-element lists, treat them like nested lists with delimiters
+                // to distinguish from bare leaves
+                if tree_tokens.len() == 1 {
+                    // Call the recursive function which will add the delimiters
+                    unparse_recursively(self, &mut tokens);
+                } else {
+                    // For multi-element lists, unparse without top-level delimiters
+                    for tt in tree_tokens {
+                        unparse_recursively(tt, &mut tokens);
+                    }
                 }
             }
         }
         tokens
     }
 
-    fn parse_token_sequence(tokens: &[String]) -> Result<Vec<Identifier>, String> {
+    fn parse_token_sequence(tokens: &[String]) -> Result<Identifier, String> {
         let mut result = Vec::new();
         let mut pos = 0;
 
@@ -192,7 +200,12 @@ impl Identifier {
             }
         }
 
-        Ok(result)
+        // Return the appropriate structure based on what was parsed
+        match result.len() {
+            0 => Ok(Identifier::List(Box::new([]))),
+            1 => Ok(result.into_iter().next().unwrap()),
+            _ => Ok(Identifier::List(result.into_boxed_slice())),
+        }
     }
 
     fn parse_token_sequence_recursive(
@@ -254,8 +267,7 @@ impl Identifier {
         }
 
         let tokens = lex_camel_str(s);
-        let parsed = Self::parse_token_sequence(&tokens)?;
-        Ok(Identifier::List(parsed.into_boxed_slice()))
+        Self::parse_token_sequence(&tokens)
     }
 
     pub fn from_snake_str(s: &str) -> Result<Self, String> {
@@ -264,8 +276,7 @@ impl Identifier {
         }
 
         let tokens: Vec<String> = s.split('_').map(|s| s.to_string()).collect();
-        let parsed = Self::parse_token_sequence(&tokens)?;
-        Ok(Identifier::List(parsed.into_boxed_slice()))
+        Self::parse_token_sequence(&tokens)
     }
 
     pub fn from_kebab_str(s: &str) -> Result<Self, String> {
@@ -274,8 +285,7 @@ impl Identifier {
         }
 
         let tokens: Vec<String> = s.split('-').map(|s| s.to_string()).collect();
-        let parsed = Self::parse_token_sequence(&tokens)?;
-        Ok(Identifier::List(parsed.into_boxed_slice()))
+        Self::parse_token_sequence(&tokens)
     }
 
     pub fn camel_str(&self) -> String {
@@ -397,7 +407,7 @@ mod tests {
         let single_leaf = Identifier::List(Box::new([Identifier::Leaf(
             Leaf::new("hello".to_string()).unwrap(),
         )]));
-        check_camel_str(single_leaf, expect!["Hello"]);
+        check_camel_str(single_leaf, expect!["LHelloR"]);
 
         // Multiple leaves in list
         let multi_leaf = Identifier::List(Box::new([
@@ -511,6 +521,37 @@ mod tests {
     }
 
     #[test]
+    fn test_single_element_list_round_trip() {
+        // This test should fail initially due to the round-trip issue
+        let single_element_list = Identifier::List(Box::new([
+            Identifier::Leaf(Leaf::new("hello".to_string()).unwrap())
+        ]));
+        
+        // Test that we can distinguish a single-element list from a bare leaf
+        let bare_leaf = Identifier::Leaf(Leaf::new("hello".to_string()).unwrap());
+        
+        // These should produce different representations
+        assert_ne!(single_element_list.camel_str(), bare_leaf.camel_str(), 
+                   "Single-element list should differ from bare leaf");
+        
+        // Round-trip tests - these should preserve the original structure
+        let camel_str = single_element_list.camel_str();
+        let parsed_from_camel = Identifier::from_camel_str(&camel_str).unwrap();
+        assert_eq!(single_element_list, parsed_from_camel, 
+                   "Camel round-trip failed for single-element list");
+        
+        let snake_str = single_element_list.snake_str();
+        let parsed_from_snake = Identifier::from_snake_str(&snake_str).unwrap();
+        assert_eq!(single_element_list, parsed_from_snake,
+                   "Snake round-trip failed for single-element list");
+        
+        let kebab_str = single_element_list.kebab_str();
+        let parsed_from_kebab = Identifier::from_kebab_str(&kebab_str).unwrap();
+        assert_eq!(single_element_list, parsed_from_kebab,
+                   "Kebab round-trip failed for single-element list");
+    }
+
+    #[test]
     fn test_round_trip_correctness_and_diversity() {
         use arbitrary::{Arbitrary, Unstructured};
         use rand::rngs::StdRng;
@@ -532,10 +573,16 @@ mod tests {
             let camel_str = token.camel_str();
             let parsed = Identifier::from_camel_str(&camel_str)
                 .map_err(|e| format!("Camel parse failed: {e}"))?;
+            // Test both string equality and structural equality
             let reparsed_camel = parsed.camel_str();
             if camel_str != reparsed_camel {
                 return Err(format!(
-                    "Camel round trip failed: original={token:?}, camel_str={camel_str}, parsed={parsed:?}"
+                    "Camel string round trip failed: original={token:?}, camel_str={camel_str}, parsed={parsed:?}"
+                ));
+            }
+            if token != &parsed {
+                return Err(format!(
+                    "Camel structural round trip failed: original={token:?}, camel_str={camel_str}, parsed={parsed:?}"
                 ));
             }
             Ok(())
@@ -545,10 +592,16 @@ mod tests {
             let snake_str = token.snake_str();
             let parsed = Identifier::from_snake_str(&snake_str)
                 .map_err(|e| format!("Snake parse failed: {e}"))?;
+            // Test both string equality and structural equality
             let reparsed_snake = parsed.snake_str();
             if snake_str != reparsed_snake {
                 return Err(format!(
-                    "Snake round trip failed: original={token:?}, snake_str={snake_str}, parsed={parsed:?}"
+                    "Snake string round trip failed: original={token:?}, snake_str={snake_str}, parsed={parsed:?}"
+                ));
+            }
+            if token != &parsed {
+                return Err(format!(
+                    "Snake structural round trip failed: original={token:?}, snake_str={snake_str}, parsed={parsed:?}"
                 ));
             }
             Ok(())
@@ -558,10 +611,16 @@ mod tests {
             let kebab_str = token.kebab_str();
             let parsed = Identifier::from_kebab_str(&kebab_str)
                 .map_err(|e| format!("Kebab parse failed: {e}"))?;
+            // Test both string equality and structural equality
             let reparsed_kebab = parsed.kebab_str();
             if kebab_str != reparsed_kebab {
                 return Err(format!(
-                    "Kebab round trip failed: original={token:?}, kebab_str={kebab_str}, parsed={parsed:?}"
+                    "Kebab string round trip failed: original={token:?}, kebab_str={kebab_str}, parsed={parsed:?}"
+                ));
+            }
+            if token != &parsed {
+                return Err(format!(
+                    "Kebab structural round trip failed: original={token:?}, kebab_str={kebab_str}, parsed={parsed:?}"
                 ));
             }
             Ok(())
@@ -596,7 +655,7 @@ mod tests {
         );
 
         let joined = diversity_results.join(", ");
-        expect!["l-p0-d1tky4-r, l-w7-r-l-s77a-s4v-r-l-jgjkb-r, v, xa-lugf54-ka19, l-zupoqa7-i5t8v6-r, hjp0, x, sfr-ec2-z, m, l-r-ug4c3-uwb, l-l-dghoj-uozn-fk-r-hdl-r, edwio, u0-qa51-bwrxwmx, kvlgb, l-r, ak1i-l-r, q-d6p-d630b, eeh2zpw, l-r, l-d-n-r-a80e67-h6"]
+        expect!["l-l-p0-d1tky4-r-r, l-w7-r-l-s77a-s4v-r-l-jgjkb-r, v, xa-lugf54-ka19, l-l-zupoqa7-i5t8v6-r-r, hjp0, l-x-r, sfr-ec2-z, m, l-r-ug4c3-uwb, l-l-l-dghoj-uozn-fk-r-hdl-r-r, edwio, u0-qa51-bwrxwmx, kvlgb, l-l-r-r, ak1i-l-r, q-d6p-d630b, eeh2zpw, l-l-r-r, l-d-n-r-a80e67-h6"]
             .assert_eq(&joined);
     }
 }
