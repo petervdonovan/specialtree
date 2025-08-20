@@ -2,8 +2,9 @@ use functor_derive::Functor;
 
 use crate::{
     flat::LangSpecFlat,
-    langspec::{LangSpec, Name, SortId, SortIdOf},
+    langspec::{LangSpec, SortId, SortIdOf},
 };
+use tree_identifier::Identifier;
 
 type SublangTyMap<'a, LSub, SortIdSelf> = dyn Fn(&SortIdOf<LSub>) -> SortIdSelf + 'a;
 
@@ -63,19 +64,21 @@ impl<'a, LSub: LangSpec, SortIdSelf> Sublang<'a, LSub, SortIdSelf> {
 pub trait Sublangs<SortIdSelf> {
     fn images(&self) -> impl Iterator<Item = Vec<SortIdSelf>>;
     fn tems(&self) -> impl Iterator<Item = Vec<TmfEndoMapping<SortIdSelf>>>;
-    fn names(&self) -> impl Iterator<Item = Name>;
+    fn names(&self) -> impl Iterator<Item = Identifier>;
     fn kebab(&self, prefix: &str) -> String {
-        format!(
-            "{prefix}-{}",
-            self.names().fold(String::new(), |acc, l| {
-                let kebab = l.snake.replace("_", "-");
-                if acc.is_empty() {
-                    kebab
-                } else {
-                    format!("{acc}-{kebab}")
-                }
-            })
-        )
+        // Create an identifier from the prefix
+        let prefix_id = Identifier::from_kebab_str(prefix).unwrap_or_else(|_| {
+            // If prefix can't be parsed as kebab, create a simple leaf
+            Identifier::list(vec![].into_boxed_slice())
+        });
+        
+        // Collect all names into a vector
+        let mut all_names = vec![prefix_id];
+        all_names.extend(self.names());
+        
+        // Create a list identifier and get its kebab representation
+        let combined = Identifier::list(all_names.into_boxed_slice());
+        combined.kebab_str()
     }
 }
 pub trait SublangsList<'langs, SortIdSelf>: Sublangs<SortIdSelf> {
@@ -156,7 +159,7 @@ where
 pub trait SublangsElement<SortIdSelf> {
     fn image(&self) -> Vec<SortIdSelf>;
     fn tems(&self) -> Vec<TmfEndoMapping<SortIdSelf>>;
-    fn name(&self) -> Name;
+    fn name(&self) -> Identifier;
     // fn push_through<'this, 'other: 'this, L: LangSpec>(
     //     &'this self,
     //     l: &'other L,
@@ -173,7 +176,7 @@ impl<'a, LSub: LangSpec, SortIdSelf: Clone> SublangsElement<SortIdSelf>
         self.tems.clone()
     }
 
-    fn name(&self) -> Name {
+    fn name(&self) -> Identifier {
         self.lsub.name().clone()
     }
 
@@ -192,7 +195,7 @@ impl<SortIdSelf> Sublangs<SortIdSelf> for () {
         std::iter::empty()
     }
 
-    fn names(&self) -> impl Iterator<Item = Name> {
+    fn names(&self) -> impl Iterator<Item = Identifier> {
         std::iter::empty()
     }
 }
@@ -209,7 +212,7 @@ where
         std::iter::once(self.0.tems()).chain(self.1.tems())
     }
 
-    fn names(&self) -> impl Iterator<Item = Name> {
+    fn names(&self) -> impl Iterator<Item = Identifier> {
         std::iter::once(self.0.name()).chain(self.1.names())
     }
 }

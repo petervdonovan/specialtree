@@ -1,7 +1,8 @@
 use arbitrary::{Arbitrary, Result, Unstructured};
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 /// An identifier that can have a tree-like structure of sub-identifiers and that has
 /// a lossless representation as a token in various formats.
 pub enum Identifier {
@@ -25,7 +26,7 @@ pub enum LeafError {
     CamelClose(String),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct Leaf(String);
 
 impl Leaf {
@@ -523,32 +524,41 @@ mod tests {
     #[test]
     fn test_single_element_list_round_trip() {
         // This test should fail initially due to the round-trip issue
-        let single_element_list = Identifier::List(Box::new([
-            Identifier::Leaf(Leaf::new("hello".to_string()).unwrap())
-        ]));
-        
+        let single_element_list = Identifier::List(Box::new([Identifier::Leaf(
+            Leaf::new("hello".to_string()).unwrap(),
+        )]));
+
         // Test that we can distinguish a single-element list from a bare leaf
         let bare_leaf = Identifier::Leaf(Leaf::new("hello".to_string()).unwrap());
-        
+
         // These should produce different representations
-        assert_ne!(single_element_list.camel_str(), bare_leaf.camel_str(), 
-                   "Single-element list should differ from bare leaf");
-        
+        assert_ne!(
+            single_element_list.camel_str(),
+            bare_leaf.camel_str(),
+            "Single-element list should differ from bare leaf"
+        );
+
         // Round-trip tests - these should preserve the original structure
         let camel_str = single_element_list.camel_str();
         let parsed_from_camel = Identifier::from_camel_str(&camel_str).unwrap();
-        assert_eq!(single_element_list, parsed_from_camel, 
-                   "Camel round-trip failed for single-element list");
-        
+        assert_eq!(
+            single_element_list, parsed_from_camel,
+            "Camel round-trip failed for single-element list"
+        );
+
         let snake_str = single_element_list.snake_str();
         let parsed_from_snake = Identifier::from_snake_str(&snake_str).unwrap();
-        assert_eq!(single_element_list, parsed_from_snake,
-                   "Snake round-trip failed for single-element list");
-        
+        assert_eq!(
+            single_element_list, parsed_from_snake,
+            "Snake round-trip failed for single-element list"
+        );
+
         let kebab_str = single_element_list.kebab_str();
         let parsed_from_kebab = Identifier::from_kebab_str(&kebab_str).unwrap();
-        assert_eq!(single_element_list, parsed_from_kebab,
-                   "Kebab round-trip failed for single-element list");
+        assert_eq!(
+            single_element_list, parsed_from_kebab,
+            "Kebab round-trip failed for single-element list"
+        );
     }
 
     #[test]
@@ -657,5 +667,38 @@ mod tests {
         let joined = diversity_results.join(", ");
         expect!["l-l-p0-d1tky4-r-r, l-w7-r-l-s77a-s4v-r-l-jgjkb-r, v, xa-lugf54-ka19, l-l-zupoqa7-i5t8v6-r-r, hjp0, l-x-r, sfr-ec2-z, m, l-r-ug4c3-uwb, l-l-l-dghoj-uozn-fk-r-hdl-r-r, edwio, u0-qa51-bwrxwmx, kvlgb, l-l-r-r, ak1i-l-r, q-d6p-d630b, eeh2zpw, l-l-r-r, l-d-n-r-a80e67-h6"]
             .assert_eq(&joined);
+    }
+
+    #[test]
+    fn test_serde_serialization() {
+        // Test simple leaf
+        let leaf = Identifier::Leaf(Leaf::new("hello".to_string()).unwrap());
+        let json = serde_json::to_string(&leaf).expect("Failed to serialize leaf");
+        let deserialized: Identifier =
+            serde_json::from_str(&json).expect("Failed to deserialize leaf");
+        assert_eq!(leaf, deserialized);
+
+        // Test list with single element
+        let single_list = Identifier::List(Box::new([Identifier::Leaf(
+            Leaf::new("world".to_string()).unwrap(),
+        )]));
+        let json = serde_json::to_string(&single_list).expect("Failed to serialize single list");
+        let deserialized: Identifier =
+            serde_json::from_str(&json).expect("Failed to deserialize single list");
+        assert_eq!(single_list, deserialized);
+
+        // Test complex nested structure
+        let complex = Identifier::List(Box::new([
+            Identifier::Leaf(Leaf::new("hello".to_string()).unwrap()),
+            Identifier::List(Box::new([
+                Identifier::Leaf(Leaf::new("nested".to_string()).unwrap()),
+                Identifier::Leaf(Leaf::new("world".to_string()).unwrap()),
+            ])),
+            Identifier::Leaf(Leaf::new("end".to_string()).unwrap()),
+        ]));
+        let json = serde_json::to_string(&complex).expect("Failed to serialize complex");
+        let deserialized: Identifier =
+            serde_json::from_str(&json).expect("Failed to deserialize complex");
+        assert_eq!(complex, deserialized);
     }
 }

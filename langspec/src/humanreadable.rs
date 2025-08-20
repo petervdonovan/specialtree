@@ -1,17 +1,16 @@
-use std::any::TypeId;
-
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    langspec::{AsLifetime, LangSpec, Name, SortIdOf},
-    sublang::{Sublang, reflexive_sublang},
+    langspec::{AsLifetime, LangSpec, SortIdOf},
+    sublang::Sublang,
     tymetafunc::TyMetaFuncSpec,
 };
+use tree_identifier::Identifier;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(bound = "")]
 pub struct LangSpecHuman<Tmfs: TyMetaFuncSpec> {
-    pub name: Name,
+    pub name: Identifier,
     pub products: Vec<Product<Tmfs>>,
     pub sums: Vec<Sum<Tmfs>>,
     #[serde(skip)]
@@ -20,13 +19,13 @@ pub struct LangSpecHuman<Tmfs: TyMetaFuncSpec> {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(bound = "")]
 pub struct Product<Tmfs: TyMetaFuncSpec> {
-    pub name: Name,
+    pub name: Identifier,
     pub sorts: Vec<SortId<Tmfs>>,
 }
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(bound = "")]
 pub struct Sum<Tmfs: TyMetaFuncSpec> {
-    pub name: Name,
+    pub name: Identifier,
     pub sorts: Vec<SortId<Tmfs>>,
 }
 
@@ -45,30 +44,30 @@ impl<Tmfs: TyMetaFuncSpec + 'static> crate::langspec::LangSpec
 
     type Tmfs = Tmfs;
 
-    fn name(&self) -> &crate::langspec::Name {
+    fn name(&self) -> &Identifier {
         &self.name
     }
 
     fn products(&self) -> impl Iterator<Item = Self::ProductId> {
-        self.products.iter().map(|p| p.name.human.clone())
+        self.products.iter().map(|p| p.name.kebab_str())
     }
 
     fn sums(&self) -> impl Iterator<Item = Self::SumId> {
-        self.sums.iter().map(|s| s.name.human.clone())
+        self.sums.iter().map(|s| s.name.kebab_str())
     }
 
-    fn product_name(&self, id: Self::ProductId) -> &crate::langspec::Name {
+    fn product_name(&self, id: Self::ProductId) -> &Identifier {
         self.products
             .iter()
-            .find(|p| p.name.human == id)
+            .find(|p| p.name.kebab_str() == id)
             .map(|p| &p.name)
             .unwrap()
     }
 
-    fn sum_name(&self, id: Self::SumId) -> &crate::langspec::Name {
+    fn sum_name(&self, id: Self::SumId) -> &Identifier {
         self.sums
             .iter()
-            .find(|s| s.name.human == id)
+            .find(|s| s.name.kebab_str() == id)
             .map(|s| &s.name)
             .unwrap()
     }
@@ -79,7 +78,7 @@ impl<Tmfs: TyMetaFuncSpec + 'static> crate::langspec::LangSpec
     ) -> impl Iterator<Item = crate::langspec::SortIdOf<Self>> {
         self.products
             .iter()
-            .find(|p| p.name.human == id)
+            .find(|p| p.name.kebab_str() == id)
             .map(|p| p.sorts.iter().cloned())
             .unwrap()
     }
@@ -87,7 +86,7 @@ impl<Tmfs: TyMetaFuncSpec + 'static> crate::langspec::LangSpec
     fn sum_sorts(&self, id: Self::SumId) -> impl Iterator<Item = crate::langspec::SortIdOf<Self>> {
         self.sums
             .iter()
-            .find(|s| s.name.human == id)
+            .find(|s| s.name.kebab_str() == id)
             .map(|s| s.sorts.iter().cloned())
             .unwrap()
     }

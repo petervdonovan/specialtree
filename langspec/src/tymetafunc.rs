@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
-
-use crate::langspec::Name;
+use tree_identifier::Identifier;
 
 #[derive(Clone)]
 pub struct RustTyMap {
@@ -15,8 +14,8 @@ pub enum IdentifiedBy {
 pub struct ArgId(pub usize);
 #[derive(Clone)]
 pub struct TyMetaFuncData {
-    pub name: Name,
-    pub args: Box<[Name]>,
+    pub name: Identifier,
+    pub args: Box<[Identifier]>,
     pub imp: RustTyMap,
     pub heapbak: RustTyMap,
     pub idby: IdentifiedBy,

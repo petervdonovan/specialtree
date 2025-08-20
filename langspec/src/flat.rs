@@ -5,22 +5,23 @@ use serde::{Deserialize, Serialize};
 use typed_index_collections::TiVec;
 
 use crate::{
-    langspec::{AlgebraicSortId, AsLifetime, LangSpec, Name, SortIdOf, TerminalLangSpec},
+    langspec::{AlgebraicSortId, AsLifetime, LangSpec, SortIdOf, TerminalLangSpec},
     sublang::{Sublang, reflexive_sublang},
     tymetafunc::TyMetaFuncSpec,
 };
+use tree_identifier::Identifier;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(bound = "")]
 pub struct LangSpecFlat<Tmfs: TyMetaFuncSpec> {
-    pub name: Name,
+    pub name: Identifier,
     pub products: TiVec<ProductId, Product<Tmfs>>,
     pub sums: TiVec<SumId, Sum<Tmfs>>,
     _phantom: std::marker::PhantomData<Tmfs>,
 }
 
 impl<Tmfs: TyMetaFuncSpec> LangSpecFlat<Tmfs> {
-    pub fn empty(name: Name) -> Self {
+    pub fn empty(name: Identifier) -> Self {
         LangSpecFlat {
             name,
             products: TiVec::new(),
@@ -44,13 +45,13 @@ pub type FlatAlgebraicSortId = AlgebraicSortId<ProductId, SumId>;
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(bound = "")]
 pub struct Product<Tmfs: TyMetaFuncSpec> {
-    pub name: Name,
+    pub name: Identifier,
     pub sorts: Box<[FlatSortId<Tmfs>]>,
 }
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(bound = "")]
 pub struct Sum<Tmfs: TyMetaFuncSpec> {
-    pub name: Name,
+    pub name: Identifier,
     pub sorts: Box<[FlatSortId<Tmfs>]>,
 }
 
@@ -71,7 +72,7 @@ impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::flat::LangSpecFl
 
     type Tmfs = Tmfs;
 
-    fn name(&self) -> &crate::langspec::Name {
+    fn name(&self) -> &Identifier {
         &self.name
     }
 
@@ -83,11 +84,11 @@ impl<Tmfs: TyMetaFuncSpec> crate::langspec::LangSpec for crate::flat::LangSpecFl
         (0..self.sums.len()).map(crate::flat::SumId)
     }
 
-    fn product_name(&self, id: Self::ProductId) -> &crate::langspec::Name {
+    fn product_name(&self, id: Self::ProductId) -> &Identifier {
         &self.products[id].name
     }
 
-    fn sum_name(&self, id: Self::SumId) -> &crate::langspec::Name {
+    fn sum_name(&self, id: Self::SumId) -> &Identifier {
         &self.sums[id].name
     }
 
@@ -126,10 +127,10 @@ impl<Tmfs: TyMetaFuncSpec> TerminalLangSpec for LangSpecFlat<Tmfs> {
     fn canonical_from<L: LangSpec<Tmfs = Tmfs>>(l: &L) -> Self {
         let name = l.name().clone();
         let mut products_sorted = l.products().collect::<Vec<_>>();
-        products_sorted.sort_by_key(|pid| l.product_name(pid.clone()).human.clone());
+        products_sorted.sort_by_key(|pid| l.product_name(pid.clone()));
         let products_sorted = products_sorted;
         let mut sums_sorted = l.sums().collect::<Vec<_>>();
-        sums_sorted.sort_by_key(|sid| l.sum_name(sid.clone()).human.clone());
+        sums_sorted.sort_by_key(|sid| l.sum_name(sid.clone()));
         let sums_sorted = sums_sorted;
         let products = products_sorted
             .iter()

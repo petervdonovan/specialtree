@@ -2,35 +2,9 @@
 
 use functor_derive::Functor;
 use serde::{Deserialize, Serialize};
+use tree_identifier::Identifier;
 
 use crate::{sublang::Sublang, tymetafunc::TyMetaFuncSpec};
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
-/// All names must be unique within a LangSpec unless they are different fields of the same [Name]
-pub struct Name {
-    /// Must not contain whitespace (whether operator symbols such as '-' are permitted is TBD)
-    pub human: String,
-    /// CamelCase alias
-    pub camel: String,
-    /// snake_case alias
-    pub snake: String,
-}
-impl Name {
-    pub fn merge(mut self, other: &Name) -> Name {
-        self.human += "-";
-        self.human += &other.human;
-        self.camel += &other.camel;
-        self.snake += "_";
-        self.snake += &other.snake;
-        self
-    }
-    pub fn camel(&self) -> syn::Ident {
-        syn::Ident::new(&self.camel.clone(), proc_macro2::Span::call_site())
-    }
-    pub fn snake(&self) -> syn::Ident {
-        syn::Ident::new(&self.snake.clone(), proc_macro2::Span::call_site())
-    }
-}
 #[allow(type_alias_bounds)]
 pub type SortIdOf<L: LangSpec> =
     SortId<L::ProductId, L::SumId, <L::Tmfs as TyMetaFuncSpec>::TyMetaFuncId>;
@@ -124,12 +98,12 @@ pub trait LangSpec: Sized + AsLifetime {
     type SumId: std::fmt::Debug + Clone + Eq + std::hash::Hash + 'static + Ord;
     type Tmfs: TyMetaFuncSpec;
 
-    fn name(&self) -> &Name;
+    fn name(&self) -> &Identifier;
     fn products(&self) -> impl Iterator<Item = Self::ProductId>;
     fn sums(&self) -> impl Iterator<Item = Self::SumId>;
-    fn product_name(&self, id: Self::ProductId) -> &Name;
-    fn sum_name(&self, id: Self::SumId) -> &Name;
-    fn algebraic_sort_name(&self, id: AlgebraicSortId<Self::ProductId, Self::SumId>) -> &Name {
+    fn product_name(&self, id: Self::ProductId) -> &Identifier;
+    fn sum_name(&self, id: Self::SumId) -> &Identifier;
+    fn algebraic_sort_name(&self, id: AlgebraicSortId<Self::ProductId, Self::SumId>) -> &Identifier {
         match id {
             AlgebraicSortId::Product(pid) => self.product_name(pid),
             AlgebraicSortId::Sum(sid) => self.sum_name(sid),
