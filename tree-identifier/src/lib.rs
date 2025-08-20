@@ -2,9 +2,11 @@ use arbitrary::{Arbitrary, Result, Unstructured};
 use thiserror::Error;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum TreeToken {
+/// An identifier that can have a tree-like structure of sub-identifiers and that has
+/// a lossless representation as a token in various formats.
+pub enum Identifier {
     Leaf(Leaf),
-    List(Box<[TreeToken]>),
+    List(Box<[Identifier]>),
 }
 
 #[derive(Debug, Error, Clone, PartialEq, Eq)]
@@ -91,14 +93,14 @@ impl<'a> Arbitrary<'a> for Leaf {
     }
 }
 
-impl<'a> Arbitrary<'a> for TreeToken {
+impl<'a> Arbitrary<'a> for Identifier {
     fn arbitrary(u: &mut Unstructured<'a>) -> Result<Self> {
         const INITIAL_LIST_PROBABILITY: f64 = 2.0 / 3.0;
         Self::arbitrary_with_probability(u, INITIAL_LIST_PROBABILITY, true)
     }
 }
 
-impl TreeToken {
+impl Identifier {
     fn arbitrary_with_probability<'a>(
         u: &mut Unstructured<'a>,
         list_probability: f64,
@@ -127,9 +129,9 @@ impl TreeToken {
             for _ in 0..len {
                 items.push(Self::arbitrary_with_probability(u, new_probability, false)?);
             }
-            Ok(TreeToken::List(items.into_boxed_slice()))
+            Ok(Identifier::List(items.into_boxed_slice()))
         } else {
-            Ok(TreeToken::Leaf(Leaf::arbitrary(u)?))
+            Ok(Identifier::Leaf(Leaf::arbitrary(u)?))
         }
     }
 }
@@ -137,18 +139,18 @@ impl TreeToken {
 const OPEN_TOKEN: &str = "l";
 const CLOSE_TOKEN: &str = "r";
 
-impl TreeToken {
-    pub fn list(l: Box<[TreeToken]>) -> Self {
-        TreeToken::List(l)
+impl Identifier {
+    pub fn list(l: Box<[Identifier]>) -> Self {
+        Identifier::List(l)
     }
 
     fn unparse_to_token_stream(&self) -> Vec<&str> {
-        fn unparse_recursively<'a>(token: &'a TreeToken, tokens: &mut Vec<&'a str>) {
+        fn unparse_recursively<'a>(token: &'a Identifier, tokens: &mut Vec<&'a str>) {
             match token {
-                TreeToken::Leaf(leaf) => {
+                Identifier::Leaf(leaf) => {
                     tokens.push(leaf.as_str());
                 }
-                TreeToken::List(tree_tokens) => {
+                Identifier::List(tree_tokens) => {
                     tokens.push(OPEN_TOKEN);
                     for tt in tree_tokens {
                         unparse_recursively(tt, tokens);
@@ -160,8 +162,8 @@ impl TreeToken {
 
         let mut tokens = Vec::new();
         match self {
-            TreeToken::Leaf(leaf) => tokens.push(leaf.as_str()),
-            TreeToken::List(tree_tokens) => {
+            Identifier::Leaf(leaf) => tokens.push(leaf.as_str()),
+            Identifier::List(tree_tokens) => {
                 for tt in tree_tokens {
                     unparse_recursively(tt, &mut tokens);
                 }
@@ -170,7 +172,7 @@ impl TreeToken {
         tokens
     }
 
-    fn parse_token_sequence(tokens: &[String]) -> Result<Vec<TreeToken>, String> {
+    fn parse_token_sequence(tokens: &[String]) -> Result<Vec<Identifier>, String> {
         let mut result = Vec::new();
         let mut pos = 0;
 
@@ -180,12 +182,12 @@ impl TreeToken {
             if token == OPEN_TOKEN {
                 pos += 1;
                 let nested = Self::parse_token_sequence_recursive(tokens, &mut pos)?;
-                result.push(TreeToken::List(nested.into_boxed_slice()));
+                result.push(Identifier::List(nested.into_boxed_slice()));
             } else if token == CLOSE_TOKEN {
                 break;
             } else {
                 let leaf = Leaf::new(token.clone()).map_err(|e| format!("Invalid leaf: {e}"))?;
-                result.push(TreeToken::Leaf(leaf));
+                result.push(Identifier::Leaf(leaf));
                 pos += 1;
             }
         }
@@ -196,7 +198,7 @@ impl TreeToken {
     fn parse_token_sequence_recursive(
         tokens: &[String],
         pos: &mut usize,
-    ) -> Result<Vec<TreeToken>, String> {
+    ) -> Result<Vec<Identifier>, String> {
         let mut result = Vec::new();
 
         while *pos < tokens.len() {
@@ -205,13 +207,13 @@ impl TreeToken {
             if token == OPEN_TOKEN {
                 *pos += 1;
                 let nested = Self::parse_token_sequence_recursive(tokens, pos)?;
-                result.push(TreeToken::List(nested.into_boxed_slice()));
+                result.push(Identifier::List(nested.into_boxed_slice()));
             } else if token == CLOSE_TOKEN {
                 *pos += 1;
                 break;
             } else {
                 let leaf = Leaf::new(token.clone()).map_err(|e| format!("Invalid leaf: {e}"))?;
-                result.push(TreeToken::Leaf(leaf));
+                result.push(Identifier::Leaf(leaf));
                 *pos += 1;
             }
         }
@@ -248,32 +250,32 @@ impl TreeToken {
         }
 
         if s.is_empty() {
-            return Ok(TreeToken::List(Box::new([])));
+            return Ok(Identifier::List(Box::new([])));
         }
 
         let tokens = lex_camel_str(s);
         let parsed = Self::parse_token_sequence(&tokens)?;
-        Ok(TreeToken::List(parsed.into_boxed_slice()))
+        Ok(Identifier::List(parsed.into_boxed_slice()))
     }
 
     pub fn from_snake_str(s: &str) -> Result<Self, String> {
         if s.is_empty() {
-            return Ok(TreeToken::List(Box::new([])));
+            return Ok(Identifier::List(Box::new([])));
         }
 
         let tokens: Vec<String> = s.split('_').map(|s| s.to_string()).collect();
         let parsed = Self::parse_token_sequence(&tokens)?;
-        Ok(TreeToken::List(parsed.into_boxed_slice()))
+        Ok(Identifier::List(parsed.into_boxed_slice()))
     }
 
     pub fn from_kebab_str(s: &str) -> Result<Self, String> {
         if s.is_empty() {
-            return Ok(TreeToken::List(Box::new([])));
+            return Ok(Identifier::List(Box::new([])));
         }
 
         let tokens: Vec<String> = s.split('-').map(|s| s.to_string()).collect();
         let parsed = Self::parse_token_sequence(&tokens)?;
-        Ok(TreeToken::List(parsed.into_boxed_slice()))
+        Ok(Identifier::List(parsed.into_boxed_slice()))
     }
 
     pub fn camel_str(&self) -> String {
@@ -301,7 +303,7 @@ impl TreeToken {
         syn::Ident::new(&self.camel_str(), proc_macro2::Span::call_site())
     }
     pub fn snake_ident(&self) -> syn::Ident {
-        syn::Ident::new(&self.camel_str(), proc_macro2::Span::call_site())
+        syn::Ident::new(&self.snake_str(), proc_macro2::Span::call_site())
     }
     pub fn kebab_ident(&self) -> syn::Ident {
         syn::Ident::new(&self.kebab_str(), proc_macro2::Span::call_site())
@@ -321,7 +323,7 @@ mod tests {
     use super::*;
     use expect_test::{Expect, expect};
 
-    fn check_camel_str(tree_token: TreeToken, expected: Expect) {
+    fn check_camel_str(tree_token: Identifier, expected: Expect) {
         expected.assert_eq(&tree_token.camel_str());
     }
 
@@ -375,32 +377,32 @@ mod tests {
 
     #[test]
     fn test_camel_str_leaf() {
-        let leaf = TreeToken::Leaf(Leaf::new("hello".to_string()).unwrap());
+        let leaf = Identifier::Leaf(Leaf::new("hello".to_string()).unwrap());
         check_camel_str(leaf, expect!["Hello"]);
 
-        let leaf = TreeToken::Leaf(Leaf::new("test123".to_string()).unwrap());
+        let leaf = Identifier::Leaf(Leaf::new("test123".to_string()).unwrap());
         check_camel_str(leaf, expect!["Test123"]);
 
-        let leaf = TreeToken::Leaf(Leaf::new("a".to_string()).unwrap());
+        let leaf = Identifier::Leaf(Leaf::new("a".to_string()).unwrap());
         check_camel_str(leaf, expect!["A"]);
     }
 
     #[test]
     fn test_camel_str_list() {
         // Empty list
-        let empty_list = TreeToken::List(Box::new([]));
+        let empty_list = Identifier::List(Box::new([]));
         check_camel_str(empty_list, expect![""]);
 
         // Single leaf in list
-        let single_leaf = TreeToken::List(Box::new([TreeToken::Leaf(
+        let single_leaf = Identifier::List(Box::new([Identifier::Leaf(
             Leaf::new("hello".to_string()).unwrap(),
         )]));
         check_camel_str(single_leaf, expect!["Hello"]);
 
         // Multiple leaves in list
-        let multi_leaf = TreeToken::List(Box::new([
-            TreeToken::Leaf(Leaf::new("hello".to_string()).unwrap()),
-            TreeToken::Leaf(Leaf::new("world".to_string()).unwrap()),
+        let multi_leaf = Identifier::List(Box::new([
+            Identifier::Leaf(Leaf::new("hello".to_string()).unwrap()),
+            Identifier::Leaf(Leaf::new("world".to_string()).unwrap()),
         ]));
         check_camel_str(multi_leaf, expect!["HelloWorld"]);
     }
@@ -408,103 +410,103 @@ mod tests {
     #[test]
     fn test_camel_str_nested() {
         // Nested list structure
-        let nested = TreeToken::List(Box::new([
-            TreeToken::Leaf(Leaf::new("outer".to_string()).unwrap()),
-            TreeToken::List(Box::new([
-                TreeToken::Leaf(Leaf::new("inner".to_string()).unwrap()),
-                TreeToken::Leaf(Leaf::new("leaf".to_string()).unwrap()),
+        let nested = Identifier::List(Box::new([
+            Identifier::Leaf(Leaf::new("outer".to_string()).unwrap()),
+            Identifier::List(Box::new([
+                Identifier::Leaf(Leaf::new("inner".to_string()).unwrap()),
+                Identifier::Leaf(Leaf::new("leaf".to_string()).unwrap()),
             ])),
-            TreeToken::Leaf(Leaf::new("end".to_string()).unwrap()),
+            Identifier::Leaf(Leaf::new("end".to_string()).unwrap()),
         ]));
         check_camel_str(nested, expect!["OuterLInnerLeafREnd"]);
     }
 
     #[test]
     fn test_from_camel_str() {
-        let result = TreeToken::from_camel_str("Hello").unwrap();
+        let result = Identifier::from_camel_str("Hello").unwrap();
         check_camel_str(result, expect!["Hello"]);
 
-        let result = TreeToken::from_camel_str("HelloWorld").unwrap();
+        let result = Identifier::from_camel_str("HelloWorld").unwrap();
         check_camel_str(result, expect!["HelloWorld"]);
 
-        let result = TreeToken::from_camel_str("OuterLInnerLeafREnd").unwrap();
+        let result = Identifier::from_camel_str("OuterLInnerLeafREnd").unwrap();
         check_camel_str(result, expect!["OuterLInnerLeafREnd"]);
 
-        let result = TreeToken::from_camel_str("").unwrap();
+        let result = Identifier::from_camel_str("").unwrap();
         check_camel_str(result, expect![""]);
     }
 
     #[test]
     fn test_snake_str() {
-        let leaf = TreeToken::Leaf(Leaf::new("hello".to_string()).unwrap());
+        let leaf = Identifier::Leaf(Leaf::new("hello".to_string()).unwrap());
         assert_eq!(leaf.snake_str(), "hello");
 
-        let multi_leaf = TreeToken::List(Box::new([
-            TreeToken::Leaf(Leaf::new("hello".to_string()).unwrap()),
-            TreeToken::Leaf(Leaf::new("world".to_string()).unwrap()),
+        let multi_leaf = Identifier::List(Box::new([
+            Identifier::Leaf(Leaf::new("hello".to_string()).unwrap()),
+            Identifier::Leaf(Leaf::new("world".to_string()).unwrap()),
         ]));
         assert_eq!(multi_leaf.snake_str(), "hello_world");
 
-        let nested = TreeToken::List(Box::new([
-            TreeToken::Leaf(Leaf::new("outer".to_string()).unwrap()),
-            TreeToken::List(Box::new([
-                TreeToken::Leaf(Leaf::new("inner".to_string()).unwrap()),
-                TreeToken::Leaf(Leaf::new("leaf".to_string()).unwrap()),
+        let nested = Identifier::List(Box::new([
+            Identifier::Leaf(Leaf::new("outer".to_string()).unwrap()),
+            Identifier::List(Box::new([
+                Identifier::Leaf(Leaf::new("inner".to_string()).unwrap()),
+                Identifier::Leaf(Leaf::new("leaf".to_string()).unwrap()),
             ])),
-            TreeToken::Leaf(Leaf::new("end".to_string()).unwrap()),
+            Identifier::Leaf(Leaf::new("end".to_string()).unwrap()),
         ]));
         assert_eq!(nested.snake_str(), "outer_l_inner_leaf_r_end");
     }
 
     #[test]
     fn test_kebab_str() {
-        let leaf = TreeToken::Leaf(Leaf::new("hello".to_string()).unwrap());
+        let leaf = Identifier::Leaf(Leaf::new("hello".to_string()).unwrap());
         assert_eq!(leaf.kebab_str(), "hello");
 
-        let multi_leaf = TreeToken::List(Box::new([
-            TreeToken::Leaf(Leaf::new("hello".to_string()).unwrap()),
-            TreeToken::Leaf(Leaf::new("world".to_string()).unwrap()),
+        let multi_leaf = Identifier::List(Box::new([
+            Identifier::Leaf(Leaf::new("hello".to_string()).unwrap()),
+            Identifier::Leaf(Leaf::new("world".to_string()).unwrap()),
         ]));
         assert_eq!(multi_leaf.kebab_str(), "hello-world");
 
-        let nested = TreeToken::List(Box::new([
-            TreeToken::Leaf(Leaf::new("outer".to_string()).unwrap()),
-            TreeToken::List(Box::new([
-                TreeToken::Leaf(Leaf::new("inner".to_string()).unwrap()),
-                TreeToken::Leaf(Leaf::new("leaf".to_string()).unwrap()),
+        let nested = Identifier::List(Box::new([
+            Identifier::Leaf(Leaf::new("outer".to_string()).unwrap()),
+            Identifier::List(Box::new([
+                Identifier::Leaf(Leaf::new("inner".to_string()).unwrap()),
+                Identifier::Leaf(Leaf::new("leaf".to_string()).unwrap()),
             ])),
-            TreeToken::Leaf(Leaf::new("end".to_string()).unwrap()),
+            Identifier::Leaf(Leaf::new("end".to_string()).unwrap()),
         ]));
         assert_eq!(nested.kebab_str(), "outer-l-inner-leaf-r-end");
     }
 
     #[test]
     fn test_from_snake_str() {
-        let result = TreeToken::from_snake_str("hello").unwrap();
+        let result = Identifier::from_snake_str("hello").unwrap();
         assert_eq!(result.snake_str(), "hello");
 
-        let result = TreeToken::from_snake_str("hello_world").unwrap();
+        let result = Identifier::from_snake_str("hello_world").unwrap();
         assert_eq!(result.snake_str(), "hello_world");
 
-        let result = TreeToken::from_snake_str("outer_l_inner_leaf_r_end").unwrap();
+        let result = Identifier::from_snake_str("outer_l_inner_leaf_r_end").unwrap();
         assert_eq!(result.snake_str(), "outer_l_inner_leaf_r_end");
 
-        let result = TreeToken::from_snake_str("").unwrap();
+        let result = Identifier::from_snake_str("").unwrap();
         assert_eq!(result.snake_str(), "");
     }
 
     #[test]
     fn test_from_kebab_str() {
-        let result = TreeToken::from_kebab_str("hello").unwrap();
+        let result = Identifier::from_kebab_str("hello").unwrap();
         assert_eq!(result.kebab_str(), "hello");
 
-        let result = TreeToken::from_kebab_str("hello-world").unwrap();
+        let result = Identifier::from_kebab_str("hello-world").unwrap();
         assert_eq!(result.kebab_str(), "hello-world");
 
-        let result = TreeToken::from_kebab_str("outer-l-inner-leaf-r-end").unwrap();
+        let result = Identifier::from_kebab_str("outer-l-inner-leaf-r-end").unwrap();
         assert_eq!(result.kebab_str(), "outer-l-inner-leaf-r-end");
 
-        let result = TreeToken::from_kebab_str("").unwrap();
+        let result = Identifier::from_kebab_str("").unwrap();
         assert_eq!(result.kebab_str(), "");
     }
 
@@ -519,16 +521,16 @@ mod tests {
         const DIVERSITY_SAMPLES: usize = 20;
         const BYTES_PER_ITERATION: usize = 64;
 
-        fn generate_tree_token(rng: &mut StdRng) -> Option<TreeToken> {
+        fn generate_tree_token(rng: &mut StdRng) -> Option<Identifier> {
             let mut random_bytes = vec![0u8; BYTES_PER_ITERATION];
             rng.fill(&mut random_bytes[..]);
             let mut u = Unstructured::new(&random_bytes);
-            TreeToken::arbitrary(&mut u).ok()
+            Identifier::arbitrary(&mut u).ok()
         }
 
-        fn test_camel_round_trip(token: &TreeToken) -> Result<(), String> {
+        fn test_camel_round_trip(token: &Identifier) -> Result<(), String> {
             let camel_str = token.camel_str();
-            let parsed = TreeToken::from_camel_str(&camel_str)
+            let parsed = Identifier::from_camel_str(&camel_str)
                 .map_err(|e| format!("Camel parse failed: {e}"))?;
             let reparsed_camel = parsed.camel_str();
             if camel_str != reparsed_camel {
@@ -539,9 +541,9 @@ mod tests {
             Ok(())
         }
 
-        fn test_snake_round_trip(token: &TreeToken) -> Result<(), String> {
+        fn test_snake_round_trip(token: &Identifier) -> Result<(), String> {
             let snake_str = token.snake_str();
-            let parsed = TreeToken::from_snake_str(&snake_str)
+            let parsed = Identifier::from_snake_str(&snake_str)
                 .map_err(|e| format!("Snake parse failed: {e}"))?;
             let reparsed_snake = parsed.snake_str();
             if snake_str != reparsed_snake {
@@ -552,9 +554,9 @@ mod tests {
             Ok(())
         }
 
-        fn test_kebab_round_trip(token: &TreeToken) -> Result<(), String> {
+        fn test_kebab_round_trip(token: &Identifier) -> Result<(), String> {
             let kebab_str = token.kebab_str();
-            let parsed = TreeToken::from_kebab_str(&kebab_str)
+            let parsed = Identifier::from_kebab_str(&kebab_str)
                 .map_err(|e| format!("Kebab parse failed: {e}"))?;
             let reparsed_kebab = parsed.kebab_str();
             if kebab_str != reparsed_kebab {
