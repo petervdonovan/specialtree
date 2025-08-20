@@ -9,6 +9,7 @@ functor_derive = { workspace = true }
 langspec = { path = "../langspec" }
 once_cell = { workspace = true }
 term = { path = "../term" }
+tree-identifier = { path = "../tree-identifier" }
 tymetafuncspec-core.path = "../tymetafuncspec-core"
 syn = { workspace = true }
 derivative = { workspace = true }

@@ -1,8 +1,9 @@
 use either_id::Either;
 use langspec::{
-    langspec::{LangSpec, MappedType, Name, SortIdOf},
+    langspec::{LangSpec, MappedType, SortIdOf},
     tymetafunc::{Transparency, TyMetaFuncSpec},
 };
+use tree_identifier::Identifier;
 
 fn maybefy<L0: LangSpec, L1: LangSpec>(
     sid: langspec::langspec::SortIdOf<L1>,
@@ -76,7 +77,7 @@ where
 }
 
 pub fn everywhere_maybemore<L0: LangSpec, L1: LangSpec>(
-    name: Name,
+    name: Identifier,
     l0: &L0,
     l1: &L1,
     l1_root: SortIdOf<L1>,

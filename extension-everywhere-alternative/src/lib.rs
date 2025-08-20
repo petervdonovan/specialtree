@@ -1,6 +1,7 @@
 use either_id::Either;
-use langspec::langspec::{LangSpec, MappedType, Name, SortIdOf};
+use langspec::langspec::{LangSpec, MappedType, SortIdOf};
 use langspec_extension::{L0Map, LsExtension, SortIdOfExtension, l0_as_my_sid, l1_as_my_sid};
+use tree_identifier::Identifier;
 
 struct L0M<L1: LangSpec> {
     l1_root: SortIdOf<L1>,
@@ -46,7 +47,7 @@ where
 }
 
 pub fn everywhere_alternative<L0: LangSpec, L1: LangSpec>(
-    name: Name,
+    name: Identifier,
     l0: &L0,
     l1: &L1,
     l1_root: SortIdOf<L1>,

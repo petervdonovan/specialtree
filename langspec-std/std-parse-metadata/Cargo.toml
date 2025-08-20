@@ -11,3 +11,4 @@ syn = { workspace = true }
 langspec = { path = "../../langspec" }
 parse = { path = "../../parse" }
 term = { path = "../../term" }
+tree-identifier = { path = "../../tree-identifier" }

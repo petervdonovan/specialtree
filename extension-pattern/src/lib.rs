@@ -2,25 +2,24 @@ use std::any::TypeId;
 
 use either_id::Either;
 use langspec::{
-    langspec::{AlgebraicSortId, AsLifetime, LangSpec, MappedType, Name, SortId, SortIdOf},
+    langspec::{AlgebraicSortId, AsLifetime, LangSpec, MappedType, SortId, SortIdOf},
     sublang::{Sublang, TmfEndoMapping, reflexive_sublang},
     tymetafunc::TyMetaFuncSpec,
 };
 use tmfs_join::TmfsJoin;
+use tree_identifier::Identifier;
 
 pub struct PatternExtension<'a, L> {
-    pub name: Name,
+    pub name: Identifier,
     pub l0: &'a L,
 }
 
 pub fn patternfy<'a, L: LangSpec>(arena: &'a bumpalo::Bump, l: &'a L) -> impl LangSpec + 'a {
     let patternfied = arena.alloc(PatternExtension {
-        name: Name {
-            human: "Pattern".into(),
-            camel: "Pattern".into(),
-            snake: "pattern".into(),
-        }
-        .merge(l.name()),
+        name: Identifier::list(vec![
+            Identifier::from_camel_str("Pattern").unwrap(),
+            l.name().clone(),
+        ].into()),
         l0: l,
     });
     extension_file::filefy_all_tmf(
@@ -71,7 +70,7 @@ impl<'a, L: LangSpec> LangSpec for PatternExtension<'a, L> {
 
     type Tmfs = TmfsJoin<L::Tmfs, pattern_tmf::PatternTmfs>;
 
-    fn name(&self) -> &langspec::langspec::Name {
+    fn name(&self) -> &Identifier {
         &self.name
     }
 
@@ -83,11 +82,11 @@ impl<'a, L: LangSpec> LangSpec for PatternExtension<'a, L> {
         self.l0.sums()
     }
 
-    fn product_name(&self, id: Self::ProductId) -> &langspec::langspec::Name {
+    fn product_name(&self, id: Self::ProductId) -> &Identifier {
         self.l0.product_name(id)
     }
 
-    fn sum_name(&self, id: Self::SumId) -> &langspec::langspec::Name {
+    fn sum_name(&self, id: Self::SumId) -> &Identifier {
         self.l0.sum_name(id)
     }
 

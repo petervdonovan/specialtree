@@ -1,12 +1,10 @@
 use ccf::CanonicallyConstructibleFrom;
 use derivative::Derivative;
-use langspec::{
-    langspec::Name,
-    tymetafunc::{ArgId, RustTyMap, TyMetaFuncData, TyMetaFuncSpec},
-};
+use langspec::tymetafunc::{ArgId, RustTyMap, TyMetaFuncData, TyMetaFuncSpec};
 use pmsp::Visitation;
 use serde::{Deserialize, Serialize};
 use term::{SuperHeap, TyMetaFunc};
+use tree_identifier::Identifier;
 use words::{Adtishness, NotAdtLike};
 
 pub mod parse;
@@ -22,16 +20,8 @@ impl TyMetaFuncSpec for FileTmfs {
 
     fn ty_meta_func_data(_: &Self::TyMetaFuncId) -> langspec::tymetafunc::TyMetaFuncData {
         TyMetaFuncData {
-            name: Name {
-                human: "file".into(),
-                camel: "File".into(),
-                snake: "file".into(),
-            },
-            args: Box::new([Name {
-                human: "item".into(),
-                camel: "Item".into(),
-                snake: "item".into(),
-            }]),
+            name: Identifier::from_camel_str("File").unwrap(),
+            args: Box::new([Identifier::from_camel_str("Item").unwrap()]),
             imp: RustTyMap {
                 ty_func: syn::parse_quote! { file_tmf::File },
             },

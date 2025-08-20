@@ -1,5 +1,6 @@
 pub use either_id;
 pub use langspec;
+pub use tree_identifier;
 
 #[macro_export]
 macro_rules! lsjoin {
@@ -8,7 +9,7 @@ macro_rules! lsjoin {
 
         type SumId = join_boilerplate::either_id::Either<L0::SumId, L1::SumId>;
 
-        fn name(&self) -> &langspec::langspec::Name {
+        fn name(&self) -> &join_boilerplate::tree_identifier::Identifier {
             &self.name
         }
 
@@ -34,14 +35,14 @@ macro_rules! lsjoin {
                 )
         }
 
-        fn product_name(&self, id: Self::ProductId) -> &Name {
+        fn product_name(&self, id: Self::ProductId) -> &join_boilerplate::tree_identifier::Identifier {
             match id {
                 join_boilerplate::either_id::Either::Left(id) => self.l0.product_name(id),
                 join_boilerplate::either_id::Either::Right(id) => self.l1.product_name(id),
             }
         }
 
-        fn sum_name(&self, id: Self::SumId) -> &Name {
+        fn sum_name(&self, id: Self::SumId) -> &join_boilerplate::tree_identifier::Identifier {
             match id {
                 join_boilerplate::either_id::Either::Left(id) => self.l0.sum_name(id),
                 join_boilerplate::either_id::Either::Right(id) => self.l1.sum_name(id),

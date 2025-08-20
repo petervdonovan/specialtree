@@ -9,4 +9,5 @@ either-id = { path = "../either-id" }
 join-boilerplate = { path = "../join-boilerplate" }
 langspec = { path = "../langspec" }
 tmfs-join = { path = "../tmfs-join" }
+tree-identifier = { path = "../tree-identifier" }
 tymetafuncspec-core = { path = "../tymetafuncspec-core" }

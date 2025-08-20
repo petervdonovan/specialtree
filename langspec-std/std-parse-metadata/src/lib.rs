@@ -1,20 +1,19 @@
 use langspec::{
     flat::LangSpecFlat,
     humanreadable::LangSpecHuman,
-    langspec::{Name, TerminalLangSpec},
+    langspec::TerminalLangSpec,
     tymetafunc::{IdentifiedBy, RustTyMap, TyMetaFuncSpec},
 };
 use serde::{Deserialize, Serialize};
 use term::{Heaped, TyMetaFunc};
+use tree_identifier::Identifier;
 
 pub fn parse_metadata() -> LangSpecFlat<ParseMetadataTmfs> {
     let lsh: LangSpecHuman<ParseMetadataTmfs> = serde_json::from_str(
         r#"
     {
         "name": {
-            "human": "ParseMetadata",
-            "camel": "ParseMetadata",
-            "snake": "parse_metadata"
+            "Leaf": "ParseMetadata"
         },
         "products": [],
         "sums": []
@@ -35,11 +34,7 @@ impl TyMetaFuncSpec for ParseMetadataTmfs {
     fn ty_meta_func_data(id: &Self::TyMetaFuncId) -> langspec::tymetafunc::TyMetaFuncData {
         match id {
             ParseMetadataTmfId() => langspec::tymetafunc::TyMetaFuncData {
-                name: Name {
-                    human: "ParseMetadata".into(),
-                    camel: "ParseMetadata".into(),
-                    snake: "parse_metadata".into(),
-                },
+                name: Identifier::from_camel_str("ParseMetadata").unwrap(),
                 args: Box::new([]),
                 imp: RustTyMap {
                     ty_func: syn::parse_quote! {std_parse_metadata::ParseMetadata},

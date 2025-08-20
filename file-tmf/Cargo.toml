@@ -13,6 +13,7 @@ langspec = { version = "0.1.0", path = "../langspec" }
 parse-adt = { version = "0.1.0", path = "../parse-adt" }
 pmsp = { version = "0.1.0", path = "../pmsp" }
 serde.workspace = true
+tree-identifier = { path = "../tree-identifier" }
 slab.workspace = true
 string-interner.workspace = true
 syn.workspace = true

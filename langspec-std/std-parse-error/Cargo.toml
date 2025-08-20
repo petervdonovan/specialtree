@@ -7,6 +7,7 @@ edition = { workspace = true }
 langspec = { path = "../../langspec" }
 parse = { path = "../../parse" }
 term = { path = "../../term" }
+tree-identifier = { path = "../../tree-identifier" }
 serde = { workspace = true }
 derivative = { workspace = true }
 serde_json = { workspace = true }

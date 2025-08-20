@@ -2,14 +2,15 @@ use std::any::TypeId;
 
 use either_id::Either;
 use langspec::{
-    langspec::{AsLifetime, LangSpec, MappedType, Name, SortId, SortIdOf},
+    langspec::{AsLifetime, LangSpec, MappedType, SortId, SortIdOf},
     sublang::{Sublang, TmfEndoMapping, reflexive_sublang},
     tymetafunc::TyMetaFuncSpec,
 };
 use tmfs_join::TmfsJoin;
+use tree_identifier::Identifier;
 
 pub struct LsExtension<'a, 'b, L0, L1, L0M> {
-    pub name: Name,
+    pub name: Identifier,
     pub l0: &'a L0,
     pub l1: &'b L1,
     pub l0m: L0M,

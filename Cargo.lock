@@ -211,6 +211,7 @@ dependencies = [
  "langspec",
  "langspec-transparent-extension",
  "once_cell",
+ "tree-identifier",
  "tymetafuncspec-core",
 ]
 
@@ -221,6 +222,7 @@ dependencies = [
  "either-id",
  "langspec",
  "langspec-extension",
+ "tree-identifier",
  "tymetafuncspec-core",
 ]
 
@@ -231,6 +233,7 @@ dependencies = [
  "either-id",
  "langspec",
  "langspec-extension",
+ "tree-identifier",
  "tymetafuncspec-core",
 ]
 
@@ -243,6 +246,7 @@ dependencies = [
  "join-boilerplate",
  "langspec",
  "tmfs-join",
+ "tree-identifier",
 ]
 
 [[package]]
@@ -256,6 +260,7 @@ dependencies = [
  "langspec",
  "pattern-tmf",
  "tmfs-join",
+ "tree-identifier",
 ]
 
 [[package]]
@@ -404,6 +409,7 @@ dependencies = [
  "string-interner",
  "syn 2.0.100",
  "term",
+ "tree-identifier",
  "unparse-adt",
  "visit",
  "words",
@@ -558,6 +564,7 @@ dependencies = [
  "either-id",
  "langspec",
  "tmfs-join",
+ "tree-identifier",
 ]
 
 [[package]]
@@ -594,6 +601,7 @@ dependencies = [
  "join-boilerplate",
  "langspec",
  "tmfs-join",
+ "tree-identifier",
  "tymetafuncspec-core",
 ]
 
@@ -619,6 +627,7 @@ dependencies = [
  "either-id",
  "langspec",
  "tmfs-join",
+ "tree-identifier",
 ]
 
 [[package]]
@@ -857,6 +866,7 @@ dependencies = [
  "syn 2.0.100",
  "term",
  "to-literal",
+ "tree-identifier",
  "tymetafuncspec-core",
  "unparse-adt",
  "visit",
@@ -1096,6 +1106,7 @@ dependencies = [
  "serde_json",
  "syn 2.0.100",
  "term",
+ "tree-identifier",
 ]
 
 [[package]]
@@ -1109,6 +1120,7 @@ dependencies = [
  "serde_json",
  "syn 2.0.100",
  "term",
+ "tree-identifier",
 ]
 
 [[package]]

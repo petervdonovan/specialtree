@@ -3,34 +3,29 @@ use std::any::TypeId;
 use either_id::Either;
 use file_tmf::FileTmfId;
 use langspec::{
-    langspec::{AsLifetime, LangSpec, MappedType, Name, SortId, SortIdOf},
+    langspec::{AsLifetime, LangSpec, MappedType, SortId, SortIdOf},
     sublang::{Sublang, TmfEndoMapping, reflexive_sublang},
     tymetafunc::TyMetaFuncSpec,
 };
 use tmfs_join::TmfsJoin;
+use tree_identifier::Identifier;
 
 pub struct FileExtension<'a, L: LangSpec> {
-    pub name: Name,
+    pub name: Identifier,
     pub l: &'a L,
     pub item_sids: Vec<SortIdOf<L>>,
-    item_name: Name,
+    item_name: Identifier,
 }
 
 pub fn filefy<'a, L: LangSpec>(l: &'a L, item_sids: Vec<SortIdOf<L>>) -> impl LangSpec + 'a {
     FileExtension {
-        name: Name {
-            human: "file".into(),
-            camel: "File".into(),
-            snake: "file".into(),
-        }
-        .merge(l.name()),
+        name: Identifier::list(vec![
+            Identifier::from_camel_str("File").unwrap(),
+            l.name().clone(),
+        ].into()),
         l,
         item_sids,
-        item_name: Name {
-            human: "file-item".into(),
-            camel: "FileItem".into(),
-            snake: "file_item".into(),
-        },
+        item_name: Identifier::from_snake_str("file_item").unwrap(),
     }
 }
 pub fn filefy_all_tmf<'a, L: LangSpec>(
@@ -66,7 +61,7 @@ impl<'a, L: LangSpec> LangSpec for FileExtension<'a, L> {
 
     type Tmfs = TmfsJoin<L::Tmfs, file_tmf::FileTmfs>;
 
-    fn name(&self) -> &langspec::langspec::Name {
+    fn name(&self) -> &Identifier {
         &self.name
     }
 
@@ -81,11 +76,11 @@ impl<'a, L: LangSpec> LangSpec for FileExtension<'a, L> {
             .chain([Either::Right(FileItemSortId)])
     }
 
-    fn product_name(&self, id: Self::ProductId) -> &langspec::langspec::Name {
+    fn product_name(&self, id: Self::ProductId) -> &Identifier {
         self.l.product_name(id)
     }
 
-    fn sum_name(&self, id: Self::SumId) -> &langspec::langspec::Name {
+    fn sum_name(&self, id: Self::SumId) -> &Identifier {
         match id {
             Either::Left(id) => self.l.sum_name(id),
             Either::Right(_) => &self.item_name,

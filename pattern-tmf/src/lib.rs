@@ -2,13 +2,11 @@
 
 use ccf::DirectlyCanonicallyConstructibleFrom;
 use derivative::Derivative;
-use langspec::{
-    langspec::Name,
-    tymetafunc::{ArgId, RustTyMap, TyMetaFuncData, TyMetaFuncSpec},
-};
+use langspec::tymetafunc::{ArgId, RustTyMap, TyMetaFuncData, TyMetaFuncSpec};
 use pmsp::Visitation;
 use serde::{Deserialize, Serialize};
 use term::{SuperHeap, TyMetaFunc};
+use tree_identifier::Identifier;
 use words::{Adtishness, NotAdtLike};
 
 pub mod parse;
@@ -28,18 +26,10 @@ impl TyMetaFuncSpec for PatternTmfs {
     type TyMetaFuncId = PatternTmfsId;
 
     fn ty_meta_func_data(id: &Self::TyMetaFuncId) -> TyMetaFuncData {
-        let matched_ty_name = Name {
-            human: "matched-ty".into(),
-            camel: "MatchedTy".into(),
-            snake: "matched_ty".into(),
-        };
+        let matched_ty_name = Identifier::from_snake_str("matched_ty").unwrap();
         match id {
             PatternTmfsId::OrVariable => TyMetaFuncData {
-                name: Name {
-                    human: "or-variable".into(),
-                    camel: "OrVariable".into(),
-                    snake: "or_variable".into(),
-                },
+                name: Identifier::from_snake_str("or_variable").unwrap(),
                 args: Box::new([matched_ty_name.clone()]),
                 imp: RustTyMap {
                     ty_func: syn::parse_quote! { pattern_tmf::OrVariable },
@@ -54,11 +44,7 @@ impl TyMetaFuncSpec for PatternTmfs {
                 transparency: langspec::tymetafunc::Transparency::Visible,
             },
             PatternTmfsId::OrVariableZeroOrMore => TyMetaFuncData {
-                name: Name {
-                    human: "or-variable-zero-or-more".into(),
-                    camel: "OrVariableZeroOrMore".into(),
-                    snake: "or_variable_zero_or_more".into(),
-                },
+                name: Identifier::from_snake_str("or_variable_zero_or_more").unwrap(),
                 args: Box::new([matched_ty_name.clone()]),
                 imp: RustTyMap {
                     ty_func: syn::parse_quote! { pattern_tmf::OrVariableZeroOrMore },
@@ -73,16 +59,8 @@ impl TyMetaFuncSpec for PatternTmfs {
                 transparency: langspec::tymetafunc::Transparency::Visible,
             },
             PatternTmfsId::NamedPattern => TyMetaFuncData {
-                name: Name {
-                    human: "named-pattern".into(),
-                    camel: "NamedPattern".into(),
-                    snake: "named_pattern".into(),
-                },
-                args: Box::new([Name {
-                    human: "pattern".into(),
-                    camel: "Pattern".into(),
-                    snake: "pattern".into(),
-                }]),
+                name: Identifier::from_snake_str("named_pattern").unwrap(),
+                args: Box::new([Identifier::from_camel_str("Pattern").unwrap()]),
                 imp: RustTyMap {
                     ty_func: syn::parse_quote! { pattern_tmf::NamedPattern },
                 },

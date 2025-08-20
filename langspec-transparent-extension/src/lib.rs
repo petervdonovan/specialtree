@@ -2,15 +2,16 @@ use std::any::TypeId;
 
 use either_id::Either;
 use langspec::{
-    langspec::{AlgebraicSortId, AsLifetime, LangSpec, MappedType, Name, SortId, SortIdOf},
+    langspec::{AlgebraicSortId, AsLifetime, LangSpec, MappedType, SortId, SortIdOf},
     sublang::{Sublang, reflexive_sublang},
     tymetafunc::TyMetaFuncSpec,
 };
 use tmfs_join::TmfsJoin;
+use tree_identifier::Identifier;
 
 pub struct LsSortMapped<'a, L, Csm> {
     pub l: &'a L,
-    pub name: Name,
+    pub name: Identifier,
     pub csm: Csm,
 }
 pub trait CsmAsLifetime<L: LangSpec> {
@@ -52,7 +53,7 @@ where
 
     type SumId = L::SumId;
 
-    fn name(&self) -> &langspec::langspec::Name {
+    fn name(&self) -> &Identifier {
         &self.name
     }
 
@@ -64,11 +65,11 @@ where
         self.l.sums()
     }
 
-    fn product_name(&self, id: Self::ProductId) -> &langspec::langspec::Name {
+    fn product_name(&self, id: Self::ProductId) -> &Identifier {
         self.l.product_name(id)
     }
 
-    fn sum_name(&self, id: Self::SumId) -> &langspec::langspec::Name {
+    fn sum_name(&self, id: Self::SumId) -> &Identifier {
         self.l.sum_name(id)
     }
 

@@ -10,4 +10,5 @@ once_cell = { workspace = true }
 either-id = { path = "../either-id" }
 langspec = { path = "../langspec" }
 langspec-transparent-extension = { path = "../langspec-transparent-extension" }
+tree-identifier = { path = "../tree-identifier" }
 tymetafuncspec-core = { path = "../tymetafuncspec-core" }

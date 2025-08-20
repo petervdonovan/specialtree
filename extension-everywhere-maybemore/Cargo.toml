@@ -8,4 +8,5 @@ description = "Language extension that allows an additional term to optionally b
 either-id = { path = "../either-id" }
 langspec = { path = "../langspec" }
 langspec-extension = { path = "../langspec-extension" }
+tree-identifier = { path = "../tree-identifier" }
 tymetafuncspec-core = { path = "../tymetafuncspec-core" }

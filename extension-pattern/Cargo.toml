@@ -12,3 +12,4 @@ join-boilerplate = { version = "0.1.0", path = "../join-boilerplate" }
 langspec = { version = "0.1.0", path = "../langspec" }
 pattern-tmf = { version = "0.1.0", path = "../pattern-tmf" }
 tmfs-join = { version = "0.1.0", path = "../tmfs-join" }
+tree-identifier = { path = "../tree-identifier" }

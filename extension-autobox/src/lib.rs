@@ -1,10 +1,11 @@
 use derivative::Derivative;
 use either_id::Either;
 use langspec::{
-    langspec::{AlgebraicSortId, LangSpec, MappedType, Name, SortId, SortIdOf},
+    langspec::{AlgebraicSortId, LangSpec, MappedType, SortId, SortIdOf},
     tymetafunc::TyMetaFuncSpec,
 };
 use langspec_transparent_extension::{ContextualSortMap, CsmAsLifetime, LsSortMapped};
+use tree_identifier::Identifier;
 use tymetafuncspec_core::Core;
 
 pub struct Csm<L0: LangSpec> {
@@ -16,11 +17,10 @@ where
     L0: LangSpec,
 {
     let breaks = find_cycle_breaks(l);
-    let name = Name {
-        human: format!("Autoboxed {}", l.name().human),
-        camel: format!("Autoboxed{}", l.name().camel),
-        snake: format!("autoboxed_{}", l.name().snake),
-    };
+    let name = Identifier::list(vec![
+        Identifier::from_camel_str("Autoboxed").unwrap(),
+        l.name().clone(),
+    ].into());
     LsSortMapped {
         name,
         l,

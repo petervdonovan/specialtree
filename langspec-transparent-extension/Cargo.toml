@@ -8,3 +8,4 @@ description = "Utility for implementing an extension of a language that adds no 
 either-id = { path = "../either-id" }
 langspec = { path = "../langspec" }
 tmfs-join = { path = "../tmfs-join" }
+tree-identifier = { path = "../tree-identifier" }

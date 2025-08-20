@@ -1,20 +1,19 @@
 use langspec::{
     flat::LangSpecFlat,
     humanreadable::LangSpecHuman,
-    langspec::{Name, TerminalLangSpec},
+    langspec::TerminalLangSpec,
     tymetafunc::{IdentifiedBy, RustTyMap, TyMetaFuncSpec},
 };
 use serde::{Deserialize, Serialize};
 use term::{Heaped, TyMetaFunc};
+use tree_identifier::Identifier;
 
 pub fn parse_error() -> LangSpecFlat<ParseErrorTmfs> {
     let lsh: LangSpecHuman<ParseErrorTmfs> = serde_json::from_str(
         r#"
     {
         "name": {
-            "human": "ParseError",
-            "camel": "ParseError",
-            "snake": "parse_error"
+            "Leaf": "ParseError"
         },
         "products": [],
         "sums": []
@@ -35,11 +34,7 @@ impl TyMetaFuncSpec for ParseErrorTmfs {
     fn ty_meta_func_data(id: &Self::TyMetaFuncId) -> langspec::tymetafunc::TyMetaFuncData {
         match id {
             ParseErrorTmfId() => langspec::tymetafunc::TyMetaFuncData {
-                name: Name {
-                    human: "ParseError".into(),
-                    camel: "ParseError".into(),
-                    snake: "parse_error".into(),
-                },
+                name: Identifier::from_camel_str("ParseError").unwrap(),
                 args: Box::new([]),
                 imp: RustTyMap {
                     ty_func: syn::parse_quote! {std_parse_error::ParseError},
