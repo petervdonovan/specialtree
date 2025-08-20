@@ -11,6 +11,7 @@ quote = { workspace = true }
 rustgen-utils = { path = "../rustgen-utils" }
 syn = { workspace = true }
 term = { path = "../term" }
+tree-identifier = { path = "../tree-identifier" }
 
 [dev-dependencies]
 langspec-examples = { path = "../langspec-examples" }

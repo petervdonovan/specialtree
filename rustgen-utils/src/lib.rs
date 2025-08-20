@@ -33,7 +33,7 @@ macro_rules! kebab_id {
             format!(
                 "{}-{}",
                 id.replace("_", "-"),
-                $l.name().snake.replace("_", "-")
+                $l.name().kebab_str()
             )
         })
     };

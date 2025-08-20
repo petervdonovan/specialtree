@@ -5,16 +5,12 @@ pub fn fib() -> LangSpecHuman<tymetafuncspec_core::Core> {
         r#"
     {
         "name": {
-            "human": "fib",
-            "camel": "Fib",
-            "snake": "fib"
+            "Leaf": "fib"
         },
         "products": [
             {
                 "name": {
-                    "human": "f",
-                    "camel": "F",
-                    "snake": "f"
+                    "Leaf": "f"
                 },
                 "sorts": [
                     {"Algebraic": {"Sum": "ℕ"}}
@@ -22,9 +18,7 @@ pub fn fib() -> LangSpecHuman<tymetafuncspec_core::Core> {
             },
             {
                 "name": {
-                    "human": "+",
-                    "camel": "Plus",
-                    "snake": "plus"
+                    "Leaf": "plus"
                 },
                 "sorts": [
                     {"Algebraic": {"Product": "LeftOperand"}},
@@ -33,9 +27,7 @@ pub fn fib() -> LangSpecHuman<tymetafuncspec_core::Core> {
             },
             {
                 "name": {
-                    "human": "LeftOperand",
-                    "camel": "LeftOperand",
-                    "snake": "left_operand"
+                    "Leaf": "left_operand"
                 },
                 "sorts": [
                     {"Algebraic": {"Sum": "ℕ"}}
@@ -43,9 +35,7 @@ pub fn fib() -> LangSpecHuman<tymetafuncspec_core::Core> {
             },
             {
                 "name": {
-                    "human": "RightOperand",
-                    "camel": "RightOperand",
-                    "snake": "right_operand"
+                    "Leaf": "right_operand"
                 },
                 "sorts": [
                     {"Algebraic": {"Sum": "ℕ"}}
@@ -53,9 +43,7 @@ pub fn fib() -> LangSpecHuman<tymetafuncspec_core::Core> {
             },
             {
                 "name": {
-                    "human": "∑",
-                    "camel": "Sum",
-                    "snake": "sum"
+                    "Leaf": "sum"
                 },
                 "sorts": [
                     {"TyMetaFunc": {"f": 1, "a": [{"Algebraic": {"Sum": "ℕ"}}]}}
@@ -65,9 +53,7 @@ pub fn fib() -> LangSpecHuman<tymetafuncspec_core::Core> {
         "sums": [
             {
                 "name": {
-                    "human": "ℕ",
-                    "camel": "Nat",
-                    "snake": "nat"
+                    "Leaf": "nat"
                 },
                 "sorts": [
                     {"TyMetaFunc": {"f": 0, "a": []}},

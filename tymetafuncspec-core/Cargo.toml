@@ -17,3 +17,4 @@ ccf = { version = "0.1.0", path = "../ccf" }
 to-literal = { version = "0.1.0", path = "../to-literal" }
 words = { version = "0.1.0", path = "../words" }
 pmsp = { version = "0.1.0", path = "../pmsp" }
+tree-identifier = { path = "../tree-identifier" }

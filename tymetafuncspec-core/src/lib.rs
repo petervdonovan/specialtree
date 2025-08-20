@@ -1,9 +1,9 @@
 use derivative::Derivative;
 use functor_derive::Functor;
 use langspec::{
-    langspec::Name,
     tymetafunc::{ArgId, IdentifiedBy, RustTyMap, Transparency, TyMetaFuncData, TyMetaFuncSpec},
 };
+use tree_identifier::Identifier;
 
 use ccf::DirectlyCanonicallyConstructibleFrom;
 use pmsp::Visitation;
@@ -39,11 +39,7 @@ thread_local! {
     static CORE_BAK: once_cell::sync::Lazy<[TyMetaFuncData; 7]> =
     once_cell::sync::Lazy::new(|| {
         [TyMetaFuncData {
-            name: Name {
-                human: "nat-lit".into(),
-                camel: "NatLit".into(),
-                snake: "nat_lit".into(),
-            },
+            name: Identifier::from_camel_str("NatLit").unwrap(),
             imp: RustTyMap {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::BoundedNat),
             },
@@ -58,11 +54,7 @@ thread_local! {
             is_collection_of: Box::new([])
         },
         TyMetaFuncData {
-            name: Name {
-                human: "set".into(),
-                camel: "Set".into(),
-                snake: "set".into(),
-            },
+            name: Identifier::from_camel_str("Set").unwrap(),
             imp: RustTyMap {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::Set),
             },
@@ -70,11 +62,7 @@ thread_local! {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::SetHeapBak),
             },
             args: Box::new([
-                Name {
-                    human: "elem".into(),
-                    camel: "Elem".into(),
-                    snake: "elem".into(),
-                }
+                Identifier::from_camel_str("Elem").unwrap()
             ]),
             idby: IdentifiedBy::Tmf,
             transparency: Transparency::Visible,
@@ -83,11 +71,7 @@ thread_local! {
             is_collection_of: Box::new([ArgId(0)])
         },
         TyMetaFuncData {
-            name: Name {
-                human: "seq".into(),
-                camel: "Seq".into(),
-                snake: "seq".into(),
-            },
+            name: Identifier::from_camel_str("Seq").unwrap(),
             imp: RustTyMap {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::Seq),
             },
@@ -95,11 +79,7 @@ thread_local! {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::SeqHeapBak),
             },
             args: Box::new([
-                Name {
-                    human: "elem".into(),
-                    camel: "Elem".into(),
-                    snake: "elem".into(),
-                }
+                Identifier::from_camel_str("Elem").unwrap()
             ]),
             idby: IdentifiedBy::Tmf,
             transparency: Transparency::Visible,
@@ -108,11 +88,7 @@ thread_local! {
             is_collection_of: Box::new([ArgId(0)])
         },
         TyMetaFuncData {
-            name: Name {
-                human: "idx_box".into(),
-                camel: "IdxBox".into(),
-                snake: "idx_box".into(),
-            },
+            name: Identifier::from_camel_str("IdxBox").unwrap(),
             imp: RustTyMap {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::IdxBox),
             },
@@ -120,11 +96,7 @@ thread_local! {
                 ty_func: syn::parse_quote!(tymetafuncspec_core::IdxBoxHeapBak),
             },
             args: vec![
-                Name {
-                    human: "elem".into(),
-                    camel: "Elem".into(),
-                    snake: "elem".into(),
-                }
+                Identifier::from_camel_str("Elem").unwrap()
             ]
             .into_boxed_slice(),
             idby: IdentifiedBy::FirstTmfArg,
@@ -134,14 +106,10 @@ thread_local! {
             is_collection_of: Box::new([])
         },
         TyMetaFuncData {
-            name: Name {
-                human: "either".into(),
-                camel: "Either".into(),
-                snake: "either".into()
-            },
+            name: Identifier::from_camel_str("Either").unwrap(),
             args: Box::new([
-                Name {human: "l".into(), camel: "L".into(), snake: "l".into()},
-                Name {human: "r".into(), camel: "R".into(), snake: "r".into()},
+                Identifier::from_camel_str("L").unwrap(),
+                Identifier::from_camel_str("R").unwrap(),
             ]),
             imp: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::Either) },
             heapbak: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::EitherHeapBak) },
@@ -152,13 +120,9 @@ thread_local! {
             is_collection_of: Box::new([])
         },
         TyMetaFuncData {
-            name: Name {
-                human: "maybe".into(),
-                camel: "Maybe".into(),
-                snake: "maybe".into()
-            },
+            name: Identifier::from_camel_str("Maybe").unwrap(),
             args: Box::new([
-                Name {human: "t".into(), camel: "T".into(), snake: "t".into()},
+                Identifier::from_camel_str("T").unwrap(),
             ]),
             imp: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::Maybe) },
             heapbak: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::MaybeHeapBak) },
@@ -169,14 +133,10 @@ thread_local! {
             is_collection_of: Box::new([])
         },
         TyMetaFuncData {
-            name: Name {
-                human: "pair".into(),
-                camel: "Pair".into(),
-                snake: "pair".into()
-            },
+            name: Identifier::from_camel_str("Pair").unwrap(),
             args: Box::new([
-                Name {human: "l".into(), camel: "L".into(), snake: "l".into()},
-                Name {human: "r".into(), camel: "R".into(), snake: "r".into()},
+                Identifier::from_camel_str("L").unwrap(),
+                Identifier::from_camel_str("R").unwrap(),
             ]),
             imp: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::Pair) },
             heapbak: RustTyMap { ty_func: syn::parse_quote!(tymetafuncspec_core::PairHeapBak) },

@@ -608,6 +608,7 @@ dependencies = [
  "rustgen-utils",
  "syn 2.0.100",
  "term",
+ "tree-identifier",
  "tymetafuncspec-core",
 ]
 
@@ -1440,6 +1441,7 @@ dependencies = [
  "syn 2.0.100",
  "term",
  "to-literal",
+ "tree-identifier",
  "words",
 ]
 

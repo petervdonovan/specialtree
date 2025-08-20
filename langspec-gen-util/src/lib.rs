@@ -1,4 +1,4 @@
-use langspec::langspec::{MappedTypeOf, Name, call_on_all_tmf_monomorphizations};
+use langspec::langspec::{MappedTypeOf, call_on_all_tmf_monomorphizations};
 use langspec::sublang::Sublangs;
 use langspec::tymetafunc::{IdentifiedBy, RustTyMap, Transparency, TyMetaFuncSpec};
 use langspec::{
@@ -7,6 +7,7 @@ use langspec::{
 };
 use rustgen_utils::{combinations, cons_list};
 use term::CcfRelation;
+use tree_identifier::Identifier;
 
 type HgdTyArgs<'a> =
     Box<dyn Fn(HeapType, AlgebraicsBasePath, Option<&syn::Path>) -> Vec<syn::Type> + 'a>;
@@ -190,8 +191,8 @@ impl<L: LangSpec> LsGen<'_, L> {
                     TyGenData {
                         id: AlgebraicSortId::Product(pid.clone()),
                         // fingerprint: pid_fingerprint(self.bak, &pid),
-                        snake_ident: self.bak.product_name(pid.clone()).snake(),
-                        camel_ident: self.bak.product_name(pid.clone()).camel(),
+                        snake_ident: self.bak.product_name(pid.clone()).snake_ident(),
+                        camel_ident: self.bak.product_name(pid.clone()).camel_ident(),
                         ccf_sortses,
                         ccf: CanonicallyConstructibleFromGenData {
                             ccf_sort_tys: Box::new({
@@ -265,14 +266,8 @@ impl<L: LangSpec> LsGen<'_, L> {
                 let ccf_sortses = self.bak.sum_sorts(sid.clone()).map(|it| vec![it]).collect();
                 TyGenData {
                     id: AlgebraicSortId::Sum(sid.clone()),
-                    snake_ident: syn::Ident::new(
-                        &self.bak.sum_name(sid.clone()).snake.clone(),
-                        proc_macro2::Span::call_site(),
-                    ),
-                    camel_ident: syn::Ident::new(
-                        &self.bak.sum_name(sid.clone()).camel.clone(),
-                        proc_macro2::Span::call_site(),
-                    ),
+                    snake_ident: self.bak.sum_name(sid.clone()).snake_ident(),
+                    camel_ident: self.bak.sum_name(sid.clone()).camel_ident(),
                     ccf_sortses,
                     ccf: CanonicallyConstructibleFromGenData {
                         ccf_sort_tys: Box::new({
@@ -354,11 +349,11 @@ impl<L: LangSpec> LsGen<'_, L> {
             let polish_name = sortid_polish_name(self.bak, &sid);
             let ty_arg_camels = polish_name
                 .iter()
-                .map(|name| syn::Ident::new(&name.camel, proc_macro2::Span::call_site()))
+                .map(|name| name.camel_ident())
                 .collect();
             let ty_arg_snakes = polish_name
                 .iter()
-                .map(|name| syn::Ident::new(&name.snake, proc_macro2::Span::call_site()));
+                .map(|name| name.snake_ident());
             // let ty_func = <L::Tmfs as TyMetaFuncSpec>::ty_meta_func_data(&mt.f).heapbak;
             ret.push(HeapbakGenData {
                 identifiers: ty_arg_snakes.collect(),
@@ -421,7 +416,7 @@ impl<L: LangSpec> LsGen<'_, L> {
         match sort {
             SortId::Algebraic(asi) => {
                 let name = self.bak.algebraic_sort_name(asi);
-                let ident = syn::Ident::new(&name.camel, proc_macro2::Span::call_site());
+                let ident = name.camel_ident();
                 let abp = &abp.0;
                 syn::parse_quote! { #abp #ident }
             }
@@ -527,25 +522,25 @@ impl<L: LangSpec> LsGen<'_, L> {
     fn product_heap_sort_camel_idents(&self, pid: &L::ProductId) -> Vec<syn::Ident> {
         self.bak
             .product_sorts(pid.clone())
-            .map(|sort| sort_ident(self, sort, |name| name.camel.clone()))
+            .map(|sort| sort_ident(self, sort, |name| name.camel_str().to_string()))
             .collect()
     }
     fn product_heap_sort_snake_idents(&self, pid: &L::ProductId) -> Vec<syn::Ident> {
         self.bak
             .product_sorts(pid.clone())
-            .map(|sort| sort_ident(self, sort, |name| name.snake.clone()))
+            .map(|sort| sort_ident(self, sort, |name| name.snake_str().to_string()))
             .collect()
     }
     fn sum_heap_sort_camel_idents(&self, sid: &L::SumId) -> Vec<syn::Ident> {
         self.bak
             .sum_sorts(sid.clone())
-            .map(|sort| sort_ident(self, sort, |name| name.camel.clone()))
+            .map(|sort| sort_ident(self, sort, |name| name.camel_str().to_string()))
             .collect()
     }
     fn sum_heap_sort_snake_idents(&self, sid: &L::SumId) -> Vec<syn::Ident> {
         self.bak
             .sum_sorts(sid.clone())
-            .map(|sort| sort_ident(self, sort, |name| name.snake.clone()))
+            .map(|sort| sort_ident(self, sort, |name| name.snake_str().to_string()))
             .collect()
     }
 }
@@ -559,7 +554,7 @@ pub struct TransitiveCcfConversionPaths<SortId> {
 fn sort_ident<L: LangSpec>(
     alg: &LsGen<L>,
     sort: SortIdOf<L>,
-    get_ident: fn(&Name) -> String,
+    get_ident: fn(&Identifier) -> String,
 ) -> proc_macro2::Ident {
     // &sortid_name(&self.bak, sort.clone()).camel.clone(),
     match &sort {
@@ -603,7 +598,7 @@ pub fn cons_list_index_range(n: usize, expr: syn::Expr) -> impl Iterator<Item = 
         }
     })
 }
-fn sortid_name<L: LangSpec>(ls: &L, sort: &SortIdOf<L>) -> Name {
+fn sortid_name<L: LangSpec>(ls: &L, sort: &SortIdOf<L>) -> Identifier {
     match sort {
         SortId::Algebraic(asi) => ls.algebraic_sort_name(asi.clone()).clone(),
         SortId::TyMetaFunc(MappedType { f, a, .. }) => {
@@ -615,7 +610,7 @@ fn sortid_name<L: LangSpec>(ls: &L, sort: &SortIdOf<L>) -> Name {
         }
     }
 }
-fn sortid_polish_name<L: LangSpec>(ls: &L, sort: &SortIdOf<L>) -> Vec<Name> {
+fn sortid_polish_name<L: LangSpec>(ls: &L, sort: &SortIdOf<L>) -> Vec<Identifier> {
     match sort {
         SortId::Algebraic(asi) => vec![ls.algebraic_sort_name(asi.clone()).clone()],
         SortId::TyMetaFunc(MappedType { f, a, .. }) => {
