@@ -339,9 +339,7 @@ pub mod targets {
         sublangs: &'langs impl SublangsList<'langs, SortIdOf<L>>,
     ) -> CodegenInstance<'langs> {
         CodegenInstance {
-            id: tree_identifier::Identifier::from_kebab_str(
-                &sublangs.kebab("term-specialized-impl")
-            ).unwrap().into(),
+            id: sublangs.id("term-specialized-impl").into(),
             generate: {
                 let data_structure = codegen_deps.add(term_specialized_gen::targets::default(
                     arena,
@@ -385,15 +383,13 @@ pub mod targets {
         sublang: &'langs Sublang<'langs, LSub, SortIdOf<LImplFor>>,
     ) -> CodegenInstance<'langs> {
         CodegenInstance {
-            id: KebabCodegenId::from(
-                Identifier::list(vec![
+            id: KebabCodegenId::from(Identifier::list(
+                vec![
                     Identifier::from_kebab_str("words-impls").unwrap(),
-                    Identifier::list(vec![
-                        sublang.lsub.name().clone(),
-                        lif.name().clone(),
-                    ].into()),
-                ].into())
-            ),
+                    Identifier::list(vec![sublang.lsub.name().clone(), lif.name().clone()].into()),
+                ]
+                .into(),
+            )),
             generate: {
                 let words_path = codegen_deps.add(words::targets::words_mod::<LSub>(
                     arena,

@@ -65,20 +65,12 @@ pub trait Sublangs<SortIdSelf> {
     fn images(&self) -> impl Iterator<Item = Vec<SortIdSelf>>;
     fn tems(&self) -> impl Iterator<Item = Vec<TmfEndoMapping<SortIdSelf>>>;
     fn names(&self) -> impl Iterator<Item = Identifier>;
-    fn kebab(&self, prefix: &str) -> String {
-        // Create an identifier from the prefix
-        let prefix_id = Identifier::from_kebab_str(prefix).unwrap_or_else(|_| {
-            // If prefix can't be parsed as kebab, create a simple leaf
-            Identifier::list(vec![].into_boxed_slice())
-        });
-        
-        // Collect all names into a vector
+    fn id(&self, prefix: &str) -> Identifier {
+        let prefix_id = Identifier::from_kebab_str(prefix)
+            .unwrap_or_else(|_| Identifier::list(vec![].into_boxed_slice()));
         let mut all_names = vec![prefix_id];
         all_names.extend(self.names());
-        
-        // Create a list identifier and get its kebab representation
-        let combined = Identifier::list(all_names.into_boxed_slice());
-        combined.kebab_str()
+        Identifier::list(all_names.into_boxed_slice())
     }
 }
 pub trait SublangsList<'langs, SortIdSelf>: Sublangs<SortIdSelf> {

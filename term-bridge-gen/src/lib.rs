@@ -168,14 +168,16 @@ pub mod targets {
         sl: &'langs Sl,
     ) -> CodegenInstance<'langs> {
         let ext_lg = super::LsGen::from(l);
-        // let oglsg = super::LsGen::from(l);
-        dbg!(sl.kebab("term-bridge"));
         CodegenInstance {
-            id: tree_identifier::Identifier::list(vec![
-                tree_identifier::Identifier::from_kebab_str("term-bridge").unwrap(),
-                tree_identifier::Identifier::from_kebab_str("bridgeto").unwrap(),
-                l.name().clone(),
-            ].into()).into(),
+            id: tree_identifier::Identifier::list(
+                vec![
+                    sl.id("term-bridge"),
+                    tree_identifier::Identifier::from_kebab_str("bridgeto").unwrap(),
+                    l.name().clone(),
+                ]
+                .into(),
+            )
+            .into(),
             generate: {
                 // let _ =
                 //     codegen_deps.add(term_specialized_impl_gen::targets::term_specialized_impl(

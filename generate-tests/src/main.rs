@@ -38,7 +38,9 @@ pub fn main() {
             &fib_deps,
         ),
         Crate {
-            id: tree_identifier::Identifier::from_kebab_str("fib-parse").unwrap().into(),
+            id: tree_identifier::Identifier::from_kebab_str("fib-parse")
+                .unwrap()
+                .into(),
             provides: vec![parse_gen::targets::default(
                 &arena,
                 root_cgd.subtree(),
@@ -96,7 +98,9 @@ pub fn main() {
             &pat_deps,
         ),
         Crate {
-            id: tree_identifier::Identifier::from_kebab_str("fib-pat-parse").unwrap().into(),
+            id: tree_identifier::Identifier::from_kebab_str("fib-pat-parse")
+                .unwrap()
+                .into(),
             provides: vec![parse_gen::targets::default(
                 &arena,
                 root_cgd.subtree(),
@@ -126,7 +130,9 @@ fn traits_crate<'arena: 'b, 'b>(
     global_workspace_deps: &[(&'static str, &'static Path)],
 ) -> Crate<'b> {
     Crate {
-        id: tree_identifier::Identifier::from_kebab_str(id).unwrap().into(),
+        id: tree_identifier::Identifier::from_kebab_str(id)
+            .unwrap()
+            .into(),
         provides: vec![
             words::targets::words_mod(arena, root_cgd.subtree(), l),
             term_trait_gen::targets::default(arena, root_cgd.subtree(), l),
@@ -154,7 +160,9 @@ where
     Sl: SublangsList<'arena, SortIdOf<L>>,
 {
     Crate {
-        id: tree_identifier::Identifier::from_kebab_str(id).unwrap().into(),
+        id: tree_identifier::Identifier::from_kebab_str(id)
+            .unwrap()
+            .into(),
         provides: vec![
             term_specialized_gen::targets::default(arena, root_cgd.subtree(), l),
             term_bridge_gen::targets::default(arena, root_cgd.subtree(), l, sublangs),

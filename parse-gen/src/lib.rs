@@ -132,10 +132,7 @@ pub fn cst<'a, 'b: 'a, L: LangSpec>(
     ));
     let parse_metadata = arena.alloc(std_parse_metadata::parse_metadata());
     arena.alloc(everywhere_maybemore(
-        Identifier::list(vec![
-            Identifier::from_camel_str("Cst").unwrap(),
-            l.name().clone(),
-        ].into()),
+        Identifier::list(vec![Identifier::from_camel_str("Cst").unwrap(), l.name().clone()].into()),
         fallible_ast,
         parse_metadata,
         SortId::TyMetaFunc(MappedType {

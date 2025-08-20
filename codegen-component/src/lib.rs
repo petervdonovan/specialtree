@@ -213,36 +213,29 @@ impl<'langs> Crate<'langs> {
         if current_c2sp.0.contains_key(&dep.id) {
             return;
         }
-
-        // Insert immediately to prevent recursive processing
+        
+        // Mark this dependency as in-progress by inserting into maps FIRST
         let dep_ident = &dep.id.to_snake_ident();
-        let none = current_c2sp.0.insert(
+        current_c2sp.0.insert(
             dep.id.clone(),
             syn::parse_quote! {
                 crate::#dep_ident
             },
         );
-        if none.is_some() {
-            panic!("Duplicate dependency ID in current_c2sp: {}", dep.id);
-        }
         let crate_ident = self.crate_ident();
-        let none = global_c2sp.0.insert(
+        global_c2sp.0.insert(
             dep.id.clone(),
             syn::parse_quote! {
                 #crate_ident::#dep_ident
             },
         );
-        if none.is_some() {
-            panic!("Duplicate dependency ID in global_c2sp: {}", dep.id);
-        }
-
-        // Now process dependencies
+        
+        // Then process dependencies (which will now see this as already processed)
         for depdep in dep.codegen_deps.codegen_deps.iter() {
-            // println!("dep: {} -> {}", dep.id, depdep.id);
             self.generate_single_dep_contents(depdep, current_c2sp, global_c2sp, contents);
         }
-
-        // Generate the module
+        
+        // Finally generate the module
         let mut m = (dep.generate)(current_c2sp, current_c2sp.0.get(&dep.id).unwrap().clone());
         m.ident = dep_ident.clone();
         contents.push(m);
