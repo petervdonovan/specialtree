@@ -2,6 +2,7 @@
 name = "tree-token"
 version.workspace = true
 edition.workspace = true
+description = "Trees of tokens that can be losslessly converted to and from camel, snake, and kebab identifiers"
 
 [dependencies]
 arbitrary.workspace = true

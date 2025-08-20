@@ -1,6 +1,7 @@
 use langspec::langspec::{LangSpec, SortId};
 use langspec_gen_util::HeapType;
-use langspec_gen_util::{LsGen, byline, transpose};
+use langspec_gen_util::{LsGen, transpose};
+use rustgen_utils::byline;
 use syn::parse_quote;
 
 use langspec_gen_util::{AlgebraicsBasePath, CanonicallyConstructibleFromGenData, TyGenData};
@@ -149,7 +150,7 @@ pub mod targets {
     use std::path::Path;
 
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
-    use langspec_gen_util::kebab_id;
+    use rustgen_utils::kebab_id;
 
     pub fn default<'langs, L: super::LangSpec>(
         arena: &'langs bumpalo::Bump,

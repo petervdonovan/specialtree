@@ -8,6 +8,7 @@ description = "Generation of pattern-matching strategies"
 codegen-component = { path = "../codegen-component" }
 langspec-gen-util = { path = "../langspec-gen-util" }
 langspec = { path = "../langspec" }
+rustgen-utils = { path = "../rustgen-utils" }
 term-trait-gen = { path = "../term-trait-gen" }
 term-specialized-gen = { path = "../term-specialized-gen" }
 words = { path = "../words" }

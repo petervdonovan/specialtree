@@ -1,5 +1,6 @@
 use langspec::langspec::{LangSpec, SortId, SortIdOf};
-use langspec_gen_util::{HeapType, LsGen, cons_list, tmf_ccf_sortses};
+use langspec_gen_util::{HeapType, LsGen, tmf_ccf_sortses};
+use rustgen_utils::cons_list;
 
 pub struct BasePaths {
     pub term_trait: syn::Path,
@@ -8,7 +9,7 @@ pub struct BasePaths {
 }
 
 pub fn generate<L: LangSpec>(base_paths: &BasePaths, lg: &LsGen<L>) -> syn::ItemMod {
-    let byline = langspec_gen_util::byline!();
+    let byline = rustgen_utils::byline!();
     let impls = lg
         .ty_gen_datas(Some(base_paths.words.clone()))
         .map(|tgd| {
@@ -57,7 +58,7 @@ pub(crate) fn impl_has_pattern_match_strategy_for<L: LangSpec>(
     ccf_sortses: &[Vec<SortIdOf<L>>],
     // ccf: CanonicallyConstructibleFromGenData<'_>,
 ) -> syn::ItemImpl {
-    let byline = langspec_gen_util::byline!();
+    let byline = rustgen_utils::byline!();
     // let ht = HeapType(syn::parse_quote! {Heap});
     // let abp = AlgebraicsBasePath::new(quote::quote! {Heap::});
     let strategy: syn::Type = cons_list(
@@ -112,7 +113,7 @@ pub mod targets {
     use std::path::Path;
 
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
-    use langspec_gen_util::kebab_id;
+    use rustgen_utils::kebab_id;
 
     pub fn default<'langs, L: super::LangSpec>(
         arena: &'langs bumpalo::Bump,

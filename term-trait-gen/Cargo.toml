@@ -2,11 +2,13 @@
 name = "term-trait-gen"
 version = { workspace = true }
 edition = { workspace = true }
+description = "Generation of traits that are the same for all families of data structures that correctly implement a language"
 
 [dependencies]
 codegen-component = { path = "../codegen-component" }
 langspec-gen-util = { path = "../langspec-gen-util" }
 langspec = { path = "../langspec" }
+rustgen-utils = { path = "../rustgen-utils" }
 tymetafuncspec-core = { path = "../tymetafuncspec-core" }
 words = { path = "../words" }
 syn-insert-use = { path = "../syn-insert-use" }

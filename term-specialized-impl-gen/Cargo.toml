@@ -2,12 +2,14 @@
 name = "term-specialized-impl-gen"
 version = { workspace = true }
 edition = { workspace = true }
+description = "Generation of trait implementations that implement traits for specialized data structures that implement a language"
 
 [dependencies]
 codegen-component = { path = "../codegen-component" }
 extension-autobox = { path = "../extension-autobox" }
 langspec = { path = "../langspec" }
 langspec-gen-util = { path = "../langspec-gen-util" }
+rustgen-utils = { path = "../rustgen-utils" }
 term-specialized-gen = { path = "../term-specialized-gen" }
 term-trait-gen = { path = "../term-trait-gen" }
 words = { path = "../words" }

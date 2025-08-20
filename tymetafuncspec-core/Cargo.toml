@@ -2,6 +2,7 @@
 name = "tymetafuncspec-core"
 version = { workspace = true }
 edition = { workspace = true }
+description = "Tmfs for elemental type metafunctions"
 
 [dependencies]
 functor_derive = { workspace = true }

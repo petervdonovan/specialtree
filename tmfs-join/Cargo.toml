@@ -2,6 +2,7 @@
 name = "tmfs-join"
 version = { workspace = true }
 edition = { workspace = true }
+description = "Utilities for combining two tymetafuncspecs"
 
 [dependencies]
 either-id = { path = "../either-id" }

@@ -1,5 +1,6 @@
 use langspec::langspec::{AlgebraicSortId, LangSpec};
-use langspec_gen_util::{AlgebraicsBasePath, HeapType, HeapbakGenData, LsGen, TyGenData, byline};
+use langspec_gen_util::{AlgebraicsBasePath, HeapType, HeapbakGenData, LsGen, TyGenData};
+use rustgen_utils::byline;
 use syn::parse_quote;
 
 pub fn generate<L: LangSpec>(base_path: &syn::Path, lg: &LsGen<L>, serde: bool) -> syn::ItemMod {
@@ -230,7 +231,7 @@ pub(crate) fn gen_heaped_impls<L: LangSpec>(base_path: &syn::Path, lg: &LsGen<L>
 pub mod targets {
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
     // use extension_autobox::autobox;
-    use langspec_gen_util::kebab_id;
+    use rustgen_utils::kebab_id;
 
     pub fn default<'langs, L: super::LangSpec>(
         _: &'langs bumpalo::Bump,

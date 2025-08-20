@@ -2,6 +2,7 @@
 name = "term-specialized-gen"
 version = { workspace = true }
 edition = { workspace = true }
+description = "Code generation for a family of Rust data structures that together implement a language; considered specialized to distinguish from dynamic typing"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -10,6 +11,7 @@ codegen-component = { path = "../codegen-component" }
 extension-autobox = { path = "../extension-autobox" }
 langspec-gen-util = { path = "../langspec-gen-util" }
 langspec = { path = "../langspec" }
+rustgen-utils = { path = "../rustgen-utils" }
 expect-test = { workspace = true }
 prettyplease = { workspace = true }
 quote = { workspace = true }

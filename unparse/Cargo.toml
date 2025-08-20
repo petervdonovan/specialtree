@@ -2,6 +2,7 @@
 name = "unparse"
 version.workspace = true
 edition.workspace = true
+description = "Utilities for unparsing"
 
 [dependencies]
 bumpalo.workspace = true

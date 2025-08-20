@@ -8,7 +8,7 @@ pub struct BasePaths {
 }
 
 pub fn generate<L: LangSpec>(data_structure: &syn::Path, ls: &LsGen<L>) -> syn::ItemMod {
-    let byline = langspec_gen_util::byline!();
+    let byline = rustgen_utils::byline!();
     let impls = ls.ty_gen_datas(None).map(|tgd| {
         let camel_ident = tgd.camel_ident;
         impl_adt_for(data_structure, &camel_ident)
@@ -22,7 +22,7 @@ pub fn generate<L: LangSpec>(data_structure: &syn::Path, ls: &LsGen<L>) -> syn::
 }
 
 pub(crate) fn impl_adt_for(data_structure: &syn::Path, camel_ident: &syn::Ident) -> syn::ItemImpl {
-    let byline = langspec_gen_util::byline!();
+    let byline = rustgen_utils::byline!();
     syn::parse_quote! {
         #byline
         impl words::Adt for #data_structure::#camel_ident {}
@@ -34,7 +34,7 @@ pub mod targets {
 
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
     use langspec::sublang::reflexive_sublang;
-    use langspec_gen_util::kebab_id;
+    use rustgen_utils::kebab_id;
 
     pub fn default<'langs, L: super::LangSpec>(
         arena: &'langs bumpalo::Bump,

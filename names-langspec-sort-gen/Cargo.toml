@@ -8,5 +8,6 @@ description = "Generation of implementations for NamesLangspecSort"
 codegen-component = { version = "0.1.0", path = "../codegen-component" }
 langspec = { version = "0.1.0", path = "../langspec" }
 langspec-gen-util = { version = "0.1.0", path = "../langspec-gen-util" }
+rustgen-utils = { path = "../rustgen-utils" }
 syn.workspace = true
 words = { version = "0.1.0", path = "../words" }

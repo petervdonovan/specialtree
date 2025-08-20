@@ -2,12 +2,14 @@
 name = "term-pattern-match-strategy-provider-impl-gen"
 version = { workspace = true }
 edition = { workspace = true }
+description = "Generation of trait implementations needed by a pmsp"
 
 [dependencies]
 codegen-component = { path = "../codegen-component" }
 extension-autobox = { path = "../extension-autobox" }
 langspec-gen-util = { path = "../langspec-gen-util" }
 langspec = { path = "../langspec" }
+rustgen-utils = { path = "../rustgen-utils" }
 term-pattern-match-strategy-provider-gen = { path = "../term-pattern-match-strategy-provider-gen" }
 term-trait-gen = { path = "../term-trait-gen" }
 term-specialized-gen = { path = "../term-specialized-gen" }

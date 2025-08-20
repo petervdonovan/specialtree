@@ -14,6 +14,7 @@ extension-everywhere-alternative = { path = "../extension-everywhere-alternative
 extension-everywhere-maybemore = { path = "../extension-everywhere-maybemore" }
 langspec = { path = "../langspec" }
 langspec-gen-util = { path = "../langspec-gen-util" }
+rustgen-utils = { path = "../rustgen-utils" }
 std-parse-error = { path = "../langspec-std/std-parse-error" }
 std-parse-metadata = { path = "../langspec-std/std-parse-metadata" }
 syn-insert-use = { path = "../syn-insert-use" }

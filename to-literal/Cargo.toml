@@ -2,6 +2,7 @@
 name = "to-literal"
 version.workspace = true
 edition.workspace = true
+description = "ToLiteral trait for terms that can be represented as Rust literals"
 
 [dependencies]
 proc-macro2.workspace = true

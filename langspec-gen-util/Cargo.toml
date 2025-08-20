@@ -6,10 +6,11 @@ description = "Legacy code generation utilities for language specifications (bei
 
 [dependencies]
 langspec = { path = "../langspec" }
-term = { path = "../term" }
 proc-macro2 = { workspace = true }
 quote = { workspace = true }
+rustgen-utils = { path = "../rustgen-utils" }
 syn = { workspace = true }
+term = { path = "../term" }
 
 [dev-dependencies]
 langspec-examples = { path = "../langspec-examples" }

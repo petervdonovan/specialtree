@@ -3,8 +3,9 @@ use langspec::{
     sublang::Sublangs,
 };
 use langspec_gen_util::{
-    AlgebraicsBasePath, CcfPaths, HeapType, LsGen, TyGenData, byline, cons_list_index_range,
+    AlgebraicsBasePath, CcfPaths, HeapType, LsGen, TyGenData, cons_list_index_range,
 };
+use rustgen_utils::{byline, cons_list};
 
 pub struct BasePaths {
     pub data_structure: syn::Path,
@@ -144,11 +145,11 @@ pub(crate) fn tac_impls<'a, 'b, 'c, L: LangSpec>(
             )
         };
         let froms_cons_list =
-            langspec_gen_util::cons_list(tac.from.iter().cloned().map(&sort2rs_ty));
+            rustgen_utils::cons_list(tac.from.iter().cloned().map(&sort2rs_ty));
         let to = sort2rs_ty(tac.to);
         let intermediary = sort2rs_ty(tac.intermediary.to);
         let intermediary_cons_list =
-            langspec_gen_util::cons_list(tac.intermediary.from.iter().cloned().map(sort2rs_ty));
+            rustgen_utils::cons_list(tac.intermediary.from.iter().cloned().map(sort2rs_ty));
         let byline = byline!();
         syn::parse_quote! {
             #byline
@@ -239,7 +240,7 @@ pub(crate) fn gen_ccf_impl_prod(
     let idxs = cons_list_index_range(ccf_tys_flattened.len(), syn::parse_quote! {t});
     let byline = byline!();
     let deconstruct: syn::Expr =
-        langspec_gen_util::cons_list(ccf_ty_snakes.iter().map(|it| syn::parse_quote! {self.#it}));
+        rustgen_utils::cons_list(ccf_ty_snakes.iter().map(|it| syn::parse_quote! {self.#it}));
     let ret = quote::quote! {
         #byline
         impl

@@ -10,6 +10,7 @@ langspec = { path = "../langspec" }
 langspec-gen-util = { path = "../langspec-gen-util" }
 proc-macro2 = { workspace = true }
 quote = { workspace = true }
+rustgen-utils = { path = "../rustgen-utils" }
 syn = { workspace = true }
 term-specialized-gen = { version = "0.1.0", path = "../term-specialized-gen" }
 term-specialized-impl-gen = { version = "0.1.0", path = "../term-specialized-impl-gen" }

@@ -2,6 +2,7 @@
 name = "visit"
 version.workspace = true
 edition.workspace = true
+description = "Polymorphic implementation of the visitor pattern for arbitrary languages"
 
 [dependencies]
 ccf = { version = "0.1.0", path = "../ccf" }

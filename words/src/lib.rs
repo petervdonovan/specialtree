@@ -4,7 +4,8 @@ use langspec::{
     langspec::{LangSpec, SortIdOf},
     sublang::Sublang,
 };
-use langspec_gen_util::{AlgebraicsBasePath, HeapType, LsGen, byline};
+use langspec_gen_util::{AlgebraicsBasePath, HeapType, LsGen};
+use rustgen_utils::byline;
 
 pub trait Implements<Heap, L> {
     type LWord;
@@ -64,7 +65,7 @@ pub fn words_mod<L: LangSpec>(lg: &LsGen<L>) -> syn::ItemMod {
         .ty_gen_datas(None)
         .map(|it| it.camel_ident)
         .collect::<Vec<_>>();
-    let byline = langspec_gen_util::byline!();
+    let byline = rustgen_utils::byline!();
     syn::parse_quote! {
         #byline
         pub mod words {
@@ -202,7 +203,7 @@ pub fn words_inverse_impls<L: LangSpec, LSub: LangSpec>(
 
 pub mod targets {
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
-    use langspec_gen_util::kebab_id;
+    use rustgen_utils::kebab_id;
 
     pub fn words_mod<'langs, L: super::LangSpec>(
         _: &'langs bumpalo::Bump,

@@ -1,5 +1,6 @@
 use langspec::langspec::LangSpec;
-use langspec_gen_util::{AlgebraicsBasePath, HeapType, LsGen, byline};
+use langspec_gen_util::{AlgebraicsBasePath, HeapType, LsGen};
+use rustgen_utils::byline;
 
 pub fn generate<L: LangSpec>(words_base_path: &syn::Path, lg: &LsGen<L>) -> syn::ItemMod {
     let byline = byline!();
@@ -32,7 +33,8 @@ pub mod targets {
     use std::path::Path;
 
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
-    use langspec_gen_util::{LsGen, kebab_id};
+    use langspec_gen_util::LsGen;
+    use rustgen_utils::kebab_id;
 
     pub fn default<'langs, L: super::LangSpec>(
         arena: &'langs bumpalo::Bump,

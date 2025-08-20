@@ -37,7 +37,7 @@ pub fn generate<'a, L: LangSpec, LSub: LangSpec>(
         })
         .collect::<Vec<_>>();
     let heap = generate_heap(&bps.ext_data_structure, &bps.og_term_trait);
-    let owned_impls = generate_owned_impls(&camel_names, &image_ty_under_embeddings, bps);
+    // let owned_impls = generate_owned_impls(&camel_names, &image_ty_under_embeddings, bps);
     // let words_impls = words_impls(
     //     &bps.ext_data_structure,
     //     &bps.og_words_base_path,
@@ -53,7 +53,7 @@ pub fn generate<'a, L: LangSpec, LSub: LangSpec>(
     syn::parse_quote! {
         mod bridge {
             #heap
-            #owned_impls
+            // #owned_impls
             // #words_impls
             #inverse_implements_impls
         }
@@ -64,32 +64,32 @@ pub(crate) fn generate_heap(
     ext_data_structure: &syn::Path,
     og_term_trait: &syn::Path,
 ) -> syn::ItemImpl {
-    let byline = langspec_gen_util::byline!();
+    let byline = rustgen_utils::byline!();
     syn::parse_quote! {
         #byline
         impl #og_term_trait::Heap for #ext_data_structure::Heap {}
     }
 }
 
-pub(crate) fn generate_owned_impls(
-    camel_names: &[syn::Ident],
-    image_ty_under_embeddings: &[syn::Type],
-    BasePaths {
-        ext_data_structure,
-        og_term_trait,
-        og_words_base_path: _,
-    }: &BasePaths,
-) -> syn::ItemMod {
-    let byline = langspec_gen_util::byline!();
-    syn::parse_quote! {
-        #byline
-        pub mod owned_impls {
-            #(
-                impl #og_term_trait::owned::#camel_names<#ext_data_structure::Heap> for #image_ty_under_embeddings {}
-            )*
-        }
-    }
-}
+// pub(crate) fn generate_owned_impls(
+//     camel_names: &[syn::Ident],
+//     image_ty_under_embeddings: &[syn::Type],
+//     BasePaths {
+//         ext_data_structure,
+//         og_term_trait,
+//         og_words_base_path: _,
+//     }: &BasePaths,
+// ) -> syn::ItemMod {
+//     let byline = langspec_gen_util::byline!();
+//     syn::parse_quote! {
+//         #byline
+//         pub mod owned_impls {
+//             #(
+//                 impl #og_term_trait::owned::#camel_names<#ext_data_structure::Heap> for #image_ty_under_embeddings {}
+//             )*
+//         }
+//     }
+// }
 
 pub mod targets {
     use std::path::Path;
@@ -99,7 +99,7 @@ pub mod targets {
         langspec::SortIdOf,
         sublang::{Sublangs, SublangsList},
     };
-    use langspec_gen_util::{byline, kebab_id};
+    use rustgen_utils::{byline, kebab_id};
 
     pub fn default<
         'langs,

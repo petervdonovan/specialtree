@@ -2,6 +2,7 @@
 name = "unparse-adt"
 version.workspace = true
 edition.workspace = true
+description = "Unparsing (human-readable string representation) for ADT-like terms"
 
 [dependencies]
 bumpalo.workspace = true

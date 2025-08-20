@@ -5,7 +5,8 @@ use langspec::{
     langspec::{LangSpec, MappedType, Name, SortId},
     tymetafunc::Transparency,
 };
-use langspec_gen_util::{LsGen, TyGenData, byline};
+use langspec_gen_util::{LsGen, TyGenData};
+use rustgen_utils::byline;
 use syn::parse_quote;
 
 pub struct BasePaths {
@@ -158,7 +159,7 @@ pub mod targets {
         langspec::{LangSpec as _, SortIdOf},
         sublang::{SublangsList, reflexive_sublang},
     };
-    use langspec_gen_util::kebab_id;
+    use rustgen_utils::kebab_id;
 
     pub fn default<'langs, L: super::LangSpec>(
         arena: &'langs bumpalo::Bump,
