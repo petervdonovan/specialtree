@@ -2,6 +2,8 @@ use proc_macro2::TokenStream;
 use syn::spanned::Spanned;
 
 #[proc_macro_attribute]
+/// Memoization attribute macro that changes the function signature to accept a
+/// memoization cache and return a reference with lifetime tied to the cache.
 pub fn memo(
     args: proc_macro::TokenStream,
     input: proc_macro::TokenStream,
@@ -37,7 +39,7 @@ fn memo_inner(attr: TokenStream, item: TokenStream) -> Result<TokenStream, syn::
         &return_type_info,
         &cache_lifetime,
     );
-    final_fn.block = Box::new(new_body);
+    *final_fn.block = new_body;
 
     Ok(quote::quote! { #final_fn })
 }
@@ -53,19 +55,15 @@ fn analyze_return_type(
     cache_lifetime: &syn::Lifetime,
 ) -> Result<ReturnTypeInfo, syn::Error> {
     match output {
-        syn::ReturnType::Default => {
-            return Err(syn::Error::new(
-                proc_macro2::Span::call_site(),
-                "memoized functions cannot have unit return type - there is no value to cache",
-            ));
-        }
+        syn::ReturnType::Default => Err(syn::Error::new(
+            proc_macro2::Span::call_site(),
+            "memoized functions cannot have unit return type - there is no value to cache",
+        )),
         syn::ReturnType::Type(_, ty) => match ty.as_ref() {
-            syn::Type::Tuple(tuple) if tuple.elems.is_empty() => {
-                return Err(syn::Error::new(
-                    ty.span(),
-                    "memoized functions cannot have unit return type - there is no value to cache",
-                ));
-            }
+            syn::Type::Tuple(tuple) if tuple.elems.is_empty() => Err(syn::Error::new(
+                ty.span(),
+                "memoized functions cannot have unit return type - there is no value to cache",
+            )),
             syn::Type::Reference(r) => {
                 let lifetime_matches = r
                     .lifetime
