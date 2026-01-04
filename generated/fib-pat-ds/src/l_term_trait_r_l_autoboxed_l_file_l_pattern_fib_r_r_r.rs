@@ -10,6 +10,7 @@ use tymetafuncspec_core::IdxBoxHeapBak;
 use tymetafuncspec_core::IdxBox;
 use tymetafuncspec_core::BoundedNatHeapBak;
 use tymetafuncspec_core::BoundedNat;
+use term::TyMetaFunc;
 use term::SuperHeap;
 use pattern_tmf::OrVariableZeroOrMoreHeapBak;
 use pattern_tmf::OrVariableZeroOrMore;
@@ -46,48 +47,63 @@ pub trait Heap: Sized + InverseImplements<
     > + InverseImplements<
         lwmrlalflpfrrr::L,
         OrVariable<(), lwmrlalflpfrrrs::Nat>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlalflpfrrr::L,
         OrVariable<(), lwmrlalflpfrrrs::Left_operand>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlalflpfrrr::L,
         OrVariable<(), lwmrlalflpfrrrs::Right_operand>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlalflpfrrr::L,
         OrVariable<(), Set<(), OrVariableZeroOrMore<(), lwmrlalflpfrrrs::Nat>>>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlalflpfrrr::L,
         Set<(), OrVariableZeroOrMore<(), lwmrlalflpfrrrs::Nat>>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlalflpfrrr::L,
         OrVariableZeroOrMore<(), lwmrlalflpfrrrs::Nat>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlalflpfrrr::L,
         BoundedNat<()>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlalflpfrrr::L,
         IdxBox<(), lwmrlalflpfrrrs::F>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlalflpfrrr::L,
         IdxBox<(), lwmrlalflpfrrrs::Plus>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlalflpfrrr::L,
         NamedPattern<(), lwmrlalflpfrrrs::F>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlalflpfrrr::L,
         NamedPattern<(), lwmrlalflpfrrrs::Left_operand>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlalflpfrrr::L,
         NamedPattern<(), lwmrlalflpfrrrs::Plus>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlalflpfrrr::L,
         NamedPattern<(), lwmrlalflpfrrrs::Right_operand>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlalflpfrrr::L,
         NamedPattern<(), lwmrlalflpfrrrs::Sum>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlalflpfrrr::L,
         File<(), lwmrlalflpfrrrs::FileItem>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + SuperHeap<
         OrVariableHeapBak<
             Self,

@@ -1,16 +1,11 @@
-use crate::type_path::{sort2rs_ty, sort2structural_from_word_rs_ty, AlgebraicsBasePath, HeapType};
+use crate::type_path::{AlgebraicsBasePath, HeapType, sort2rs_ty, sort2structural_from_word_rs_ty};
 use langspec::langspec::MappedType;
 use langspec::langspec::{
-    call_on_all_tmf_monomorphizations, AlgebraicSortId, LangSpec, MappedTypeOf, SortId, SortIdOf,
+    AlgebraicSortId, LangSpec, MappedTypeOf, SortId, SortIdOf, call_on_all_tmf_monomorphizations,
 };
-use langspec::sublang::Sublangs;
 use langspec::tymetafunc::{IdentifiedBy, RustTyMap, Transparency, TyMetaFuncData, TyMetaFuncSpec};
-use tree_identifier::Identifier;
 use rustgen_utils::cons_list;
-use transitive_ccf::{
-    ccfs_exploded_by_unit_paths, get_direct_ccf_rels, unit_ccf_paths_quadratically_large_closure,
-    CcfPaths,
-};
+use tree_identifier::Identifier;
 
 type HgdTyArgs<'a> =
     Box<dyn Fn(HeapType, AlgebraicsBasePath, Option<&syn::Path>) -> Vec<syn::Type> + 'a>;
@@ -96,10 +91,18 @@ pub fn ty_gen_datas<L: LangSpec>(
                             move |ht, abp| {
                                 ls.product_sorts(pid.clone())
                                     .zip(
-                                        (ls.product_sorts(pid.clone())
-                                            .map(|sort| sort_ident(ls, sort, |name| name.camel_str().to_string())))
-                                            .zip(ls.product_sorts(pid.clone())
-                                                .map(|sort| sort_ident(ls, sort, |name| name.snake_str().to_string()))),
+                                        (ls.product_sorts(pid.clone()).map(|sort| {
+                                            sort_ident(ls, sort, |name| {
+                                                name.camel_str().to_string()
+                                            })
+                                        }))
+                                        .zip(
+                                            ls.product_sorts(pid.clone()).map(|sort| {
+                                                sort_ident(ls, sort, |name| {
+                                                    name.snake_str().to_string()
+                                                })
+                                            }),
+                                        ),
                                     )
                                     .filter_map(|(sort, (camel, snake))| {
                                         // For now, return None since we don't have sort2heap_ty implemented
@@ -121,17 +124,29 @@ pub fn ty_gen_datas<L: LangSpec>(
                         ccf_sort_camel_idents: Box::new({
                             let pid = pid.clone();
                             move || {
-                                vec![ls.product_sorts(pid.clone())
-                                    .map(|sort| sort_ident(ls, sort, |name| name.camel_str().to_string()))
-                                    .collect()]
+                                vec![
+                                    ls.product_sorts(pid.clone())
+                                        .map(|sort| {
+                                            sort_ident(ls, sort, |name| {
+                                                name.camel_str().to_string()
+                                            })
+                                        })
+                                        .collect(),
+                                ]
                             }
                         }),
                         ccf_sort_snake_idents: Box::new({
                             let pid = pid.clone();
                             move || {
-                                vec![ls.product_sorts(pid.clone())
-                                    .map(|sort| sort_ident(ls, sort, |name| name.snake_str().to_string()))
-                                    .collect()]
+                                vec![
+                                    ls.product_sorts(pid.clone())
+                                        .map(|sort| {
+                                            sort_ident(ls, sort, |name| {
+                                                name.snake_str().to_string()
+                                            })
+                                        })
+                                        .collect(),
+                                ]
                             }
                         }),
                     },
@@ -164,10 +179,18 @@ pub fn ty_gen_datas<L: LangSpec>(
                             move |ht, abp| {
                                 ls.sum_sorts(sid.clone())
                                     .zip(
-                                        (ls.sum_sorts(sid.clone())
-                                            .map(|sort| sort_ident(ls, sort, |name| name.camel_str().to_string())))
-                                            .zip(ls.sum_sorts(sid.clone())
-                                                .map(|sort| sort_ident(ls, sort, |name| name.snake_str().to_string()))),
+                                        (ls.sum_sorts(sid.clone()).map(|sort| {
+                                            sort_ident(ls, sort, |name| {
+                                                name.camel_str().to_string()
+                                            })
+                                        }))
+                                        .zip(
+                                            ls.sum_sorts(sid.clone()).map(|sort| {
+                                                sort_ident(ls, sort, |name| {
+                                                    name.snake_str().to_string()
+                                                })
+                                            }),
+                                        ),
                                     )
                                     .filter_map(|(sort, (camel, snake))| {
                                         // For now, return None since we don't have sort2heap_ty implemented
@@ -188,7 +211,11 @@ pub fn ty_gen_datas<L: LangSpec>(
                             let sid = sid.clone();
                             move || {
                                 ls.sum_sorts(sid.clone())
-                                    .map(|sort| vec![sort_ident(ls, sort, |name| name.camel_str().to_string())])
+                                    .map(|sort| {
+                                        vec![sort_ident(ls, sort, |name| {
+                                            name.camel_str().to_string()
+                                        })]
+                                    })
                                     .collect()
                             }
                         }),
@@ -196,7 +223,11 @@ pub fn ty_gen_datas<L: LangSpec>(
                             let sid = sid.clone();
                             move || {
                                 ls.sum_sorts(sid.clone())
-                                    .map(|sort| vec![sort_ident(ls, sort, |name| name.snake_str().to_string())])
+                                    .map(|sort| {
+                                        vec![sort_ident(ls, sort, |name| {
+                                            name.snake_str().to_string()
+                                        })]
+                                    })
                                     .collect()
                             }
                         }),
@@ -229,7 +260,8 @@ pub fn heapbak_gen_datas<L: LangSpec>(ls: &L) -> Vec<HeapbakGenData<'_>> {
             // Recreate the original sortid_polish_name logic
             let sort_id = SortIdOf::<L>::TyMetaFunc(tmf_m.clone());
             let polish_name = sortid_polish_name(ls, &sort_id);
-            let identifiers: Vec<syn::Ident> = polish_name.iter().map(|name| name.snake_ident()).collect();
+            let identifiers: Vec<syn::Ident> =
+                polish_name.iter().map(|name| name.snake_ident()).collect();
             HeapbakGenData {
                 identifiers,
                 heapbak: Box::new({

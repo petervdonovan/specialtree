@@ -16,6 +16,7 @@ use tymetafuncspec_core::EitherHeapBak;
 use tymetafuncspec_core::Either;
 use tymetafuncspec_core::BoundedNatHeapBak;
 use tymetafuncspec_core::BoundedNat;
+use term::TyMetaFunc;
 use term::SuperHeap;
 use std_parse_metadata::ParseMetadataHeapBak;
 use std_parse_metadata::ParseMetadata;
@@ -49,18 +50,23 @@ pub trait Heap: Sized + InverseImplements<
             Pair<(), lwmrlclafrrs::Nat, Maybe<(), ParseMetadata<()>>>,
             ParseError<()>,
         >,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         Pair<(), lwmrlclafrrs::Nat, Maybe<(), ParseMetadata<()>>>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         Maybe<(), ParseMetadata<()>>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         ParseMetadata<()>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         ParseError<()>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         Either<
@@ -68,9 +74,11 @@ pub trait Heap: Sized + InverseImplements<
             Pair<(), lwmrlclafrrs::Left_operand, Maybe<(), ParseMetadata<()>>>,
             ParseError<()>,
         >,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         Pair<(), lwmrlclafrrs::Left_operand, Maybe<(), ParseMetadata<()>>>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         Either<
@@ -78,9 +86,11 @@ pub trait Heap: Sized + InverseImplements<
             Pair<(), lwmrlclafrrs::Right_operand, Maybe<(), ParseMetadata<()>>>,
             ParseError<()>,
         >,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         Pair<(), lwmrlclafrrs::Right_operand, Maybe<(), ParseMetadata<()>>>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         Either<
@@ -99,6 +109,7 @@ pub trait Heap: Sized + InverseImplements<
             >,
             ParseError<()>,
         >,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         Pair<
@@ -113,6 +124,7 @@ pub trait Heap: Sized + InverseImplements<
             >,
             Maybe<(), ParseMetadata<()>>,
         >,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         Set<
@@ -123,6 +135,7 @@ pub trait Heap: Sized + InverseImplements<
                 ParseError<()>,
             >,
         >,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         Either<
@@ -130,12 +143,15 @@ pub trait Heap: Sized + InverseImplements<
             Pair<(), BoundedNat<()>, Maybe<(), ParseMetadata<()>>>,
             ParseError<()>,
         >,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         Pair<(), BoundedNat<()>, Maybe<(), ParseMetadata<()>>>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         BoundedNat<()>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         Either<
@@ -154,6 +170,7 @@ pub trait Heap: Sized + InverseImplements<
             >,
             ParseError<()>,
         >,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         Pair<
@@ -168,6 +185,7 @@ pub trait Heap: Sized + InverseImplements<
             >,
             Maybe<(), ParseMetadata<()>>,
         >,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         IdxBox<
@@ -178,6 +196,7 @@ pub trait Heap: Sized + InverseImplements<
                 ParseError<()>,
             >,
         >,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         Either<
@@ -185,9 +204,11 @@ pub trait Heap: Sized + InverseImplements<
             Pair<(), lwmrlclafrrs::F, Maybe<(), ParseMetadata<()>>>,
             ParseError<()>,
         >,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         Pair<(), lwmrlclafrrs::F, Maybe<(), ParseMetadata<()>>>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         Either<
@@ -206,6 +227,7 @@ pub trait Heap: Sized + InverseImplements<
             >,
             ParseError<()>,
         >,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         Pair<
@@ -220,6 +242,7 @@ pub trait Heap: Sized + InverseImplements<
             >,
             Maybe<(), ParseMetadata<()>>,
         >,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         IdxBox<
@@ -230,6 +253,7 @@ pub trait Heap: Sized + InverseImplements<
                 ParseError<()>,
             >,
         >,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         Either<
@@ -237,9 +261,11 @@ pub trait Heap: Sized + InverseImplements<
             Pair<(), lwmrlclafrrs::Plus, Maybe<(), ParseMetadata<()>>>,
             ParseError<()>,
         >,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         Pair<(), lwmrlclafrrs::Plus, Maybe<(), ParseMetadata<()>>>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         Either<
@@ -247,9 +273,11 @@ pub trait Heap: Sized + InverseImplements<
             Pair<(), lwmrlclafrrs::Sum, Maybe<(), ParseMetadata<()>>>,
             ParseError<()>,
         >,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlclafrr::L,
         Pair<(), lwmrlclafrrs::Sum, Maybe<(), ParseMetadata<()>>>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + SuperHeap<
         EitherHeapBak<
             Self,

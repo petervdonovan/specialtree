@@ -2,10 +2,10 @@
 
 use crate::types::*;
 use langspec::langspec::{
-    call_on_all_tmf_monomorphizations, AlgebraicSortId, LangSpec, SortId, SortIdOf,
+    AlgebraicSortId, LangSpec, SortId, SortIdOf, call_on_all_tmf_monomorphizations,
 };
 use langspec::sublang::Sublangs;
-use langspec::tymetafunc::{TyMetaFuncData, TyMetaFuncSpec};
+use langspec::tymetafunc::TyMetaFuncSpec;
 use rustgen_utils::combinations;
 use std::collections::{HashMap, HashSet};
 use term::CcfRelation;
@@ -324,12 +324,12 @@ fn get_tucr_for_to<SortId: std::fmt::Debug + Clone + Eq + std::hash::Hash>(
         );
         for (pair, (tucr, distance)) in tucrs_intermediary.iter() {
             if let Some(existing) = tucrs.get(pair) {
-                if existing.1 .0 > distance.0 {
+                if existing.1.0 > distance.0 {
                     tucrs.insert(
                         pair.clone(),
                         (tucr.clone(), *distance, Ambiguity::Unambiguous),
                     );
-                } else if existing.1 .0 == distance.0 {
+                } else if existing.1.0 == distance.0 {
                     tucrs.insert(
                         pair.clone(),
                         (tucr.clone(), *distance, Ambiguity::Ambiguous),

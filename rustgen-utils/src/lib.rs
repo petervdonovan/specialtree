@@ -1,20 +1,18 @@
 //! Utilities for Rust code generation
 //!
-//! This crate provides standalone utilities for generating Rust code,
-//! extracted from langspec-gen-util to provide better organization
-//! and reduced dependencies.
+//! This crate provides standalone utilities for generating Rust code.
 
+pub use codegen_component;
 pub use proc_macro2;
 pub use tree_identifier;
-pub use codegen_component;
 
 /// Creates a hierarchical identifier from function name and language name
-pub fn create_kebab_codegen_id(function_name: &str, language_name: &tree_identifier::Identifier) -> codegen_component::KebabCodegenId {
+pub fn create_kebab_codegen_id(
+    function_name: &str,
+    language_name: &tree_identifier::Identifier,
+) -> codegen_component::KebabCodegenId {
     let function_id = tree_identifier::Identifier::from_snake_str(function_name).unwrap();
-    tree_identifier::Identifier::list(vec![
-        function_id,
-        language_name.clone(),
-    ].into()).into()
+    tree_identifier::Identifier::list(vec![function_id, language_name.clone()].into()).into()
 }
 
 /// Generates a byline comment indicating the generating function
@@ -32,18 +30,16 @@ macro_rules! byline {
 /// Generates a kebab-case codegen ID based on the current function and language name
 #[macro_export]
 macro_rules! kebab_id {
-    ($l:ident) => {
-        {
-            let func = $crate::function!();
-            let function_name = if func.ends_with("::default") {
-                let segment = func.split(":").next().unwrap();
-                segment.strip_suffix("_gen").unwrap_or(segment)
-            } else {
-                func.split("::").last().unwrap()
-            };
-            $crate::create_kebab_codegen_id(function_name, $l.name())
-        }
-    };
+    ($l:ident) => {{
+        let func = $crate::function!();
+        let function_name = if func.ends_with("::default") {
+            let segment = func.split(":").next().unwrap();
+            segment.strip_suffix("_gen").unwrap_or(segment)
+        } else {
+            func.split("::").last().unwrap()
+        };
+        $crate::create_kebab_codegen_id(function_name, $l.name())
+    }};
 }
 
 /// Gets the current function name at compile time
@@ -297,7 +293,8 @@ mod tests {
                     15,
                 ],
             ]
-        "#]].assert_debug_eq(&all);
+        "#]]
+        .assert_debug_eq(&all);
     }
 
     #[test]

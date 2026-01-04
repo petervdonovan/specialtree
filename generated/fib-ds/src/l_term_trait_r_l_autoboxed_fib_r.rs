@@ -10,6 +10,7 @@ use tymetafuncspec_core::IdxBoxHeapBak;
 use tymetafuncspec_core::IdxBox;
 use tymetafuncspec_core::BoundedNatHeapBak;
 use tymetafuncspec_core::BoundedNat;
+use term::TyMetaFunc;
 use term::SuperHeap;
 use crate::l_words_mod_r_l_autoboxed_fib_r as lwmrlafr;
 use crate::l_words_mod_r_l_autoboxed_fib_r::sorts as lwmrlafrs;
@@ -35,15 +36,19 @@ pub trait Heap: Sized + InverseImplements<
     > + InverseImplements<
         lwmrlafr::L,
         Set<(), lwmrlafrs::Nat>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlafr::L,
         BoundedNat<()>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlafr::L,
         IdxBox<(), lwmrlafrs::F>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrlafr::L,
         IdxBox<(), lwmrlafrs::Plus>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + SuperHeap<
         SetHeapBak<
             Self,

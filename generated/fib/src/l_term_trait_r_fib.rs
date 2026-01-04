@@ -8,6 +8,7 @@ use tymetafuncspec_core::SetHeapBak;
 use tymetafuncspec_core::Set;
 use tymetafuncspec_core::BoundedNatHeapBak;
 use tymetafuncspec_core::BoundedNat;
+use term::TyMetaFunc;
 use term::SuperHeap;
 use crate::l_words_mod_r_fib as lwmrf;
 use crate::l_words_mod_r_fib::sorts as lwmrfs;
@@ -33,9 +34,11 @@ pub trait Heap: Sized + InverseImplements<
     > + InverseImplements<
         lwmrf::L,
         Set<(), lwmrfs::Nat>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + InverseImplements<
         lwmrf::L,
         BoundedNat<()>,
+        ExternBehavioralImplementor: TyMetaFunc,
     > + SuperHeap<
         SetHeapBak<
             Self,
