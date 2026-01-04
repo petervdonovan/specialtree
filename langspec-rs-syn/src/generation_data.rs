@@ -240,7 +240,6 @@ pub fn ty_gen_datas<'a, L: LangSpec>(
         .collect()
 }
 
-/// Recreates the original sortid_polish_name function from langspec-gen-util
 fn sortid_polish_name<L: LangSpec>(ls: &L, sort: &SortIdOf<L>) -> Vec<Identifier> {
     match sort {
         SortId::Algebraic(asi) => vec![ls.algebraic_sort_name(asi.clone()).clone()],
