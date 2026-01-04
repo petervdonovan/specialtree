@@ -1,12 +1,14 @@
 use std::path::{Path, PathBuf};
 
-use codegen_component::{CgDepList, Component2SynPath, Crate};
+use codegen_component::CgDepList;
 use extension_autobox::autobox;
 use langspec::{
     flat::LangSpecFlat,
     langspec::{LangSpec, SortIdOf, TerminalLangSpec},
     sublang::{SublangsList, reflexive_sublang},
 };
+
+use generate_tests::shared::run_code_generation;
 
 pub fn main() {
     let arena = bumpalo::Bump::new();
@@ -24,97 +26,8 @@ pub fn main() {
         ("pattern-tmf", Path::new(".")),
         ("file-tmf", Path::new(".")),
     ];
-    let crates = vec![
-        traits_crate(&arena, &root_cgd, "fib", &fib, &fib_deps),
-        ds_crate(
-            &arena,
-            &root_cgd,
-            "fib-ds",
-            &fib_autobox,
-            arena.alloc((
-                reflexive_sublang(&fib_autobox),
-                (fib_autobox.sublang(&fib).unwrap(), ()),
-            )),
-            &fib_deps,
-        ),
-        Crate {
-            id: tree_identifier::Identifier::from_kebab_str("fib-parse")
-                .unwrap()
-                .into(),
-            provides: vec![parse_gen::targets::default(
-                &arena,
-                root_cgd.subtree(),
-                &fib,
-                (),
-            )],
-            global_workspace_deps: fib_deps.to_vec(),
-        },
-        traits_crate(&arena, &root_cgd, "fib-pat", &fib_pat, &pat_deps),
-        // ds_crate(&arena, &root_cgd, "fib-pat-ds", &fib_pat, &pat_deps).plus(
-        //     vec![term_bridge_gen::targets::default(
-        //         &arena,
-        //         root_cgd.subtree(),
-        //         &fib_pat,
-        //         &fib,
-        //     )],
-        //     vec![],
-        // ),
-        // Crate {
-        //     id: "fib-pat-ds".into(),
-        //     provides: vec![
-        //         term_specialized_gen::targets::default(&arena, root_cgd.subtree(), &fib_pat),
-        //         // term_specialized_impl_gen::targets::default(&arena, root_cgd.subtree(), &fib_pat),
-        //         term_pattern_match_strategy_provider_impl_gen::targets::words_impls(
-        //             &arena,
-        //             root_cgd.subtree(),
-        //             &fib_pat,
-        //         ),
-        //         term_pattern_match_strategy_provider_impl_gen::targets::default(
-        //             &arena,
-        //             root_cgd.subtree(),
-        //             &fib_pat,
-        //         ),
-        //         term_bridge_gen::targets::default(
-        //             &arena,
-        //             root_cgd.subtree(),
-        //             &fib_pat,
-        //             arena.alloc((fib_pat.sublang(&fib).unwrap(), ())),
-        //         ),
-        //     ],
-        //     global_workspace_deps: pat_deps.to_vec(),
-        // },
-        ds_crate(
-            &arena,
-            &root_cgd,
-            "fib-pat-ds",
-            &fib_pat_autobox,
-            arena.alloc((
-                reflexive_sublang(&fib_pat_autobox),
-                (
-                    fib_pat_autobox.sublang(&fib_pat).unwrap(),
-                    (fib_pat_autobox.sublang(&fib).unwrap(), ()),
-                ),
-            )),
-            &pat_deps,
-        ),
-        Crate {
-            id: tree_identifier::Identifier::from_kebab_str("fib-pat-parse")
-                .unwrap()
-                .into(),
-            provides: vec![parse_gen::targets::default(
-                &arena,
-                root_cgd.subtree(),
-                &fib_pat,
-                (fib_pat.sublang(&fib).unwrap(), ()),
-            )],
-            global_workspace_deps: pat_deps.to_vec(),
-        },
-    ];
     let bp = base_path();
-    let mut c2sp = Component2SynPath::default();
-    for c in crates.iter() {
-        c.generate(&bp, &mut c2sp, crates.as_slice());
-    }
+    generate_tests::shared::run_code_generation(&bp);
 }
 
 fn base_path() -> PathBuf {
@@ -122,60 +35,6 @@ fn base_path() -> PathBuf {
     manifest_dir.parent().unwrap().join("generated")
 }
 
-fn traits_crate<'arena: 'b, 'b>(
-    arena: &'arena bumpalo::Bump,
-    root_cgd: &CgDepList<'b>,
-    id: &str,
-    l: &'b impl LangSpec,
-    global_workspace_deps: &[(&'static str, &'static Path)],
-) -> Crate<'b> {
-    Crate {
-        id: tree_identifier::Identifier::from_kebab_str(id)
-            .unwrap()
-            .into(),
-        provides: vec![
-            words::targets::words_mod(arena, root_cgd.subtree(), l),
-            term_trait_gen::targets::default(arena, root_cgd.subtree(), l),
-            parse_gen::targets::parsells(arena, root_cgd.subtree(), l),
-            term_pattern_match_strategy_provider_gen::targets::default(
-                arena,
-                root_cgd.subtree(),
-                l,
-            ),
-            names_langspec_sort_gen::targets::default(arena, root_cgd.subtree(), l),
-        ],
-        global_workspace_deps: global_workspace_deps.to_vec(),
-    }
-}
-fn ds_crate<'arena, L, Sl>(
-    arena: &'arena bumpalo::Bump,
-    root_cgd: &CgDepList<'arena>,
-    id: &str,
-    l: &'arena L,
-    sublangs: &'arena Sl,
-    global_workspace_deps: &[(&'static str, &'static Path)],
-) -> Crate<'arena>
-where
-    L: LangSpec,
-    Sl: SublangsList<'arena, SortIdOf<L>>,
-{
-    Crate {
-        id: tree_identifier::Identifier::from_kebab_str(id)
-            .unwrap()
-            .into(),
-        provides: vec![
-            term_specialized_gen::targets::default(arena, root_cgd.subtree(), l),
-            term_bridge_gen::targets::default(arena, root_cgd.subtree(), l, sublangs),
-            // term_specialized_impl_gen::targets::words_impls(arena, root_cgd.subtree(), l),
-            term_pattern_match_strategy_provider_impl_gen::targets::default(
-                arena,
-                root_cgd.subtree(),
-                l,
-            ),
-        ],
-        global_workspace_deps: global_workspace_deps.to_vec(),
-    }
-}
 // fn ds_crate_no_sublangs<'arena: 'b, 'b>(
 //     arena: &'arena bumpalo::Bump,
 //     root_cgd: &CgDepList<'b>,
