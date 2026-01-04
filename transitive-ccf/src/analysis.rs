@@ -10,31 +10,38 @@ use rustgen_utils::combinations;
 use std::collections::{HashMap, HashSet};
 use term::CcfRelation;
 
-pub fn ccf_paths<L: LangSpec>(
-    ls: &L,
-    important_sublangs: impl Sublangs<SortIdOf<L>>,
+use memo::memo;
+use memo::memo_cache::thread_local_cache;
+
+#[memo('a)]
+pub fn ccf_paths<'a, L: LangSpec>(
+    ls: &'a L,
+    important_sublangs: &'a impl Sublangs<SortIdOf<L>>,
 ) -> CcfPaths<SortIdOf<L>> {
-    let direct_ccf_rels = get_direct_ccf_rels(ls);
+    let direct_ccf_rels = get_direct_ccf_rels(thread_local_cache(), ls);
     let mut ucp_acc = std::collections::HashSet::new();
     let mut cebup_acc = std::collections::HashSet::new();
     for non_transparent_sorts in important_sublangs.images() {
-        let ucp = unit_ccf_paths_quadratically_large_closure::<SortIdOf<L>>(
-            direct_ccf_rels.as_slice(),
+        let ucp = unit_ccf_paths_quadratically_large_closure(
+            thread_local_cache(),
+            direct_ccf_rels,
             &non_transparent_sorts,
         );
-        let cebup = ccfs_exploded_by_unit_paths::<SortIdOf<L>>(
-            direct_ccf_rels.as_slice(),
+        let cebup = ccfs_exploded_by_unit_paths(
+            thread_local_cache(),
+            direct_ccf_rels,
             &ucp,
             &non_transparent_sorts,
         );
         let cebup_filtered = cebup
-            .into_iter()
+            .iter()
+            .cloned()
             .filter(|it| {
                 it.from.iter().all(|it| non_transparent_sorts.contains(it))
                     && non_transparent_sorts.contains(&it.to)
             })
             .collect::<Vec<_>>();
-        ucp_acc.extend(ucp.into_iter().filter(|it| {
+        ucp_acc.extend(ucp.iter().cloned().filter(|it| {
             non_transparent_sorts.contains(&it.from)
                 || cebup_filtered
                     .iter()
@@ -78,7 +85,8 @@ pub fn ccf_paths<L: LangSpec>(
 }
 
 /// Get direct CCF relations from a language specification
-pub fn get_direct_ccf_rels<L>(ls: &L) -> Vec<CcfRelation<SortIdOf<L>>>
+#[memo('a)]
+pub fn get_direct_ccf_rels<'a, L>(ls: &'a L) -> Vec<CcfRelation<SortIdOf<L>>>
 where
     L: LangSpec,
 {
@@ -119,11 +127,13 @@ where
 }
 
 /// Compute unit CCF paths with quadratically large closure
+#[memo('a)]
 pub fn unit_ccf_paths_quadratically_large_closure<
+    'a,
     SortId: std::fmt::Debug + Clone + Eq + std::hash::Hash,
 >(
-    direct_ccf_rels: &[CcfRelation<SortId>],
-    non_transparent_sorts: &[SortId],
+    direct_ccf_rels: &'a [CcfRelation<SortId>],
+    non_transparent_sorts: &'a [SortId],
 ) -> Vec<TransitiveUnitCcfRelation<SortId>> {
     let unit_ccf_rels: Vec<_> = direct_ccf_rels
         .iter()
@@ -141,10 +151,11 @@ pub fn unit_ccf_paths_quadratically_large_closure<
 }
 
 /// Compute CCFs exploded by unit paths
-pub fn ccfs_exploded_by_unit_paths<SortId: Clone + Eq>(
-    direct_ccf_rels: &[CcfRelation<SortId>],
-    unit_ccf_rels: &[TransitiveUnitCcfRelation<SortId>],
-    non_transparent_sorts: &[SortId],
+#[memo('a)]
+pub fn ccfs_exploded_by_unit_paths<'a, SortId: Clone + Eq>(
+    direct_ccf_rels: &'a [CcfRelation<SortId>],
+    unit_ccf_rels: &'a [TransitiveUnitCcfRelation<SortId>],
+    non_transparent_sorts: &'a [SortId],
 ) -> Vec<TransitiveNonUnitCcfRelation<SortId>> {
     fn from_sets<SortId: Eq + Clone>(
         froms: Vec<SortId>,

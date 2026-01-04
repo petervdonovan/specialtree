@@ -1713,6 +1713,7 @@ version = "0.1.0"
 dependencies = [
  "langspec",
  "langspec-examples",
+ "memo",
  "rustgen-utils",
  "term",
  "tymetafuncspec-core",

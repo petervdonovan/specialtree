@@ -98,7 +98,7 @@ fn get_original_memoized_fn_args(
     cache_lifetime: &syn::Lifetime,
     itemfn: &syn::ItemFn,
 ) -> MemoizedFnArgs {
-    let mut frozen = Vec::new();
+    let mut frozen: Vec<(proc_macro2::Ident, bool)> = Vec::new();
     let mut cloneable = Vec::new();
 
     for param in itemfn.sig.inputs.iter() {
@@ -106,7 +106,8 @@ fn get_original_memoized_fn_args(
             syn::FnArg::Receiver(receiver) => {
                 let self_ident = proc_macro2::Ident::new("self", receiver.span());
                 if receiver.reference.is_some() {
-                    frozen.push(self_ident);
+                    // receiver references are treated as non-slice frozen args
+                    frozen.push((self_ident, false));
                 } else {
                     cloneable.push(self_ident);
                 }
@@ -120,7 +121,10 @@ fn get_original_memoized_fn_args(
                             .is_some_and(|lt| lt.ident == cache_lifetime.ident);
 
                         if ref_lifetime_matches {
-                            frozen.push(pat_ident.ident.clone());
+                            // Detect if the referenced type is a slice/reference to [T]
+                            let is_slice =
+                                matches!(&*r.elem, syn::Type::Slice(_) | syn::Type::Array(_));
+                            frozen.push((pat_ident.ident.clone(), is_slice));
                         } else {
                             cloneable.push(pat_ident.ident.clone());
                         }
@@ -303,7 +307,8 @@ fn validate_no_mut_references(itemfn: &syn::ItemFn) -> Result<(), syn::Error> {
 }
 
 struct MemoizedFnArgs {
-    frozen: Box<[proc_macro2::Ident]>,
+    // Each frozen arg is paired with a bool indicating whether it is a slice/array
+    frozen: Box<[(proc_macro2::Ident, bool)]>,
     cloneable: Box<[proc_macro2::Ident]>,
 }
 
@@ -315,10 +320,18 @@ fn get_pointer_fingerprint(
     let hasher_updates: Vec<syn::Block> = memoized_args
         .frozen
         .iter()
-        .map(|arg| {
-            syn::parse_quote! {{
-                sha_hasher.update(((#arg as *const _) as u64).to_le_bytes());
-            }}
+        .map(|(arg, is_slice)| {
+            if *is_slice {
+                syn::parse_quote! {{
+                    // For slices/arrays use the data pointer to get a thin pointer
+                    sha_hasher.update(((#arg.as_ptr() as *const u8) as u64).to_le_bytes());
+                    sha_hasher.update(#arg.len().to_le_bytes());
+                }}
+            } else {
+                syn::parse_quote! {{
+                    sha_hasher.update(((#arg as *const _) as u64).to_le_bytes());
+                }}
+            }
         })
         .collect();
 

@@ -8,6 +8,7 @@ description = "CCF (Canonically Constructible From) analysis algorithms and data
 langspec = { path = "../langspec" }
 term = { path = "../term" }
 rustgen-utils = { path = "../rustgen-utils" }
+memo = { path = "../memo/memo" }
 
 [dev-dependencies]
 langspec-examples = { path = "../langspec-examples" }

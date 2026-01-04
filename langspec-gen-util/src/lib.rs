@@ -64,27 +64,30 @@ impl<L: LangSpec> LsGen<'_, L> {
         &self,
         important_sublangs: impl Sublangs<SortIdOf<L>>,
     ) -> CcfPaths<SortIdOf<L>> {
-        let direct_ccf_rels = get_direct_ccf_rels(self.bak);
+        let direct_ccf_rels = get_direct_ccf_rels(thread_local_cache(), self.bak);
         let mut ucp_acc = std::collections::HashSet::new();
         let mut cebup_acc = std::collections::HashSet::new();
         for non_transparent_sorts in important_sublangs.images() {
-            let ucp = unit_ccf_paths_quadratically_large_closure::<SortIdOf<L>>(
-                direct_ccf_rels.as_slice(),
+            let ucp = unit_ccf_paths_quadratically_large_closure(
+                thread_local_cache(),
+                direct_ccf_rels,
                 &non_transparent_sorts,
             );
-            let cebup = ccfs_exploded_by_unit_paths::<SortIdOf<L>>(
-                direct_ccf_rels.as_slice(),
+            let cebup = ccfs_exploded_by_unit_paths(
+                thread_local_cache(),
+                direct_ccf_rels,
                 &ucp,
                 &non_transparent_sorts,
             );
             let cebup_filtered = cebup
-                .into_iter()
+                .iter()
+                .cloned()
                 .filter(|it| {
                     it.from.iter().all(|it| non_transparent_sorts.contains(it))
                         && non_transparent_sorts.contains(&it.to)
                 })
                 .collect::<Vec<_>>();
-            ucp_acc.extend(ucp.into_iter().filter(|it| {
+            ucp_acc.extend(ucp.iter().cloned().filter(|it| {
                 non_transparent_sorts.contains(&it.from)
                     || cebup_filtered
                         .iter()
@@ -477,7 +480,7 @@ mod tests {
     fn test_gdcr() {
         let ls = langspec_examples::fib();
         type L = LangSpecHuman<tymetafuncspec_core::Core>;
-        let dcr = get_direct_ccf_rels(&ls);
+        let dcr = get_direct_ccf_rels(thread_local_cache(), &ls);
         for rel in &dcr {
             println!("{rel:?}\n");
         }
@@ -486,14 +489,15 @@ mod tests {
                 langspec::langspec::AlgebraicSortId::Sum("ℕ".into()),
             ),
         ];
-        let ucr = unit_ccf_paths_quadratically_large_closure::<SortIdOf<L>>(
+        let ucr = unit_ccf_paths_quadratically_large_closure(
+            thread_local_cache(),
             dcr.as_slice(),
             non_transparent_sorts,
         );
         for rel in &ucr {
             println!("{rel:?}\n");
         }
-        let cebup = ccfs_exploded_by_unit_paths(dcr.as_slice(), &ucr, non_transparent_sorts);
+        let cebup = ccfs_exploded_by_unit_paths(thread_local_cache(), dcr, &ucr, non_transparent_sorts);
         for rel in &cebup {
             println!("{rel:?}\n");
         }
