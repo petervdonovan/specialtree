@@ -1,11 +1,81 @@
 //! CCF analysis algorithms
 
-use std::collections::{HashMap, HashSet};
-use langspec::langspec::{AlgebraicSortId, LangSpec, SortId, SortIdOf, call_on_all_tmf_monomorphizations};
-use langspec::tymetafunc::{TyMetaFuncData, TyMetaFuncSpec};
-use term::CcfRelation;
-use rustgen_utils::combinations;
 use crate::types::*;
+use langspec::langspec::{
+    call_on_all_tmf_monomorphizations, AlgebraicSortId, LangSpec, SortId, SortIdOf,
+};
+use langspec::sublang::Sublangs;
+use langspec::tymetafunc::{TyMetaFuncData, TyMetaFuncSpec};
+use rustgen_utils::combinations;
+use std::collections::{HashMap, HashSet};
+use term::CcfRelation;
+
+pub fn ccf_paths<L: LangSpec>(
+    ls: &L,
+    important_sublangs: impl Sublangs<SortIdOf<L>>,
+) -> CcfPaths<SortIdOf<L>> {
+    let direct_ccf_rels = get_direct_ccf_rels(ls);
+    let mut ucp_acc = std::collections::HashSet::new();
+    let mut cebup_acc = std::collections::HashSet::new();
+    for non_transparent_sorts in important_sublangs.images() {
+        let ucp = unit_ccf_paths_quadratically_large_closure::<SortIdOf<L>>(
+            direct_ccf_rels.as_slice(),
+            &non_transparent_sorts,
+        );
+        let cebup = ccfs_exploded_by_unit_paths::<SortIdOf<L>>(
+            direct_ccf_rels.as_slice(),
+            &ucp,
+            &non_transparent_sorts,
+        );
+        let cebup_filtered = cebup
+            .into_iter()
+            .filter(|it| {
+                it.from.iter().all(|it| non_transparent_sorts.contains(it))
+                    && non_transparent_sorts.contains(&it.to)
+            })
+            .collect::<Vec<_>>();
+        ucp_acc.extend(ucp.into_iter().filter(|it| {
+            non_transparent_sorts.contains(&it.from)
+                || cebup_filtered
+                    .iter()
+                    .any(|cebup| cebup.intermediary.to == it.from)
+        }));
+        cebup_acc.extend(cebup_filtered);
+    }
+    let all_tems = important_sublangs
+        .tems()
+        .flatten()
+        .filter(|it| it.from_extern_behavioral != it.to_structural)
+        .filter(|it| {
+            !ucp_acc.iter().any(|existing| {
+                existing.from == it.from_extern_behavioral && existing.to == it.to_structural
+            })
+        })
+        .collect::<Vec<_>>();
+    for desired_pair in all_tems.into_iter() {
+        // todo: iterate over the existing ucps targeting anything under tmfs that don't have a unit ccf,
+        // starting of course with the reflexive ucp, until you exhaust the combinations. Only then, panic.
+        // Yes I know this is potentially very inefficient. Is it time to rethink this? Is it appropriate, now, to "preserve, don't recover?" Or is it appropriate only to update fromshallow?
+        ucp_acc.insert(
+            find_ucp(
+                direct_ccf_rels.as_slice(),
+                UcpPair {
+                    from: desired_pair.from_extern_behavioral.clone(),
+                    to: desired_pair.to_structural.clone(),
+                },
+            )
+            .unwrap_or_else(|| panic!("Cannot find UCP for {:?}", &desired_pair)),
+        );
+    }
+    let mut units_sorted = ucp_acc.into_iter().collect::<Vec<_>>();
+    units_sorted.sort();
+    let mut non_units_sorted = cebup_acc.into_iter().collect::<Vec<_>>();
+    non_units_sorted.sort();
+    CcfPaths {
+        units: units_sorted,
+        non_units: non_units_sorted,
+    }
+}
 
 /// Get direct CCF relations from a language specification
 pub fn get_direct_ccf_rels<L>(ls: &L) -> Vec<CcfRelation<SortIdOf<L>>>
@@ -254,12 +324,12 @@ fn get_tucr_for_to<SortId: std::fmt::Debug + Clone + Eq + std::hash::Hash>(
         );
         for (pair, (tucr, distance)) in tucrs_intermediary.iter() {
             if let Some(existing) = tucrs.get(pair) {
-                if existing.1.0 > distance.0 {
+                if existing.1 .0 > distance.0 {
                     tucrs.insert(
                         pair.clone(),
                         (tucr.clone(), *distance, Ambiguity::Unambiguous),
                     );
-                } else if existing.1.0 == distance.0 {
+                } else if existing.1 .0 == distance.0 {
                     tucrs.insert(
                         pair.clone(),
                         (tucr.clone(), *distance, Ambiguity::Ambiguous),

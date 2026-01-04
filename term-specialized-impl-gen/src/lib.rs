@@ -2,11 +2,11 @@ use langspec::{
     langspec::{AlgebraicSortId, LangSpec, SortId, SortIdOf},
     sublang::Sublangs,
 };
-use langspec_gen_util::{
-    AlgebraicsBasePath, HeapType, LsGen, TyGenData,
+use langspec_rs_syn::{
+    AlgebraicsBasePath, HeapType, TyGenData, ty_gen_datas, sort2rs_ty, tmfs_monomorphizations,
 };
 use rustgen_utils::{byline, cons_list_index_range};
-use transitive_ccf::CcfPaths;
+use transitive_ccf::{CcfPaths, analysis::ccf_paths};
 
 pub struct BasePaths {
     pub data_structure: syn::Path,
@@ -16,7 +16,7 @@ pub struct BasePaths {
 
 pub fn generate<L: LangSpec>(
     bps: &BasePaths,
-    lsg: &LsGen<L>,
+    lsg: &L,
     important_sublangs: impl Sublangs<SortIdOf<L>>,
 ) -> syn::ItemMod {
     let ccf_mod = gen_ccf_mod(bps, lsg);
@@ -33,10 +33,9 @@ pub fn generate<L: LangSpec>(
     }
 }
 
-pub(crate) fn gen_ccf_mod<L: LangSpec>(bps: &BasePaths, term_trait_lsg: &LsGen<L>) -> syn::ItemMod {
+pub(crate) fn gen_ccf_mod<L: LangSpec>(bps: &BasePaths, term_trait_lsg: &L) -> syn::ItemMod {
     let words = &bps.words;
-    let ccf_impls = term_trait_lsg
-        .ty_gen_datas(Some(syn::parse_quote!(#words)))
+    let ccf_impls = ty_gen_datas(term_trait_lsg, Some(syn::parse_quote!(#words)))
         .map(|tgd| gen_ccf_impls(term_trait_lsg, bps, &tgd));
     let byline = byline!();
     syn::parse_quote! {
@@ -50,20 +49,19 @@ pub(crate) fn gen_ccf_mod<L: LangSpec>(bps: &BasePaths, term_trait_lsg: &LsGen<L
 pub(crate) fn gen_ccf_auto_impls<L: LangSpec>(
     ds_base_path: &syn::Path,
     words_path: &syn::Path,
-    term_trait_lsg: &LsGen<L>,
+    term_trait_lsg: &L,
 ) -> syn::ItemMod {
-    let ccf_impls = term_trait_lsg
-        .ty_gen_datas(Some(syn::parse_quote!(#words_path)))
+    let ccf_impls = ty_gen_datas(term_trait_lsg, Some(syn::parse_quote!(#words_path)))
         .map(|tgd| -> syn::ItemMacro {
             let camel_ident = &tgd.camel_ident;
             syn::parse_quote! {
                 term::auto_impl_ccf!(#ds_base_path::Heap, #ds_base_path::#camel_ident);
             }
         });
-    let tmf_ccf_impls = term_trait_lsg
-        .tmfs_monomorphizations()
+    let tmf_ccf_impls = tmfs_monomorphizations(term_trait_lsg)
         .map(|tmf| -> syn::ItemMacro {
-            let ty = term_trait_lsg.sort2rs_ty(
+            let ty = sort2rs_ty(
+                term_trait_lsg,
                 SortId::TyMetaFunc(tmf.clone()),
                 &HeapType(syn::parse_quote! {#ds_base_path::Heap}),
                 &AlgebraicsBasePath::new(quote::quote! { #ds_base_path:: }),
@@ -83,13 +81,13 @@ pub(crate) fn gen_ccf_auto_impls<L: LangSpec>(
 }
 
 pub(crate) fn gen_transitive_ccf_mod<L: LangSpec>(
-    ds_base_path: &syn::Path,
-    lsg: &LsGen<L>,
+    data_structure: &syn::Path,
+    term_trait_lsg: &L,
     important_sublangs: impl Sublangs<SortIdOf<L>>,
 ) -> syn::ItemMod {
-    let ccfp = lsg.ccf_paths(important_sublangs);
-    let tucs = tuc_impls(ds_base_path, &ccfp, lsg);
-    let tacs = tac_impls(ds_base_path, &ccfp, lsg);
+    let ccfp = ccf_paths(term_trait_lsg, important_sublangs);
+    let tucs = tuc_impls(data_structure, &ccfp, term_trait_lsg);
+    let tacs = tac_impls(data_structure, &ccfp, term_trait_lsg);
     let byline = byline!();
     syn::parse_quote! {
         #byline
@@ -107,12 +105,13 @@ pub(crate) fn gen_transitive_ccf_mod<L: LangSpec>(
 pub(crate) fn tuc_impls<'a, 'b, 'c, L: LangSpec>(
     ds_base_path: &'b syn::Path,
     ccfp: &'a CcfPaths<SortIdOf<L>>,
-    lsg: &'c LsGen<L>,
+    lsg: &'c L,
 ) -> impl Iterator<Item = syn::ItemImpl> + use<'a, 'b, 'c, L> {
     ccfp.units.iter().map(move |tuc| -> syn::ItemImpl {
         let tuc = tuc.clone();
         let sort2rs_ty = |sid| {
-            lsg.sort2rs_ty(
+            sort2rs_ty(
+                lsg,
                 sid,
                 &HeapType(syn::parse_quote! {#ds_base_path::Heap}),
                 &AlgebraicsBasePath::new(quote::quote! { #ds_base_path:: }),
@@ -134,12 +133,13 @@ pub(crate) fn tuc_impls<'a, 'b, 'c, L: LangSpec>(
 pub(crate) fn tac_impls<'a, 'b, 'c, L: LangSpec>(
     ds_base_path: &'b syn::Path,
     ccfp: &'a CcfPaths<SortIdOf<L>>,
-    lsg: &'c LsGen<L>,
+    lsg: &'c L,
 ) -> impl Iterator<Item = syn::ItemImpl> + use<'a, 'b, 'c, L> {
     ccfp.non_units.iter().map(move |tac| -> syn::ItemImpl {
         let tac = tac.clone();
         let sort2rs_ty = |sid| {
-            lsg.sort2rs_ty(
+            sort2rs_ty(
+                lsg,
                 sid,
                 &HeapType(syn::parse_quote! {#ds_base_path::Heap}),
                 &AlgebraicsBasePath::new(quote::quote! { #ds_base_path:: }),
@@ -163,7 +163,7 @@ pub(crate) fn tac_impls<'a, 'b, 'c, L: LangSpec>(
 }
 
 pub(crate) fn gen_ccf_impls<L: LangSpec>(
-    lg: &LsGen<L>,
+    lg: &L,
     bps: &BasePaths,
     tgd: &TyGenData<L>,
 ) -> syn::ItemMod {
@@ -187,7 +187,8 @@ pub(crate) fn gen_ccf_impls<L: LangSpec>(
         .iter()
         .flat_map(|sids| {
             sids.iter().map(|sid| {
-                lg.sort2rs_ty(
+                sort2rs_ty(
+                    lg,
                     sid.clone(),
                     &HeapType(syn::parse_quote!(<Self as term::Heaped>::Heap)),
                     &AlgebraicsBasePath::new(syn::parse_quote!(#data_structure::)),
@@ -355,14 +356,14 @@ pub mod targets {
                     codegen_deps.add(words::targets::words_mod(arena, codegen_deps.subtree(), l));
                 Box::new(move |c2sp, _| {
                     let lsf_boxed = &*arena.alloc(autobox(l));
-                    let lg = super::LsGen::from(lsf_boxed);
+                    let lg = lsf_boxed;
                     super::generate(
                         &crate::BasePaths {
                             data_structure: data_structure(c2sp),
                             term_trait: term_trait(c2sp),
                             words: words(c2sp),
                         },
-                        &lg,
+                        lg,
                         sublangs.push_through(lsf_boxed),
                     )
                 })
@@ -404,7 +405,7 @@ pub mod targets {
                 Box::new(move |c, _| {
                     let words_path = words_path(c);
                     let sorts_path = data_structure(c);
-                    words::words_impls(&sorts_path, &words_path, sublang, &super::LsGen::from(lif))
+                    words::words_impls(&sorts_path, &words_path, sublang, lif)
                 })
             },
             external_deps: vec![],

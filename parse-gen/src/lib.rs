@@ -5,7 +5,7 @@ use langspec::{
     langspec::{LangSpec, MappedType, SortId},
     tymetafunc::Transparency,
 };
-use langspec_gen_util::{LsGen, TyGenData};
+use langspec_rs_syn::{TyGenData, ty_gen_datas};
 use rustgen_utils::byline;
 use syn::parse_quote;
 use tree_identifier::Identifier;
@@ -21,13 +21,12 @@ pub struct BasePaths {
     pub cst_words: syn::Path,
 }
 
-pub fn generate<L: LangSpec>(bps: &BasePaths, lg: &LsGen<L>) -> syn::ItemMod {
+pub fn generate<L: LangSpec>(bps: &BasePaths, lg: &L) -> syn::ItemMod {
     let byline = byline!();
     let arena = bumpalo::Bump::new();
-    let cst = cst(&arena, lg.bak());
-    let lg_cst = LsGen::from(cst);
-    let cst_tgds = lg_cst.ty_gen_datas(None).collect::<Vec<_>>();
-    let parses = lg.ty_gen_datas(None).map(|tgd| {
+    let cst = cst(&arena, lg);
+    let cst_tgds = ty_gen_datas(cst, None).collect::<Vec<_>>();
+    let parses = ty_gen_datas(lg, None).map(|tgd| {
         generate_parse(
             bps,
             cst_tgds
@@ -228,7 +227,6 @@ pub mod targets {
                 ));
                 // let _ = codegen_deps.add(term_pattern_match_strategy_provider_impl_gen::targets::uses_strategy_for_traversal_impls(arena, codegen_deps.subtree(), cst, &[cst.name().clone(), l.name().clone()]));
                 Box::new(move |c2sp, sp| {
-                    let lg = super::LsGen::from(l);
                     super::generate(
                         &crate::BasePaths {
                             data_structure: data_structure(c2sp),
@@ -240,7 +238,7 @@ pub mod targets {
                             cst_term_trait: cst_term_trait(c2sp),
                             cst_words: cst_words(c2sp),
                         },
-                        &lg,
+                        l,
                     )
                     // syn::parse_quote! {pub mod temp {}}
                 })
@@ -270,11 +268,9 @@ pub mod targets {
                 let words =
                     codegen_deps.add(words::targets::words_mod(arena, codegen_deps.subtree(), l));
                 Box::new(move |c2sp, _| {
-                    let lg = super::LsGen::from(l);
                     let cst = super::cst(arena, l);
-                    let lg_cst = super::LsGen::from(cst);
-                    let cst_tgds = lg_cst.ty_gen_datas(None).collect::<Vec<_>>();
-                    let parsells = lg.ty_gen_datas(None).map(|tgd| {
+                    let cst_tgds = super::ty_gen_datas(cst, None).collect::<Vec<_>>();
+                    let parsells = super::ty_gen_datas(l, None).map(|tgd| {
                         super::generate_parsell(
                             &words(c2sp),
                             cst_tgds

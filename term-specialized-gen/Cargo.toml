@@ -8,7 +8,7 @@ description = "Code generation for a family of Rust data structures that togethe
 
 [dependencies]
 codegen-component = { path = "../codegen-component" }
-langspec-gen-util = { path = "../langspec-gen-util" }
+langspec-rs-syn = { path = "../langspec-rs-syn" }
 langspec = { path = "../langspec" }
 rustgen-utils = { path = "../rustgen-utils" }
 quote = { workspace = true }

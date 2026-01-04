@@ -1,19 +1,17 @@
-use langspec::langspec::{LangSpec, SortId};
-use langspec_gen_util::HeapType;
-use langspec_gen_util::LsGen;
+use langspec::langspec::{LangSpec, SortIdOf};
+use langspec_rs_syn::{AlgebraicsBasePath, HeapType, heapbak_gen_datas, sort2word_rs_ty};
 use rustgen_utils::byline;
 use syn::parse_quote;
 
-use langspec_gen_util::{AlgebraicsBasePath, CanonicallyConstructibleFromGenData, TyGenData};
+use langspec::langspec::SortId;
 
 pub fn generate<L: LangSpec>(
     base_path: &syn::Path,
     words_path: &syn::Path,
     ls: &L,
 ) -> syn::ItemMod {
-    let lg = LsGen::from(ls);
-    // let owned = owned::generate(base_path, words_path, &lg);
-    let heap_trait = heap_trait(base_path, words_path, &lg);
+    // let owned = owned::generate(base_path, words_path, ls);
+    let heap_trait = heap_trait(base_path, words_path, ls);
     let byline = byline!();
     parse_quote!(
         #byline
@@ -26,7 +24,7 @@ pub fn generate<L: LangSpec>(
 pub(crate) fn heap_trait<L: LangSpec>(
     base_path: &syn::Path,
     words_path: &syn::Path,
-    ls: &LsGen<L>,
+    ls: &L,
 ) -> syn::ItemTrait {
     // transpose!(
     //     ls.ty_gen_datas(Some(syn::parse_quote! {#words_path})),
@@ -34,7 +32,7 @@ pub(crate) fn heap_trait<L: LangSpec>(
     // );
     let byline = byline!();
     let superheap_bounds = generate_superheap_bounds(ls, words_path);
-    let inverse_implements_bounds = generate_inverse_implements_bounds(base_path, words_path, ls);
+    let inverse_implements_bounds = generate_inverse_implements_bounds(words_path, ls);
     parse_quote! {
         #byline
         pub trait Heap: Sized #(+ #inverse_implements_bounds)* #(+ #superheap_bounds)* {
@@ -46,10 +44,10 @@ pub(crate) fn heap_trait<L: LangSpec>(
 }
 
 fn generate_superheap_bounds<L: LangSpec>(
-    ls: &LsGen<L>,
+    ls: &L,
     words_path: &syn::Path,
 ) -> Vec<syn::TraitBound> {
-    ls.heapbak_gen_datas()
+    heapbak_gen_datas(ls)
         .iter()
         .map(|hgd| -> syn::Type {
             // let ty_func = &hgd.ty_func.ty_func;
@@ -71,15 +69,14 @@ fn generate_superheap_bounds<L: LangSpec>(
 }
 
 fn generate_inverse_implements_bounds<L: LangSpec>(
-    base_path: &syn::Path,
     words_path: &syn::Path,
-    ls: &LsGen<L>,
+    ls: &L,
 ) -> impl Iterator<Item = syn::TraitBound> {
-    ls.bak().all_sort_ids().map(move |sid| {
-        let lword = ls.sort2word_rs_ty(sid.clone(), words_path);
+    ls.all_sort_ids().map(move |sid| {
+        let lword = sort2word_rs_ty(ls, sid.clone(), words_path);
         match sid {
             SortId::Algebraic(asi) => {
-                let camel_ident = ls.bak().algebraic_sort_name(asi).camel_ident();
+                let camel_ident = ls.algebraic_sort_name(asi).camel_ident();
                 syn::parse_quote! {
                     words::InverseImplements<
                         #words_path::L,
@@ -92,7 +89,7 @@ fn generate_inverse_implements_bounds<L: LangSpec>(
                 words::InverseImplements<
                     #words_path::L,
                     #lword,
-                    ExternBehavioralImplementor: TyMetaFunc
+                    ExternBehavioralImplementor: term::TyMetaFunc
                 >
             },
         }

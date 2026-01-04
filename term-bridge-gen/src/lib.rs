@@ -2,7 +2,7 @@ use langspec::{
     langspec::{LangSpec, SortId, SortIdOf},
     sublang::Sublang,
 };
-use langspec_gen_util::{AlgebraicsBasePath, HeapType, LsGen};
+use langspec_rs_syn::{AlgebraicsBasePath, HeapType, ty_gen_datas, sort2rs_ty};
 // use words::words_impls;
 
 pub struct BasePaths {
@@ -12,7 +12,7 @@ pub struct BasePaths {
 }
 
 pub fn generate<'a, L: LangSpec, LSub: LangSpec>(
-    ext_lg: &LsGen<L>,
+    ext_l: &L,
     sublang: &Sublang<'a, LSub, SortIdOf<L>>,
     bps: &BasePaths,
 ) -> syn::ItemMod {
@@ -22,14 +22,14 @@ pub fn generate<'a, L: LangSpec, LSub: LangSpec>(
         og_words_base_path: _,
     } = bps;
     dbg!(sublang.lsub.name());
-    let (camel_names, sids): (Vec<_>, Vec<SortIdOf<LSub>>) = LsGen::from(sublang.lsub)
-        .ty_gen_datas(None)
+    let (camel_names, sids): (Vec<_>, Vec<SortIdOf<LSub>>) = ty_gen_datas(sublang.lsub, None)
         .map(|tgd| (tgd.camel_ident, SortId::Algebraic(tgd.id)))
         .unzip::<_, _, Vec<_>, Vec<_>>();
     let image_ty_under_embeddings = sids
         .iter()
         .map(|sort| {
-            ext_lg.sort2rs_ty(
+            sort2rs_ty(
+                ext_l,
                 (sublang.map)(sort),
                 &HeapType(syn::parse_quote! {#ext_data_structure::Heap}),
                 &AlgebraicsBasePath::new(quote::quote! {#ext_data_structure::}),
@@ -48,7 +48,7 @@ pub fn generate<'a, L: LangSpec, LSub: LangSpec>(
         &bps.ext_data_structure,
         &bps.og_words_base_path,
         sublang,
-        ext_lg,
+        ext_l,
     );
     syn::parse_quote! {
         mod bridge {
@@ -111,7 +111,6 @@ pub mod targets {
         l: &'langs L,
         sl: &'langs Sl,
     ) -> CodegenInstance<'langs> {
-        let ext_lg = super::LsGen::from(l);
         // let oglsg = super::LsGen::from(l);
         CodegenInstance {
             id: kebab_id!(l),
@@ -167,7 +166,6 @@ pub mod targets {
         l: &'langs L,
         sl: &'langs Sl,
     ) -> CodegenInstance<'langs> {
-        let ext_lg = super::LsGen::from(l);
         CodegenInstance {
             id: tree_identifier::Identifier::list(
                 vec![
@@ -219,7 +217,7 @@ pub mod targets {
                 // ));
                 Box::new(move |c2sp, _| {
                     super::generate(
-                        &ext_lg,
+                        l,
                         // &oglsg,
                         car,
                         &crate::BasePaths {

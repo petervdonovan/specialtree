@@ -8,7 +8,7 @@ description = "Generation of trait implementations that implement traits for spe
 codegen-component = { path = "../codegen-component" }
 extension-autobox = { path = "../extension-autobox" }
 langspec = { path = "../langspec" }
-langspec-gen-util = { path = "../langspec-gen-util" }
+langspec-rs-syn = { path = "../langspec-rs-syn" }
 rustgen-utils = { path = "../rustgen-utils" }
 term-specialized-gen = { path = "../term-specialized-gen" }
 term-trait-gen = { path = "../term-trait-gen" }

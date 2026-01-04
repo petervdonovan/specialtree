@@ -6,6 +6,7 @@ description = "Legacy code generation utilities for language specifications (bei
 
 [dependencies]
 langspec = { path = "../langspec" }
+langspec-rs-syn = { path = "../langspec-rs-syn" }
 proc-macro2 = { workspace = true }
 rustgen-utils = { path = "../rustgen-utils" }
 syn = { workspace = true }

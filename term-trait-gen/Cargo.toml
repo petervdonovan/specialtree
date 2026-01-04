@@ -6,7 +6,7 @@ description = "Generation of traits that are the same for all families of data s
 
 [dependencies]
 codegen-component = { path = "../codegen-component" }
-langspec-gen-util = { path = "../langspec-gen-util" }
+langspec-rs-syn = { path = "../langspec-rs-syn" }
 langspec = { path = "../langspec" }
 rustgen-utils = { path = "../rustgen-utils" }
 words = { path = "../words" }

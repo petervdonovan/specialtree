@@ -1,11 +1,12 @@
 use langspec::langspec::LangSpec;
-use langspec_gen_util::{AlgebraicsBasePath, HeapType, LsGen};
+use langspec_rs_syn::{AlgebraicsBasePath, HeapType, sort2rs_ty};
 use rustgen_utils::byline;
 
-pub fn generate<L: LangSpec>(words_base_path: &syn::Path, lg: &LsGen<L>) -> syn::ItemMod {
+pub fn generate<L: LangSpec>(words_base_path: &syn::Path, lg: &L) -> syn::ItemMod {
     let byline = byline!();
-    let tys = lg.bak().all_sort_ids().map(|sid| {
-        lg.sort2rs_ty(
+    let tys = lg.all_sort_ids().map(|sid| {
+        sort2rs_ty(
+            lg,
             sid,
             &HeapType(syn::parse_quote! { () }),
             &AlgebraicsBasePath::new(syn::parse_quote! { #words_base_path::sorts:: }),
@@ -33,7 +34,7 @@ pub mod targets {
     use std::path::Path;
 
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
-    use langspec_gen_util::LsGen;
+
     use rustgen_utils::kebab_id;
 
     pub fn default<'langs, L: super::LangSpec>(
@@ -44,13 +45,13 @@ pub mod targets {
         CodegenInstance {
             id: kebab_id!(l),
             generate: {
-                let lg = LsGen::from(l);
+                let lg = l;
                 let words_base_path = codegen_deps.add(words::targets::words_mod::<L>(
                     arena,
                     codegen_deps.subtree(),
                     l,
                 ));
-                Box::new(move |c2sp, _sp| super::generate(&words_base_path(c2sp), &lg))
+                Box::new(move |c2sp, _sp| super::generate(&words_base_path(c2sp), lg))
             },
             external_deps: vec![],
             workspace_deps: vec![

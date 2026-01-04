@@ -6,7 +6,7 @@ description = "Generation of trait implementations needed by a pmsp"
 
 [dependencies]
 codegen-component = { path = "../codegen-component" }
-langspec-gen-util = { path = "../langspec-gen-util" }
+langspec-rs-syn = { path = "../langspec-rs-syn" }
 langspec = { path = "../langspec" }
 rustgen-utils = { path = "../rustgen-utils" }
 term-specialized-gen = { path = "../term-specialized-gen" }

@@ -4,7 +4,9 @@ use langspec::{
     langspec::{LangSpec, SortIdOf},
     sublang::Sublang,
 };
-use langspec_gen_util::{AlgebraicsBasePath, HeapType, LsGen};
+use langspec_rs_syn::{
+    AlgebraicsBasePath, HeapType, sort2rs_ty, sort2word_rs_ty, ty_gen_datas,
+};
 use rustgen_utils::byline;
 
 pub trait Implements<Heap, L> {
@@ -60,9 +62,8 @@ pub trait Adtishness<A: Aspect> {
     type X: AdtLikeOrNot;
 }
 
-pub fn words_mod<L: LangSpec>(lg: &LsGen<L>) -> syn::ItemMod {
-    let sort_camel_idents = lg
-        .ty_gen_datas(None)
+pub fn words_mod<L: LangSpec>(lg: &L) -> syn::ItemMod {
+    let sort_camel_idents = ty_gen_datas(lg, None)
         .map(|it| it.camel_ident)
         .collect::<Vec<_>>();
     let byline = rustgen_utils::byline!();
@@ -90,15 +91,14 @@ pub fn words_impls<L: LangSpec, LSub: LangSpec>(
     ext_data_structure: &syn::Path,
     og_words_base_path: &syn::Path,
     sublang: &Sublang<'_, LSub, SortIdOf<L>>,
-    elsg: &LsGen<L>,
+    elsg: &L,
 ) -> syn::ItemMod {
-    let oglsg = LsGen::from(sublang.lsub);
-    let impls = oglsg
-        .bak()
+    let impls = sublang.lsub
         .all_sort_ids()
         .map(|sid| {
-            let word = oglsg.sort2word_rs_ty(sid.clone(), og_words_base_path);
-            let structural_implementor = elsg.sort2rs_ty(
+            let word = sort2word_rs_ty(sublang.lsub, sid.clone(), og_words_base_path);
+            let structural_implementor = sort2rs_ty(
+                elsg,
                 (sublang.map)(&sid),
                 &HeapType(syn::parse_quote! { #ext_data_structure::Heap }),
                 &AlgebraicsBasePath::new(syn::parse_quote! { #ext_data_structure:: }),
@@ -125,24 +125,22 @@ pub fn words_inverse_impls<L: LangSpec, LSub: LangSpec>(
     ext_data_structure: &syn::Path,
     og_words_base_path: &syn::Path,
     sublang: &Sublang<'_, LSub, SortIdOf<L>>,
-    elsg: &LsGen<L>,
+    elsg: &L,
 ) -> syn::ItemMod {
-    let oglsg = LsGen::from(sublang.lsub);
-    let impls = oglsg
-        .bak()
+    let impls = sublang.lsub
         .all_sort_ids()
         .map(|sid| {
-            let word = oglsg.sort2word_rs_ty(sid.clone(), og_words_base_path);
+            let word = sort2word_rs_ty(sublang.lsub, sid.clone(), og_words_base_path);
             let structural_implementor_sid = (sublang.map)(&sid);
             let ht = HeapType(syn::parse_quote! { #ext_data_structure::Heap });
             let abp = AlgebraicsBasePath::new(syn::parse_quote! { #ext_data_structure:: });
             let structural_implementor =
-                elsg.sort2rs_ty(structural_implementor_sid.clone(), &ht, &abp);
+                sort2rs_ty(elsg, structural_implementor_sid.clone(), &ht, &abp);
             let behavioral_implementor = sublang
                 .tems
                 .iter()
                 .find(|it| it.to_structural == structural_implementor_sid)
-                .map(|tem| elsg.sort2rs_ty(tem.from_extern_behavioral.clone(), &ht, &abp))
+                .map(|tem| sort2rs_ty(elsg, tem.from_extern_behavioral.clone(), &ht, &abp))
                 .unwrap_or_else(|| structural_implementor.clone());
             (structural_implementor, behavioral_implementor, word)
         })
@@ -215,7 +213,7 @@ pub mod targets {
             external_deps: vec![],
             workspace_deps: vec![],
             codegen_deps,
-            generate: Box::new(move |_, _| super::words_mod(&super::LsGen::from(l))),
+            generate: Box::new(move |_, _| super::words_mod(l)),
         }
     }
 }

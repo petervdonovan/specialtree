@@ -1,5 +1,5 @@
 use langspec::langspec::LangSpec;
-use langspec_gen_util::LsGen;
+use langspec_rs_syn::ty_gen_datas;
 
 pub struct BasePaths {
     pub data_structure: syn::Path,
@@ -7,9 +7,9 @@ pub struct BasePaths {
     pub strategy_provider: syn::Path,
 }
 
-pub fn generate<L: LangSpec>(data_structure: &syn::Path, ls: &LsGen<L>) -> syn::ItemMod {
+pub fn generate<L: LangSpec>(data_structure: &syn::Path, ls: &L) -> syn::ItemMod {
     let byline = rustgen_utils::byline!();
-    let impls = ls.ty_gen_datas(None).map(|tgd| {
+    let impls = ty_gen_datas(ls, None).map(|tgd| {
         let camel_ident = tgd.camel_ident;
         impl_adt_for(data_structure, &camel_ident)
     });
@@ -56,8 +56,7 @@ pub mod targets {
                     arena.alloc(reflexive_sublang(l)),
                 ));
                 Box::new(move |c2sp, _| {
-                    let lg = super::LsGen::from(l);
-                    super::generate(&data_structure(c2sp), &lg)
+                    super::generate(&data_structure(c2sp), l)
                 })
             },
             external_deps: vec![],

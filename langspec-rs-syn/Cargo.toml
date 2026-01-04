@@ -1,0 +1,18 @@
+[package]
+name = "langspec-rs-syn"
+version = "0.1.0"
+edition = { workspace = true }
+description = "Type path generation and generation data structures for the SpecialTree Meta-Language Framework"
+
+[dependencies]
+langspec = { path = "../langspec" }
+term = { path = "../term" }
+tree-identifier = { path = "../tree-identifier" }
+transitive-ccf = { path = "../transitive-ccf" }
+rustgen-utils = { path = "../rustgen-utils" }
+proc-macro2.workspace = true
+quote.workspace = true
+syn.workspace = true
+
+[dev-dependencies]
+expect-test.workspace = true

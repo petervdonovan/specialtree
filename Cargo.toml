@@ -3,7 +3,7 @@
 resolver = "2"
 
 members = [
-    "langspec-gen-util",
+    "langspec-rs-syn",
     "langspec-examples",
     "langspec",
     "term-specialized-gen",
