@@ -10,6 +10,7 @@ term = { path = "../term" }
 tree-identifier = { path = "../tree-identifier" }
 transitive-ccf = { path = "../transitive-ccf" }
 rustgen-utils = { path = "../rustgen-utils" }
+memo.path = "../memo/memo"
 proc-macro2.workspace = true
 quote.workspace = true
 syn.workspace = true

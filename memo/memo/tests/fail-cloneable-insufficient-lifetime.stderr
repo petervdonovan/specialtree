@@ -1,7 +1,7 @@
 error: lifetime may not live long enough
-  --> tests/fail-cloneable-insufficient-lifetime.rs:9:1
-   |
-9  | #[memo('a)]
+ --> tests/fail-cloneable-insufficient-lifetime.rs:9:1
+  |
+ 9 | #[memo('a)]
    | ^^^^^^^^^^^ requires that `'b` must outlive `'static`
 10 | fn test_insufficient_lifetime<'a, 'b>(x: DataWithLifetime<'b>) -> &'a DataWithLifetime<'b> {
    |                                   -- lifetime `'b` defined here

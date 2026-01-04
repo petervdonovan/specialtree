@@ -57,7 +57,7 @@ members = [
     "tree-identifier",
     "memo/memo-with-references",
     "memo/memo-cache",
-    "rustgen-utils",
+    "rustgen-utils", "memo/memo",
 ]
 
 [profile.release]
@@ -70,6 +70,7 @@ edition = "2024"
 [workspace.dependencies]
 arbitrary = { version = "1", features = ["derive"] }
 bumpalo = "3.17.0"
+criterion = { version = "0.8.1", features = ["html_reports"] }
 derivative = "2.2.0"
 derive_more = "0.99.20"
 expect-test = "1.5.1"

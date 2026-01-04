@@ -2,7 +2,8 @@ use langspec::{
     langspec::{LangSpec, SortId, SortIdOf},
     sublang::Sublang,
 };
-use langspec_rs_syn::{AlgebraicsBasePath, HeapType, ty_gen_datas, sort2rs_ty};
+use langspec_rs_syn::{AlgebraicsBasePath, HeapType, sort2rs_ty, ty_gen_datas};
+use memo::memo_cache::thread_local_cache;
 // use words::words_impls;
 
 pub struct BasePaths {
@@ -21,21 +22,23 @@ pub fn generate<'a, L: LangSpec, LSub: LangSpec>(
         og_term_trait: _,
         og_words_base_path: _,
     } = bps;
-    dbg!(sublang.lsub.name());
-    let (camel_names, sids): (Vec<_>, Vec<SortIdOf<LSub>>) = ty_gen_datas(sublang.lsub, None)
-        .map(|tgd| (tgd.camel_ident, SortId::Algebraic(tgd.id)))
-        .unzip::<_, _, Vec<_>, Vec<_>>();
-    let image_ty_under_embeddings = sids
-        .iter()
-        .map(|sort| {
-            sort2rs_ty(
-                ext_l,
-                (sublang.map)(sort),
-                &HeapType(syn::parse_quote! {#ext_data_structure::Heap}),
-                &AlgebraicsBasePath::new(quote::quote! {#ext_data_structure::}),
-            )
-        })
-        .collect::<Vec<_>>();
+    // dbg!(sublang.lsub.name());
+    // let (camel_names, sids): (Vec<_>, Vec<SortIdOf<LSub>>) =
+    //     ty_gen_datas(thread_local_cache(), sublang.lsub, None)
+    //         .iter()
+    //         .map(|tgd| (&tgd.camel_ident, SortId::Algebraic(tgd.id.clone())))
+    //         .unzip::<_, _, Vec<_>, Vec<_>>();
+    // let image_ty_under_embeddings = sids
+    //     .iter()
+    //     .map(|sort| {
+    //         sort2rs_ty(
+    //             ext_l,
+    //             (sublang.map)(sort),
+    //             &HeapType(syn::parse_quote! {#ext_data_structure::Heap}),
+    //             &AlgebraicsBasePath::new(quote::quote! {#ext_data_structure::}),
+    //         )
+    //     })
+    //     .collect::<Vec<_>>();
     let heap = generate_heap(&bps.ext_data_structure, &bps.og_term_trait);
     // let owned_impls = generate_owned_impls(&camel_names, &image_ty_under_embeddings, bps);
     // let words_impls = words_impls(

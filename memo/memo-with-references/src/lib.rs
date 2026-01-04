@@ -142,11 +142,11 @@ fn get_original_memoized_fn_args(
 
 fn add_cache_parameter(sig: &mut syn::Signature, cache_lifetime: &syn::Lifetime) {
     let logger_generic: syn::GenericParam =
-        syn::parse_quote! { Logger: memo_cache::logger::MemoCacheLogger };
+        syn::parse_quote! { Logger: memo::memo_cache::logger::MemoCacheLogger };
     sig.generics.params.push(logger_generic);
 
     let cache_param: syn::FnArg = syn::parse_quote! {
-        cache: &#cache_lifetime memo_cache::Cache<#cache_lifetime, Logger>
+        cache: &#cache_lifetime memo::memo_cache::Cache<#cache_lifetime, Logger>
     };
 
     let insert_pos = if sig
@@ -326,7 +326,7 @@ fn get_pointer_fingerprint(
 
     syn::parse_quote! {
         {
-            use memo_cache::sha2::{Sha256, Digest};
+            use memo::memo_cache::sha2::{Sha256, Digest};
             let mut sha_hasher = Sha256::new();
 
             // Include pointer values for frozen arguments only
@@ -352,7 +352,7 @@ fn get_cache_key(
 
     // Generate code that creates a MemoCacheKey with both fingerprint and cloneable data
     syn::parse_quote! {
-        memo_cache::MemoCacheKey::new(#pointer_fingerprint, #cloneable_tuple)
+        memo::memo_cache::MemoCacheKey::new(#pointer_fingerprint, #cloneable_tuple)
     }
 }
 

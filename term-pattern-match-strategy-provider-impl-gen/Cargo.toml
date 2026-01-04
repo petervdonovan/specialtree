@@ -13,6 +13,7 @@ term-specialized-gen = { path = "../term-specialized-gen" }
 words = { path = "../words" }
 term-specialized-impl-gen = { path = "../term-specialized-impl-gen" }
 syn = { workspace = true }
+memo.path = "../memo/memo"
 
 [dev-dependencies]
 langspec-examples = { path = "../langspec-examples" }

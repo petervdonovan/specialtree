@@ -1,6 +1,8 @@
 pub use sha2;
 
+mod global;
 pub mod logger;
+pub use global::thread_local_cache;
 
 use std::any::Any;
 use std::cell::RefCell;
@@ -114,5 +116,10 @@ impl<'arena, Logger: MemoCacheLogger> Cache<'arena, Logger> {
     /// Reset the cache logger data
     pub fn reset_logger(&self) {
         self.logger.borrow_mut().reset();
+    }
+
+    /// Force recomputation for debugging purposes
+    pub fn clear(&self) {
+        self.cache.borrow_mut().clear();
     }
 }

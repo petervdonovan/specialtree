@@ -1,5 +1,6 @@
 use langspec::langspec::LangSpec;
 use langspec_rs_syn::ty_gen_datas;
+use memo::memo_cache::thread_local_cache;
 
 pub struct BasePaths {
     pub data_structure: syn::Path,
@@ -9,10 +10,9 @@ pub struct BasePaths {
 
 pub fn generate<L: LangSpec>(data_structure: &syn::Path, ls: &L) -> syn::ItemMod {
     let byline = rustgen_utils::byline!();
-    let impls = ty_gen_datas(ls, None).map(|tgd| {
-        let camel_ident = tgd.camel_ident;
-        impl_adt_for(data_structure, &camel_ident)
-    });
+    let impls = ty_gen_datas(thread_local_cache(), ls, None)
+        .iter()
+        .map(|tgd| impl_adt_for(data_structure, &tgd.camel_ident));
     syn::parse_quote! {
         #byline
         pub mod pattern_match_strategy_impls {
@@ -55,9 +55,7 @@ pub mod targets {
                     l,
                     arena.alloc(reflexive_sublang(l)),
                 ));
-                Box::new(move |c2sp, _| {
-                    super::generate(&data_structure(c2sp), l)
-                })
+                Box::new(move |c2sp, _| super::generate(&data_structure(c2sp), l))
             },
             external_deps: vec![],
             workspace_deps: vec![(

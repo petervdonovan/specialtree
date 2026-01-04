@@ -1,5 +1,9 @@
 use langspec::langspec::{LangSpec, SortId, SortIdOf};
-use langspec_rs_syn::{HeapType, tmf_ccf_sortses, ty_gen_datas, tmfs_monomorphizations, sort2externbehavioral_from_word_rs_ty, sort2word_rs_ty};
+use langspec_rs_syn::{
+    HeapType, sort2externbehavioral_from_word_rs_ty, sort2word_rs_ty, tmf_ccf_sortses,
+    tmfs_monomorphizations, ty_gen_datas,
+};
+use memo::memo_cache::thread_local_cache;
 use rustgen_utils::cons_list;
 
 pub struct BasePaths {
@@ -10,7 +14,8 @@ pub struct BasePaths {
 
 pub fn generate<L: LangSpec>(base_paths: &BasePaths, lg: &L) -> syn::ItemMod {
     let byline = rustgen_utils::byline!();
-    let implementations = ty_gen_datas(lg, Some(base_paths.words.clone()))
+    let implementations = ty_gen_datas(thread_local_cache(), lg, Some(base_paths.words.clone()))
+        .iter()
         .map(|tgd| {
             impl_has_pattern_match_strategy_for(
                 &base_paths.words,
@@ -19,15 +24,19 @@ pub fn generate<L: LangSpec>(base_paths: &BasePaths, lg: &L) -> syn::ItemMod {
                 tgd.ccf_sortses.as_slice(),
             )
         })
-        .chain(tmfs_monomorphizations(lg).map(|mt| {
-            let tcs = tmf_ccf_sortses::<L>(&mt);
-            impl_has_pattern_match_strategy_for(
-                &base_paths.words,
-                lg,
-                SortId::TyMetaFunc(mt),
-                tcs.as_slice(),
-            )
-        }));
+        .chain(
+            tmfs_monomorphizations(thread_local_cache(), lg)
+                .iter()
+                .map(|mt| {
+                    let tcs = tmf_ccf_sortses::<L>(mt);
+                    impl_has_pattern_match_strategy_for(
+                        &base_paths.words,
+                        lg,
+                        SortId::TyMetaFunc(mt.clone()),
+                        tcs.as_slice(),
+                    )
+                }),
+        );
     syn::parse_quote! {
         #byline
         pub mod pattern_match_strategy {
@@ -39,19 +48,21 @@ pub fn generate<L: LangSpec>(base_paths: &BasePaths, lg: &L) -> syn::ItemMod {
 fn impl_has_pattern_match_strategy_for<L: LangSpec>(
     words_path: &syn::Path,
     lg: &L,
-    sid: SortId<L::ProductId, L::SumId, <L::Tmfs as langspec::tymetafunc::TyMetaFuncSpec>::TyMetaFuncId>,
+    sid: SortId<
+        L::ProductId,
+        L::SumId,
+        <L::Tmfs as langspec::tymetafunc::TyMetaFuncSpec>::TyMetaFuncId,
+    >,
     ccf_sortses: &[Vec<SortIdOf<L>>],
 ) -> syn::ItemImpl {
     let byline = rustgen_utils::byline!();
-    let strategy: syn::Type = cons_list(
-        ccf_sortses.iter().map(|ccf_sorts| {
-            cons_list(
-                ccf_sorts
-                    .iter()
-                    .map(|sid| sort2word_rs_ty(lg, sid.clone(), words_path)),
-            )
-        }),
-    );
+    let strategy: syn::Type = cons_list(ccf_sortses.iter().map(|ccf_sorts| {
+        cons_list(
+            ccf_sorts
+                .iter()
+                .map(|sid| sort2word_rs_ty(lg, sid.clone(), words_path)),
+        )
+    }));
     let word = sort2word_rs_ty(lg, sid, words_path);
     syn::parse_quote! {
         #byline
@@ -61,26 +72,26 @@ fn impl_has_pattern_match_strategy_for<L: LangSpec>(
     }
 }
 
-fn tymetadatas<L: LangSpec>(
-    lg: &L,
-    sids: &[SortIdOf<L>],
-    ht: &HeapType,
-    // abp: &AlgebraicsBasePath,
-    words_path: &syn::Path,
-) -> syn::Type {
-    cons_list(sids.iter().map(|sid| match sid {
-        langspec::langspec::SortId::Algebraic(_) => syn::parse_quote! {
-            pmsp::AdtMetadata
-        },
-        langspec::langspec::SortId::TyMetaFunc(mappedtype) => {
-            let ccf_sortses_tmfs = tymetadatas(lg, mappedtype.a.as_slice(), ht, words_path);
-            let rs_ty = sort2externbehavioral_from_word_rs_ty(lg, sid.clone(), ht, words_path);
-            syn::parse_quote! {
-                pmsp::TmfMetadata<#rs_ty, #ccf_sortses_tmfs>
-            }
-        }
-    }))
-}
+// fn tymetadatas<L: LangSpec>(
+//     lg: &L,
+//     sids: &[SortIdOf<L>],
+//     ht: &HeapType,
+//     // abp: &AlgebraicsBasePath,
+//     words_path: &syn::Path,
+// ) -> syn::Type {
+//     cons_list(sids.iter().map(|sid| match sid {
+//         langspec::langspec::SortId::Algebraic(_) => syn::parse_quote! {
+//             pmsp::AdtMetadata
+//         },
+//         langspec::langspec::SortId::TyMetaFunc(mappedtype) => {
+//             let ccf_sortses_tmfs = tymetadatas(lg, mappedtype.a.as_slice(), ht, words_path);
+//             let rs_ty = sort2externbehavioral_from_word_rs_ty(lg, sid.clone(), ht, words_path);
+//             syn::parse_quote! {
+//                 pmsp::TmfMetadata<#rs_ty, #ccf_sortses_tmfs>
+//             }
+//         }
+//     }))
+// }
 
 pub mod targets {
     use std::path::Path;

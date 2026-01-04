@@ -1,0 +1,33 @@
+[package]
+name = "memo"
+version.workspace = true
+edition.workspace = true
+autotests = false
+
+[[test]]
+name = "tests"
+path = "tests/tests.rs"
+
+[[test]]
+name = "memo_runtime"
+path = "tests/memo_runtime.rs"
+
+[[test]]
+name = "memory_error_test"
+path = "tests/memory_error_test.rs"
+
+[[test]]
+name = "impl_block_memory_error_test"
+path = "tests/impl-block-generics-memory-error.rs"
+
+[[test]]
+name = "test_self_parameter"
+path = "tests/test-self-parameter.rs"
+
+[dependencies]
+memo-cache.path = "../memo-cache"
+memo-with-references.path = "../memo-with-references"
+bumpalo.workspace = true
+expect-test.workspace = true
+proc-macro2.workspace = true
+trybuild.workspace = true

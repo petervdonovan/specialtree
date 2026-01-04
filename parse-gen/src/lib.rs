@@ -6,6 +6,7 @@ use langspec::{
     tymetafunc::Transparency,
 };
 use langspec_rs_syn::{TyGenData, ty_gen_datas};
+use memo::memo_cache::thread_local_cache;
 use rustgen_utils::byline;
 use syn::parse_quote;
 use tree_identifier::Identifier;
@@ -25,16 +26,20 @@ pub fn generate<L: LangSpec>(bps: &BasePaths, lg: &L) -> syn::ItemMod {
     let byline = byline!();
     let arena = bumpalo::Bump::new();
     let cst = cst(&arena, lg);
-    let cst_tgds = ty_gen_datas(cst, None).collect::<Vec<_>>();
-    let parses = ty_gen_datas(lg, None).map(|tgd| {
-        generate_parse(
-            bps,
-            cst_tgds
-                .iter()
-                .find(|cst_tgd| cst_tgd.snake_ident == tgd.snake_ident)
-                .unwrap(),
-        )
-    });
+    let cst_tgds = ty_gen_datas(thread_local_cache(), cst, None)
+        .iter()
+        .collect::<Vec<_>>();
+    let parses = ty_gen_datas(thread_local_cache(), lg, None)
+        .iter()
+        .map(|tgd| {
+            generate_parse(
+                bps,
+                cst_tgds
+                    .iter()
+                    .find(|cst_tgd| cst_tgd.snake_ident == tgd.snake_ident)
+                    .unwrap(),
+            )
+        });
     parse_quote! {
         #byline
         pub mod parse {
@@ -269,17 +274,19 @@ pub mod targets {
                     codegen_deps.add(words::targets::words_mod(arena, codegen_deps.subtree(), l));
                 Box::new(move |c2sp, _| {
                     let cst = super::cst(arena, l);
-                    let cst_tgds = super::ty_gen_datas(cst, None).collect::<Vec<_>>();
-                    let parsells = super::ty_gen_datas(l, None).map(|tgd| {
-                        super::generate_parsell(
-                            &words(c2sp),
-                            cst_tgds
-                                .iter()
-                                .find(|cst_tgd| cst_tgd.snake_ident == tgd.snake_ident)
-                                .unwrap(),
-                            &tgd,
-                        )
-                    });
+                    let cst_tgds = super::ty_gen_datas(super::thread_local_cache(), cst, None);
+                    let parsells = super::ty_gen_datas(super::thread_local_cache(), l, None)
+                        .iter()
+                        .map(|tgd| {
+                            super::generate_parsell(
+                                &words(c2sp),
+                                cst_tgds
+                                    .iter()
+                                    .find(|cst_tgd| cst_tgd.snake_ident == tgd.snake_ident)
+                                    .unwrap(),
+                                tgd,
+                            )
+                        });
                     syn::parse_quote! {
                         #byline
                         pub mod parsell {

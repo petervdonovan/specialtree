@@ -3,8 +3,9 @@ use langspec::{
     sublang::Sublangs,
 };
 use langspec_rs_syn::{
-    AlgebraicsBasePath, HeapType, TyGenData, ty_gen_datas, sort2rs_ty, tmfs_monomorphizations,
+    AlgebraicsBasePath, HeapType, TyGenData, sort2rs_ty, tmfs_monomorphizations, ty_gen_datas,
 };
+use memo::memo_cache::thread_local_cache;
 use rustgen_utils::{byline, cons_list_index_range};
 use transitive_ccf::{CcfPaths, analysis::ccf_paths};
 
@@ -35,8 +36,13 @@ pub fn generate<L: LangSpec>(
 
 pub(crate) fn gen_ccf_mod<L: LangSpec>(bps: &BasePaths, term_trait_lsg: &L) -> syn::ItemMod {
     let words = &bps.words;
-    let ccf_impls = ty_gen_datas(term_trait_lsg, Some(syn::parse_quote!(#words)))
-        .map(|tgd| gen_ccf_impls(term_trait_lsg, bps, &tgd));
+    let ccf_impls = ty_gen_datas(
+        thread_local_cache(),
+        term_trait_lsg,
+        Some(syn::parse_quote!(#words)),
+    )
+    .iter()
+    .map(|tgd| gen_ccf_impls(term_trait_lsg, bps, tgd));
     let byline = byline!();
     syn::parse_quote! {
         #byline
@@ -51,14 +57,20 @@ pub(crate) fn gen_ccf_auto_impls<L: LangSpec>(
     words_path: &syn::Path,
     term_trait_lsg: &L,
 ) -> syn::ItemMod {
-    let ccf_impls = ty_gen_datas(term_trait_lsg, Some(syn::parse_quote!(#words_path)))
-        .map(|tgd| -> syn::ItemMacro {
-            let camel_ident = &tgd.camel_ident;
-            syn::parse_quote! {
-                term::auto_impl_ccf!(#ds_base_path::Heap, #ds_base_path::#camel_ident);
-            }
-        });
-    let tmf_ccf_impls = tmfs_monomorphizations(term_trait_lsg)
+    let ccf_impls = ty_gen_datas(
+        thread_local_cache(),
+        term_trait_lsg,
+        Some(syn::parse_quote!(#words_path)),
+    )
+    .iter()
+    .map(|tgd| -> syn::ItemMacro {
+        let camel_ident = &tgd.camel_ident;
+        syn::parse_quote! {
+            term::auto_impl_ccf!(#ds_base_path::Heap, #ds_base_path::#camel_ident);
+        }
+    });
+    let tmf_ccf_impls = tmfs_monomorphizations(thread_local_cache(), term_trait_lsg)
+        .iter()
         .map(|tmf| -> syn::ItemMacro {
             let ty = sort2rs_ty(
                 term_trait_lsg,

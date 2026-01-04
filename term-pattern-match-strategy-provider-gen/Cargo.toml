@@ -12,6 +12,7 @@ rustgen-utils = { path = "../rustgen-utils" }
 term-trait-gen = { path = "../term-trait-gen" }
 words = { path = "../words" }
 syn = { workspace = true }
+memo.path = "../memo/memo"
 
 [dev-dependencies]
 langspec-examples = { path = "../langspec-examples" }

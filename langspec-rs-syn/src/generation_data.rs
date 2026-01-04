@@ -4,6 +4,8 @@ use langspec::langspec::{
     AlgebraicSortId, LangSpec, MappedTypeOf, SortId, SortIdOf, call_on_all_tmf_monomorphizations,
 };
 use langspec::tymetafunc::{IdentifiedBy, RustTyMap, Transparency, TyMetaFuncData, TyMetaFuncSpec};
+use memo::memo;
+use memo::memo_cache::thread_local_cache;
 use rustgen_utils::cons_list;
 use tree_identifier::Identifier;
 
@@ -43,20 +45,19 @@ pub struct HstData {
     pub heap_sort_snake_ident: syn::Ident,
     pub heap_sort_camel_ident: syn::Ident,
 }
-
-pub fn tmfs_monomorphizations<L: LangSpec>(
-    ls: &L,
-) -> impl Iterator<Item = MappedType<L::ProductId, L::SumId, <L::Tmfs as TyMetaFuncSpec>::TyMetaFuncId>>
-{
+#[memo('a)]
+pub fn tmfs_monomorphizations<'a, L: LangSpec>(
+    ls: &'a L,
+) -> Vec<MappedType<L::ProductId, L::SumId, <L::Tmfs as TyMetaFuncSpec>::TyMetaFuncId>> {
     let mut ret = vec![];
     call_on_all_tmf_monomorphizations(ls, &mut |it| ret.push(it.clone()));
-    ret.into_iter()
+    ret
 }
-
-pub fn ty_gen_datas<L: LangSpec>(
-    ls: &L,
+#[memo('a)]
+pub fn ty_gen_datas<'a, L: LangSpec>(
+    ls: &'a L,
     words_path: Option<syn::Path>,
-) -> impl Iterator<Item = TyGenData<'_, L>> {
+) -> Vec<TyGenData<'a, L>> {
     let sort2rs_ty_fn = move |ht: HeapType, abp: AlgebraicsBasePath| {
         let words_path = words_path.clone();
         move |sort: SortIdOf<L>| match words_path {
@@ -236,6 +237,7 @@ pub fn ty_gen_datas<L: LangSpec>(
                 }
             }
         }))
+        .collect()
 }
 
 /// Recreates the original sortid_polish_name function from langspec-gen-util
@@ -252,9 +254,10 @@ fn sortid_polish_name<L: LangSpec>(ls: &L, sort: &SortIdOf<L>) -> Vec<Identifier
         }
     }
 }
-
-pub fn heapbak_gen_datas<L: LangSpec>(ls: &L) -> Vec<HeapbakGenData<'_>> {
-    tmfs_monomorphizations(ls)
+#[memo('a)]
+pub fn heapbak_gen_datas<'a, L: LangSpec>(ls: &'a L) -> Vec<HeapbakGenData<'a>> {
+    tmfs_monomorphizations(thread_local_cache(), ls)
+        .iter()
         .map(|tmf_m| {
             let tymetafuncdata = L::Tmfs::ty_meta_func_data(&tmf_m.f);
             // Recreate the original sortid_polish_name logic

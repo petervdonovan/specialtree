@@ -1,10 +1,15 @@
 use langspec::langspec::{AlgebraicSortId, LangSpec};
-use langspec_rs_syn::{AlgebraicsBasePath, HeapType, HeapbakGenData, TyGenData, ty_gen_datas, sort2rs_ty, heapbak_gen_datas};
+use langspec_rs_syn::{
+    AlgebraicsBasePath, HeapType, HeapbakGenData, TyGenData, heapbak_gen_datas, sort2rs_ty,
+    ty_gen_datas,
+};
+use memo::memo_cache::thread_local_cache;
 use rustgen_utils::byline;
 use syn::parse_quote;
 
 pub fn generate<L: LangSpec>(base_path: &syn::Path, ls: &L, serde: bool) -> syn::ItemMod {
-    let algebraics = ty_gen_datas(ls, None)
+    let algebraics = ty_gen_datas(thread_local_cache(), ls, None)
+        .iter()
         .map(|tgd| alg_dt(ls, serde, base_path, tgd));
     let heaped_impls = gen_heaped_impls(base_path, ls);
     let heap = gen_heap(
@@ -33,7 +38,7 @@ pub(crate) fn alg_dt<L: LangSpec>(
         ccf,
         ccf_sortses,
         ..
-    }: TyGenData<L>,
+    }: &TyGenData<L>,
 ) -> syn::Item {
     let serde = if serde {
         quote::quote!(#[derive(serde::Serialize, serde::Deserialize)])
@@ -81,12 +86,8 @@ pub(crate) fn alg_dt<L: LangSpec>(
     parse_quote!(#ret)
 }
 
-pub fn gen_heap<L: LangSpec>(
-    base_path: &syn::Path,
-    abp: &AlgebraicsBasePath,
-    ls: &L,
-) -> syn::File {
-    let hgd = heapbak_gen_datas(ls);
+pub fn gen_heap<L: LangSpec>(base_path: &syn::Path, abp: &AlgebraicsBasePath, ls: &L) -> syn::File {
+    let hgd = heapbak_gen_datas(thread_local_cache(), ls);
     let heapbak_modules = hgd
         .iter()
         .map(|hgd| gen_heapbak_module(base_path, abp, hgd))
@@ -205,8 +206,8 @@ pub(crate) fn gen_modules_with_prefix(
 }
 
 pub(crate) fn gen_heaped_impls<L: LangSpec>(base_path: &syn::Path, ls: &L) -> syn::ItemMod {
-    fn heaped_impl<L: LangSpec>(base_path: &syn::Path, tgd: TyGenData<L>) -> syn::ItemImpl {
-        let camel_ident = tgd.camel_ident;
+    fn heaped_impl<L: LangSpec>(base_path: &syn::Path, tgd: &TyGenData<L>) -> syn::ItemImpl {
+        let camel_ident = &tgd.camel_ident;
         let byline = byline!();
         let ret = quote::quote! {
             #byline
@@ -219,7 +220,9 @@ pub(crate) fn gen_heaped_impls<L: LangSpec>(base_path: &syn::Path, ls: &L) -> sy
         }
     }
     let byline = byline!();
-    let impls = ty_gen_datas(ls, None).map(|tgd| heaped_impl(base_path, tgd));
+    let impls = ty_gen_datas(thread_local_cache(), ls, None)
+        .iter()
+        .map(|tgd| heaped_impl(base_path, tgd));
     parse_quote! {
         #byline
         pub mod heaped {

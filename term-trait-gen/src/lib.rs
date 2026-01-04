@@ -1,5 +1,6 @@
 use langspec::langspec::{LangSpec, SortIdOf};
 use langspec_rs_syn::{AlgebraicsBasePath, HeapType, heapbak_gen_datas, sort2word_rs_ty};
+use memo::memo_cache::thread_local_cache;
 use rustgen_utils::byline;
 use syn::parse_quote;
 
@@ -43,11 +44,8 @@ pub(crate) fn heap_trait<L: LangSpec>(
     }
 }
 
-fn generate_superheap_bounds<L: LangSpec>(
-    ls: &L,
-    words_path: &syn::Path,
-) -> Vec<syn::TraitBound> {
-    heapbak_gen_datas(ls)
+fn generate_superheap_bounds<L: LangSpec>(ls: &L, words_path: &syn::Path) -> Vec<syn::TraitBound> {
+    heapbak_gen_datas(thread_local_cache(), ls)
         .iter()
         .map(|hgd| -> syn::Type {
             // let ty_func = &hgd.ty_func.ty_func;

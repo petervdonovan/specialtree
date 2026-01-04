@@ -11,3 +11,4 @@ langspec-rs-syn = { path = "../langspec-rs-syn" }
 rustgen-utils = { path = "../rustgen-utils" }
 syn = { workspace = true }
 conslist = { version = "0.1.0", path = "../conslist" }
+memo.path = "../memo/memo"

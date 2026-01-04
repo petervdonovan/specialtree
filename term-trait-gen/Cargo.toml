@@ -12,6 +12,7 @@ rustgen-utils = { path = "../rustgen-utils" }
 words = { path = "../words" }
 quote = { workspace = true }
 syn = { workspace = true }
+memo.path = "../memo/memo"
 
 [dev-dependencies]
 expect-test = { workspace = true }

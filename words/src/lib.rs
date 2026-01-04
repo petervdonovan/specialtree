@@ -4,9 +4,8 @@ use langspec::{
     langspec::{LangSpec, SortIdOf},
     sublang::Sublang,
 };
-use langspec_rs_syn::{
-    AlgebraicsBasePath, HeapType, sort2rs_ty, sort2word_rs_ty, ty_gen_datas,
-};
+use langspec_rs_syn::{AlgebraicsBasePath, HeapType, sort2rs_ty, sort2word_rs_ty, ty_gen_datas};
+use memo::memo_cache::thread_local_cache;
 use rustgen_utils::byline;
 
 pub trait Implements<Heap, L> {
@@ -63,8 +62,9 @@ pub trait Adtishness<A: Aspect> {
 }
 
 pub fn words_mod<L: LangSpec>(lg: &L) -> syn::ItemMod {
-    let sort_camel_idents = ty_gen_datas(lg, None)
-        .map(|it| it.camel_ident)
+    let sort_camel_idents = ty_gen_datas(thread_local_cache(), lg, None)
+        .iter()
+        .map(|it| it.camel_ident.clone())
         .collect::<Vec<_>>();
     let byline = rustgen_utils::byline!();
     syn::parse_quote! {
