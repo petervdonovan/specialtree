@@ -26,9 +26,11 @@ pub(crate) mod helper_traits {
 mod impls {
     use ccf::CanonicallyConstructibleFrom;
     use conslist::{ConsList, NonemptyConsList};
-    use pmsp::{NonemptyStrategy, StrategyOf, Visitation};
+    use pmsp::{NonemptyStrategy, StrategyOf};
+    use aspect::Visitation;
     use take_mut::Poisonable;
-    use words::{AdtLike, Adtishness, Implements, InverseImplementsAll};
+    use aspect::{AdtLike, Adtishness};
+    use words::{Implements, InverseImplementsAll};
 
     use crate::Covisit;
     use crate::covisiteventsink::CovisitEventSink;

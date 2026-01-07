@@ -2,10 +2,11 @@ use core::panic;
 
 use ccf::CanonicallyConstructibleFrom;
 use covisit::Covisit;
-use pmsp::Visitation;
+use aspect::Visitation;
 use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Set, SetHeapBak};
-use words::{AdtLike, NotAdtLike};
-use words::{Adtishness, InverseImplements};
+use aspect::{AdtLike, NotAdtLike};
+use aspect::Adtishness;
+use words::InverseImplements;
 
 use crate::LookaheadAspect;
 use crate::{

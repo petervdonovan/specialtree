@@ -7,7 +7,8 @@ use cstfy::Cstfy;
 use parse::{KeywordSequence, UnexpectedTokenError};
 use pmsp::{AtLeastTwoStrategy, Strategy};
 use take_mut::Poisonable;
-use words::{AdtLike, Adtishness, Aspect, Implements};
+use aspect::{AdtLike, Adtishness, Aspect};
+use words::Implements;
 
 pub mod cstfy;
 mod tmfscore;

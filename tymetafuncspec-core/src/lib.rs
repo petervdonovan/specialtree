@@ -6,11 +6,11 @@ use langspec::{
 use tree_identifier::Identifier;
 
 use ccf::DirectlyCanonicallyConstructibleFrom;
-use pmsp::Visitation;
+use aspect::Visitation;
 use serde::{Deserialize, Serialize};
 use term::{Heaped, SuperHeap, TyMetaFunc};
 use to_literal::ToLiteral;
-use words::{AdtLike, Adtishness, NotAdtLike};
+use aspect::{AdtLike, Adtishness, NotAdtLike};
 
 pub struct Core;
 #[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize, Hash, PartialOrd, Ord)]

@@ -4,9 +4,10 @@ use parse_adt::{
     Lookahead, LookaheadAspect, ParseCursor, Parser,
     cstfy::{Cstfy, cstfy_ok},
 };
-use pmsp::Visitation;
+use aspect::Visitation;
 use term::SuperHeap;
-use words::{AdtLike, Adtishness, InverseImplements, NotAdtLike};
+use aspect::{AdtLike, Adtishness, NotAdtLike};
+use words::InverseImplements;
 
 use crate::{
     NamedPattern, NamedPatternHeapBak, OrVariable, OrVariableHeapBak, OrVariableZeroOrMore,

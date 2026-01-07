@@ -1,3 +1,6 @@
+[dependencies.aspect]
+path = "../.././aspect"
+
 [dependencies.ccf]
 path = "../.././ccf"
 

@@ -5,6 +5,7 @@ edition.workspace = true
 description = "Abstract implementation of steered corecursive construction of possibly inductive data types"
 
 [dependencies]
+aspect = { path = "../aspect" }
 ccf = { version = "0.1.0", path = "../ccf" }
 conslist = { version = "0.1.0", path = "../conslist" }
 pmsp = { version = "0.1.0", path = "../pmsp" }

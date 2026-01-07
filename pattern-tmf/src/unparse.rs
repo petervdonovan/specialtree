@@ -1,9 +1,10 @@
 use ccf::CanonicallyConstructibleFrom;
-use pmsp::Visitation;
+use aspect::Visitation;
 use term::SuperHeap;
 use unparse_adt::Unparser;
 use visit::Visit;
-use words::{Adtishness, InverseImplements, NotAdtLike};
+use aspect::{Adtishness, NotAdtLike};
+use words::InverseImplements;
 
 use crate::{
     NamedPattern, NamedPatternHeapBak, OrVariable, OrVariableHeapBak, OrVariableZeroOrMore,

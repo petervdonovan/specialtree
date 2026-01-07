@@ -4,9 +4,10 @@ use parse_adt::{
     Lookahead, ParseCursor, Parser,
     cstfy::{Cstfy, cstfy_ok},
 };
-use pmsp::Visitation;
+use aspect::Visitation;
 use term::SuperHeap;
-use words::{AdtLikeOrNot, Adtishness, InverseImplements, NotAdtLike};
+use aspect::{AdtLikeOrNot, Adtishness, NotAdtLike};
+use words::InverseImplements;
 
 use crate::{File, FileHeapBak};
 

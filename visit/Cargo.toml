@@ -5,6 +5,7 @@ edition.workspace = true
 description = "Polymorphic implementation of the visitor pattern for arbitrary languages"
 
 [dependencies]
+aspect = { path = "../aspect" }
 ccf = { version = "0.1.0", path = "../ccf" }
 conslist = { version = "0.1.0", path = "../conslist" }
 pmsp = { version = "0.1.0", path = "../pmsp" }

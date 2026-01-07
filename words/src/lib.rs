@@ -46,21 +46,6 @@ impl<Heap, L> InverseImplementsAll<L, ()> for Heap {
 // #[fundamental]
 // pub trait Adt {}
 
-pub struct AdtLike;
-pub struct NotAdtLike;
-// pub enum AdtLikeOrNot {
-//     AdtLike,
-//     NonAdtLike,
-// }
-pub trait AdtLikeOrNot {}
-impl AdtLikeOrNot for AdtLike {}
-impl AdtLikeOrNot for NotAdtLike {}
-pub trait Aspect {}
-
-pub trait Adtishness<A: Aspect> {
-    type X: AdtLikeOrNot;
-}
-
 pub fn words_mod<L: LangSpec>(lg: &L) -> syn::ItemMod {
     let sort_camel_idents = ty_gen_datas(thread_local_cache(), lg, None)
         .iter()
@@ -78,8 +63,8 @@ pub fn words_mod<L: LangSpec>(lg: &L) -> syn::ItemMod {
             }
             pub mod impls {
                 #(
-                    impl<A: words::Aspect> words::Adtishness<A> for super::sorts::#sort_camel_idents {
-                        type X = words::AdtLike;
+                    impl<A: aspect::Aspect> aspect::Adtishness<A> for super::sorts::#sort_camel_idents {
+                        type X = aspect::AdtLike;
                     }
                 )*
             }

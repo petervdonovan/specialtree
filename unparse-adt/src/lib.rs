@@ -1,5 +1,5 @@
 use parse_adt::NamesParseLL;
-use pmsp::Visitation;
+use aspect::Visitation;
 // use parse_adt::NamesParseLL;
 // use term::{
 //     case_split::HasBorrowedHeapRef,
@@ -10,7 +10,7 @@ use visit::{
     Visit,
     visiteventsink::{PopOrProceed, VisitEventSink},
 };
-use words::Adtishness;
+use aspect::Adtishness;
 
 pub mod tmfscore;
 

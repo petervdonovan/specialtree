@@ -5,6 +5,7 @@ edition = { workspace = true }
 description = "Parsing code used by ADT-like generated data structures"
 
 [dependencies]
+aspect = { path = "../aspect" }
 parse = { path = "../parse" }
 std-parse-error = { path = "../langspec-std/std-parse-error" }
 std-parse-metadata = { path = "../langspec-std/std-parse-metadata" }

@@ -5,6 +5,7 @@ edition = { workspace = true }
 description = "Tmfs for elemental type metafunctions"
 
 [dependencies]
+aspect = { path = "../aspect" }
 functor_derive = { workspace = true }
 langspec = { path = "../langspec" }
 term = { path = "../term" }

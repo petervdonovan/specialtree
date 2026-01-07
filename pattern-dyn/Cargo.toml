@@ -5,6 +5,7 @@ edition.workspace = true
 description = "Untyped representation of patterns"
 
 [dependencies]
+aspect = { path = "../aspect" }
 ccf = { version = "0.1.0", path = "../ccf" }
 derivative.workspace = true
 langspec = { version = "0.1.0", path = "../langspec" }

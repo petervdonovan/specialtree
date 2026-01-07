@@ -7,3 +7,4 @@ description = "Pattern-matching strategy providers, where a strategy and its pro
 [dependencies]
 conslist = { version = "0.1.0", path = "../conslist" }
 words = { version = "0.1.0", path = "../words" }
+aspect = { path = "../aspect" }

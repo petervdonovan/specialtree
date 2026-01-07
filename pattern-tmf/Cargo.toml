@@ -5,6 +5,7 @@ edition.workspace = true
 description = "Type metafunctions needed in the pattern language of a language"
 
 [dependencies]
+aspect = { path = "../aspect" }
 langspec = { path = "../langspec" }
 term = { path = "../term" }
 tree-identifier = { path = "../tree-identifier" }

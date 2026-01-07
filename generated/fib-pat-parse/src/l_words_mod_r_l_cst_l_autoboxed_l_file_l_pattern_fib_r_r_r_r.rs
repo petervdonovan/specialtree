@@ -14,8 +14,6 @@ pub mod sorts {
     pub struct FileItem;
 }
 pub mod impls {
-    use words::Aspect;
-    use words::AdtLike;
     use super::sorts::Sum;
     use super::sorts::Right_operand;
     use super::sorts::Plus;
@@ -23,25 +21,27 @@ pub mod impls {
     use super::sorts::Left_operand;
     use super::sorts::FileItem;
     use super::sorts::F;
-    impl<A: Aspect> words::Adtishness<A> for F {
+    use aspect::Aspect;
+    use aspect::AdtLike;
+    impl<A: Aspect> aspect::Adtishness<A> for F {
         type X = AdtLike;
     }
-    impl<A: Aspect> words::Adtishness<A> for Left_operand {
+    impl<A: Aspect> aspect::Adtishness<A> for Left_operand {
         type X = AdtLike;
     }
-    impl<A: Aspect> words::Adtishness<A> for Plus {
+    impl<A: Aspect> aspect::Adtishness<A> for Plus {
         type X = AdtLike;
     }
-    impl<A: Aspect> words::Adtishness<A> for Right_operand {
+    impl<A: Aspect> aspect::Adtishness<A> for Right_operand {
         type X = AdtLike;
     }
-    impl<A: Aspect> words::Adtishness<A> for Sum {
+    impl<A: Aspect> aspect::Adtishness<A> for Sum {
         type X = AdtLike;
     }
-    impl<A: Aspect> words::Adtishness<A> for Nat {
+    impl<A: Aspect> aspect::Adtishness<A> for Nat {
         type X = AdtLike;
     }
-    impl<A: Aspect> words::Adtishness<A> for FileItem {
+    impl<A: Aspect> aspect::Adtishness<A> for FileItem {
         type X = AdtLike;
     }
 }

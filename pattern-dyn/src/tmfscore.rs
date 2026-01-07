@@ -1,11 +1,11 @@
 use crate::visitor::PatternBuilder;
 use ccf::CanonicallyConstructibleFrom;
 use names_langspec_sort::NamesLangspecSort;
-use pmsp::Visitation;
+use aspect::Visitation;
 use to_literal::ToLiteral as _;
 use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Set, SetHeapBak};
 use visit::{Visit, visiteventsink::VisitEventSink};
-use words::{AdtLikeOrNot, Adtishness, NotAdtLike};
+use aspect::{AdtLikeOrNot, Adtishness, NotAdtLike};
 use words::{Implements, InverseImplements};
 
 impl<SortId, Heap, L, LSub, MappedBNat: Copy> Visit<BoundedNat<()>, L, MappedBNat, Heap, NotAdtLike>

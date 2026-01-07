@@ -1,9 +1,10 @@
 use langspec::langspec::{LangSpec, SortIdOf};
-use pmsp::Visitation;
+use aspect::Visitation;
 use thiserror::Error;
 use visit::{Visit, skip_visit::SkipVisit};
 use visitor::{PatternBuilder, PbResultError};
-use words::{Adtishness, Implements, NotAdtLike};
+use aspect::{Adtishness, NotAdtLike};
+use words::Implements;
 
 pub mod tmfscore;
 pub mod visitor;

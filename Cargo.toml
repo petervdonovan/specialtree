@@ -30,7 +30,7 @@ members = [
     "extension-autobox",
     "term-pattern-match-strategy-provider-gen",
     "langspec-transparent-extension",
-    "enumerate-random",
+    "aspect",
     "unparse-adt",
     "codegen-component",
     "generated/*",

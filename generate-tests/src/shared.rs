@@ -75,9 +75,13 @@ pub fn run_code_generation(output_dir: &Path) -> usize {
     let fib_pat_autobox = autobox(&fib_pat);
 
     let root_cgd = CgDepList::new();
-    let fib_deps = [("tymetafuncspec-core", Path::new("."))];
+    let fib_deps = [
+        ("tymetafuncspec-core", Path::new(".")),
+        ("aspect", Path::new(".")),
+    ];
     let pat_deps = [
         ("tymetafuncspec-core", Path::new(".")),
+        ("aspect", Path::new(".")),
         ("pattern-tmf", Path::new(".")),
         ("file-tmf", Path::new(".")),
     ];

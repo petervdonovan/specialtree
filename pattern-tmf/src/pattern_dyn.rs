@@ -1,8 +1,9 @@
 use ccf::CanonicallyConstructibleFrom;
 use pattern_dyn::visitor::PatternBuilder;
-use pmsp::Visitation;
+use aspect::Visitation;
 use visit::Visit;
-use words::{Adtishness, InverseImplements, NotAdtLike};
+use aspect::{Adtishness, NotAdtLike};
+use words::InverseImplements;
 
 use crate::{
     NamedPattern, NamedPatternHeapBak, OrVariable, OrVariableHeapBak, OrVariableZeroOrMore,

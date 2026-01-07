@@ -5,6 +5,7 @@ edition.workspace = true
 description = "Type metafunctions related to files"
 
 [dependencies]
+aspect = { path = "../aspect" }
 bumpalo.workspace = true
 ccf = { version = "0.1.0", path = "../ccf" }
 covisit = { version = "0.1.0", path = "../covisit" }

@@ -5,6 +5,7 @@ edition.workspace = true
 description = "Unparsing (human-readable string representation) for ADT-like terms"
 
 [dependencies]
+aspect = { path = "../aspect" }
 bumpalo.workspace = true
 ccf = { version = "0.1.0", path = "../ccf" }
 parse-adt = { version = "0.1.0", path = "../parse-adt" }

@@ -63,7 +63,7 @@ pub(crate) fn generate_parse<LCst: LangSpec>(
         pub fn #snake_ident(source: &str) -> (#cst_data_structure_bp::Heap, #my_cstfied_ty) {
             let mut parser = parse_adt::Parser::new(source);
             let mut heap = #cst_data_structure_bp::Heap::default();
-            let ret = <parse_adt::Parser<'_, #words::L> as covisit::Covisit<#words::sorts::#camel_ident, #words::L, #my_cstfied_ty, #cst_data_structure_bp::Heap, words::AdtLike>>::covisit(&mut parser, &mut heap);
+            let ret = <parse_adt::Parser<'_, #words::L> as covisit::Covisit<#words::sorts::#camel_ident, #words::L, #my_cstfied_ty, #cst_data_structure_bp::Heap, aspect::AdtLike>>::covisit(&mut parser, &mut heap);
             (heap, ret)
         }
     }

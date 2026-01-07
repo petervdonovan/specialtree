@@ -1,11 +1,11 @@
 use ccf::CanonicallyConstructibleFrom;
 use derivative::Derivative;
 use langspec::tymetafunc::{ArgId, RustTyMap, TyMetaFuncData, TyMetaFuncSpec};
-use pmsp::Visitation;
+use aspect::Visitation;
 use serde::{Deserialize, Serialize};
 use term::{SuperHeap, TyMetaFunc};
 use tree_identifier::Identifier;
-use words::{Adtishness, NotAdtLike};
+use aspect::{Adtishness, NotAdtLike};
 
 pub mod parse;
 pub mod unparse;
