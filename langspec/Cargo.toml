@@ -14,6 +14,7 @@ serde_yml = { workspace = true }
 syn = { workspace = true }
 tree-identifier = { path = "../tree-identifier" }
 typed-index-collections = { workspace = true }
+aspect.path = "../aspect"
 
 [dev-dependencies]
 quote = { workspace = true }

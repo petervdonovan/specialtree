@@ -3,7 +3,7 @@ use std::any::TypeId;
 use either_id::Either;
 use langspec::{
     langspec::{AlgebraicSortId, AsLifetime, LangSpec, MappedType, SortId, SortIdOf},
-    sublang::{Sublang, TmfEndoMapping, reflexive_sublang},
+    sublang::{AspectImplementors, Sublang, reflexive_sublang},
     tymetafunc::TyMetaFuncSpec,
 };
 use tmfs_join::TmfsJoin;
@@ -16,10 +16,13 @@ pub struct PatternExtension<'a, L> {
 
 pub fn patternfy<'a, L: LangSpec>(arena: &'a bumpalo::Bump, l: &'a L) -> impl LangSpec + 'a {
     let patternfied = arena.alloc(PatternExtension {
-        name: Identifier::list(vec![
-            Identifier::from_camel_str("Pattern").unwrap(),
-            l.name().clone(),
-        ].into()),
+        name: Identifier::list(
+            vec![
+                Identifier::from_camel_str("Pattern").unwrap(),
+                l.name().clone(),
+            ]
+            .into(),
+        ),
         l0: l,
     });
     extension_file::filefy_all_tmf(
@@ -131,17 +134,20 @@ impl<'a, L: LangSpec> LangSpec for PatternExtension<'a, L> {
                 >(reflexive_sublang(self)))
             }
         } else {
-            self.l0
-                .sublang::<LSub>(lsub)
-                .map(|Sublang { lsub, map, tems }| Sublang {
+            self.l0.sublang::<LSub>(lsub).map(
+                |Sublang {
+                     lsub,
+                     map,
+                     aspect_implementors,
+                 }| Sublang {
                     lsub,
                     map: Box::new(move |name| {
                         let id = map(name);
                         map_sid::<'a, L>(id)
                     }),
-                    tems: tems
+                    aspect_implementors: aspect_implementors
                         .into_iter()
-                        .map(|tem| TmfEndoMapping::<SortIdOf<Self>> {
+                        .map(|tem| AspectImplementors::<SortIdOf<Self>> {
                             from_extern_behavioral: map_sid::<'a, L>(tem.from_extern_behavioral),
                             // match tem.fromshallow {
                             //     SortId::Algebraic(_) => panic!(),
@@ -158,7 +164,8 @@ impl<'a, L: LangSpec> LangSpec for PatternExtension<'a, L> {
                             to_structural: map_sid::<'a, L>(tem.to_structural),
                         })
                         .collect(),
-                })
+                },
+            )
         }
     }
 }

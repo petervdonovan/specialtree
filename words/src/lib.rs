@@ -1,4 +1,5 @@
-#![feature(fundamental)]
+use aspect::Aspect;
+// #![feature(fundamental)]
 use conslist::ConsList;
 use langspec::{
     langspec::{LangSpec, SortIdOf},
@@ -8,38 +9,38 @@ use langspec_rs_syn::{AlgebraicsBasePath, HeapType, sort2rs_ty, sort2word_rs_ty,
 use memo::memo_cache::thread_local_cache;
 use rustgen_utils::byline;
 
-pub trait Implements<Heap, L> {
+pub trait Implements<Heap, L, AspectT: Aspect> {
     type LWord;
 }
-pub trait InverseImplements<L, LWord> {
+pub trait InverseImplements<L, LWord, AspectT: Aspect> {
     type ExternBehavioralImplementor;
     type StructuralImplementor;
 }
-pub trait InverseImplementsAll<L, LWords: ConsList>:
-    InverseImplements<L, <LWords as ConsList>::Car>
+pub trait InverseImplementsAll<L, LWords: ConsList, AspectT: Aspect>:
+    InverseImplements<L, <LWords as ConsList>::Car, AspectT>
 {
     type ExternBehavioralImplementors: ConsList;
     type StructuralImplementors: ConsList;
 }
-impl<Heap, L> InverseImplements<L, ()> for Heap {
+impl<Heap, L, AspectT: Aspect> InverseImplements<L, (), AspectT> for Heap {
     type ExternBehavioralImplementor = ();
     type StructuralImplementor = ();
 }
-impl<Heap, L, Car, Cdr> InverseImplementsAll<L, (Car, Cdr)> for Heap
+impl<Heap, L, Car, Cdr, AspectT: Aspect> InverseImplementsAll<L, (Car, Cdr), AspectT> for Heap
 where
     Cdr: ConsList,
-    Heap: InverseImplementsAll<L, Cdr> + InverseImplements<L, Car>,
+    Heap: InverseImplementsAll<L, Cdr, AspectT> + InverseImplements<L, Car, AspectT>,
 {
     type ExternBehavioralImplementors = (
-        <Heap as InverseImplements<L, Car>>::ExternBehavioralImplementor,
-        <Heap as InverseImplementsAll<L, Cdr>>::ExternBehavioralImplementors,
+        <Heap as InverseImplements<L, Car, AspectT>>::ExternBehavioralImplementor,
+        <Heap as InverseImplementsAll<L, Cdr, AspectT>>::ExternBehavioralImplementors,
     );
     type StructuralImplementors = (
-        <Heap as InverseImplements<L, Car>>::StructuralImplementor,
-        <Heap as InverseImplementsAll<L, Cdr>>::StructuralImplementors,
+        <Heap as InverseImplements<L, Car, AspectT>>::StructuralImplementor,
+        <Heap as InverseImplementsAll<L, Cdr, AspectT>>::StructuralImplementors,
     );
 }
-impl<Heap, L> InverseImplementsAll<L, ()> for Heap {
+impl<Heap, L, AspectT: Aspect> InverseImplementsAll<L, (), AspectT> for Heap {
     type ExternBehavioralImplementors = ();
     type StructuralImplementors = ();
 }
@@ -122,7 +123,7 @@ pub fn words_inverse_impls<L: LangSpec, LSub: LangSpec>(
             let structural_implementor =
                 sort2rs_ty(elsg, structural_implementor_sid.clone(), &ht, &abp);
             let behavioral_implementor = sublang
-                .tems
+                .aspect_implementors
                 .iter()
                 .find(|it| it.to_structural == structural_implementor_sid)
                 .map(|tem| sort2rs_ty(elsg, tem.from_extern_behavioral.clone(), &ht, &abp))

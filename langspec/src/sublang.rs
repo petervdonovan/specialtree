@@ -1,58 +1,38 @@
-use functor_derive::Functor;
+use std::any::TypeId;
+
+// use functor_derive::Functor;
 
 use crate::{
     flat::LangSpecFlat,
     langspec::{LangSpec, SortId, SortIdOf},
 };
+use aspect::{Aspect, Visitation};
 use tree_identifier::Identifier;
 
 type SublangTyMap<'a, LSub, SortIdSelf> = dyn Fn(&SortIdOf<LSub>) -> SortIdSelf + 'a;
 
 pub struct Sublang<'a, LSub: LangSpec, SortIdSelf> {
     pub lsub: &'a LSub,
-    pub map: Box<SublangTyMap<'a, LSub, SortIdSelf>>,
-    pub tems: Vec<TmfEndoMapping<SortIdSelf>>,
-}
-#[derive(Debug, Functor, Clone)]
-pub struct TmfEndoMapping<SortIdSelf> {
-    // pub fromrec: SortIdSelf,
-    pub from_extern_behavioral: SortIdSelf,
-    pub to_structural: SortIdSelf,
+    // pub map: Box<SublangTyMap<'a, LSub, SortIdSelf>>,
+    pub aspect_implementors: Vec<AspectImplementors<'a, LSub, SortIdSelf>>,
 }
 
-pub fn reflexive_sublang<L: LangSpec>(l: &L) -> Sublang<L, SortIdOf<L>> {
+pub struct AspectImplementors<'a, LSub: LangSpec, SortIdSelf> {
+    pub aspect_zst: Box<dyn Aspect>,
+    pub map: Box<SublangTyMap<'a, LSub, SortIdSelf>>, // sublang_sortid: SortIdLSub,
+                                                      // pub fromrec: SortIdSelf,
+                                                      // pub from_extern_behavioral: SortIdSelf,
+                                                      // pub to_structural: SortIdSelf,
+}
+
+pub fn reflexive_sublang<L: LangSpec>(l: &L) -> Sublang<'_, L, SortIdOf<L>> {
     Sublang {
-        // name: l.name().clone(),
-        // image: l.all_sort_ids().collect(),
-        // ty_names: l
-        //     .products()
-        //     .map(|p| l.product_name(p.clone()).clone())
-        //     .chain(l.sums().map(|s| l.sum_name(s.clone()).clone()))
-        //     .collect(),
         lsub: l,
-        map: Box::new(|sid| sid.clone()),
-        tems: {
-            let mut tems = vec![];
-            let mut tmfs = vec![];
-            crate::langspec::call_on_all_tmf_monomorphizations(l, &mut |it| {
-                tems.push(TmfEndoMapping {
-                    from_extern_behavioral: SortId::TyMetaFunc(it.clone()),
-                    // fromrec: SortId::TyMetaFunc(it.clone()),
-                    to_structural: SortId::TyMetaFunc(it.clone()),
-                });
-                tmfs.push(it.clone());
-            });
-            // for mt in l.tmf_roots() {
-            //     if !tmfs.contains(&mt) {
-            //         let tmf = SortId::TyMetaFunc(mt);
-            //         tems.push(TmfEndoMapping {
-            //             fromrec: tmf.clone(),
-            //             fromshallow: tmf.clone(),
-            //             to: tmf,
-            //         });
-            //     }
-            // }
-            tems
+        aspect_implementors: {
+            vec![AspectImplementors {
+                aspect_zst: Box::new(Visitation {}),
+                map: Box::new(|sid| sid.clone()),
+            }]
         },
     }
 }
@@ -62,8 +42,10 @@ impl<'a, LSub: LangSpec, SortIdSelf> Sublang<'a, LSub, SortIdSelf> {
     }
 }
 pub trait Sublangs<SortIdSelf> {
-    fn images(&self) -> impl Iterator<Item = Vec<SortIdSelf>>;
-    fn tems(&self) -> impl Iterator<Item = Vec<TmfEndoMapping<SortIdSelf>>>;
+    // fn images(&self) -> impl Iterator<Item = Vec<SortIdSelf>>;
+    // fn aspect_implementors(
+    //     &self,
+    // ) -> impl Iterator<Item = Vec<AspectImplementationInfo<SortIdSelf>>>;
     fn names(&self) -> impl Iterator<Item = Identifier>;
     fn id(&self, prefix: &str) -> Identifier {
         let prefix_id = Identifier::from_kebab_str(prefix)
@@ -149,8 +131,8 @@ where
     }
 }
 pub trait SublangsElement<SortIdSelf> {
-    fn image(&self) -> Vec<SortIdSelf>;
-    fn tems(&self) -> Vec<TmfEndoMapping<SortIdSelf>>;
+    // fn image(&self) -> Vec<SortIdSelf>;
+    // fn aspect_implementors(&self) -> Vec<AspectImplementationInfo<SortIdSelf>>;
     fn name(&self) -> Identifier;
     // fn push_through<'this, 'other: 'this, L: LangSpec>(
     //     &'this self,
@@ -160,13 +142,15 @@ pub trait SublangsElement<SortIdSelf> {
 impl<'a, LSub: LangSpec, SortIdSelf: Clone> SublangsElement<SortIdSelf>
     for Sublang<'a, LSub, SortIdSelf>
 {
-    fn image(&self) -> Vec<SortIdSelf> {
-        self.lsub.all_sort_ids().map(|it| (self.map)(&it)).collect()
-    }
+    // fn image(&self) -> Vec<SortIdSelf> {
+    //     self.lsub.all_sort_ids().map(|it| (self.map)(&it)).collect()
+    // }
 
-    fn tems(&self) -> Vec<TmfEndoMapping<SortIdSelf>> {
-        self.tems.clone()
-    }
+    // fn aspect_implementors(&self) -> Vec<AspectImplementationInfo<SortIdSelf>> {
+    //     self.aspect_implementors
+    //         .iter()
+    //         .flat_map(self.lsub.all_sort_ids().map())
+    // }
 
     fn name(&self) -> Identifier {
         self.lsub.name().clone()
@@ -180,12 +164,14 @@ impl<'a, LSub: LangSpec, SortIdSelf: Clone> SublangsElement<SortIdSelf>
     // }
 }
 impl<SortIdSelf> Sublangs<SortIdSelf> for () {
-    fn images(&self) -> impl Iterator<Item = Vec<SortIdSelf>> {
-        std::iter::empty()
-    }
-    fn tems(&self) -> impl Iterator<Item = Vec<TmfEndoMapping<SortIdSelf>>> {
-        std::iter::empty()
-    }
+    // fn images(&self) -> impl Iterator<Item = Vec<SortIdSelf>> {
+    //     std::iter::empty()
+    // }
+    // fn aspect_implementors(
+    //     &self,
+    // ) -> impl Iterator<Item = Vec<AspectImplementationInfo<SortIdSelf>>> {
+    //     std::iter::empty()
+    // }
 
     fn names(&self) -> impl Iterator<Item = Identifier> {
         std::iter::empty()
@@ -196,13 +182,15 @@ where
     Car: SublangsElement<SortIdSelf>,
     Cdr: Sublangs<SortIdSelf>,
 {
-    fn images(&self) -> impl Iterator<Item = Vec<SortIdSelf>> {
-        std::iter::once(self.0.image()).chain(self.1.images())
-    }
+    // fn images(&self) -> impl Iterator<Item = Vec<SortIdSelf>> {
+    //     std::iter::once(self.0.image()).chain(self.1.images())
+    // }
 
-    fn tems(&self) -> impl Iterator<Item = Vec<TmfEndoMapping<SortIdSelf>>> {
-        std::iter::once(self.0.tems()).chain(self.1.tems())
-    }
+    // fn aspect_implementors(
+    //     &self,
+    // ) -> impl Iterator<Item = Vec<AspectImplementationInfo<SortIdSelf>>> {
+    //     std::iter::once(self.0.aspect_implementors()).chain(self.1.aspect_implementors())
+    // }
 
     fn names(&self) -> impl Iterator<Item = Identifier> {
         std::iter::once(self.0.name()).chain(self.1.names())

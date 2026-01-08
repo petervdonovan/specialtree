@@ -3,7 +3,7 @@ use std::any::TypeId;
 use either_id::Either;
 use langspec::{
     langspec::{AsLifetime, LangSpec, MappedType, SortId, SortIdOf},
-    sublang::{Sublang, TmfEndoMapping, reflexive_sublang},
+    sublang::{AspectImplementors, Sublang, reflexive_sublang},
     tymetafunc::TyMetaFuncSpec,
 };
 use tmfs_join::TmfsJoin;
@@ -114,10 +114,10 @@ where
                         let id = (sublang.map)(name);
                         L0M::l0_map(self, id)
                     }),
-                    tems: sublang
-                        .tems
+                    aspect_implementors: sublang
+                        .aspect_implementors
                         .into_iter()
-                        .map(|tem| TmfEndoMapping::<SortIdOf<Self>> {
+                        .map(|tem| AspectImplementors::<SortIdOf<Self>> {
                             from_extern_behavioral: match tem.from_extern_behavioral {
                                 SortId::Algebraic(_) => panic!(),
                                 SortId::TyMetaFunc(mapped_type) => SortId::TyMetaFunc(MappedType {
@@ -156,8 +156,8 @@ where
     //                     let id = (sublang.map)(name);
     //                     L0M::l0_map(self, id)
     //                 }),
-    //                 tems: sublang
-    //                     .tems
+    //                 aspect_implementors: sublang
+    //                     .aspect_implementors
     //                     .into_iter()
     //                     .map(|tem| TmfEndoMapping::<SortIdOf<Self>> {
     //                         fromshallow: match tem.fromshallow {

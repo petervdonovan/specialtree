@@ -5,8 +5,8 @@ edition = { workspace = true }
 description = "Functionality related to words, which are symbols that denote abstract concepts that can be implemented by a type of terms in a language or in the extensions of that language, and which can be manipulated at compile time via Rust ZSTs"
 
 [dependencies]
- langspec = { path = "../langspec" }
- aspect = { path = "../aspect" }
+langspec = { path = "../langspec" }
+aspect = { path = "../aspect" }
 codegen-component = { path = "../codegen-component" }
 langspec-rs-syn = { path = "../langspec-rs-syn" }
 rustgen-utils = { path = "../rustgen-utils" }

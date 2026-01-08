@@ -108,23 +108,27 @@ where
             None
         }
         .or_else(|| {
-            self.l
-                .sublang::<LSub>(lsub)
-                .map(|Sublang { lsub, map, tems }| Sublang {
+            self.l.sublang::<LSub>(lsub).map(
+                |Sublang {
+                     lsub,
+                     map,
+                     aspect_implementors,
+                 }| Sublang {
                     lsub,
                     map: Box::new(move |sid| Csm::embed_sort_id(map(sid))),
-                    tems: tems
+                    aspect_implementors: aspect_implementors
                         .into_iter()
                         .map(|it| it.fmap(Csm::embed_sort_id))
                         .collect(),
-                })
+                },
+            )
         })
         // self.l
         //     .sublang::<LSub>(lsub)
-        //     .map(|Sublang { lsub, map, tems }| Sublang {
+        //     .map(|Sublang { lsub, map, aspect_implementors }| Sublang {
         //         lsub,
         //         map: Box::new(move |sid| Csm::embed_sort_id(map(sid))),
-        //         tems: tems
+        //         aspect_implementors: aspect_implementors
         //             .into_iter()
         //             .map(|it| it.fmap(Csm::embed_sort_id))
         //             .collect(),
@@ -155,8 +159,8 @@ where
     //             image: sublang.image.into_iter().map(Csm::embed_sort_id).collect(),
     //             ty_names: sublang.ty_names,
     //             map: Box::new(move |name| Csm::embed_sort_id((sublang.map)(name))),
-    //             tems: sublang
-    //                 .tems
+    //             aspect_implementors: sublang
+    //                 .aspect_implementors
     //                 .into_iter()
     //                 .map(|it| it.fmap(Csm::embed_sort_id))
     //                 .collect(),

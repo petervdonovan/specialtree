@@ -21,59 +21,59 @@ pub fn ccf_paths<'a, L: LangSpec>(
     let direct_ccf_rels = get_direct_ccf_rels(thread_local_cache(), ls);
     let mut ucp_acc = std::collections::HashSet::new();
     let mut cebup_acc = std::collections::HashSet::new();
-    for non_transparent_sorts in important_sublangs.images() {
-        let ucp = unit_ccf_paths_quadratically_large_closure(
-            thread_local_cache(),
-            direct_ccf_rels,
-            &non_transparent_sorts,
-        );
-        let cebup = ccfs_exploded_by_unit_paths(
-            thread_local_cache(),
-            direct_ccf_rels,
-            &ucp,
-            &non_transparent_sorts,
-        );
-        let cebup_filtered = cebup
-            .iter()
-            .cloned()
-            .filter(|it| {
-                it.from.iter().all(|it| non_transparent_sorts.contains(it))
-                    && non_transparent_sorts.contains(&it.to)
-            })
-            .collect::<Vec<_>>();
-        ucp_acc.extend(ucp.iter().cloned().filter(|it| {
-            non_transparent_sorts.contains(&it.from)
-                || cebup_filtered
-                    .iter()
-                    .any(|cebup| cebup.intermediary.to == it.from)
-        }));
-        cebup_acc.extend(cebup_filtered);
-    }
-    let all_tems = important_sublangs
-        .tems()
-        .flatten()
-        .filter(|it| it.from_extern_behavioral != it.to_structural)
-        .filter(|it| {
-            !ucp_acc.iter().any(|existing| {
-                existing.from == it.from_extern_behavioral && existing.to == it.to_structural
-            })
-        })
-        .collect::<Vec<_>>();
-    for desired_pair in all_tems.into_iter() {
-        // todo: iterate over the existing ucps targeting anything under tmfs that don't have a unit ccf,
-        // starting of course with the reflexive ucp, until you exhaust the combinations. Only then, panic.
-        // Yes I know this is potentially very inefficient. Is it time to rethink this? Is it appropriate, now, to "preserve, don't recover?" Or is it appropriate only to update fromshallow?
-        ucp_acc.insert(
-            find_ucp(
-                direct_ccf_rels.as_slice(),
-                UcpPair {
-                    from: desired_pair.from_extern_behavioral.clone(),
-                    to: desired_pair.to_structural.clone(),
-                },
-            )
-            .unwrap_or_else(|| panic!("Cannot find UCP for {:?}", &desired_pair)),
-        );
-    }
+    // for non_transparent_sorts in important_sublangs.images() {
+    //     let ucp = unit_ccf_paths_quadratically_large_closure(
+    //         thread_local_cache(),
+    //         direct_ccf_rels,
+    //         &non_transparent_sorts,
+    //     );
+    //     let cebup = ccfs_exploded_by_unit_paths(
+    //         thread_local_cache(),
+    //         direct_ccf_rels,
+    //         &ucp,
+    //         &non_transparent_sorts,
+    //     );
+    //     let cebup_filtered = cebup
+    //         .iter()
+    //         .cloned()
+    //         .filter(|it| {
+    //             it.from.iter().all(|it| non_transparent_sorts.contains(it))
+    //                 && non_transparent_sorts.contains(&it.to)
+    //         })
+    //         .collect::<Vec<_>>();
+    //     ucp_acc.extend(ucp.iter().cloned().filter(|it| {
+    //         non_transparent_sorts.contains(&it.from)
+    //             || cebup_filtered
+    //                 .iter()
+    //                 .any(|cebup| cebup.intermediary.to == it.from)
+    //     }));
+    //     cebup_acc.extend(cebup_filtered);
+    // }
+    // let all_tems = important_sublangs
+    //     .aspect_implementors()
+    //     .flatten()
+    //     .filter(|it| it.from_extern_behavioral != it.to_structural)
+    //     .filter(|it| {
+    //         !ucp_acc.iter().any(|existing| {
+    //             existing.from == it.from_extern_behavioral && existing.to == it.to_structural
+    //         })
+    //     })
+    //     .collect::<Vec<_>>();
+    // for desired_pair in all_tems.into_iter() {
+    //     // todo: iterate over the existing ucps targeting anything under tmfs that don't have a unit ccf,
+    //     // starting of course with the reflexive ucp, until you exhaust the combinations. Only then, panic.
+    //     // Yes I know this is potentially very inefficient. Is it time to rethink this? Is it appropriate, now, to "preserve, don't recover?" Or is it appropriate only to update fromshallow?
+    //     ucp_acc.insert(
+    //         find_ucp(
+    //             direct_ccf_rels.as_slice(),
+    //             UcpPair {
+    //                 from: desired_pair.from_extern_behavioral.clone(),
+    //                 to: desired_pair.to_structural.clone(),
+    //             },
+    //         )
+    //         .unwrap_or_else(|| panic!("Cannot find UCP for {:?}", &desired_pair)),
+    //     );
+    // }
     let mut units_sorted = ucp_acc.into_iter().collect::<Vec<_>>();
     units_sorted.sort();
     let mut non_units_sorted = cebup_acc.into_iter().collect::<Vec<_>>();

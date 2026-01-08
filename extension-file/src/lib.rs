@@ -4,7 +4,7 @@ use either_id::Either;
 use file_tmf::FileTmfId;
 use langspec::{
     langspec::{AsLifetime, LangSpec, MappedType, SortId, SortIdOf},
-    sublang::{Sublang, TmfEndoMapping, reflexive_sublang},
+    sublang::{AspectImplementors, Sublang, reflexive_sublang},
     tymetafunc::TyMetaFuncSpec,
 };
 use tmfs_join::TmfsJoin;
@@ -19,10 +19,13 @@ pub struct FileExtension<'a, L: LangSpec> {
 
 pub fn filefy<'a, L: LangSpec>(l: &'a L, item_sids: Vec<SortIdOf<L>>) -> impl LangSpec + 'a {
     FileExtension {
-        name: Identifier::list(vec![
-            Identifier::from_camel_str("File").unwrap(),
-            l.name().clone(),
-        ].into()),
+        name: Identifier::list(
+            vec![
+                Identifier::from_camel_str("File").unwrap(),
+                l.name().clone(),
+            ]
+            .into(),
+        ),
         l,
         item_sids,
         item_name: Identifier::from_snake_str("file_item").unwrap(),
@@ -136,23 +139,27 @@ impl<'a, L: LangSpec> LangSpec for FileExtension<'a, L> {
                 >(reflexive_sublang(self)))
             }
         } else {
-            self.l
-                .sublang::<LSub>(lsub)
-                .map(|Sublang { lsub, map, tems }| Sublang {
+            self.l.sublang::<LSub>(lsub).map(
+                |Sublang {
+                     lsub,
+                     map,
+                     aspect_implementors,
+                 }| Sublang {
                     lsub,
                     map: Box::new(move |name| {
                         let id = (map)(name);
                         embed::<L>(id)
                     }),
-                    tems: tems
+                    aspect_implementors: aspect_implementors
                         .into_iter()
-                        .map(|tem| TmfEndoMapping::<SortIdOf<Self>> {
+                        .map(|tem| AspectImplementors::<SortIdOf<Self>> {
                             from_extern_behavioral: embed::<L>(tem.from_extern_behavioral),
                             // fromrec: embed::<L>(tem.fromrec),
                             to_structural: embed::<L>(tem.to_structural),
                         })
                         .collect(),
-                })
+                },
+            )
         }
     }
 
@@ -169,8 +176,8 @@ impl<'a, L: LangSpec> LangSpec for FileExtension<'a, L> {
     //                     let id = (sublang.map)(name);
     //                     embed::<L>(id)
     //                 }),
-    //                 tems: sublang
-    //                     .tems
+    //                 aspect_implementors: sublang
+    //                     .aspect_implementors
     //                     .into_iter()
     //                     .map(|tem| TmfEndoMapping::<SortIdOf<Self>> {
     //                         fromshallow: embed::<L>(tem.fromshallow),

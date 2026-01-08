@@ -57,7 +57,8 @@ members = [
     "tree-identifier",
     "memo/memo-with-references",
     "memo/memo-cache",
-    "rustgen-utils", "memo/memo",
+    "rustgen-utils",
+    "memo/memo",
 ]
 
 [profile.release]
