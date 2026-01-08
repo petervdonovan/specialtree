@@ -1,11 +1,11 @@
 use core::panic;
 
+use aspect::Adtishness;
+use aspect::Visitation;
+use aspect::{AdtLike, NotAdtLike};
 use ccf::CanonicallyConstructibleFrom;
 use covisit::Covisit;
-use aspect::Visitation;
 use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Set, SetHeapBak};
-use aspect::{AdtLike, NotAdtLike};
-use aspect::Adtishness;
 use words::InverseImplements;
 
 use crate::LookaheadAspect;
@@ -42,18 +42,20 @@ where
 impl<'a, Heap, L, ElemLWord, MappedSet, MappedElem>
     Covisit<Set<(), ElemLWord>, L, Cstfy<Heap, MappedSet>, Heap, NotAdtLike> for Parser<'a, L>
 where
-    Heap: InverseImplements<L, ElemLWord>,
+    Heap: InverseImplements<L, ElemLWord, LookaheadAspect>,
+    Heap: InverseImplements<L, ElemLWord, Visitation>,
     Heap: InverseImplements<
             L,
             Set<(), ElemLWord>,
-            ExternBehavioralImplementor = Set<Heap, MappedElem>,
+            LookaheadAspect,
+            Implementor = Set<Heap, MappedElem>,
         >,
     Heap: term::SuperHeap<SetHeapBak<Heap, MappedElem>>,
     ElemLWord: Adtishness<Visitation>,
     Parser<'a, L>: Covisit<
             ElemLWord,
             L,
-            <Heap as InverseImplements<L, ElemLWord>>::StructuralImplementor,
+            <Heap as InverseImplements<L, ElemLWord, Visitation>>::Implementor,
             Heap,
             <ElemLWord as Adtishness<Visitation>>::X,
         >,
@@ -61,7 +63,7 @@ where
     MappedElem: CanonicallyConstructibleFrom<
             Heap,
             (
-                <Heap as InverseImplements<L, ElemLWord>>::StructuralImplementor,
+                <Heap as InverseImplements<L, ElemLWord, Visitation>>::Implementor,
                 (),
             ),
         >,

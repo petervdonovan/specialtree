@@ -142,21 +142,19 @@ impl<'a, L: LangSpec> LangSpec for FileExtension<'a, L> {
             self.l.sublang::<LSub>(lsub).map(
                 |Sublang {
                      lsub,
-                     map,
                      aspect_implementors,
                  }| Sublang {
                     lsub,
-                    map: Box::new(move |name| {
-                        let id = (map)(name);
-                        embed::<L>(id)
-                    }),
                     aspect_implementors: aspect_implementors
                         .into_iter()
-                        .map(|tem| AspectImplementors::<SortIdOf<Self>> {
-                            from_extern_behavioral: embed::<L>(tem.from_extern_behavioral),
-                            // fromrec: embed::<L>(tem.fromrec),
-                            to_structural: embed::<L>(tem.to_structural),
-                        })
+                        .map(
+                            |tem| AspectImplementors::<LSub::AsLifetime<'this>, SortIdOf<Self>> {
+                                aspect_zst: tem.aspect_zst,
+                                map: Box::new(move |sid: &SortIdOf<LSub::AsLifetime<'this>>| {
+                                    embed::<L>((tem.map)(sid))
+                                }),
+                            },
+                        )
                         .collect(),
                 },
             )

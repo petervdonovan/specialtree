@@ -19,3 +19,4 @@ covisit = { version = "0.1.0", path = "../covisit" }
 pmsp = { version = "0.1.0", path = "../pmsp" }
 conslist = { version = "0.1.0", path = "../conslist" }
 ccf = { version = "0.1.0", path = "../ccf" }
+syn.workspace = true

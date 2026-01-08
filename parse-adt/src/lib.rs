@@ -1,3 +1,4 @@
+use aspect::{AdtLike, Adtishness, Aspect};
 use conslist::ConsList;
 use covisit::{
     covisiteventsink::CovisitEventSink,
@@ -7,14 +8,19 @@ use cstfy::Cstfy;
 use parse::{KeywordSequence, UnexpectedTokenError};
 use pmsp::{AtLeastTwoStrategy, Strategy};
 use take_mut::Poisonable;
-use aspect::{AdtLike, Adtishness, Aspect};
 use words::Implements;
 
 pub mod cstfy;
 mod tmfscore;
 
 pub struct LookaheadAspect;
-impl Aspect for LookaheadAspect {}
+impl Aspect for LookaheadAspect {
+    fn zst_path(&self) -> syn::Path {
+        syn::parse_quote! {
+            parse_adt::LookaheadAspect
+        }
+    }
+}
 
 pub struct Parser<'a, L> {
     pub pc: ParseCursor<'a>,

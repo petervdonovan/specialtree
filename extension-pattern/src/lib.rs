@@ -137,32 +137,19 @@ impl<'a, L: LangSpec> LangSpec for PatternExtension<'a, L> {
             self.l0.sublang::<LSub>(lsub).map(
                 |Sublang {
                      lsub,
-                     map,
                      aspect_implementors,
                  }| Sublang {
                     lsub,
-                    map: Box::new(move |name| {
-                        let id = map(name);
-                        map_sid::<'a, L>(id)
-                    }),
                     aspect_implementors: aspect_implementors
                         .into_iter()
-                        .map(|tem| AspectImplementors::<SortIdOf<Self>> {
-                            from_extern_behavioral: map_sid::<'a, L>(tem.from_extern_behavioral),
-                            // match tem.fromshallow {
-                            //     SortId::Algebraic(_) => panic!(),
-                            //     SortId::TyMetaFunc(mapped_type) => SortId::TyMetaFunc(MappedType {
-                            //         f: Either::Left(mapped_type.f.clone()),
-                            //         a: mapped_type
-                            //             .a
-                            //             .into_iter()
-                            //             .map(map_sid_temfrom::<'a, L>)
-                            //             .collect(),
-                            //     }),
-                            // },
-                            // fromrec: map_sid_temfrom::<L>(tem.fromrec),
-                            to_structural: map_sid::<'a, L>(tem.to_structural),
-                        })
+                        .map(
+                            |tem| AspectImplementors::<LSub::AsLifetime<'this>, SortIdOf<Self>> {
+                                aspect_zst: tem.aspect_zst,
+                                map: Box::new(move |sid: &SortIdOf<LSub::AsLifetime<'this>>| {
+                                    map_sid::<'a, L>((tem.map)(sid))
+                                }),
+                            },
+                        )
                         .collect(),
                 },
             )

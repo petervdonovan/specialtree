@@ -977,6 +977,7 @@ dependencies = [
  "pmsp",
  "std-parse-error",
  "std-parse-metadata",
+ "syn 2.0.100",
  "take-mut",
  "term",
  "tymetafuncspec-core",

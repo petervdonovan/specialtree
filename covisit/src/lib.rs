@@ -30,7 +30,7 @@ mod impls {
     use conslist::{ConsList, NonemptyConsList};
     use pmsp::{NonemptyStrategy, StrategyOf};
     use take_mut::Poisonable;
-    use words::{Implements, InverseImplementsAll};
+    use words::{HasDeconstructionTargetForWordList, Implements};
 
     use crate::Covisit;
     use crate::covisiteventsink::CovisitEventSink;
@@ -39,24 +39,24 @@ mod impls {
 
     impl<Covisitor, LWord, L, T, Heap> Covisit<LWord, L, T, Heap, AdtLike> for Covisitor
     where
-        T: words::Implements<Heap, L, LWord = LWord>,
+        T: words::Implements<Heap, L, Visitation, LWord = LWord>,
         LWord: pmsp::NamesPatternMatchStrategy<L>,
         // Covisitor: Covisit<<StrategyOf<T, Heap, L> as Strategy>::Cdr, Heap, L>,
         Covisitor: Poisonable,
         Covisitor: SelectCase,
-        <Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L>>: AnyCovisit<
+        <Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L, Visitation>>: AnyCovisit<
                 LWord,
                 L,
                 T,
                 Heap,
                 StrategyOf<T, Heap, L, aspect::Visitation>,
-                <<Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L>> as FromSelectCase>::Done,
+                <<Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L, Visitation>> as FromSelectCase>::Done,
             >,
     {
         fn covisit(&mut self, heap: &mut Heap) -> T {
             take_mut::take(self, |cv| {
                 let ac = cv.start_cases();
-                <<Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L>> as AnyCovisit<
+                <<Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L, Visitation>> as AnyCovisit<
                     _,
                     _,
                     _,
@@ -72,17 +72,17 @@ mod impls {
     where
         AC: AcceptingCases<RemainingCases>,
         RemainingCases: NonemptyStrategy,
-        Heap: InverseImplementsAll<L, RemainingCases::Car>,
+        Heap: HasDeconstructionTargetForWordList<L, RemainingCases::Car>,
         <AC as FromSelectCase>::Done: AllCovisit<
                 LWord,
                 L,
                 T,
                 Heap,
-                <Heap as InverseImplementsAll<L, RemainingCases::Car>>::StructuralImplementors,
+                <Heap as HasDeconstructionTargetForWordList<L, RemainingCases::Car>>::Implementors,
             >,
         T: CanonicallyConstructibleFrom<
                 Heap,
-                <Heap as InverseImplementsAll<L, RemainingCases::Car>>::StructuralImplementors,
+                <Heap as HasDeconstructionTargetForWordList<L, RemainingCases::Car>>::Implementors,
             >,
         AC::AcceptingRemainingCases:
             AnyCovisit<LWord, L, T, Heap, RemainingCases::Cdr, <AC as FromSelectCase>::Done>,
@@ -111,14 +111,16 @@ mod impls {
         for Covisitor
     where
         ConcreteCase: NonemptyConsList,
-        ConcreteCase::Car: Implements<Heap, L>,
-        <ConcreteCase::Car as Implements<Heap, L>>::LWord: Adtishness<Visitation>,
+        ConcreteCase::Car: Implements<Heap, L, Visitation>,
+        <ConcreteCase::Car as Implements<Heap, L, Visitation>>::LWord: Adtishness<Visitation>,
         Covisitor: Covisit<
-                <ConcreteCase::Car as Implements<Heap, L>>::LWord,
+                <ConcreteCase::Car as Implements<Heap, L, Visitation>>::LWord,
                 L,
                 ConcreteCase::Car,
                 Heap,
-                <<ConcreteCase::Car as Implements<Heap, L>>::LWord as Adtishness<Visitation>>::X,
+                <<ConcreteCase::Car as Implements<Heap, L, Visitation>>::LWord as Adtishness<
+                    Visitation,
+                >>::X,
             >,
         Covisitor: AllCovisit<LWord, L, T, Heap, ConcreteCase::Cdr>,
         Covisitor: CovisitEventSink<LWord>,

@@ -27,7 +27,7 @@ mod impls {
     use ccf::CanonicallyConstructibleFrom;
     use conslist::{ConsList, NonemptyConsList};
     use pmsp::{NonemptyStrategy, StrategyOf};
-    use words::{Implements, InverseImplementsAll};
+    use words::{HasDeconstructionTargetForWordList, Implements};
 
     use crate::{
         Visit,
@@ -49,11 +49,11 @@ mod impls {
 
     impl<V, LWord, L, T, Heap, RemainingCases> AnyVisit<LWord, L, T, Heap, RemainingCases> for V
     where
-        Heap: InverseImplementsAll<L, RemainingCases::Car>,
+        Heap: HasDeconstructionTargetForWordList<L, RemainingCases::Car>,
         T: Copy
             + CanonicallyConstructibleFrom<
                 Heap,
-                <Heap as InverseImplementsAll<L, RemainingCases::Car>>::Implementors,
+                <Heap as HasDeconstructionTargetForWordList<L, RemainingCases::Car>>::Implementors,
             >,
         RemainingCases: NonemptyStrategy,
         V: AnyVisit<LWord, L, T, Heap, RemainingCases::Cdr>,
@@ -62,7 +62,7 @@ mod impls {
                 L,
                 T,
                 Heap,
-                <Heap as InverseImplementsAll<L, RemainingCases::Car>>::Implementors,
+                <Heap as HasDeconstructionTargetForWordList<L, RemainingCases::Car>>::Implementors,
             >,
         V: VisitEventSink<T, Heap>,
     {
@@ -83,14 +83,16 @@ mod impls {
         ConcreteCase: NonemptyConsList,
         V: AllVisit<LWord, L, T, Heap, ConcreteCase::Cdr>,
         // Heap: InverseImplements<L, Case::Car>,
-        ConcreteCase::Car: Implements<Heap, L>,
-        <ConcreteCase::Car as Implements<Heap, L>>::LWord: Adtishness<Visitation>,
+        ConcreteCase::Car: Implements<Heap, L, Visitation>,
+        <ConcreteCase::Car as Implements<Heap, L, Visitation>>::LWord: Adtishness<Visitation>,
         V: Visit<
-                <ConcreteCase::Car as Implements<Heap, L>>::LWord,
+                <ConcreteCase::Car as Implements<Heap, L, Visitation>>::LWord,
                 L,
                 ConcreteCase::Car,
                 Heap,
-                <<ConcreteCase::Car as Implements<Heap, L>>::LWord as Adtishness<Visitation>>::X,
+                <<ConcreteCase::Car as Implements<Heap, L, Visitation>>::LWord as Adtishness<
+                    Visitation,
+                >>::X,
             >,
         V: VisitEventSink<T, Heap>,
     {

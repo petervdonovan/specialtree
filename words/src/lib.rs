@@ -15,27 +15,26 @@ pub trait Implements<Heap, L, AspectT: Aspect> {
 pub trait InverseImplements<L, LWord, AspectT: Aspect> {
     type Implementor;
 }
-pub trait InverseImplementsAll<L, LWords: ConsList, AspectT: Aspect>:
-    InverseImplements<L, <LWords as ConsList>::Car, AspectT>
-{
+pub trait HasDeconstructionTargetForWordList<L, LWords: ConsList> {
     type Implementors: ConsList;
 }
-impl<Heap, L, AspectT: Aspect> InverseImplements<L, (), AspectT> for Heap {
-    type Implementor = ();
-}
-impl<Heap, L, Car, Cdr, AspectT: Aspect> InverseImplementsAll<L, (Car, Cdr), AspectT> for Heap
-where
-    Cdr: ConsList,
-    Heap: InverseImplementsAll<L, Cdr, AspectT> + InverseImplements<L, Car, AspectT>,
-{
-    type Implementors = (
-        <Heap as InverseImplements<L, Car, AspectT>>::Implementor,
-        <Heap as InverseImplementsAll<L, Cdr, AspectT>>::Implementors,
-    );
-}
-impl<Heap, L, AspectT: Aspect> InverseImplementsAll<L, (), AspectT> for Heap {
-    type Implementors = ();
-}
+// impl<Heap, L, AspectT: Aspect> InverseImplements<L, (), AspectT> for Heap {
+//     type Implementor = ();
+// }
+// impl<Heap, L, Car, Cdr, AspectT: Aspect> DeconstructionTargetForWordList<L, (Car, Cdr), AspectT>
+//     for Heap
+// where
+//     Cdr: ConsList,
+//     Heap: DeconstructionTargetForWordList<L, Cdr, AspectT> + InverseImplements<L, Car, AspectT>,
+// {
+//     type Implementors = (
+//         <Heap as InverseImplements<L, Car, AspectT>>::Implementor,
+//         <Heap as DeconstructionTargetForWordList<L, Cdr, AspectT>>::Implementors,
+//     );
+// }
+// impl<Heap, L, AspectT: Aspect> DeconstructionTargetForWordList<L, (), AspectT> for Heap {
+//     type Implementors = ();
+// }
 
 pub fn words_mod<L: LangSpec>(lg: &L) -> syn::ItemMod {
     let sort_camel_idents = ty_gen_datas(thread_local_cache(), lg, None)
