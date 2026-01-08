@@ -110,27 +110,17 @@ where
             self.l0.sublang::<LSub>(lsub).map(
                 |sublang: Sublang<'this, LSub::AsLifetime<'this>, SortIdOf<L0>>| Sublang {
                     lsub: sublang.lsub,
-                    map: Box::new(move |name| {
-                        let id = (sublang.map)(name);
-                        L0M::l0_map(self, id)
-                    }),
                     aspect_implementors: sublang
                         .aspect_implementors
                         .into_iter()
-                        .map(|tem| AspectImplementors::<SortIdOf<Self>> {
-                            from_extern_behavioral: match tem.from_extern_behavioral {
-                                SortId::Algebraic(_) => panic!(),
-                                SortId::TyMetaFunc(mapped_type) => SortId::TyMetaFunc(MappedType {
-                                    f: Either::Left(Either::Left(mapped_type.f.clone())),
-                                    a: mapped_type
-                                        .a
-                                        .into_iter()
-                                        .map(|sid| L0M::l0_map(self, sid.clone()))
-                                        .collect(),
-                                }),
-                            },
-                            // fromrec: l0_as_my_sid::<L0, L1>(tem.fromrec),
-                            to_structural: L0M::l0_map(self, tem.to_structural.clone()),
+                        .map(|aspect_implementors| AspectImplementors::<
+                            LSub::AsLifetime<'this>,
+                            SortIdOf<Self>,
+                        > {
+                            aspect_zst: aspect_implementors.aspect_zst,
+                            map: Box::new(move |sid: &SortIdOf<LSub::AsLifetime<'this>>| {
+                                L0M::l0_map(self, (aspect_implementors.map)(sid))
+                            }),
                         })
                         .collect(),
                 },
