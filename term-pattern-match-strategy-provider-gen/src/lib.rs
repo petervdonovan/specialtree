@@ -1,7 +1,6 @@
 use langspec::langspec::{LangSpec, SortId, SortIdOf};
 use langspec_rs_syn::{
-    HeapType, sort2externbehavioral_from_word_rs_ty, sort2word_rs_ty, tmf_ccf_sortses,
-    tmfs_monomorphizations, ty_gen_datas,
+    HeapType, sort2word_rs_ty, tmf_ccf_sortses, tmfs_monomorphizations, ty_gen_datas,
 };
 use memo::memo_cache::thread_local_cache;
 use rustgen_utils::cons_list;

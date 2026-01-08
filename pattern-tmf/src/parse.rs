@@ -4,7 +4,7 @@ use parse_adt::{
     Lookahead, LookaheadAspect, ParseCursor, Parser,
     cstfy::{Cstfy, cstfy_ok},
 };
-use aspect::Visitation;
+use aspect::VisitationAspect;
 use term::SuperHeap;
 use aspect::{AdtLike, Adtishness, NotAdtLike};
 use words::InverseImplements;
@@ -22,11 +22,12 @@ where
     Heap: InverseImplements<
             L,
             OrVariable<(), MatchedTyLWord>,
-            ExternBehavioralImplementor = OrVariable<Heap, MatchedTy>,
+            LookaheadAspect,
+            Implementor = OrVariable<Heap, MatchedTy>,
         >,
-    MatchedTyLWord: Adtishness<Visitation>,
+    MatchedTyLWord: Adtishness<VisitationAspect>,
     Parser<'a, L>:
-        Covisit<MatchedTyLWord, L, MatchedTy, Heap, <MatchedTyLWord as Adtishness<Visitation>>::X>,
+        Covisit<MatchedTyLWord, L, MatchedTy, Heap, <MatchedTyLWord as Adtishness<VisitationAspect>>::X>,
     OvMapped: CanonicallyConstructibleFrom<Heap, (OrVariable<Heap, MatchedTy>, ())>,
 {
     fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, OvMapped> {
@@ -61,11 +62,12 @@ where
     Heap: InverseImplements<
             L,
             OrVariableZeroOrMore<(), MatchedTyLWord>,
-            ExternBehavioralImplementor = OrVariableZeroOrMore<Heap, MatchedTy>,
+            LookaheadAspect,
+            Implementor = OrVariableZeroOrMore<Heap, MatchedTy>,
         >,
-    MatchedTyLWord: Adtishness<Visitation>,
+    MatchedTyLWord: Adtishness<VisitationAspect>,
     Parser<'a, L>:
-        Covisit<MatchedTyLWord, L, MatchedTy, Heap, <MatchedTyLWord as Adtishness<Visitation>>::X>,
+        Covisit<MatchedTyLWord, L, MatchedTy, Heap, <MatchedTyLWord as Adtishness<VisitationAspect>>::X>,
     OvZomMapped: CanonicallyConstructibleFrom<Heap, (OrVariableZeroOrMore<Heap, MatchedTy>, ())>,
 {
     fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, OvZomMapped> {
@@ -108,11 +110,12 @@ where
     Heap: InverseImplements<
             L,
             NamedPattern<(), PatternLWord>,
-            ExternBehavioralImplementor = NamedPattern<Heap, Pattern>,
+            LookaheadAspect,
+            Implementor = NamedPattern<Heap, Pattern>,
         >,
-    PatternLWord: Adtishness<Visitation>,
+    PatternLWord: Adtishness<VisitationAspect>,
     Parser<'a, L>:
-        Covisit<PatternLWord, L, Pattern, Heap, <PatternLWord as Adtishness<Visitation>>::X>,
+        Covisit<PatternLWord, L, Pattern, Heap, <PatternLWord as Adtishness<VisitationAspect>>::X>,
     NamedPatternMapped: CanonicallyConstructibleFrom<Heap, (NamedPattern<Heap, Pattern>, ())>,
 {
     fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, NamedPatternMapped> {

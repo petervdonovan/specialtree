@@ -800,6 +800,7 @@ dependencies = [
 name = "langspec-rs-syn"
 version = "0.1.0"
 dependencies = [
+ "aspect",
  "expect-test",
  "langspec",
  "memo",

@@ -14,31 +14,38 @@ use fib::l_words_mod_r_fib::sorts::Left_operand;
 use fib::l_words_mod_r_fib::sorts::F;
 use fib::l_words_mod_r_fib::L;
 use crate::l_term_specialized_r_l_autoboxed_l_file_l_pattern_fib_r_r_r as ltsrlalflpfrrr;
-impl words::Implements<ltsrlalflpfrrr::Heap, L> for ltsrlalflpfrrr::F {
+use aspect::VisitationAspect;
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect> for ltsrlalflpfrrr::F {
     type LWord = F;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L> for ltsrlalflpfrrr::Left_operand {
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
+for ltsrlalflpfrrr::Left_operand {
     type LWord = Left_operand;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L> for ltsrlalflpfrrr::Plus {
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
+for ltsrlalflpfrrr::Plus {
     type LWord = Plus;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L> for ltsrlalflpfrrr::Right_operand {
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
+for ltsrlalflpfrrr::Right_operand {
     type LWord = Right_operand;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L> for ltsrlalflpfrrr::Sum {
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
+for ltsrlalflpfrrr::Sum {
     type LWord = Sum;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L> for ltsrlalflpfrrr::Nat {
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
+for ltsrlalflpfrrr::Nat {
     type LWord = Nat;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L>
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
 for Set<
     ltsrlalflpfrrr::Heap,
     OrVariableZeroOrMore<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::Nat>,
 > {
     type LWord = Set<(), Nat>;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L> for BoundedNat<ltsrlalflpfrrr::Heap> {
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
+for BoundedNat<ltsrlalflpfrrr::Heap> {
     type LWord = BoundedNat<()>;
 }

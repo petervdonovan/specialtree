@@ -1,5 +1,5 @@
 use parse_adt::NamesParseLL;
-use aspect::Visitation;
+use aspect::VisitationAspect;
 // use parse_adt::NamesParseLL;
 // use term::{
 //     case_split::HasBorrowedHeapRef,
@@ -21,8 +21,8 @@ pub struct Unparser<'arena, L> {
 
 pub fn unparse<LWord, L, T, Heap>(heap: &Heap, t: &T) -> String
 where
-    LWord: Adtishness<Visitation>,
-    for<'a> Unparser<'a, L>: Visit<LWord, L, T, Heap, <LWord as Adtishness<Visitation>>::X>,
+    LWord: Adtishness<VisitationAspect>,
+    for<'a> Unparser<'a, L>: Visit<LWord, L, T, Heap, <LWord as Adtishness<VisitationAspect>>::X>,
 {
     let arena = bumpalo::Bump::new();
     let mut unparser = Unparser::new(&arena);
@@ -41,8 +41,8 @@ impl<'arena, L> Unparser<'arena, L> {
 
 impl<'arena, L, CurrentNode, Heap> VisitEventSink<CurrentNode, Heap> for Unparser<'arena, L>
 where
-    CurrentNode: words::Implements<Heap, L>,
-    <CurrentNode as words::Implements<Heap, L>>::LWord: NamesParseLL,
+    CurrentNode: words::Implements<Heap, L, VisitationAspect>,
+    <CurrentNode as words::Implements<Heap, L, VisitationAspect>>::LWord: NamesParseLL,
 {
     fn push(
         &mut self,
@@ -51,7 +51,7 @@ where
         _total: u32,
     ) -> visit::visiteventsink::PopOrProceed {
         self.unparse.consistent_group_start();
-        let start = <<CurrentNode as words::Implements<Heap, L>>::LWord as NamesParseLL>::START;
+        let start = <<CurrentNode as words::Implements<Heap, L, VisitationAspect>>::LWord as NamesParseLL>::START;
         for kw in start.0 {
             self.unparse.static_text(kw.get());
         }

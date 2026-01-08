@@ -1,4 +1,7 @@
-use crate::type_path::{AlgebraicsBasePath, HeapType, sort2rs_ty, sort2structural_from_word_rs_ty};
+use crate::type_path::{
+    AlgebraicsBasePath, HeapType, sort2implementor_from_word_rs_ty, sort2rs_ty,
+};
+use aspect::VisitationAspect;
 use langspec::langspec::MappedType;
 use langspec::langspec::{
     AlgebraicSortId, LangSpec, MappedTypeOf, SortId, SortIdOf, call_on_all_tmf_monomorphizations,
@@ -61,7 +64,9 @@ pub fn ty_gen_datas<'a, L: LangSpec>(
     let sort2rs_ty_fn = move |ht: HeapType, abp: AlgebraicsBasePath| {
         let words_path = words_path.clone();
         move |sort: SortIdOf<L>| match words_path {
-            Some(ref words_path) => sort2structural_from_word_rs_ty(ls, sort, &ht, words_path),
+            Some(ref words_path) => {
+                sort2implementor_from_word_rs_ty(ls, sort, &ht, words_path, &VisitationAspect)
+            }
             None => sort2rs_ty(ls, sort, &ht, &abp),
         }
     };
@@ -272,7 +277,13 @@ pub fn heapbak_gen_datas<'a, L: LangSpec>(ls: &'a L) -> Vec<HeapbakGenData<'a>> 
                     move |ht, abp, words_path| {
                         let RustTyMap { ty_func } = &tymetafuncdata.heapbak;
                         let args = tmf_m.a.iter().map(|arg| match words_path {
-                            Some(wp) => sort2structural_from_word_rs_ty(ls, arg.clone(), ht, wp),
+                            Some(wp) => sort2implementor_from_word_rs_ty(
+                                ls,
+                                arg.clone(),
+                                ht,
+                                wp,
+                                &VisitationAspect,
+                            ),
                             None => sort2rs_ty(ls, arg.clone(), ht, abp),
                         });
                         let ht = &ht.0;
@@ -291,9 +302,13 @@ pub fn heapbak_gen_datas<'a, L: LangSpec>(ls: &'a L) -> Vec<HeapbakGenData<'a>> 
                             .a
                             .iter()
                             .map(|arg| match words_path {
-                                Some(wp) => {
-                                    sort2structural_from_word_rs_ty(ls, arg.clone(), &ht, wp)
-                                }
+                                Some(wp) => sort2implementor_from_word_rs_ty(
+                                    ls,
+                                    arg.clone(),
+                                    &ht,
+                                    wp,
+                                    &VisitationAspect,
+                                ),
                                 None => sort2rs_ty(ls, arg.clone(), &ht, &abp),
                             })
                             .collect()

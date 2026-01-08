@@ -18,63 +18,69 @@ pub mod words_inverse_impls {
     use crate::l_words_mod_r_l_autoboxed_l_file_l_pattern_fib_r_r_r as lwmrlalflpfrrr;
     use crate::l_words_mod_r_l_autoboxed_l_file_l_pattern_fib_r_r_r::sorts as lwmrlalflpfrrrs;
     use crate::l_term_specialized_r_l_autoboxed_l_file_l_pattern_fib_r_r_r as ltsrlalflpfrrr;
-    impl words::InverseImplements<lwmrlalflpfrrr::L, lwmrlalflpfrrrs::F>
-    for ltsrlalflpfrrr::Heap {
-        type ExternBehavioralImplementor = ltsrlalflpfrrr::F;
-        type StructuralImplementor = ltsrlalflpfrrr::F;
+    use aspect::VisitationAspect;
+    impl words::InverseImplements<
+        lwmrlalflpfrrr::L,
+        lwmrlalflpfrrrs::F,
+        VisitationAspect,
+    > for ltsrlalflpfrrr::Heap {
+        type Implementor = ltsrlalflpfrrr::F;
     }
-    impl words::InverseImplements<lwmrlalflpfrrr::L, lwmrlalflpfrrrs::Left_operand>
-    for ltsrlalflpfrrr::Heap {
-        type ExternBehavioralImplementor = ltsrlalflpfrrr::Left_operand;
-        type StructuralImplementor = ltsrlalflpfrrr::Left_operand;
+    impl words::InverseImplements<
+        lwmrlalflpfrrr::L,
+        lwmrlalflpfrrrs::Left_operand,
+        VisitationAspect,
+    > for ltsrlalflpfrrr::Heap {
+        type Implementor = ltsrlalflpfrrr::Left_operand;
     }
-    impl words::InverseImplements<lwmrlalflpfrrr::L, lwmrlalflpfrrrs::Plus>
-    for ltsrlalflpfrrr::Heap {
-        type ExternBehavioralImplementor = ltsrlalflpfrrr::Plus;
-        type StructuralImplementor = ltsrlalflpfrrr::Plus;
+    impl words::InverseImplements<
+        lwmrlalflpfrrr::L,
+        lwmrlalflpfrrrs::Plus,
+        VisitationAspect,
+    > for ltsrlalflpfrrr::Heap {
+        type Implementor = ltsrlalflpfrrr::Plus;
     }
-    impl words::InverseImplements<lwmrlalflpfrrr::L, lwmrlalflpfrrrs::Right_operand>
-    for ltsrlalflpfrrr::Heap {
-        type ExternBehavioralImplementor = ltsrlalflpfrrr::Right_operand;
-        type StructuralImplementor = ltsrlalflpfrrr::Right_operand;
+    impl words::InverseImplements<
+        lwmrlalflpfrrr::L,
+        lwmrlalflpfrrrs::Right_operand,
+        VisitationAspect,
+    > for ltsrlalflpfrrr::Heap {
+        type Implementor = ltsrlalflpfrrr::Right_operand;
     }
-    impl words::InverseImplements<lwmrlalflpfrrr::L, lwmrlalflpfrrrs::Sum>
-    for ltsrlalflpfrrr::Heap {
-        type ExternBehavioralImplementor = ltsrlalflpfrrr::Sum;
-        type StructuralImplementor = ltsrlalflpfrrr::Sum;
+    impl words::InverseImplements<
+        lwmrlalflpfrrr::L,
+        lwmrlalflpfrrrs::Sum,
+        VisitationAspect,
+    > for ltsrlalflpfrrr::Heap {
+        type Implementor = ltsrlalflpfrrr::Sum;
     }
-    impl words::InverseImplements<lwmrlalflpfrrr::L, lwmrlalflpfrrrs::Nat>
-    for ltsrlalflpfrrr::Heap {
-        type ExternBehavioralImplementor = ltsrlalflpfrrr::Nat;
-        type StructuralImplementor = ltsrlalflpfrrr::Nat;
+    impl words::InverseImplements<
+        lwmrlalflpfrrr::L,
+        lwmrlalflpfrrrs::Nat,
+        VisitationAspect,
+    > for ltsrlalflpfrrr::Heap {
+        type Implementor = ltsrlalflpfrrr::Nat;
     }
-    impl words::InverseImplements<lwmrlalflpfrrr::L, lwmrlalflpfrrrs::FileItem>
-    for ltsrlalflpfrrr::Heap {
-        type ExternBehavioralImplementor = ltsrlalflpfrrr::FileItem;
-        type StructuralImplementor = ltsrlalflpfrrr::FileItem;
+    impl words::InverseImplements<
+        lwmrlalflpfrrr::L,
+        lwmrlalflpfrrrs::FileItem,
+        VisitationAspect,
+    > for ltsrlalflpfrrr::Heap {
+        type Implementor = ltsrlalflpfrrr::FileItem;
     }
     impl words::InverseImplements<
         lwmrlalflpfrrr::L,
         OrVariable<(), lwmrlalflpfrrrs::Nat>,
+        VisitationAspect,
     > for ltsrlalflpfrrr::Heap {
-        type ExternBehavioralImplementor = OrVariable<
-            ltsrlalflpfrrr::Heap,
-            ltsrlalflpfrrr::Nat,
-        >;
-        type StructuralImplementor = OrVariable<
-            ltsrlalflpfrrr::Heap,
-            ltsrlalflpfrrr::Nat,
-        >;
+        type Implementor = OrVariable<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::Nat>;
     }
     impl words::InverseImplements<
         lwmrlalflpfrrr::L,
         OrVariable<(), lwmrlalflpfrrrs::Left_operand>,
+        VisitationAspect,
     > for ltsrlalflpfrrr::Heap {
-        type ExternBehavioralImplementor = OrVariable<
-            ltsrlalflpfrrr::Heap,
-            ltsrlalflpfrrr::Left_operand,
-        >;
-        type StructuralImplementor = OrVariable<
+        type Implementor = OrVariable<
             ltsrlalflpfrrr::Heap,
             ltsrlalflpfrrr::Left_operand,
         >;
@@ -82,12 +88,9 @@ pub mod words_inverse_impls {
     impl words::InverseImplements<
         lwmrlalflpfrrr::L,
         OrVariable<(), lwmrlalflpfrrrs::Right_operand>,
+        VisitationAspect,
     > for ltsrlalflpfrrr::Heap {
-        type ExternBehavioralImplementor = OrVariable<
-            ltsrlalflpfrrr::Heap,
-            ltsrlalflpfrrr::Right_operand,
-        >;
-        type StructuralImplementor = OrVariable<
+        type Implementor = OrVariable<
             ltsrlalflpfrrr::Heap,
             ltsrlalflpfrrr::Right_operand,
         >;
@@ -95,15 +98,9 @@ pub mod words_inverse_impls {
     impl words::InverseImplements<
         lwmrlalflpfrrr::L,
         OrVariable<(), Set<(), OrVariableZeroOrMore<(), lwmrlalflpfrrrs::Nat>>>,
+        VisitationAspect,
     > for ltsrlalflpfrrr::Heap {
-        type ExternBehavioralImplementor = OrVariable<
-            ltsrlalflpfrrr::Heap,
-            Set<
-                ltsrlalflpfrrr::Heap,
-                OrVariableZeroOrMore<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::Nat>,
-            >,
-        >;
-        type StructuralImplementor = OrVariable<
+        type Implementor = OrVariable<
             ltsrlalflpfrrr::Heap,
             Set<
                 ltsrlalflpfrrr::Heap,
@@ -114,12 +111,9 @@ pub mod words_inverse_impls {
     impl words::InverseImplements<
         lwmrlalflpfrrr::L,
         Set<(), OrVariableZeroOrMore<(), lwmrlalflpfrrrs::Nat>>,
+        VisitationAspect,
     > for ltsrlalflpfrrr::Heap {
-        type ExternBehavioralImplementor = Set<
-            ltsrlalflpfrrr::Heap,
-            OrVariableZeroOrMore<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::Nat>,
-        >;
-        type StructuralImplementor = Set<
+        type Implementor = Set<
             ltsrlalflpfrrr::Heap,
             OrVariableZeroOrMore<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::Nat>,
         >;
@@ -127,59 +121,44 @@ pub mod words_inverse_impls {
     impl words::InverseImplements<
         lwmrlalflpfrrr::L,
         OrVariableZeroOrMore<(), lwmrlalflpfrrrs::Nat>,
+        VisitationAspect,
     > for ltsrlalflpfrrr::Heap {
-        type ExternBehavioralImplementor = OrVariableZeroOrMore<
-            ltsrlalflpfrrr::Heap,
-            ltsrlalflpfrrr::Nat,
-        >;
-        type StructuralImplementor = OrVariableZeroOrMore<
+        type Implementor = OrVariableZeroOrMore<
             ltsrlalflpfrrr::Heap,
             ltsrlalflpfrrr::Nat,
         >;
     }
-    impl words::InverseImplements<lwmrlalflpfrrr::L, BoundedNat<()>>
+    impl words::InverseImplements<lwmrlalflpfrrr::L, BoundedNat<()>, VisitationAspect>
     for ltsrlalflpfrrr::Heap {
-        type ExternBehavioralImplementor = BoundedNat<ltsrlalflpfrrr::Heap>;
-        type StructuralImplementor = BoundedNat<ltsrlalflpfrrr::Heap>;
+        type Implementor = BoundedNat<ltsrlalflpfrrr::Heap>;
     }
-    impl words::InverseImplements<lwmrlalflpfrrr::L, IdxBox<(), lwmrlalflpfrrrs::F>>
-    for ltsrlalflpfrrr::Heap {
-        type ExternBehavioralImplementor = IdxBox<
-            ltsrlalflpfrrr::Heap,
-            ltsrlalflpfrrr::F,
-        >;
-        type StructuralImplementor = IdxBox<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::F>;
+    impl words::InverseImplements<
+        lwmrlalflpfrrr::L,
+        IdxBox<(), lwmrlalflpfrrrs::F>,
+        VisitationAspect,
+    > for ltsrlalflpfrrr::Heap {
+        type Implementor = IdxBox<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::F>;
     }
-    impl words::InverseImplements<lwmrlalflpfrrr::L, IdxBox<(), lwmrlalflpfrrrs::Plus>>
-    for ltsrlalflpfrrr::Heap {
-        type ExternBehavioralImplementor = IdxBox<
-            ltsrlalflpfrrr::Heap,
-            ltsrlalflpfrrr::Plus,
-        >;
-        type StructuralImplementor = IdxBox<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::Plus>;
+    impl words::InverseImplements<
+        lwmrlalflpfrrr::L,
+        IdxBox<(), lwmrlalflpfrrrs::Plus>,
+        VisitationAspect,
+    > for ltsrlalflpfrrr::Heap {
+        type Implementor = IdxBox<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::Plus>;
     }
     impl words::InverseImplements<
         lwmrlalflpfrrr::L,
         NamedPattern<(), lwmrlalflpfrrrs::F>,
+        VisitationAspect,
     > for ltsrlalflpfrrr::Heap {
-        type ExternBehavioralImplementor = NamedPattern<
-            ltsrlalflpfrrr::Heap,
-            ltsrlalflpfrrr::F,
-        >;
-        type StructuralImplementor = NamedPattern<
-            ltsrlalflpfrrr::Heap,
-            ltsrlalflpfrrr::F,
-        >;
+        type Implementor = NamedPattern<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::F>;
     }
     impl words::InverseImplements<
         lwmrlalflpfrrr::L,
         NamedPattern<(), lwmrlalflpfrrrs::Left_operand>,
+        VisitationAspect,
     > for ltsrlalflpfrrr::Heap {
-        type ExternBehavioralImplementor = NamedPattern<
-            ltsrlalflpfrrr::Heap,
-            ltsrlalflpfrrr::Left_operand,
-        >;
-        type StructuralImplementor = NamedPattern<
+        type Implementor = NamedPattern<
             ltsrlalflpfrrr::Heap,
             ltsrlalflpfrrr::Left_operand,
         >;
@@ -187,25 +166,16 @@ pub mod words_inverse_impls {
     impl words::InverseImplements<
         lwmrlalflpfrrr::L,
         NamedPattern<(), lwmrlalflpfrrrs::Plus>,
+        VisitationAspect,
     > for ltsrlalflpfrrr::Heap {
-        type ExternBehavioralImplementor = NamedPattern<
-            ltsrlalflpfrrr::Heap,
-            ltsrlalflpfrrr::Plus,
-        >;
-        type StructuralImplementor = NamedPattern<
-            ltsrlalflpfrrr::Heap,
-            ltsrlalflpfrrr::Plus,
-        >;
+        type Implementor = NamedPattern<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::Plus>;
     }
     impl words::InverseImplements<
         lwmrlalflpfrrr::L,
         NamedPattern<(), lwmrlalflpfrrrs::Right_operand>,
+        VisitationAspect,
     > for ltsrlalflpfrrr::Heap {
-        type ExternBehavioralImplementor = NamedPattern<
-            ltsrlalflpfrrr::Heap,
-            ltsrlalflpfrrr::Right_operand,
-        >;
-        type StructuralImplementor = NamedPattern<
+        type Implementor = NamedPattern<
             ltsrlalflpfrrr::Heap,
             ltsrlalflpfrrr::Right_operand,
         >;
@@ -213,25 +183,15 @@ pub mod words_inverse_impls {
     impl words::InverseImplements<
         lwmrlalflpfrrr::L,
         NamedPattern<(), lwmrlalflpfrrrs::Sum>,
+        VisitationAspect,
     > for ltsrlalflpfrrr::Heap {
-        type ExternBehavioralImplementor = NamedPattern<
-            ltsrlalflpfrrr::Heap,
-            ltsrlalflpfrrr::Sum,
-        >;
-        type StructuralImplementor = NamedPattern<
-            ltsrlalflpfrrr::Heap,
-            ltsrlalflpfrrr::Sum,
-        >;
+        type Implementor = NamedPattern<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::Sum>;
     }
-    impl words::InverseImplements<lwmrlalflpfrrr::L, File<(), lwmrlalflpfrrrs::FileItem>>
-    for ltsrlalflpfrrr::Heap {
-        type ExternBehavioralImplementor = File<
-            ltsrlalflpfrrr::Heap,
-            ltsrlalflpfrrr::FileItem,
-        >;
-        type StructuralImplementor = File<
-            ltsrlalflpfrrr::Heap,
-            ltsrlalflpfrrr::FileItem,
-        >;
+    impl words::InverseImplements<
+        lwmrlalflpfrrr::L,
+        File<(), lwmrlalflpfrrrs::FileItem>,
+        VisitationAspect,
+    > for ltsrlalflpfrrr::Heap {
+        type Implementor = File<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::FileItem>;
     }
 }

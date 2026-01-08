@@ -22,7 +22,7 @@ pub(crate) mod helper_traits {
 }
 
 mod impls {
-    use aspect::Visitation;
+    use aspect::VisitationAspect;
     use aspect::{AdtLike, Adtishness};
     use ccf::CanonicallyConstructibleFrom;
     use conslist::{ConsList, NonemptyConsList};
@@ -37,10 +37,10 @@ mod impls {
 
     impl<V, LWord, L, T, Heap> Visit<LWord, L, T, Heap, AdtLike> for V
     where
-        T: words::Implements<Heap, L, aspect::Visitation>,
-        <T as words::Implements<Heap, L, aspect::Visitation>>::LWord:
+        T: words::Implements<Heap, L, aspect::VisitationAspect>,
+        <T as words::Implements<Heap, L, aspect::VisitationAspect>>::LWord:
             pmsp::NamesPatternMatchStrategy<L>,
-        V: AnyVisit<LWord, L, T, Heap, StrategyOf<T, Heap, L, aspect::Visitation>>,
+        V: AnyVisit<LWord, L, T, Heap, StrategyOf<T, Heap, L, aspect::VisitationAspect>>,
     {
         fn visit(&mut self, heap: &Heap, t: &T) {
             <V as AnyVisit<_, _, _, _, _>>::any_visit(self, heap, t)
@@ -83,15 +83,15 @@ mod impls {
         ConcreteCase: NonemptyConsList,
         V: AllVisit<LWord, L, T, Heap, ConcreteCase::Cdr>,
         // Heap: InverseImplements<L, Case::Car>,
-        ConcreteCase::Car: Implements<Heap, L, Visitation>,
-        <ConcreteCase::Car as Implements<Heap, L, Visitation>>::LWord: Adtishness<Visitation>,
+        ConcreteCase::Car: Implements<Heap, L, VisitationAspect>,
+        <ConcreteCase::Car as Implements<Heap, L, VisitationAspect>>::LWord: Adtishness<VisitationAspect>,
         V: Visit<
-                <ConcreteCase::Car as Implements<Heap, L, Visitation>>::LWord,
+                <ConcreteCase::Car as Implements<Heap, L, VisitationAspect>>::LWord,
                 L,
                 ConcreteCase::Car,
                 Heap,
-                <<ConcreteCase::Car as Implements<Heap, L, Visitation>>::LWord as Adtishness<
-                    Visitation,
+                <<ConcreteCase::Car as Implements<Heap, L, VisitationAspect>>::LWord as Adtishness<
+                    VisitationAspect,
                 >>::X,
             >,
         V: VisitEventSink<T, Heap>,

@@ -3,6 +3,7 @@ use names_langspec_sort::NamesLangspecSort;
 use thiserror::Error;
 use visit::visiteventsink::VisitEventSink;
 use words::Implements;
+use aspect::VisitationAspect;
 
 use crate::{CompositePattern, DynPattern};
 #[derive(Derivative)]
@@ -92,8 +93,8 @@ impl<L, LSub, SortId: Clone> PatternBuilder<L, LSub, SortId> {
 impl<L, LSub, CurrentNode, Heap, SortId> VisitEventSink<CurrentNode, Heap>
     for PatternBuilder<L, LSub, SortId>
 where
-    CurrentNode: Implements<Heap, LSub>,
-    <CurrentNode as Implements<Heap, LSub>>::LWord: NamesLangspecSort<LSub>,
+    CurrentNode: Implements<Heap, LSub, VisitationAspect>,
+    <CurrentNode as Implements<Heap, LSub, VisitationAspect>>::LWord: NamesLangspecSort<LSub>,
     SortId: Clone,
 {
     fn push(
@@ -116,7 +117,7 @@ where
             rs_ty:
                 self.int2sid
                     .get(
-                        <<CurrentNode as Implements<Heap, LSub>>::LWord as NamesLangspecSort<
+                        <<CurrentNode as Implements<Heap, LSub, VisitationAspect>>::LWord as NamesLangspecSort<
                             LSub,
                         >>::sort_idx() as usize,
                     )

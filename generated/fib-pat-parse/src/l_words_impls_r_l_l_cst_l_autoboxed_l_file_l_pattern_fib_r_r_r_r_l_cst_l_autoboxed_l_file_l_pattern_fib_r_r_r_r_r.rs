@@ -18,35 +18,36 @@ use file_tmf::File;
 use crate::l_words_mod_r_l_cst_l_autoboxed_l_file_l_pattern_fib_r_r_r_r as lwmrlclalflpfrrrr;
 use crate::l_words_mod_r_l_cst_l_autoboxed_l_file_l_pattern_fib_r_r_r_r::sorts as lwmrlclalflpfrrrrs;
 use crate::l_term_specialized_r_l_cst_l_autoboxed_l_file_l_pattern_fib_r_r_r_r as ltsrlclalflpfrrrr;
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+use aspect::VisitationAspect;
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for ltsrlclalflpfrrrr::F {
     type LWord = lwmrlclalflpfrrrrs::F;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for ltsrlclalflpfrrrr::Left_operand {
     type LWord = lwmrlclalflpfrrrrs::Left_operand;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for ltsrlclalflpfrrrr::Plus {
     type LWord = lwmrlclalflpfrrrrs::Plus;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for ltsrlclalflpfrrrr::Right_operand {
     type LWord = lwmrlclalflpfrrrrs::Right_operand;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for ltsrlclalflpfrrrr::Sum {
     type LWord = lwmrlclalflpfrrrrs::Sum;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for ltsrlclalflpfrrrr::Nat {
     type LWord = lwmrlclalflpfrrrrs::Nat;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for ltsrlclalflpfrrrr::FileItem {
     type LWord = lwmrlclalflpfrrrrs::FileItem;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -87,7 +88,7 @@ for Either<
         ParseError<()>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Pair<
     ltsrlclalflpfrrrr::Heap,
     OrVariable<
@@ -117,7 +118,7 @@ for Pair<
         Maybe<(), ParseMetadata<()>>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for OrVariable<
     ltsrlclalflpfrrrr::Heap,
     Either<
@@ -139,7 +140,7 @@ for OrVariable<
         >,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -155,7 +156,7 @@ for Either<
         ParseError<()>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Pair<
     ltsrlclalflpfrrrr::Heap,
     ltsrlclalflpfrrrr::Nat,
@@ -163,19 +164,19 @@ for Pair<
 > {
     type LWord = Pair<(), lwmrlclalflpfrrrrs::Nat, Maybe<(), ParseMetadata<()>>>;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>> {
     type LWord = Maybe<(), ParseMetadata<()>>;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for ParseMetadata<ltsrlclalflpfrrrr::Heap> {
     type LWord = ParseMetadata<()>;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for ParseError<ltsrlclalflpfrrrr::Heap> {
     type LWord = ParseError<()>;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -220,7 +221,7 @@ for Either<
         ParseError<()>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Pair<
     ltsrlclalflpfrrrr::Heap,
     OrVariable<
@@ -250,7 +251,7 @@ for Pair<
         Maybe<(), ParseMetadata<()>>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for OrVariable<
     ltsrlclalflpfrrrr::Heap,
     Either<
@@ -272,7 +273,7 @@ for OrVariable<
         >,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -288,7 +289,7 @@ for Either<
         ParseError<()>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Pair<
     ltsrlclalflpfrrrr::Heap,
     ltsrlclalflpfrrrr::Left_operand,
@@ -300,7 +301,7 @@ for Pair<
         Maybe<(), ParseMetadata<()>>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -345,7 +346,7 @@ for Either<
         ParseError<()>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Pair<
     ltsrlclalflpfrrrr::Heap,
     OrVariable<
@@ -379,7 +380,7 @@ for Pair<
         Maybe<(), ParseMetadata<()>>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for OrVariable<
     ltsrlclalflpfrrrr::Heap,
     Either<
@@ -401,7 +402,7 @@ for OrVariable<
         >,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -417,7 +418,7 @@ for Either<
         ParseError<()>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Pair<
     ltsrlclalflpfrrrr::Heap,
     ltsrlclalflpfrrrr::Right_operand,
@@ -429,7 +430,7 @@ for Pair<
         Maybe<(), ParseMetadata<()>>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -524,7 +525,7 @@ for Either<
         ParseError<()>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Pair<
     ltsrlclalflpfrrrr::Heap,
     OrVariable<
@@ -608,7 +609,7 @@ for Pair<
         Maybe<(), ParseMetadata<()>>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for OrVariable<
     ltsrlclalflpfrrrr::Heap,
     Either<
@@ -684,7 +685,7 @@ for OrVariable<
         >,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -754,7 +755,7 @@ for Either<
         ParseError<()>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Pair<
     ltsrlclalflpfrrrr::Heap,
     Set<
@@ -813,7 +814,7 @@ for Pair<
         Maybe<(), ParseMetadata<()>>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Set<
     ltsrlclalflpfrrrr::Heap,
     Either<
@@ -860,7 +861,7 @@ for Set<
         >,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -901,7 +902,7 @@ for Either<
         ParseError<()>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Pair<
     ltsrlclalflpfrrrr::Heap,
     OrVariableZeroOrMore<
@@ -931,7 +932,7 @@ for Pair<
         Maybe<(), ParseMetadata<()>>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for OrVariableZeroOrMore<
     ltsrlclalflpfrrrr::Heap,
     Either<
@@ -953,7 +954,7 @@ for OrVariableZeroOrMore<
         >,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -969,7 +970,7 @@ for Either<
         ParseError<()>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Pair<
     ltsrlclalflpfrrrr::Heap,
     BoundedNat<ltsrlclalflpfrrrr::Heap>,
@@ -977,11 +978,11 @@ for Pair<
 > {
     type LWord = Pair<(), BoundedNat<()>, Maybe<(), ParseMetadata<()>>>;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for BoundedNat<ltsrlclalflpfrrrr::Heap> {
     type LWord = BoundedNat<()>;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -1022,7 +1023,7 @@ for Either<
         ParseError<()>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Pair<
     ltsrlclalflpfrrrr::Heap,
     IdxBox<
@@ -1052,7 +1053,7 @@ for Pair<
         Maybe<(), ParseMetadata<()>>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for IdxBox<
     ltsrlclalflpfrrrr::Heap,
     Either<
@@ -1074,7 +1075,7 @@ for IdxBox<
         >,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -1090,7 +1091,7 @@ for Either<
         ParseError<()>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Pair<
     ltsrlclalflpfrrrr::Heap,
     ltsrlclalflpfrrrr::F,
@@ -1098,7 +1099,7 @@ for Pair<
 > {
     type LWord = Pair<(), lwmrlclalflpfrrrrs::F, Maybe<(), ParseMetadata<()>>>;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -1139,7 +1140,7 @@ for Either<
         ParseError<()>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Pair<
     ltsrlclalflpfrrrr::Heap,
     IdxBox<
@@ -1169,7 +1170,7 @@ for Pair<
         Maybe<(), ParseMetadata<()>>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for IdxBox<
     ltsrlclalflpfrrrr::Heap,
     Either<
@@ -1191,7 +1192,7 @@ for IdxBox<
         >,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -1207,7 +1208,7 @@ for Either<
         ParseError<()>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Pair<
     ltsrlclalflpfrrrr::Heap,
     ltsrlclalflpfrrrr::Plus,
@@ -1215,7 +1216,7 @@ for Pair<
 > {
     type LWord = Pair<(), lwmrlclalflpfrrrrs::Plus, Maybe<(), ParseMetadata<()>>>;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -1231,7 +1232,7 @@ for Either<
         ParseError<()>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Pair<
     ltsrlclalflpfrrrr::Heap,
     ltsrlclalflpfrrrr::Sum,
@@ -1239,7 +1240,7 @@ for Pair<
 > {
     type LWord = Pair<(), lwmrlclalflpfrrrrs::Sum, Maybe<(), ParseMetadata<()>>>;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -1280,7 +1281,7 @@ for Either<
         ParseError<()>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Pair<
     ltsrlclalflpfrrrr::Heap,
     NamedPattern<
@@ -1310,7 +1311,7 @@ for Pair<
         Maybe<(), ParseMetadata<()>>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for NamedPattern<
     ltsrlclalflpfrrrr::Heap,
     Either<
@@ -1332,7 +1333,7 @@ for NamedPattern<
         >,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -1377,7 +1378,7 @@ for Either<
         ParseError<()>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Pair<
     ltsrlclalflpfrrrr::Heap,
     NamedPattern<
@@ -1407,7 +1408,7 @@ for Pair<
         Maybe<(), ParseMetadata<()>>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for NamedPattern<
     ltsrlclalflpfrrrr::Heap,
     Either<
@@ -1429,7 +1430,7 @@ for NamedPattern<
         >,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -1470,7 +1471,7 @@ for Either<
         ParseError<()>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Pair<
     ltsrlclalflpfrrrr::Heap,
     NamedPattern<
@@ -1500,7 +1501,7 @@ for Pair<
         Maybe<(), ParseMetadata<()>>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for NamedPattern<
     ltsrlclalflpfrrrr::Heap,
     Either<
@@ -1522,7 +1523,7 @@ for NamedPattern<
         >,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -1567,7 +1568,7 @@ for Either<
         ParseError<()>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Pair<
     ltsrlclalflpfrrrr::Heap,
     NamedPattern<
@@ -1601,7 +1602,7 @@ for Pair<
         Maybe<(), ParseMetadata<()>>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for NamedPattern<
     ltsrlclalflpfrrrr::Heap,
     Either<
@@ -1623,7 +1624,7 @@ for NamedPattern<
         >,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -1664,7 +1665,7 @@ for Either<
         ParseError<()>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Pair<
     ltsrlclalflpfrrrr::Heap,
     NamedPattern<
@@ -1694,7 +1695,7 @@ for Pair<
         Maybe<(), ParseMetadata<()>>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for NamedPattern<
     ltsrlclalflpfrrrr::Heap,
     Either<
@@ -1716,7 +1717,7 @@ for NamedPattern<
         >,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -1757,7 +1758,7 @@ for Either<
         ParseError<()>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Pair<
     ltsrlclalflpfrrrr::Heap,
     File<
@@ -1787,7 +1788,7 @@ for Pair<
         Maybe<(), ParseMetadata<()>>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for File<
     ltsrlclalflpfrrrr::Heap,
     Either<
@@ -1809,7 +1810,7 @@ for File<
         >,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -1825,7 +1826,7 @@ for Either<
         ParseError<()>,
     >;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, lwmrlclalflpfrrrr::L, VisitationAspect>
 for Pair<
     ltsrlclalflpfrrrr::Heap,
     ltsrlclalflpfrrrr::FileItem,

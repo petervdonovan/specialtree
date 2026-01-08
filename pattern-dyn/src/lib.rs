@@ -1,5 +1,5 @@
 use langspec::langspec::{LangSpec, SortIdOf};
-use aspect::Visitation;
+use aspect::VisitationAspect;
 use thiserror::Error;
 use visit::{Visit, skip_visit::SkipVisit};
 use visitor::{PatternBuilder, PbResultError};
@@ -79,9 +79,9 @@ pub fn to_pattern<LWord, L, T, Heap, LSub, LSubLs>(
 ) -> Result<DynPattern<SortIdOf<LSubLs>>, PbResultError>
 where
     // T: Implements<Heap, L>,
-    LWord: Adtishness<Visitation>,
+    LWord: Adtishness<VisitationAspect>,
     PatternBuilder<L, LSub, SortIdOf<LSubLs>>:
-        Visit<LWord, L, T, Heap, <LWord as Adtishness<Visitation>>::X>,
+        Visit<LWord, L, T, Heap, <LWord as Adtishness<VisitationAspect>>::X>,
     LSubLs: LangSpec,
 {
     // let mut pb = PatternBuilder::new((0..100).collect());
@@ -97,7 +97,7 @@ pub fn to_pattern_skip<LWord, L, LSub, LSubLs, Heap, T>(
     ls: &LSubLs,
 ) -> Result<DynPattern<SortIdOf<LSubLs>>, PbResultError>
 where
-    LWord: Adtishness<Visitation>,
+    LWord: Adtishness<VisitationAspect>,
     PatternBuilder<L, LSub, SortIdOf<LSubLs>>: SkipVisit<LWord, LSub, T, Heap, NotAdtLike>,
     LSubLs: LangSpec,
 {

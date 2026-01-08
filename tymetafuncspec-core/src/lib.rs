@@ -6,7 +6,7 @@ use langspec::{
 use tree_identifier::Identifier;
 
 use ccf::DirectlyCanonicallyConstructibleFrom;
-use aspect::Visitation;
+use aspect::VisitationAspect;
 use serde::{Deserialize, Serialize};
 use term::{Heaped, SuperHeap, TyMetaFunc};
 use to_literal::ToLiteral;
@@ -165,7 +165,7 @@ pub struct BoundedNat<Heap> {
     heap: std::marker::PhantomData<Heap>,
     pub n: usize,
 }
-impl Adtishness<Visitation> for BoundedNat<()> {
+impl Adtishness<VisitationAspect> for BoundedNat<()> {
     type X = NotAdtLike;
 }
 impl<Heap> Heaped for BoundedNat<Heap> {
@@ -199,7 +199,7 @@ pub struct Set<Heap, Elem> {
     heap: std::marker::PhantomData<(Heap, Elem)>,
     items: usize,
 }
-impl<ElemLWord> Adtishness<Visitation> for Set<(), ElemLWord> {
+impl<ElemLWord> Adtishness<VisitationAspect> for Set<(), ElemLWord> {
     type X = NotAdtLike;
 }
 impl<Heap, Elem: Heaped<Heap = Heap>> Heaped for Set<Heap, Elem> {
@@ -273,7 +273,7 @@ pub struct IdxBox<Heap, Elem> {
     phantom: std::marker::PhantomData<(Heap, Elem)>,
     pub idx: u32,
 }
-impl<ElemLWord> Adtishness<Visitation> for IdxBox<(), ElemLWord> {
+impl<ElemLWord> Adtishness<VisitationAspect> for IdxBox<(), ElemLWord> {
     type X = AdtLike;
 }
 impl<Heap, Elem> TyMetaFunc for IdxBox<Heap, Elem> {

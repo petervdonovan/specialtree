@@ -1,6 +1,6 @@
 use ccf::CanonicallyConstructibleFrom;
 use pattern_dyn::visitor::PatternBuilder;
-use aspect::Visitation;
+use aspect::VisitationAspect;
 use visit::Visit;
 use aspect::{Adtishness, NotAdtLike};
 use words::InverseImplements;
@@ -19,24 +19,25 @@ where
     Heap: InverseImplements<
             L,
             OrVariable<(), MatchedTyLWord>,
-            ExternBehavioralImplementor = OrVariable<Heap, MatchedTy>,
+            VisitationAspect,
+            Implementor = OrVariable<Heap, MatchedTy>,
         >,
-    Heap: InverseImplements<L, MatchedTyLWord>,
+    Heap: InverseImplements<L, MatchedTyLWord, VisitationAspect>,
     MappedOrVariable: CanonicallyConstructibleFrom<Heap, (OrVariable<Heap, MatchedTy>, ())>,
     MatchedTy: CanonicallyConstructibleFrom<
             Heap,
             (
-                <Heap as InverseImplements<L, MatchedTyLWord>>::StructuralImplementor,
+                <Heap as InverseImplements<L, MatchedTyLWord, VisitationAspect>>::Implementor,
                 (),
             ),
         >,
-    MatchedTyLWord: Adtishness<Visitation>,
+    MatchedTyLWord: Adtishness<VisitationAspect>,
     PatternBuilder<L, LSub, SortId>: Visit<
             MatchedTyLWord,
             L,
-            <Heap as InverseImplements<L, MatchedTyLWord>>::StructuralImplementor,
+            <Heap as InverseImplements<L, MatchedTyLWord, VisitationAspect>>::Implementor,
             Heap,
-            <MatchedTyLWord as Adtishness<Visitation>>::X,
+            <MatchedTyLWord as Adtishness<VisitationAspect>>::X,
         >,
     // MatchedTyLWord: names_langspec_sort::NamesLangspecSort<LSub>,
 {
@@ -65,13 +66,14 @@ where
     Heap: InverseImplements<
             L,
             OrVariableZeroOrMore<(), MatchedTyLWord>,
-            ExternBehavioralImplementor = OrVariableZeroOrMore<Heap, MatchedTy>,
+            VisitationAspect,
+            Implementor = OrVariableZeroOrMore<Heap, MatchedTy>,
         >,
     MappedOrVariableZeroOrMore:
         CanonicallyConstructibleFrom<Heap, (OrVariableZeroOrMore<Heap, MatchedTy>, ())>,
-    MatchedTyLWord: Adtishness<Visitation>,
+    MatchedTyLWord: Adtishness<VisitationAspect>,
     PatternBuilder<L, LSub, SortId>:
-        Visit<MatchedTyLWord, L, MatchedTy, Heap, <MatchedTyLWord as Adtishness<Visitation>>::X>,
+        Visit<MatchedTyLWord, L, MatchedTy, Heap, <MatchedTyLWord as Adtishness<VisitationAspect>>::X>,
     // MatchedTyLWord: words::Implements<Heap, LSub>,
     MatchedTyLWord: names_langspec_sort::NamesLangspecSort<LSub>,
 {
@@ -104,24 +106,25 @@ where
     Heap: InverseImplements<
             L,
             NamedPattern<(), PatternLWord>,
-            ExternBehavioralImplementor = NamedPattern<Heap, Pattern>,
+            VisitationAspect,
+            Implementor = NamedPattern<Heap, Pattern>,
         >,
-    Heap: InverseImplements<L, PatternLWord>,
+    Heap: InverseImplements<L, PatternLWord, VisitationAspect>,
     MappedNamedPattern: CanonicallyConstructibleFrom<Heap, (NamedPattern<Heap, Pattern>, ())>,
     Pattern: CanonicallyConstructibleFrom<
             Heap,
             (
-                <Heap as InverseImplements<L, PatternLWord>>::StructuralImplementor,
+                <Heap as InverseImplements<L, PatternLWord, VisitationAspect>>::Implementor,
                 (),
             ),
         >,
-    PatternLWord: Adtishness<Visitation>,
+    PatternLWord: Adtishness<VisitationAspect>,
     PatternBuilder<L, LSub, SortId>: Visit<
             PatternLWord,
             L,
-            <Heap as InverseImplements<L, PatternLWord>>::StructuralImplementor,
+            <Heap as InverseImplements<L, PatternLWord, VisitationAspect>>::Implementor,
             Heap,
-            <PatternLWord as Adtishness<Visitation>>::X,
+            <PatternLWord as Adtishness<VisitationAspect>>::X,
         >,
     // PatternLWord: words::Implements<Heap, LSub>,
     // <Pattern as words::Implements<Heap, LSub>>::LWord: names_langspec_sort::NamesLangspecSort<LSub>,

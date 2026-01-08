@@ -13,49 +13,54 @@ pub mod words_inverse_impls {
     use crate::l_words_mod_r_l_autoboxed_fib_r as lwmrlafr;
     use crate::l_words_mod_r_l_autoboxed_fib_r::sorts as lwmrlafrs;
     use crate::l_term_specialized_r_l_autoboxed_fib_r as ltsrlafr;
-    impl words::InverseImplements<lwmrlafr::L, lwmrlafrs::F> for ltsrlafr::Heap {
-        type ExternBehavioralImplementor = ltsrlafr::F;
-        type StructuralImplementor = ltsrlafr::F;
-    }
-    impl words::InverseImplements<lwmrlafr::L, lwmrlafrs::Left_operand>
+    use aspect::VisitationAspect;
+    impl words::InverseImplements<lwmrlafr::L, lwmrlafrs::F, VisitationAspect>
     for ltsrlafr::Heap {
-        type ExternBehavioralImplementor = ltsrlafr::Left_operand;
-        type StructuralImplementor = ltsrlafr::Left_operand;
+        type Implementor = ltsrlafr::F;
     }
-    impl words::InverseImplements<lwmrlafr::L, lwmrlafrs::Plus> for ltsrlafr::Heap {
-        type ExternBehavioralImplementor = ltsrlafr::Plus;
-        type StructuralImplementor = ltsrlafr::Plus;
-    }
-    impl words::InverseImplements<lwmrlafr::L, lwmrlafrs::Right_operand>
+    impl words::InverseImplements<lwmrlafr::L, lwmrlafrs::Left_operand, VisitationAspect>
     for ltsrlafr::Heap {
-        type ExternBehavioralImplementor = ltsrlafr::Right_operand;
-        type StructuralImplementor = ltsrlafr::Right_operand;
+        type Implementor = ltsrlafr::Left_operand;
     }
-    impl words::InverseImplements<lwmrlafr::L, lwmrlafrs::Sum> for ltsrlafr::Heap {
-        type ExternBehavioralImplementor = ltsrlafr::Sum;
-        type StructuralImplementor = ltsrlafr::Sum;
-    }
-    impl words::InverseImplements<lwmrlafr::L, lwmrlafrs::Nat> for ltsrlafr::Heap {
-        type ExternBehavioralImplementor = ltsrlafr::Nat;
-        type StructuralImplementor = ltsrlafr::Nat;
-    }
-    impl words::InverseImplements<lwmrlafr::L, Set<(), lwmrlafrs::Nat>>
+    impl words::InverseImplements<lwmrlafr::L, lwmrlafrs::Plus, VisitationAspect>
     for ltsrlafr::Heap {
-        type ExternBehavioralImplementor = Set<ltsrlafr::Heap, ltsrlafr::Nat>;
-        type StructuralImplementor = Set<ltsrlafr::Heap, ltsrlafr::Nat>;
+        type Implementor = ltsrlafr::Plus;
     }
-    impl words::InverseImplements<lwmrlafr::L, BoundedNat<()>> for ltsrlafr::Heap {
-        type ExternBehavioralImplementor = BoundedNat<ltsrlafr::Heap>;
-        type StructuralImplementor = BoundedNat<ltsrlafr::Heap>;
+    impl words::InverseImplements<
+        lwmrlafr::L,
+        lwmrlafrs::Right_operand,
+        VisitationAspect,
+    > for ltsrlafr::Heap {
+        type Implementor = ltsrlafr::Right_operand;
     }
-    impl words::InverseImplements<lwmrlafr::L, IdxBox<(), lwmrlafrs::F>>
+    impl words::InverseImplements<lwmrlafr::L, lwmrlafrs::Sum, VisitationAspect>
     for ltsrlafr::Heap {
-        type ExternBehavioralImplementor = IdxBox<ltsrlafr::Heap, ltsrlafr::F>;
-        type StructuralImplementor = IdxBox<ltsrlafr::Heap, ltsrlafr::F>;
+        type Implementor = ltsrlafr::Sum;
     }
-    impl words::InverseImplements<lwmrlafr::L, IdxBox<(), lwmrlafrs::Plus>>
+    impl words::InverseImplements<lwmrlafr::L, lwmrlafrs::Nat, VisitationAspect>
     for ltsrlafr::Heap {
-        type ExternBehavioralImplementor = IdxBox<ltsrlafr::Heap, ltsrlafr::Plus>;
-        type StructuralImplementor = IdxBox<ltsrlafr::Heap, ltsrlafr::Plus>;
+        type Implementor = ltsrlafr::Nat;
+    }
+    impl words::InverseImplements<lwmrlafr::L, Set<(), lwmrlafrs::Nat>, VisitationAspect>
+    for ltsrlafr::Heap {
+        type Implementor = Set<ltsrlafr::Heap, ltsrlafr::Nat>;
+    }
+    impl words::InverseImplements<lwmrlafr::L, BoundedNat<()>, VisitationAspect>
+    for ltsrlafr::Heap {
+        type Implementor = BoundedNat<ltsrlafr::Heap>;
+    }
+    impl words::InverseImplements<
+        lwmrlafr::L,
+        IdxBox<(), lwmrlafrs::F>,
+        VisitationAspect,
+    > for ltsrlafr::Heap {
+        type Implementor = IdxBox<ltsrlafr::Heap, ltsrlafr::F>;
+    }
+    impl words::InverseImplements<
+        lwmrlafr::L,
+        IdxBox<(), lwmrlafrs::Plus>,
+        VisitationAspect,
+    > for ltsrlafr::Heap {
+        type Implementor = IdxBox<ltsrlafr::Heap, ltsrlafr::Plus>;
     }
 }

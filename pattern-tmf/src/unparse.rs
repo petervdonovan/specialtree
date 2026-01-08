@@ -1,5 +1,5 @@
 use ccf::CanonicallyConstructibleFrom;
-use aspect::Visitation;
+use aspect::VisitationAspect;
 use term::SuperHeap;
 use unparse_adt::Unparser;
 use visit::Visit;
@@ -18,11 +18,12 @@ where
     Heap: InverseImplements<
             L,
             OrVariable<(), MatchedTyLWord>,
-            ExternBehavioralImplementor = OrVariable<Heap, MatchedTy>,
+            VisitationAspect,
+            Implementor = OrVariable<Heap, MatchedTy>,
         >,
-    MatchedTyLWord: Adtishness<Visitation>,
+    MatchedTyLWord: Adtishness<VisitationAspect>,
     Unparser<'a, L>:
-        Visit<MatchedTyLWord, L, MatchedTy, Heap, <MatchedTyLWord as Adtishness<Visitation>>::X>,
+        Visit<MatchedTyLWord, L, MatchedTy, Heap, <MatchedTyLWord as Adtishness<VisitationAspect>>::X>,
     OvMapped: CanonicallyConstructibleFrom<Heap, (OrVariable<Heap, MatchedTy>, ())>,
 {
     fn visit(&mut self, heap: &Heap, ov: &OvMapped) {
@@ -48,11 +49,12 @@ where
     Heap: InverseImplements<
             L,
             OrVariableZeroOrMore<(), MatchedTyLWord>,
-            ExternBehavioralImplementor = OrVariableZeroOrMore<Heap, MatchedTy>,
+            VisitationAspect,
+            Implementor = OrVariableZeroOrMore<Heap, MatchedTy>,
         >,
-    MatchedTyLWord: Adtishness<Visitation>,
+    MatchedTyLWord: Adtishness<VisitationAspect>,
     Unparser<'a, L>:
-        Visit<MatchedTyLWord, L, MatchedTy, Heap, <MatchedTyLWord as Adtishness<Visitation>>::X>,
+        Visit<MatchedTyLWord, L, MatchedTy, Heap, <MatchedTyLWord as Adtishness<VisitationAspect>>::X>,
     OvZomMapped: CanonicallyConstructibleFrom<Heap, (OrVariableZeroOrMore<Heap, MatchedTy>, ())>,
 {
     fn visit(&mut self, heap: &Heap, ovzom: &OvZomMapped) {
@@ -84,11 +86,12 @@ where
     Heap: InverseImplements<
             L,
             NamedPattern<(), PatternLWord>,
-            ExternBehavioralImplementor = NamedPattern<Heap, Pattern>,
+            VisitationAspect,
+            Implementor = NamedPattern<Heap, Pattern>,
         >,
-    PatternLWord: Adtishness<Visitation>,
+    PatternLWord: Adtishness<VisitationAspect>,
     Unparser<'a, L>:
-        Visit<PatternLWord, L, Pattern, Heap, <PatternLWord as Adtishness<Visitation>>::X>,
+        Visit<PatternLWord, L, Pattern, Heap, <PatternLWord as Adtishness<VisitationAspect>>::X>,
     NamedPatternMapped: CanonicallyConstructibleFrom<Heap, (NamedPattern<Heap, Pattern>, ())>,
 {
     fn visit(&mut self, heap: &Heap, np: &NamedPatternMapped) {

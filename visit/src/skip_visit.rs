@@ -114,11 +114,11 @@ impl<V, T, Heap> VisitEventSink<T, Heap> for SkipVisitor<V> {
 
 //     impl<V, LWord, L, T, Heap, RemainingCases> AnySkipVisit<LWord, L, T, Heap, RemainingCases> for V
 //     where
-//         Heap: InverseImplementsAll<L, RemainingCases::Car>,
+//         Heap: InverseImplementsAll<L, RemainingCases::Car, aspect::VisitationAspect>,
 //         T: Copy
 //             + CanonicallyConstructibleFrom<
 //                 Heap,
-//                 <Heap as InverseImplementsAll<L, RemainingCases::Car>>::StructuralImplementors,
+//                 <Heap as InverseImplementsAll<L, RemainingCases::Car, aspect::VisitationAspect>>::Implementors,
 //             >,
 //         RemainingCases: NonemptyStrategy,
 //         V: AnySkipVisit<LWord, L, T, Heap, RemainingCases::Cdr>,
@@ -127,7 +127,7 @@ impl<V, T, Heap> VisitEventSink<T, Heap> for SkipVisitor<V> {
 //                 L,
 //                 T,
 //                 Heap,
-//                 <Heap as InverseImplementsAll<L, RemainingCases::Car>>::StructuralImplementors,
+//                 <Heap as InverseImplementsAll<L, RemainingCases::Car, aspect::VisitationAspect>>::Implementors,
 //             >,
 //     {
 //         fn any_visit(&mut self, heap: &Heap, t: &T) {

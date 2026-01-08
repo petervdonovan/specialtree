@@ -6,7 +6,7 @@ use crate::{
     flat::LangSpecFlat,
     langspec::{LangSpec, SortId, SortIdOf},
 };
-use aspect::{Aspect, Visitation};
+use aspect::{Aspect, VisitationAspect};
 use tree_identifier::Identifier;
 
 type SublangTyMap<'a, LSub, SortIdSelf> = dyn Fn(&SortIdOf<LSub>) -> SortIdSelf + 'a;
@@ -30,7 +30,7 @@ pub fn reflexive_sublang<L: LangSpec>(l: &L) -> Sublang<'_, L, SortIdOf<L>> {
         lsub: l,
         aspect_implementors: {
             vec![AspectImplementors {
-                aspect_zst: Box::new(Visitation {}),
+                aspect_zst: Box::new(VisitationAspect {}),
                 map: Box::new(|sid| sid.clone()),
             }]
         },

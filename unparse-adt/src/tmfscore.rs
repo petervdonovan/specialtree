@@ -1,5 +1,5 @@
 use ccf::CanonicallyConstructibleFrom;
-use aspect::Visitation;
+use aspect::VisitationAspect;
 // use visit::Visit;
 use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Set, SetHeapBak};
 use aspect::{Adtishness, NotAdtLike};
@@ -22,28 +22,29 @@ impl<'arena, Heap, L, ElemLWord, MappedSet: Copy, MappedElem>
     Visit<Set<(), ElemLWord>, L, MappedSet, Heap, NotAdtLike> for Unparser<'arena, L>
 where
     Heap: term::SuperHeap<SetHeapBak<Heap, MappedElem>>,
-    ElemLWord: Adtishness<Visitation>,
-    Heap: InverseImplements<L, ElemLWord>,
+    ElemLWord: Adtishness<VisitationAspect>,
+    Heap: InverseImplements<L, ElemLWord, VisitationAspect>,
     Heap: InverseImplements<
             L,
             Set<(), ElemLWord>,
-            ExternBehavioralImplementor = Set<Heap, MappedElem>,
+            VisitationAspect,
+            Implementor = Set<Heap, MappedElem>,
         >,
     MappedSet: CanonicallyConstructibleFrom<Heap, (Set<Heap, MappedElem>, ())>,
     MappedElem: Copy
         + CanonicallyConstructibleFrom<
             Heap,
             (
-                <Heap as InverseImplements<L, ElemLWord>>::StructuralImplementor,
+                <Heap as InverseImplements<L, ElemLWord, VisitationAspect>>::Implementor,
                 (),
             ),
         >,
     Unparser<'arena, L>: Visit<
             ElemLWord,
             L,
-            <Heap as InverseImplements<L, ElemLWord>>::StructuralImplementor,
+            <Heap as InverseImplements<L, ElemLWord, VisitationAspect>>::Implementor,
             Heap,
-            <ElemLWord as Adtishness<Visitation>>::X,
+            <ElemLWord as Adtishness<VisitationAspect>>::X,
         >,
 {
     fn visit(&mut self, heap: &Heap, t: &MappedSet) {
@@ -55,7 +56,7 @@ where
                 &<MappedElem as CanonicallyConstructibleFrom<
                     Heap,
                     (
-                        <Heap as InverseImplements<L, ElemLWord>>::StructuralImplementor,
+                        <Heap as InverseImplements<L, ElemLWord, VisitationAspect>>::Implementor,
                         (),
                     ),
                 >>::deconstruct(*item, heap)

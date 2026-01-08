@@ -3,7 +3,7 @@
 use ccf::DirectlyCanonicallyConstructibleFrom;
 use derivative::Derivative;
 use langspec::tymetafunc::{ArgId, RustTyMap, TyMetaFuncData, TyMetaFuncSpec};
-use aspect::Visitation;
+use aspect::VisitationAspect;
 use serde::{Deserialize, Serialize};
 use term::{SuperHeap, TyMetaFunc};
 use tree_identifier::Identifier;
@@ -182,12 +182,12 @@ impl<Heap, MatchedTy> DirectlyCanonicallyConstructibleFrom<Heap, (MatchedTy, ())
     }
 }
 
-impl<Elem> Adtishness<Visitation> for OrVariable<(), Elem> {
+impl<Elem> Adtishness<VisitationAspect> for OrVariable<(), Elem> {
     type X = NotAdtLike;
 }
-impl<Elem> Adtishness<Visitation> for OrVariableZeroOrMore<(), Elem> {
+impl<Elem> Adtishness<VisitationAspect> for OrVariableZeroOrMore<(), Elem> {
     type X = NotAdtLike;
 }
-impl<Elem> Adtishness<Visitation> for NamedPattern<(), Elem> {
+impl<Elem> Adtishness<VisitationAspect> for NamedPattern<(), Elem> {
     type X = NotAdtLike;
 }

@@ -24,7 +24,7 @@ pub(crate) mod helper_traits {
     }
 }
 mod impls {
-    use aspect::Visitation;
+    use aspect::VisitationAspect;
     use aspect::{AdtLike, Adtishness};
     use ccf::CanonicallyConstructibleFrom;
     use conslist::{ConsList, NonemptyConsList};
@@ -39,24 +39,24 @@ mod impls {
 
     impl<Covisitor, LWord, L, T, Heap> Covisit<LWord, L, T, Heap, AdtLike> for Covisitor
     where
-        T: words::Implements<Heap, L, Visitation, LWord = LWord>,
+        T: words::Implements<Heap, L, VisitationAspect, LWord = LWord>,
         LWord: pmsp::NamesPatternMatchStrategy<L>,
         // Covisitor: Covisit<<StrategyOf<T, Heap, L> as Strategy>::Cdr, Heap, L>,
         Covisitor: Poisonable,
         Covisitor: SelectCase,
-        <Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L, Visitation>>: AnyCovisit<
+        <Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L, VisitationAspect>>: AnyCovisit<
                 LWord,
                 L,
                 T,
                 Heap,
-                StrategyOf<T, Heap, L, aspect::Visitation>,
-                <<Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L, Visitation>> as FromSelectCase>::Done,
+                StrategyOf<T, Heap, L, aspect::VisitationAspect>,
+                <<Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L, VisitationAspect>> as FromSelectCase>::Done,
             >,
     {
         fn covisit(&mut self, heap: &mut Heap) -> T {
             take_mut::take(self, |cv| {
                 let ac = cv.start_cases();
-                <<Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L, Visitation>> as AnyCovisit<
+                <<Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L, VisitationAspect>> as AnyCovisit<
                     _,
                     _,
                     _,
@@ -111,15 +111,15 @@ mod impls {
         for Covisitor
     where
         ConcreteCase: NonemptyConsList,
-        ConcreteCase::Car: Implements<Heap, L, Visitation>,
-        <ConcreteCase::Car as Implements<Heap, L, Visitation>>::LWord: Adtishness<Visitation>,
+        ConcreteCase::Car: Implements<Heap, L, VisitationAspect>,
+        <ConcreteCase::Car as Implements<Heap, L, VisitationAspect>>::LWord: Adtishness<VisitationAspect>,
         Covisitor: Covisit<
-                <ConcreteCase::Car as Implements<Heap, L, Visitation>>::LWord,
+                <ConcreteCase::Car as Implements<Heap, L, VisitationAspect>>::LWord,
                 L,
                 ConcreteCase::Car,
                 Heap,
-                <<ConcreteCase::Car as Implements<Heap, L, Visitation>>::LWord as Adtishness<
-                    Visitation,
+                <<ConcreteCase::Car as Implements<Heap, L, VisitationAspect>>::LWord as Adtishness<
+                    VisitationAspect,
                 >>::X,
             >,
         Covisitor: AllCovisit<LWord, L, T, Heap, ConcreteCase::Cdr>,

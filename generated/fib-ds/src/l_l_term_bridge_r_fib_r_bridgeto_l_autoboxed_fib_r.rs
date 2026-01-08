@@ -17,36 +17,31 @@ pub mod words_inverse_impls {
     use fib::l_words_mod_r_fib::sorts::F;
     use fib::l_words_mod_r_fib::L;
     use crate::l_term_specialized_r_l_autoboxed_fib_r as ltsrlafr;
-    impl words::InverseImplements<L, F> for ltsrlafr::Heap {
-        type ExternBehavioralImplementor = ltsrlafr::F;
-        type StructuralImplementor = ltsrlafr::F;
+    use aspect::VisitationAspect;
+    impl words::InverseImplements<L, F, VisitationAspect> for ltsrlafr::Heap {
+        type Implementor = ltsrlafr::F;
     }
-    impl words::InverseImplements<L, Left_operand> for ltsrlafr::Heap {
-        type ExternBehavioralImplementor = ltsrlafr::Left_operand;
-        type StructuralImplementor = ltsrlafr::Left_operand;
+    impl words::InverseImplements<L, Left_operand, VisitationAspect> for ltsrlafr::Heap {
+        type Implementor = ltsrlafr::Left_operand;
     }
-    impl words::InverseImplements<L, Plus> for ltsrlafr::Heap {
-        type ExternBehavioralImplementor = ltsrlafr::Plus;
-        type StructuralImplementor = ltsrlafr::Plus;
+    impl words::InverseImplements<L, Plus, VisitationAspect> for ltsrlafr::Heap {
+        type Implementor = ltsrlafr::Plus;
     }
-    impl words::InverseImplements<L, Right_operand> for ltsrlafr::Heap {
-        type ExternBehavioralImplementor = ltsrlafr::Right_operand;
-        type StructuralImplementor = ltsrlafr::Right_operand;
+    impl words::InverseImplements<L, Right_operand, VisitationAspect>
+    for ltsrlafr::Heap {
+        type Implementor = ltsrlafr::Right_operand;
     }
-    impl words::InverseImplements<L, Sum> for ltsrlafr::Heap {
-        type ExternBehavioralImplementor = ltsrlafr::Sum;
-        type StructuralImplementor = ltsrlafr::Sum;
+    impl words::InverseImplements<L, Sum, VisitationAspect> for ltsrlafr::Heap {
+        type Implementor = ltsrlafr::Sum;
     }
-    impl words::InverseImplements<L, Nat> for ltsrlafr::Heap {
-        type ExternBehavioralImplementor = ltsrlafr::Nat;
-        type StructuralImplementor = ltsrlafr::Nat;
+    impl words::InverseImplements<L, Nat, VisitationAspect> for ltsrlafr::Heap {
+        type Implementor = ltsrlafr::Nat;
     }
-    impl words::InverseImplements<L, Set<(), Nat>> for ltsrlafr::Heap {
-        type ExternBehavioralImplementor = Set<ltsrlafr::Heap, ltsrlafr::Nat>;
-        type StructuralImplementor = Set<ltsrlafr::Heap, ltsrlafr::Nat>;
+    impl words::InverseImplements<L, Set<(), Nat>, VisitationAspect> for ltsrlafr::Heap {
+        type Implementor = Set<ltsrlafr::Heap, ltsrlafr::Nat>;
     }
-    impl words::InverseImplements<L, BoundedNat<()>> for ltsrlafr::Heap {
-        type ExternBehavioralImplementor = BoundedNat<ltsrlafr::Heap>;
-        type StructuralImplementor = BoundedNat<ltsrlafr::Heap>;
+    impl words::InverseImplements<L, BoundedNat<()>, VisitationAspect>
+    for ltsrlafr::Heap {
+        type Implementor = BoundedNat<ltsrlafr::Heap>;
     }
 }

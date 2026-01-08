@@ -18,7 +18,8 @@ use fib::l_words_mod_r_fib::sorts::Left_operand;
 use fib::l_words_mod_r_fib::sorts::F;
 use fib::l_words_mod_r_fib::L;
 use crate::l_term_specialized_r_l_cst_l_autoboxed_fib_r_r as ltsrlclafrr;
-impl words::Implements<ltsrlclafrr::Heap, L>
+use aspect::VisitationAspect;
+impl words::Implements<ltsrlclafrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclafrr::Heap,
     Pair<
@@ -30,7 +31,7 @@ for Either<
 > {
     type LWord = F;
 }
-impl words::Implements<ltsrlclafrr::Heap, L>
+impl words::Implements<ltsrlclafrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclafrr::Heap,
     Pair<
@@ -42,7 +43,7 @@ for Either<
 > {
     type LWord = Left_operand;
 }
-impl words::Implements<ltsrlclafrr::Heap, L>
+impl words::Implements<ltsrlclafrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclafrr::Heap,
     Pair<
@@ -54,7 +55,7 @@ for Either<
 > {
     type LWord = Plus;
 }
-impl words::Implements<ltsrlclafrr::Heap, L>
+impl words::Implements<ltsrlclafrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclafrr::Heap,
     Pair<
@@ -66,7 +67,7 @@ for Either<
 > {
     type LWord = Right_operand;
 }
-impl words::Implements<ltsrlclafrr::Heap, L>
+impl words::Implements<ltsrlclafrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclafrr::Heap,
     Pair<
@@ -78,7 +79,7 @@ for Either<
 > {
     type LWord = Sum;
 }
-impl words::Implements<ltsrlclafrr::Heap, L>
+impl words::Implements<ltsrlclafrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclafrr::Heap,
     Pair<
@@ -90,7 +91,7 @@ for Either<
 > {
     type LWord = Nat;
 }
-impl words::Implements<ltsrlclafrr::Heap, L>
+impl words::Implements<ltsrlclafrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclafrr::Heap,
     Pair<
@@ -113,7 +114,7 @@ for Either<
 > {
     type LWord = Set<(), Nat>;
 }
-impl words::Implements<ltsrlclafrr::Heap, L>
+impl words::Implements<ltsrlclafrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclafrr::Heap,
     Pair<

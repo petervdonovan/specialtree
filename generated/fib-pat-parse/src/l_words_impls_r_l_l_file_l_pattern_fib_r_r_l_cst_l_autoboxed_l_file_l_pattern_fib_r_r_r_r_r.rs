@@ -23,7 +23,8 @@ use fib_pat::l_words_mod_r_l_file_l_pattern_fib_r_r::sorts::FileItem;
 use fib_pat::l_words_mod_r_l_file_l_pattern_fib_r_r::sorts::F;
 use fib_pat::l_words_mod_r_l_file_l_pattern_fib_r_r::L;
 use crate::l_term_specialized_r_l_cst_l_autoboxed_l_file_l_pattern_fib_r_r_r_r as ltsrlclalflpfrrrr;
-impl words::Implements<ltsrlclalflpfrrrr::Heap, L>
+use aspect::VisitationAspect;
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -35,7 +36,7 @@ for Either<
 > {
     type LWord = F;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -47,7 +48,7 @@ for Either<
 > {
     type LWord = Left_operand;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -59,7 +60,7 @@ for Either<
 > {
     type LWord = Plus;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -71,7 +72,7 @@ for Either<
 > {
     type LWord = Right_operand;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -83,7 +84,7 @@ for Either<
 > {
     type LWord = Sum;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -95,7 +96,7 @@ for Either<
 > {
     type LWord = Nat;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -107,7 +108,7 @@ for Either<
 > {
     type LWord = FileItem;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -133,7 +134,7 @@ for Either<
 > {
     type LWord = OrVariable<(), Nat>;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -159,7 +160,7 @@ for Either<
 > {
     type LWord = OrVariable<(), Left_operand>;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -185,7 +186,7 @@ for Either<
 > {
     type LWord = OrVariable<(), Right_operand>;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -239,7 +240,7 @@ for Either<
 > {
     type LWord = OrVariable<(), Set<(), OrVariableZeroOrMore<(), Nat>>>;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -279,7 +280,7 @@ for Either<
 > {
     type LWord = Set<(), OrVariableZeroOrMore<(), Nat>>;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -305,7 +306,7 @@ for Either<
 > {
     type LWord = OrVariableZeroOrMore<(), Nat>;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -317,7 +318,7 @@ for Either<
 > {
     type LWord = BoundedNat<()>;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -343,7 +344,7 @@ for Either<
 > {
     type LWord = NamedPattern<(), F>;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -369,7 +370,7 @@ for Either<
 > {
     type LWord = NamedPattern<(), Left_operand>;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -395,7 +396,7 @@ for Either<
 > {
     type LWord = NamedPattern<(), Plus>;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -421,7 +422,7 @@ for Either<
 > {
     type LWord = NamedPattern<(), Right_operand>;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<
@@ -447,7 +448,7 @@ for Either<
 > {
     type LWord = NamedPattern<(), Sum>;
 }
-impl words::Implements<ltsrlclalflpfrrrr::Heap, L>
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for Either<
     ltsrlclalflpfrrrr::Heap,
     Pair<

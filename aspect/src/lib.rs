@@ -16,11 +16,11 @@ pub trait Adtishness<A: Aspect> {
     type X: AdtLikeOrNot;
 }
 
-pub struct Visitation;
-impl Aspect for Visitation {
+pub struct VisitationAspect;
+impl Aspect for VisitationAspect {
     fn zst_path(&self) -> syn::Path {
         parse_quote! {
-            aspect::Visitation
+            aspect::VisitationAspect
         }
     }
 }

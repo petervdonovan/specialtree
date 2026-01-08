@@ -1,18 +1,18 @@
 use crate::visitor::PatternBuilder;
+use aspect::VisitationAspect;
+use aspect::{AdtLikeOrNot, Adtishness, NotAdtLike};
 use ccf::CanonicallyConstructibleFrom;
 use names_langspec_sort::NamesLangspecSort;
-use aspect::Visitation;
 use to_literal::ToLiteral as _;
 use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Set, SetHeapBak};
 use visit::{Visit, visiteventsink::VisitEventSink};
-use aspect::{AdtLikeOrNot, Adtishness, NotAdtLike};
 use words::{Implements, InverseImplements};
 
 impl<SortId, Heap, L, LSub, MappedBNat: Copy> Visit<BoundedNat<()>, L, MappedBNat, Heap, NotAdtLike>
     for PatternBuilder<L, LSub, SortId>
 where
     MappedBNat: CanonicallyConstructibleFrom<Heap, (BoundedNat<Heap>, ())>,
-    MappedBNat: Implements<Heap, LSub>,
+    MappedBNat: Implements<Heap, LSub, VisitationAspect>,
     // BoundedNat<()>: NamesLangspecSort<LSub>,
     SortId: Clone,
 {
@@ -28,30 +28,31 @@ impl<SortId: Clone, Heap, L, LSub, ElemLWord, MappedSet: Copy, MappedElem: Copy>
     Visit<Set<(), ElemLWord>, L, MappedSet, Heap, NotAdtLike> for PatternBuilder<L, LSub, SortId>
 where
     Heap: term::SuperHeap<SetHeapBak<Heap, MappedElem>>,
-    Heap: InverseImplements<L, ElemLWord>,
+    Heap: InverseImplements<L, ElemLWord, VisitationAspect>,
     // Heap: InverseImplements<LSub, ElemLWord>,
     Heap: InverseImplements<
             L,
             Set<(), ElemLWord>,
-            ExternBehavioralImplementor = Set<Heap, MappedElem>,
+            VisitationAspect,
+            Implementor = Set<Heap, MappedElem>,
         >,
     MappedSet: CanonicallyConstructibleFrom<Heap, (Set<Heap, MappedElem>, ())>,
     MappedElem: CanonicallyConstructibleFrom<
             Heap,
             (
-                <Heap as InverseImplements<L, ElemLWord>>::StructuralImplementor,
+                <Heap as InverseImplements<L, ElemLWord, VisitationAspect>>::Implementor,
                 (),
             ),
         >,
     // MappedSet: Implements<Heap, L, LWord = Set<(), ElemLWord>>,
     // // <MappedSet as Implements<Heap, LSub>>::LWord: NamesLangspecSort<LSub>,
-    ElemLWord: Adtishness<Visitation>,
+    ElemLWord: Adtishness<VisitationAspect>,
     PatternBuilder<L, LSub, SortId>: Visit<
             ElemLWord,
             L,
-            <Heap as InverseImplements<L, ElemLWord>>::StructuralImplementor,
+            <Heap as InverseImplements<L, ElemLWord, VisitationAspect>>::Implementor,
             Heap,
-            <ElemLWord as Adtishness<Visitation>>::X,
+            <ElemLWord as Adtishness<VisitationAspect>>::X,
         >,
 {
     fn visit(&mut self, heap: &Heap, t: &MappedSet) {

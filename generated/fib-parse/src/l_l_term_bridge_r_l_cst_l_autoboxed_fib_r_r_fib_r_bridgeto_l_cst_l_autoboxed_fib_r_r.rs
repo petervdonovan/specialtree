@@ -18,35 +18,36 @@ pub mod words_inverse_impls {
     use crate::l_words_mod_r_l_cst_l_autoboxed_fib_r_r as lwmrlclafrr;
     use crate::l_words_mod_r_l_cst_l_autoboxed_fib_r_r::sorts as lwmrlclafrrs;
     use crate::l_term_specialized_r_l_cst_l_autoboxed_fib_r_r as ltsrlclafrr;
-    impl words::InverseImplements<lwmrlclafrr::L, lwmrlclafrrs::F>
+    use aspect::VisitationAspect;
+    impl words::InverseImplements<lwmrlclafrr::L, lwmrlclafrrs::F, VisitationAspect>
     for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = ltsrlclafrr::F;
-        type StructuralImplementor = ltsrlclafrr::F;
+        type Implementor = ltsrlclafrr::F;
     }
-    impl words::InverseImplements<lwmrlclafrr::L, lwmrlclafrrs::Left_operand>
-    for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = ltsrlclafrr::Left_operand;
-        type StructuralImplementor = ltsrlclafrr::Left_operand;
+    impl words::InverseImplements<
+        lwmrlclafrr::L,
+        lwmrlclafrrs::Left_operand,
+        VisitationAspect,
+    > for ltsrlclafrr::Heap {
+        type Implementor = ltsrlclafrr::Left_operand;
     }
-    impl words::InverseImplements<lwmrlclafrr::L, lwmrlclafrrs::Plus>
+    impl words::InverseImplements<lwmrlclafrr::L, lwmrlclafrrs::Plus, VisitationAspect>
     for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = ltsrlclafrr::Plus;
-        type StructuralImplementor = ltsrlclafrr::Plus;
+        type Implementor = ltsrlclafrr::Plus;
     }
-    impl words::InverseImplements<lwmrlclafrr::L, lwmrlclafrrs::Right_operand>
-    for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = ltsrlclafrr::Right_operand;
-        type StructuralImplementor = ltsrlclafrr::Right_operand;
+    impl words::InverseImplements<
+        lwmrlclafrr::L,
+        lwmrlclafrrs::Right_operand,
+        VisitationAspect,
+    > for ltsrlclafrr::Heap {
+        type Implementor = ltsrlclafrr::Right_operand;
     }
-    impl words::InverseImplements<lwmrlclafrr::L, lwmrlclafrrs::Sum>
+    impl words::InverseImplements<lwmrlclafrr::L, lwmrlclafrrs::Sum, VisitationAspect>
     for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = ltsrlclafrr::Sum;
-        type StructuralImplementor = ltsrlclafrr::Sum;
+        type Implementor = ltsrlclafrr::Sum;
     }
-    impl words::InverseImplements<lwmrlclafrr::L, lwmrlclafrrs::Nat>
+    impl words::InverseImplements<lwmrlclafrr::L, lwmrlclafrrs::Nat, VisitationAspect>
     for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = ltsrlclafrr::Nat;
-        type StructuralImplementor = ltsrlclafrr::Nat;
+        type Implementor = ltsrlclafrr::Nat;
     }
     impl words::InverseImplements<
         lwmrlclafrr::L,
@@ -55,17 +56,9 @@ pub mod words_inverse_impls {
             Pair<(), lwmrlclafrrs::Nat, Maybe<(), ParseMetadata<()>>>,
             ParseError<()>,
         >,
+        VisitationAspect,
     > for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = Either<
-            ltsrlclafrr::Heap,
-            Pair<
-                ltsrlclafrr::Heap,
-                ltsrlclafrr::Nat,
-                Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-            >,
-            ParseError<ltsrlclafrr::Heap>,
-        >;
-        type StructuralImplementor = Either<
+        type Implementor = Either<
             ltsrlclafrr::Heap,
             Pair<
                 ltsrlclafrr::Heap,
@@ -78,37 +71,28 @@ pub mod words_inverse_impls {
     impl words::InverseImplements<
         lwmrlclafrr::L,
         Pair<(), lwmrlclafrrs::Nat, Maybe<(), ParseMetadata<()>>>,
+        VisitationAspect,
     > for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = Pair<
-            ltsrlclafrr::Heap,
-            ltsrlclafrr::Nat,
-            Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-        >;
-        type StructuralImplementor = Pair<
+        type Implementor = Pair<
             ltsrlclafrr::Heap,
             ltsrlclafrr::Nat,
             Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
         >;
     }
-    impl words::InverseImplements<lwmrlclafrr::L, Maybe<(), ParseMetadata<()>>>
-    for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = Maybe<
-            ltsrlclafrr::Heap,
-            ParseMetadata<ltsrlclafrr::Heap>,
-        >;
-        type StructuralImplementor = Maybe<
-            ltsrlclafrr::Heap,
-            ParseMetadata<ltsrlclafrr::Heap>,
-        >;
+    impl words::InverseImplements<
+        lwmrlclafrr::L,
+        Maybe<(), ParseMetadata<()>>,
+        VisitationAspect,
+    > for ltsrlclafrr::Heap {
+        type Implementor = Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>;
     }
-    impl words::InverseImplements<lwmrlclafrr::L, ParseMetadata<()>>
+    impl words::InverseImplements<lwmrlclafrr::L, ParseMetadata<()>, VisitationAspect>
     for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = ParseMetadata<ltsrlclafrr::Heap>;
-        type StructuralImplementor = ParseMetadata<ltsrlclafrr::Heap>;
+        type Implementor = ParseMetadata<ltsrlclafrr::Heap>;
     }
-    impl words::InverseImplements<lwmrlclafrr::L, ParseError<()>> for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = ParseError<ltsrlclafrr::Heap>;
-        type StructuralImplementor = ParseError<ltsrlclafrr::Heap>;
+    impl words::InverseImplements<lwmrlclafrr::L, ParseError<()>, VisitationAspect>
+    for ltsrlclafrr::Heap {
+        type Implementor = ParseError<ltsrlclafrr::Heap>;
     }
     impl words::InverseImplements<
         lwmrlclafrr::L,
@@ -117,17 +101,9 @@ pub mod words_inverse_impls {
             Pair<(), lwmrlclafrrs::Left_operand, Maybe<(), ParseMetadata<()>>>,
             ParseError<()>,
         >,
+        VisitationAspect,
     > for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = Either<
-            ltsrlclafrr::Heap,
-            Pair<
-                ltsrlclafrr::Heap,
-                ltsrlclafrr::Left_operand,
-                Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-            >,
-            ParseError<ltsrlclafrr::Heap>,
-        >;
-        type StructuralImplementor = Either<
+        type Implementor = Either<
             ltsrlclafrr::Heap,
             Pair<
                 ltsrlclafrr::Heap,
@@ -140,13 +116,9 @@ pub mod words_inverse_impls {
     impl words::InverseImplements<
         lwmrlclafrr::L,
         Pair<(), lwmrlclafrrs::Left_operand, Maybe<(), ParseMetadata<()>>>,
+        VisitationAspect,
     > for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = Pair<
-            ltsrlclafrr::Heap,
-            ltsrlclafrr::Left_operand,
-            Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-        >;
-        type StructuralImplementor = Pair<
+        type Implementor = Pair<
             ltsrlclafrr::Heap,
             ltsrlclafrr::Left_operand,
             Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
@@ -159,17 +131,9 @@ pub mod words_inverse_impls {
             Pair<(), lwmrlclafrrs::Right_operand, Maybe<(), ParseMetadata<()>>>,
             ParseError<()>,
         >,
+        VisitationAspect,
     > for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = Either<
-            ltsrlclafrr::Heap,
-            Pair<
-                ltsrlclafrr::Heap,
-                ltsrlclafrr::Right_operand,
-                Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-            >,
-            ParseError<ltsrlclafrr::Heap>,
-        >;
-        type StructuralImplementor = Either<
+        type Implementor = Either<
             ltsrlclafrr::Heap,
             Pair<
                 ltsrlclafrr::Heap,
@@ -182,13 +146,9 @@ pub mod words_inverse_impls {
     impl words::InverseImplements<
         lwmrlclafrr::L,
         Pair<(), lwmrlclafrrs::Right_operand, Maybe<(), ParseMetadata<()>>>,
+        VisitationAspect,
     > for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = Pair<
-            ltsrlclafrr::Heap,
-            ltsrlclafrr::Right_operand,
-            Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-        >;
-        type StructuralImplementor = Pair<
+        type Implementor = Pair<
             ltsrlclafrr::Heap,
             ltsrlclafrr::Right_operand,
             Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
@@ -212,28 +172,9 @@ pub mod words_inverse_impls {
             >,
             ParseError<()>,
         >,
+        VisitationAspect,
     > for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = Either<
-            ltsrlclafrr::Heap,
-            Pair<
-                ltsrlclafrr::Heap,
-                Set<
-                    ltsrlclafrr::Heap,
-                    Either<
-                        ltsrlclafrr::Heap,
-                        Pair<
-                            ltsrlclafrr::Heap,
-                            ltsrlclafrr::Nat,
-                            Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-                        >,
-                        ParseError<ltsrlclafrr::Heap>,
-                    >,
-                >,
-                Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-            >,
-            ParseError<ltsrlclafrr::Heap>,
-        >;
-        type StructuralImplementor = Either<
+        type Implementor = Either<
             ltsrlclafrr::Heap,
             Pair<
                 ltsrlclafrr::Heap,
@@ -268,24 +209,9 @@ pub mod words_inverse_impls {
             >,
             Maybe<(), ParseMetadata<()>>,
         >,
+        VisitationAspect,
     > for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = Pair<
-            ltsrlclafrr::Heap,
-            Set<
-                ltsrlclafrr::Heap,
-                Either<
-                    ltsrlclafrr::Heap,
-                    Pair<
-                        ltsrlclafrr::Heap,
-                        ltsrlclafrr::Nat,
-                        Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-                    >,
-                    ParseError<ltsrlclafrr::Heap>,
-                >,
-            >,
-            Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-        >;
-        type StructuralImplementor = Pair<
+        type Implementor = Pair<
             ltsrlclafrr::Heap,
             Set<
                 ltsrlclafrr::Heap,
@@ -312,20 +238,9 @@ pub mod words_inverse_impls {
                 ParseError<()>,
             >,
         >,
+        VisitationAspect,
     > for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = Set<
-            ltsrlclafrr::Heap,
-            Either<
-                ltsrlclafrr::Heap,
-                Pair<
-                    ltsrlclafrr::Heap,
-                    ltsrlclafrr::Nat,
-                    Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-                >,
-                ParseError<ltsrlclafrr::Heap>,
-            >,
-        >;
-        type StructuralImplementor = Set<
+        type Implementor = Set<
             ltsrlclafrr::Heap,
             Either<
                 ltsrlclafrr::Heap,
@@ -345,17 +260,9 @@ pub mod words_inverse_impls {
             Pair<(), BoundedNat<()>, Maybe<(), ParseMetadata<()>>>,
             ParseError<()>,
         >,
+        VisitationAspect,
     > for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = Either<
-            ltsrlclafrr::Heap,
-            Pair<
-                ltsrlclafrr::Heap,
-                BoundedNat<ltsrlclafrr::Heap>,
-                Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-            >,
-            ParseError<ltsrlclafrr::Heap>,
-        >;
-        type StructuralImplementor = Either<
+        type Implementor = Either<
             ltsrlclafrr::Heap,
             Pair<
                 ltsrlclafrr::Heap,
@@ -368,21 +275,17 @@ pub mod words_inverse_impls {
     impl words::InverseImplements<
         lwmrlclafrr::L,
         Pair<(), BoundedNat<()>, Maybe<(), ParseMetadata<()>>>,
+        VisitationAspect,
     > for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = Pair<
-            ltsrlclafrr::Heap,
-            BoundedNat<ltsrlclafrr::Heap>,
-            Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-        >;
-        type StructuralImplementor = Pair<
+        type Implementor = Pair<
             ltsrlclafrr::Heap,
             BoundedNat<ltsrlclafrr::Heap>,
             Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
         >;
     }
-    impl words::InverseImplements<lwmrlclafrr::L, BoundedNat<()>> for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = BoundedNat<ltsrlclafrr::Heap>;
-        type StructuralImplementor = BoundedNat<ltsrlclafrr::Heap>;
+    impl words::InverseImplements<lwmrlclafrr::L, BoundedNat<()>, VisitationAspect>
+    for ltsrlclafrr::Heap {
+        type Implementor = BoundedNat<ltsrlclafrr::Heap>;
     }
     impl words::InverseImplements<
         lwmrlclafrr::L,
@@ -402,28 +305,9 @@ pub mod words_inverse_impls {
             >,
             ParseError<()>,
         >,
+        VisitationAspect,
     > for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = Either<
-            ltsrlclafrr::Heap,
-            Pair<
-                ltsrlclafrr::Heap,
-                IdxBox<
-                    ltsrlclafrr::Heap,
-                    Either<
-                        ltsrlclafrr::Heap,
-                        Pair<
-                            ltsrlclafrr::Heap,
-                            ltsrlclafrr::F,
-                            Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-                        >,
-                        ParseError<ltsrlclafrr::Heap>,
-                    >,
-                >,
-                Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-            >,
-            ParseError<ltsrlclafrr::Heap>,
-        >;
-        type StructuralImplementor = Either<
+        type Implementor = Either<
             ltsrlclafrr::Heap,
             Pair<
                 ltsrlclafrr::Heap,
@@ -458,24 +342,9 @@ pub mod words_inverse_impls {
             >,
             Maybe<(), ParseMetadata<()>>,
         >,
+        VisitationAspect,
     > for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = Pair<
-            ltsrlclafrr::Heap,
-            IdxBox<
-                ltsrlclafrr::Heap,
-                Either<
-                    ltsrlclafrr::Heap,
-                    Pair<
-                        ltsrlclafrr::Heap,
-                        ltsrlclafrr::F,
-                        Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-                    >,
-                    ParseError<ltsrlclafrr::Heap>,
-                >,
-            >,
-            Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-        >;
-        type StructuralImplementor = Pair<
+        type Implementor = Pair<
             ltsrlclafrr::Heap,
             IdxBox<
                 ltsrlclafrr::Heap,
@@ -502,20 +371,9 @@ pub mod words_inverse_impls {
                 ParseError<()>,
             >,
         >,
+        VisitationAspect,
     > for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = IdxBox<
-            ltsrlclafrr::Heap,
-            Either<
-                ltsrlclafrr::Heap,
-                Pair<
-                    ltsrlclafrr::Heap,
-                    ltsrlclafrr::F,
-                    Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-                >,
-                ParseError<ltsrlclafrr::Heap>,
-            >,
-        >;
-        type StructuralImplementor = IdxBox<
+        type Implementor = IdxBox<
             ltsrlclafrr::Heap,
             Either<
                 ltsrlclafrr::Heap,
@@ -535,17 +393,9 @@ pub mod words_inverse_impls {
             Pair<(), lwmrlclafrrs::F, Maybe<(), ParseMetadata<()>>>,
             ParseError<()>,
         >,
+        VisitationAspect,
     > for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = Either<
-            ltsrlclafrr::Heap,
-            Pair<
-                ltsrlclafrr::Heap,
-                ltsrlclafrr::F,
-                Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-            >,
-            ParseError<ltsrlclafrr::Heap>,
-        >;
-        type StructuralImplementor = Either<
+        type Implementor = Either<
             ltsrlclafrr::Heap,
             Pair<
                 ltsrlclafrr::Heap,
@@ -558,13 +408,9 @@ pub mod words_inverse_impls {
     impl words::InverseImplements<
         lwmrlclafrr::L,
         Pair<(), lwmrlclafrrs::F, Maybe<(), ParseMetadata<()>>>,
+        VisitationAspect,
     > for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = Pair<
-            ltsrlclafrr::Heap,
-            ltsrlclafrr::F,
-            Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-        >;
-        type StructuralImplementor = Pair<
+        type Implementor = Pair<
             ltsrlclafrr::Heap,
             ltsrlclafrr::F,
             Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
@@ -588,28 +434,9 @@ pub mod words_inverse_impls {
             >,
             ParseError<()>,
         >,
+        VisitationAspect,
     > for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = Either<
-            ltsrlclafrr::Heap,
-            Pair<
-                ltsrlclafrr::Heap,
-                IdxBox<
-                    ltsrlclafrr::Heap,
-                    Either<
-                        ltsrlclafrr::Heap,
-                        Pair<
-                            ltsrlclafrr::Heap,
-                            ltsrlclafrr::Plus,
-                            Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-                        >,
-                        ParseError<ltsrlclafrr::Heap>,
-                    >,
-                >,
-                Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-            >,
-            ParseError<ltsrlclafrr::Heap>,
-        >;
-        type StructuralImplementor = Either<
+        type Implementor = Either<
             ltsrlclafrr::Heap,
             Pair<
                 ltsrlclafrr::Heap,
@@ -644,24 +471,9 @@ pub mod words_inverse_impls {
             >,
             Maybe<(), ParseMetadata<()>>,
         >,
+        VisitationAspect,
     > for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = Pair<
-            ltsrlclafrr::Heap,
-            IdxBox<
-                ltsrlclafrr::Heap,
-                Either<
-                    ltsrlclafrr::Heap,
-                    Pair<
-                        ltsrlclafrr::Heap,
-                        ltsrlclafrr::Plus,
-                        Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-                    >,
-                    ParseError<ltsrlclafrr::Heap>,
-                >,
-            >,
-            Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-        >;
-        type StructuralImplementor = Pair<
+        type Implementor = Pair<
             ltsrlclafrr::Heap,
             IdxBox<
                 ltsrlclafrr::Heap,
@@ -688,20 +500,9 @@ pub mod words_inverse_impls {
                 ParseError<()>,
             >,
         >,
+        VisitationAspect,
     > for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = IdxBox<
-            ltsrlclafrr::Heap,
-            Either<
-                ltsrlclafrr::Heap,
-                Pair<
-                    ltsrlclafrr::Heap,
-                    ltsrlclafrr::Plus,
-                    Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-                >,
-                ParseError<ltsrlclafrr::Heap>,
-            >,
-        >;
-        type StructuralImplementor = IdxBox<
+        type Implementor = IdxBox<
             ltsrlclafrr::Heap,
             Either<
                 ltsrlclafrr::Heap,
@@ -721,17 +522,9 @@ pub mod words_inverse_impls {
             Pair<(), lwmrlclafrrs::Plus, Maybe<(), ParseMetadata<()>>>,
             ParseError<()>,
         >,
+        VisitationAspect,
     > for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = Either<
-            ltsrlclafrr::Heap,
-            Pair<
-                ltsrlclafrr::Heap,
-                ltsrlclafrr::Plus,
-                Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-            >,
-            ParseError<ltsrlclafrr::Heap>,
-        >;
-        type StructuralImplementor = Either<
+        type Implementor = Either<
             ltsrlclafrr::Heap,
             Pair<
                 ltsrlclafrr::Heap,
@@ -744,13 +537,9 @@ pub mod words_inverse_impls {
     impl words::InverseImplements<
         lwmrlclafrr::L,
         Pair<(), lwmrlclafrrs::Plus, Maybe<(), ParseMetadata<()>>>,
+        VisitationAspect,
     > for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = Pair<
-            ltsrlclafrr::Heap,
-            ltsrlclafrr::Plus,
-            Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-        >;
-        type StructuralImplementor = Pair<
+        type Implementor = Pair<
             ltsrlclafrr::Heap,
             ltsrlclafrr::Plus,
             Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
@@ -763,17 +552,9 @@ pub mod words_inverse_impls {
             Pair<(), lwmrlclafrrs::Sum, Maybe<(), ParseMetadata<()>>>,
             ParseError<()>,
         >,
+        VisitationAspect,
     > for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = Either<
-            ltsrlclafrr::Heap,
-            Pair<
-                ltsrlclafrr::Heap,
-                ltsrlclafrr::Sum,
-                Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-            >,
-            ParseError<ltsrlclafrr::Heap>,
-        >;
-        type StructuralImplementor = Either<
+        type Implementor = Either<
             ltsrlclafrr::Heap,
             Pair<
                 ltsrlclafrr::Heap,
@@ -786,13 +567,9 @@ pub mod words_inverse_impls {
     impl words::InverseImplements<
         lwmrlclafrr::L,
         Pair<(), lwmrlclafrrs::Sum, Maybe<(), ParseMetadata<()>>>,
+        VisitationAspect,
     > for ltsrlclafrr::Heap {
-        type ExternBehavioralImplementor = Pair<
-            ltsrlclafrr::Heap,
-            ltsrlclafrr::Sum,
-            Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,
-        >;
-        type StructuralImplementor = Pair<
+        type Implementor = Pair<
             ltsrlclafrr::Heap,
             ltsrlclafrr::Sum,
             Maybe<ltsrlclafrr::Heap, ParseMetadata<ltsrlclafrr::Heap>>,

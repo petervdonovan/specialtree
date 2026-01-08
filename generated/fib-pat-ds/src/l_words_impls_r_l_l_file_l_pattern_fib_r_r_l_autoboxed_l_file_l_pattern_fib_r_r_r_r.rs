@@ -18,40 +18,47 @@ use fib_pat::l_words_mod_r_l_file_l_pattern_fib_r_r::sorts::FileItem;
 use fib_pat::l_words_mod_r_l_file_l_pattern_fib_r_r::sorts::F;
 use fib_pat::l_words_mod_r_l_file_l_pattern_fib_r_r::L;
 use crate::l_term_specialized_r_l_autoboxed_l_file_l_pattern_fib_r_r_r as ltsrlalflpfrrr;
-impl words::Implements<ltsrlalflpfrrr::Heap, L> for ltsrlalflpfrrr::F {
+use aspect::VisitationAspect;
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect> for ltsrlalflpfrrr::F {
     type LWord = F;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L> for ltsrlalflpfrrr::Left_operand {
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
+for ltsrlalflpfrrr::Left_operand {
     type LWord = Left_operand;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L> for ltsrlalflpfrrr::Plus {
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
+for ltsrlalflpfrrr::Plus {
     type LWord = Plus;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L> for ltsrlalflpfrrr::Right_operand {
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
+for ltsrlalflpfrrr::Right_operand {
     type LWord = Right_operand;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L> for ltsrlalflpfrrr::Sum {
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
+for ltsrlalflpfrrr::Sum {
     type LWord = Sum;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L> for ltsrlalflpfrrr::Nat {
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
+for ltsrlalflpfrrr::Nat {
     type LWord = Nat;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L> for ltsrlalflpfrrr::FileItem {
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
+for ltsrlalflpfrrr::FileItem {
     type LWord = FileItem;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L>
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
 for OrVariable<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::Nat> {
     type LWord = OrVariable<(), Nat>;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L>
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
 for OrVariable<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::Left_operand> {
     type LWord = OrVariable<(), Left_operand>;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L>
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
 for OrVariable<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::Right_operand> {
     type LWord = OrVariable<(), Right_operand>;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L>
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
 for OrVariable<
     ltsrlalflpfrrr::Heap,
     Set<
@@ -61,41 +68,42 @@ for OrVariable<
 > {
     type LWord = OrVariable<(), Set<(), OrVariableZeroOrMore<(), Nat>>>;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L>
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
 for Set<
     ltsrlalflpfrrr::Heap,
     OrVariableZeroOrMore<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::Nat>,
 > {
     type LWord = Set<(), OrVariableZeroOrMore<(), Nat>>;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L>
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
 for OrVariableZeroOrMore<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::Nat> {
     type LWord = OrVariableZeroOrMore<(), Nat>;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L> for BoundedNat<ltsrlalflpfrrr::Heap> {
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
+for BoundedNat<ltsrlalflpfrrr::Heap> {
     type LWord = BoundedNat<()>;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L>
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
 for NamedPattern<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::F> {
     type LWord = NamedPattern<(), F>;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L>
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
 for NamedPattern<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::Left_operand> {
     type LWord = NamedPattern<(), Left_operand>;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L>
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
 for NamedPattern<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::Plus> {
     type LWord = NamedPattern<(), Plus>;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L>
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
 for NamedPattern<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::Right_operand> {
     type LWord = NamedPattern<(), Right_operand>;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L>
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
 for NamedPattern<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::Sum> {
     type LWord = NamedPattern<(), Sum>;
 }
-impl words::Implements<ltsrlalflpfrrr::Heap, L>
+impl words::Implements<ltsrlalflpfrrr::Heap, L, VisitationAspect>
 for File<ltsrlalflpfrrr::Heap, ltsrlalflpfrrr::FileItem> {
     type LWord = File<(), FileItem>;
 }

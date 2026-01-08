@@ -9,36 +9,41 @@ use tymetafuncspec_core::BoundedNat;
 use crate::l_words_mod_r_l_autoboxed_fib_r as lwmrlafr;
 use crate::l_words_mod_r_l_autoboxed_fib_r::sorts as lwmrlafrs;
 use crate::l_term_specialized_r_l_autoboxed_fib_r as ltsrlafr;
-impl words::Implements<ltsrlafr::Heap, lwmrlafr::L> for ltsrlafr::F {
+use aspect::VisitationAspect;
+impl words::Implements<ltsrlafr::Heap, lwmrlafr::L, VisitationAspect> for ltsrlafr::F {
     type LWord = lwmrlafrs::F;
 }
-impl words::Implements<ltsrlafr::Heap, lwmrlafr::L> for ltsrlafr::Left_operand {
+impl words::Implements<ltsrlafr::Heap, lwmrlafr::L, VisitationAspect>
+for ltsrlafr::Left_operand {
     type LWord = lwmrlafrs::Left_operand;
 }
-impl words::Implements<ltsrlafr::Heap, lwmrlafr::L> for ltsrlafr::Plus {
+impl words::Implements<ltsrlafr::Heap, lwmrlafr::L, VisitationAspect>
+for ltsrlafr::Plus {
     type LWord = lwmrlafrs::Plus;
 }
-impl words::Implements<ltsrlafr::Heap, lwmrlafr::L> for ltsrlafr::Right_operand {
+impl words::Implements<ltsrlafr::Heap, lwmrlafr::L, VisitationAspect>
+for ltsrlafr::Right_operand {
     type LWord = lwmrlafrs::Right_operand;
 }
-impl words::Implements<ltsrlafr::Heap, lwmrlafr::L> for ltsrlafr::Sum {
+impl words::Implements<ltsrlafr::Heap, lwmrlafr::L, VisitationAspect> for ltsrlafr::Sum {
     type LWord = lwmrlafrs::Sum;
 }
-impl words::Implements<ltsrlafr::Heap, lwmrlafr::L> for ltsrlafr::Nat {
+impl words::Implements<ltsrlafr::Heap, lwmrlafr::L, VisitationAspect> for ltsrlafr::Nat {
     type LWord = lwmrlafrs::Nat;
 }
-impl words::Implements<ltsrlafr::Heap, lwmrlafr::L>
+impl words::Implements<ltsrlafr::Heap, lwmrlafr::L, VisitationAspect>
 for Set<ltsrlafr::Heap, ltsrlafr::Nat> {
     type LWord = Set<(), lwmrlafrs::Nat>;
 }
-impl words::Implements<ltsrlafr::Heap, lwmrlafr::L> for BoundedNat<ltsrlafr::Heap> {
+impl words::Implements<ltsrlafr::Heap, lwmrlafr::L, VisitationAspect>
+for BoundedNat<ltsrlafr::Heap> {
     type LWord = BoundedNat<()>;
 }
-impl words::Implements<ltsrlafr::Heap, lwmrlafr::L>
+impl words::Implements<ltsrlafr::Heap, lwmrlafr::L, VisitationAspect>
 for IdxBox<ltsrlafr::Heap, ltsrlafr::F> {
     type LWord = IdxBox<(), lwmrlafrs::F>;
 }
-impl words::Implements<ltsrlafr::Heap, lwmrlafr::L>
+impl words::Implements<ltsrlafr::Heap, lwmrlafr::L, VisitationAspect>
 for IdxBox<ltsrlafr::Heap, ltsrlafr::Plus> {
     type LWord = IdxBox<(), lwmrlafrs::Plus>;
 }

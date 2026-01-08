@@ -33,7 +33,7 @@ pub(crate) fn heap_trait<L: LangSpec>(
     // );
     let byline = byline!();
     let superheap_bounds = generate_superheap_bounds(ls, words_path);
-    let inverse_implements_bounds = generate_inverse_implements_bounds(words_path, ls);
+    let inverse_implements_bounds = generate_inverse_implements_bounds(base_path, words_path, ls);
     parse_quote! {
         #byline
         pub trait Heap: Sized #(+ #inverse_implements_bounds)* #(+ #superheap_bounds)* {
@@ -67,6 +67,7 @@ fn generate_superheap_bounds<L: LangSpec>(ls: &L, words_path: &syn::Path) -> Vec
 }
 
 fn generate_inverse_implements_bounds<L: LangSpec>(
+    base_path: &syn::Path,
     words_path: &syn::Path,
     ls: &L,
 ) -> impl Iterator<Item = syn::TraitBound> {
@@ -79,7 +80,8 @@ fn generate_inverse_implements_bounds<L: LangSpec>(
                     words::InverseImplements<
                         #words_path::L,
                         #lword,
-                        // StructuralImplementor: #base_path::owned::#camel_ident<Self>
+                        aspect::VisitationAspect,
+                        // Implementor: #base_path::owned::#camel_ident<Self>
                     >
                 }
             }
@@ -87,7 +89,9 @@ fn generate_inverse_implements_bounds<L: LangSpec>(
                 words::InverseImplements<
                     #words_path::L,
                     #lword,
-                    ExternBehavioralImplementor: term::TyMetaFunc
+                    // parse_adt::LookaheadAspect,
+                    aspect::VisitationAspect,
+                    Implementor: term::TyMetaFunc
                 >
             },
         }

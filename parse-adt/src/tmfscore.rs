@@ -1,7 +1,7 @@
 use core::panic;
 
 use aspect::Adtishness;
-use aspect::Visitation;
+use aspect::VisitationAspect;
 use aspect::{AdtLike, NotAdtLike};
 use ccf::CanonicallyConstructibleFrom;
 use covisit::Covisit;
@@ -43,7 +43,7 @@ impl<'a, Heap, L, ElemLWord, MappedSet, MappedElem>
     Covisit<Set<(), ElemLWord>, L, Cstfy<Heap, MappedSet>, Heap, NotAdtLike> for Parser<'a, L>
 where
     Heap: InverseImplements<L, ElemLWord, LookaheadAspect>,
-    Heap: InverseImplements<L, ElemLWord, Visitation>,
+    Heap: InverseImplements<L, ElemLWord, VisitationAspect>,
     Heap: InverseImplements<
             L,
             Set<(), ElemLWord>,
@@ -51,19 +51,19 @@ where
             Implementor = Set<Heap, MappedElem>,
         >,
     Heap: term::SuperHeap<SetHeapBak<Heap, MappedElem>>,
-    ElemLWord: Adtishness<Visitation>,
+    ElemLWord: Adtishness<VisitationAspect>,
     Parser<'a, L>: Covisit<
             ElemLWord,
             L,
-            <Heap as InverseImplements<L, ElemLWord, Visitation>>::Implementor,
+            <Heap as InverseImplements<L, ElemLWord, VisitationAspect>>::Implementor,
             Heap,
-            <ElemLWord as Adtishness<Visitation>>::X,
+            <ElemLWord as Adtishness<VisitationAspect>>::X,
         >,
     MappedSet: CanonicallyConstructibleFrom<Heap, (Set<Heap, MappedElem>, ())>,
     MappedElem: CanonicallyConstructibleFrom<
             Heap,
             (
-                <Heap as InverseImplements<L, ElemLWord, Visitation>>::Implementor,
+                <Heap as InverseImplements<L, ElemLWord, VisitationAspect>>::Implementor,
                 (),
             ),
         >,

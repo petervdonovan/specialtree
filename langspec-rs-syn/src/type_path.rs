@@ -1,3 +1,4 @@
+use aspect::Aspect;
 use langspec::langspec::{LangSpec, MappedType, SortId, SortIdOf};
 use langspec::tymetafunc::{RustTyMap, TyMetaFuncData, TyMetaFuncSpec};
 
@@ -43,7 +44,11 @@ pub fn sort2rs_ty<L: LangSpec>(
     }
 }
 
-pub fn sort2word_rs_ty<L: LangSpec>(ls: &L, sort: SortIdOf<L>, words_path: &syn::Path) -> syn::Type {
+pub fn sort2word_rs_ty<L: LangSpec>(
+    ls: &L,
+    sort: SortIdOf<L>,
+    words_path: &syn::Path,
+) -> syn::Type {
     sort2rs_ty(
         ls,
         sort,
@@ -52,27 +57,29 @@ pub fn sort2word_rs_ty<L: LangSpec>(ls: &L, sort: SortIdOf<L>, words_path: &syn:
     )
 }
 
-pub fn sort2structural_from_word_rs_ty<L: LangSpec>(
-    ls: &L,
-    sort: SortIdOf<L>,
-    HeapType(ht): &HeapType,
-    words_path: &syn::Path,
-) -> syn::Type {
-    let word_rs_ty = sort2word_rs_ty(ls, sort, words_path);
-    syn::parse_quote! {
-        <#ht as words::InverseImplements<#words_path::L, #word_rs_ty>>::StructuralImplementor
-    }
-}
+// pub fn sort2structural_from_word_rs_ty<L: LangSpec>(
+//     ls: &L,
+//     sort: SortIdOf<L>,
+//     HeapType(ht): &HeapType,
+//     words_path: &syn::Path,
+// ) -> syn::Type {
+//     let word_rs_ty = sort2word_rs_ty(ls, sort, words_path);
+//     syn::parse_quote! {
+//         <#ht as words::InverseImplements<#words_path::L, #word_rs_ty, aspect::VisitationAspect>>::Implementor
+//     }
+// }
 
-pub fn sort2externbehavioral_from_word_rs_ty<L: LangSpec>(
+pub fn sort2implementor_from_word_rs_ty<L: LangSpec>(
     ls: &L,
     sort: SortIdOf<L>,
     HeapType(ht): &HeapType,
     words_path: &syn::Path,
+    aspect: &dyn Aspect,
 ) -> syn::Type {
     let word_rs_ty = sort2word_rs_ty(ls, sort, words_path);
+    let aspect_path = aspect.zst_path();
     syn::parse_quote! {
-        <#ht as words::InverseImplements<#words_path::L, #word_rs_ty>>::ExternBehavioralImplementor
+        <#ht as words::InverseImplements<#words_path::L, #word_rs_ty, #aspect_path>>::Implementor
     }
 }
 
@@ -82,25 +89,24 @@ pub fn sort2heap_ty<L: LangSpec>(
     ht: &HeapType,
     abp: &AlgebraicsBasePath,
     words_path: Option<&syn::Path>,
+    aspect: &dyn Aspect,
 ) -> Option<syn::Type> {
     match &sort {
         SortId::Algebraic(_) => None,
-        SortId::TyMetaFunc(MappedType { f, a }) => {
-            match words_path {
-                Some(wp) => {
-                    let ty = sort2externbehavioral_from_word_rs_ty(ls, sort, ht, wp);
-                    Some(syn::parse_quote! { <#ty as term::TyMetaFunc>::HeapBak })
-                }
-                None => {
-                    let TyMetaFuncData {
-                        heapbak: RustTyMap { ty_func },
-                        ..
-                    } = L::Tmfs::ty_meta_func_data(f);
-                    let args = a.iter().map(|arg| sort2rs_ty(ls, arg.clone(), ht, abp));
-                    let ht = &ht.0;
-                    Some(syn::parse_quote! { #ty_func<#ht, #( #args, )* > })
-                }
+        SortId::TyMetaFunc(MappedType { f, a }) => match words_path {
+            Some(wp) => {
+                let ty = sort2implementor_from_word_rs_ty(ls, sort, ht, wp, aspect);
+                Some(syn::parse_quote! { <#ty as term::TyMetaFunc>::HeapBak })
             }
-        }
+            None => {
+                let TyMetaFuncData {
+                    heapbak: RustTyMap { ty_func },
+                    ..
+                } = L::Tmfs::ty_meta_func_data(f);
+                let args = a.iter().map(|arg| sort2rs_ty(ls, arg.clone(), ht, abp));
+                let ht = &ht.0;
+                Some(syn::parse_quote! { #ty_func<#ht, #( #args, )* > })
+            }
+        },
     }
 }

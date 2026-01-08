@@ -1,7 +1,7 @@
 use ccf::CanonicallyConstructibleFrom;
 use derivative::Derivative;
 use langspec::tymetafunc::{ArgId, RustTyMap, TyMetaFuncData, TyMetaFuncSpec};
-use aspect::Visitation;
+use aspect::VisitationAspect;
 use serde::{Deserialize, Serialize};
 use term::{SuperHeap, TyMetaFunc};
 use tree_identifier::Identifier;
@@ -67,6 +67,6 @@ where
     let items = subheap.vecs.get(f.items).unwrap();
     items.iter()
 }
-impl<ItemLWord> Adtishness<Visitation> for File<(), ItemLWord> {
+impl<ItemLWord> Adtishness<VisitationAspect> for File<(), ItemLWord> {
     type X = NotAdtLike;
 }
