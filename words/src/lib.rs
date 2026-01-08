@@ -13,36 +13,28 @@ pub trait Implements<Heap, L, AspectT: Aspect> {
     type LWord;
 }
 pub trait InverseImplements<L, LWord, AspectT: Aspect> {
-    type ExternBehavioralImplementor;
-    type StructuralImplementor;
+    type Implementor;
 }
 pub trait InverseImplementsAll<L, LWords: ConsList, AspectT: Aspect>:
     InverseImplements<L, <LWords as ConsList>::Car, AspectT>
 {
-    type ExternBehavioralImplementors: ConsList;
-    type StructuralImplementors: ConsList;
+    type Implementors: ConsList;
 }
 impl<Heap, L, AspectT: Aspect> InverseImplements<L, (), AspectT> for Heap {
-    type ExternBehavioralImplementor = ();
-    type StructuralImplementor = ();
+    type Implementor = ();
 }
 impl<Heap, L, Car, Cdr, AspectT: Aspect> InverseImplementsAll<L, (Car, Cdr), AspectT> for Heap
 where
     Cdr: ConsList,
     Heap: InverseImplementsAll<L, Cdr, AspectT> + InverseImplements<L, Car, AspectT>,
 {
-    type ExternBehavioralImplementors = (
-        <Heap as InverseImplements<L, Car, AspectT>>::ExternBehavioralImplementor,
-        <Heap as InverseImplementsAll<L, Cdr, AspectT>>::ExternBehavioralImplementors,
-    );
-    type StructuralImplementors = (
-        <Heap as InverseImplements<L, Car, AspectT>>::StructuralImplementor,
-        <Heap as InverseImplementsAll<L, Cdr, AspectT>>::StructuralImplementors,
+    type Implementors = (
+        <Heap as InverseImplements<L, Car, AspectT>>::Implementor,
+        <Heap as InverseImplementsAll<L, Cdr, AspectT>>::Implementors,
     );
 }
 impl<Heap, L, AspectT: Aspect> InverseImplementsAll<L, (), AspectT> for Heap {
-    type ExternBehavioralImplementors = ();
-    type StructuralImplementors = ();
+    type Implementors = ();
 }
 // #[fundamental]
 // pub trait Adt {}
@@ -79,25 +71,27 @@ pub fn words_impls<L: LangSpec, LSub: LangSpec>(
     sublang: &Sublang<'_, LSub, SortIdOf<L>>,
     elsg: &L,
 ) -> syn::ItemMod {
-    let impls = sublang.lsub
+    let impls: Vec<syn::ItemImpl> = sublang
+        .lsub
         .all_sort_ids()
-        .map(|sid| {
+        .flat_map(|sid| {
             let word = sort2word_rs_ty(sublang.lsub, sid.clone(), og_words_base_path);
-            let structural_implementor = sort2rs_ty(
-                elsg,
-                (sublang.map)(&sid),
-                &HeapType(syn::parse_quote! { #ext_data_structure::Heap }),
-                &AlgebraicsBasePath::new(syn::parse_quote! { #ext_data_structure:: }),
-            );
-            (structural_implementor, word)
-        })
-        .map(|(structural_implementor, word)| -> syn::ItemImpl {
-            syn::parse_quote! {
-                impl words::Implements<#ext_data_structure::Heap, #og_words_base_path::L> for #structural_implementor {
-                    type LWord = #word;
+            sublang.aspect_implementors.iter().map(move |asp| {
+                let aspect_path = asp.aspect_zst.zst_path();
+                let implementor = sort2rs_ty(
+                    elsg,
+                    (asp.map)(&sid),
+                    &HeapType(syn::parse_quote! { #ext_data_structure::Heap }),
+                    &AlgebraicsBasePath::new(syn::parse_quote! { #ext_data_structure:: }),
+                );
+                syn::parse_quote! {
+                    impl words::Implements<#ext_data_structure::Heap, #og_words_base_path::L, #aspect_path> for #implementor {
+                        type LWord = #word;
+                    }
                 }
-            }
-        });
+            })
+        })
+        .collect::<Vec<_>>();
     let byline = byline!();
     syn::parse_quote! {
         #byline
@@ -113,33 +107,25 @@ pub fn words_inverse_impls<L: LangSpec, LSub: LangSpec>(
     sublang: &Sublang<'_, LSub, SortIdOf<L>>,
     elsg: &L,
 ) -> syn::ItemMod {
-    let impls = sublang.lsub
+    let impls: Vec<syn::ItemImpl> = sublang
+        .lsub
         .all_sort_ids()
-        .map(|sid| {
+        .flat_map(|sid| {
             let word = sort2word_rs_ty(sublang.lsub, sid.clone(), og_words_base_path);
-            let structural_implementor_sid = (sublang.map)(&sid);
-            let ht = HeapType(syn::parse_quote! { #ext_data_structure::Heap });
-            let abp = AlgebraicsBasePath::new(syn::parse_quote! { #ext_data_structure:: });
-            let structural_implementor =
-                sort2rs_ty(elsg, structural_implementor_sid.clone(), &ht, &abp);
-            let behavioral_implementor = sublang
-                .aspect_implementors
-                .iter()
-                .find(|it| it.to_structural == structural_implementor_sid)
-                .map(|tem| sort2rs_ty(elsg, tem.from_extern_behavioral.clone(), &ht, &abp))
-                .unwrap_or_else(|| structural_implementor.clone());
-            (structural_implementor, behavioral_implementor, word)
-        })
-        .map(
-            |(structural_implementor, behavioral_implementor, word)| -> syn::ItemImpl {
+            sublang.aspect_implementors.iter().map(move |asp| {
+                let implementor_sid = (asp.map)(&sid);
+                let ht = HeapType(syn::parse_quote! { #ext_data_structure::Heap });
+                let abp = AlgebraicsBasePath::new(syn::parse_quote! { #ext_data_structure:: });
+                let implementor = sort2rs_ty(elsg, implementor_sid.clone(), &ht, &abp);
+                let aspect_path = asp.aspect_zst.zst_path();
                 syn::parse_quote! {
-                    impl words::InverseImplements<#og_words_base_path::L, #word> for #ext_data_structure::Heap {
-                        type ExternBehavioralImplementor = #behavioral_implementor;
-                        type StructuralImplementor = #structural_implementor;
+                    impl words::InverseImplements<#og_words_base_path::L, #word, #aspect_path> for #ext_data_structure::Heap {
+                        type Implementor = #implementor;
                     }
                 }
-            },
-        );
+            })
+        })
+        .collect::<Vec<_>>();
     let byline = byline!();
     syn::parse_quote! {
         #byline
@@ -148,42 +134,6 @@ pub fn words_inverse_impls<L: LangSpec, LSub: LangSpec>(
         }
     }
 }
-
-// pub fn words_inverse_impls<L: LangSpec, LSub: LangSpec>(
-//     ext_data_structure: &syn::Path,
-//     og_words_base_path: &syn::Path,
-//     sublang: &Sublang<'_, LSub, SortIdOf<L>>,
-//     elsg: &LsGen<L>,
-// ) -> syn::ItemMod {
-//     let oglsg = LsGen::from(sublang.lsub);
-//     let impls = oglsg
-//         .bak()
-//         .all_sort_ids()
-//         .map(|sid| {
-//             let word = oglsg.sort2word_rs_ty(sid.clone(), og_words_base_path);
-//             let structural_implementor = elsg.sort2rs_ty(
-//                 (sublang.map)(&sid),
-//                 &HeapType(syn::parse_quote! { #ext_data_structure::Heap }),
-//                 &AlgebraicsBasePath::new(syn::parse_quote! { #ext_data_structure:: }),
-//             );
-//             (structural_implementor, word)
-//         })
-//         .map(|(ty, word)| -> syn::ItemImpl {
-//             syn::parse_quote! {
-//                 impl words::InverseImplements<#word> for #ext_data_structure::Heap {
-//                     type ExternBehavioralImplementor = ;
-//                     type StructuralImplementor = #structural_implementor;
-//                 }
-//             }
-//         });
-//     let byline = byline!();
-//     syn::parse_quote! {
-//         #byline
-//         pub mod words_impls {
-//             #(#impls)*
-//         }
-//     }
-// }
 
 pub mod targets {
     use codegen_component::{CgDepList, CodegenInstance, bumpalo};
