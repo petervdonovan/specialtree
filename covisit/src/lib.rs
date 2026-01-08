@@ -24,12 +24,12 @@ pub(crate) mod helper_traits {
     }
 }
 mod impls {
+    use aspect::Visitation;
+    use aspect::{AdtLike, Adtishness};
     use ccf::CanonicallyConstructibleFrom;
     use conslist::{ConsList, NonemptyConsList};
     use pmsp::{NonemptyStrategy, StrategyOf};
-    use aspect::Visitation;
     use take_mut::Poisonable;
-    use aspect::{AdtLike, Adtishness};
     use words::{Implements, InverseImplementsAll};
 
     use crate::Covisit;
@@ -49,7 +49,7 @@ mod impls {
                 L,
                 T,
                 Heap,
-                StrategyOf<T, Heap, L>,
+                StrategyOf<T, Heap, L, aspect::Visitation>,
                 <<Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L>> as FromSelectCase>::Done,
             >,
     {

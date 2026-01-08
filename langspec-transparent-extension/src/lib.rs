@@ -3,6 +3,7 @@ use std::any::TypeId;
 use either_id::Either;
 use langspec::{
     langspec::{AlgebraicSortId, AsLifetime, LangSpec, MappedType, SortId, SortIdOf},
+    sublang::AspectImplementors,
     sublang::{Sublang, reflexive_sublang},
     tymetafunc::TyMetaFuncSpec,
 };
@@ -111,14 +112,15 @@ where
             self.l.sublang::<LSub>(lsub).map(
                 |Sublang {
                      lsub,
-                     map,
                      aspect_implementors,
                  }| Sublang {
                     lsub,
-                    map: Box::new(move |sid| Csm::embed_sort_id(map(sid))),
                     aspect_implementors: aspect_implementors
                         .into_iter()
-                        .map(|it| it.fmap(Csm::embed_sort_id))
+                        .map(|it| AspectImplementors {
+                            aspect_zst: it.aspect_zst,
+                            map: Box::new(move |sid| Csm::embed_sort_id((it.map)(&sid))),
+                        })
                         .collect(),
                 },
             )

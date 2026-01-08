@@ -36,8 +36,6 @@ where
 impl<Heap, L, AspectT: Aspect> InverseImplementsAll<L, (), AspectT> for Heap {
     type Implementors = ();
 }
-// #[fundamental]
-// pub trait Adt {}
 
 pub fn words_mod<L: LangSpec>(lg: &L) -> syn::ItemMod {
     let sort_camel_idents = ty_gen_datas(thread_local_cache(), lg, None)

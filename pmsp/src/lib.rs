@@ -2,6 +2,7 @@
 #![feature(lazy_type_alias)]
 #![feature(fundamental)]
 
+use aspect::Aspect;
 use conslist::ConsList;
 use words::Implements;
 
@@ -13,11 +14,12 @@ pub trait NamesPatternMatchStrategy<L> {
 // pub struct TmfMetadata<OgType, ArgMetadatas>(std::marker::PhantomData<(OgType, ArgMetadatas)>);
 // pub struct AdtMetadata;
 
-pub type StrategyOf<T, Heap, L>
-    = <<T as Implements<Heap, L>>::LWord as NamesPatternMatchStrategy<L>>::Strategy
+pub type StrategyOf<T, Heap, L, AspectT: Aspect>
+    = <<T as Implements<Heap, L, AspectT>>::LWord as NamesPatternMatchStrategy<L>>::Strategy
 where
-    T: Implements<Heap, L>,
-    <T as Implements<Heap, L>>::LWord: NamesPatternMatchStrategy<L>;
+    AspectT: Aspect,
+    T: Implements<Heap, L, AspectT>,
+    <T as Implements<Heap, L, AspectT>>::LWord: NamesPatternMatchStrategy<L>;
 
 // pub type TyMetadataOf<T, Heap, L>
 //     = <<T as Implements<Heap, L>>::LWord as NamesPatternMatchStrategy>::TyMetadatas

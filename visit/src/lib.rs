@@ -22,11 +22,11 @@ pub(crate) mod helper_traits {
 }
 
 mod impls {
+    use aspect::Visitation;
+    use aspect::{AdtLike, Adtishness};
     use ccf::CanonicallyConstructibleFrom;
     use conslist::{ConsList, NonemptyConsList};
     use pmsp::{NonemptyStrategy, StrategyOf};
-    use aspect::Visitation;
-    use aspect::{AdtLike, Adtishness};
     use words::{Implements, InverseImplementsAll};
 
     use crate::{
@@ -37,9 +37,10 @@ mod impls {
 
     impl<V, LWord, L, T, Heap> Visit<LWord, L, T, Heap, AdtLike> for V
     where
-        T: words::Implements<Heap, L>,
-        <T as words::Implements<Heap, L>>::LWord: pmsp::NamesPatternMatchStrategy<L>,
-        V: AnyVisit<LWord, L, T, Heap, StrategyOf<T, Heap, L>>,
+        T: words::Implements<Heap, L, aspect::Visitation>,
+        <T as words::Implements<Heap, L, aspect::Visitation>>::LWord:
+            pmsp::NamesPatternMatchStrategy<L>,
+        V: AnyVisit<LWord, L, T, Heap, StrategyOf<T, Heap, L, aspect::Visitation>>,
     {
         fn visit(&mut self, heap: &Heap, t: &T) {
             <V as AnyVisit<_, _, _, _, _>>::any_visit(self, heap, t)
@@ -52,7 +53,7 @@ mod impls {
         T: Copy
             + CanonicallyConstructibleFrom<
                 Heap,
-                <Heap as InverseImplementsAll<L, RemainingCases::Car>>::StructuralImplementors,
+                <Heap as InverseImplementsAll<L, RemainingCases::Car>>::Implementors,
             >,
         RemainingCases: NonemptyStrategy,
         V: AnyVisit<LWord, L, T, Heap, RemainingCases::Cdr>,
@@ -61,7 +62,7 @@ mod impls {
                 L,
                 T,
                 Heap,
-                <Heap as InverseImplementsAll<L, RemainingCases::Car>>::StructuralImplementors,
+                <Heap as InverseImplementsAll<L, RemainingCases::Car>>::Implementors,
             >,
         V: VisitEventSink<T, Heap>,
     {
