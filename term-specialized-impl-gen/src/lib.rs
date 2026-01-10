@@ -97,9 +97,12 @@ pub(crate) fn gen_transitive_ccf_mod<L: LangSpec>(
     term_trait_lsg: &L,
     important_sublangs: impl Sublangs<SortIdOf<L>>,
 ) -> syn::ItemMod {
-    let ccfp = ccf_paths(thread_local_cache(), term_trait_lsg, &important_sublangs);
-    let tucs = tuc_impls(data_structure, &ccfp, term_trait_lsg);
-    let tacs = tac_impls(data_structure, &ccfp, term_trait_lsg);
+    let ccfp = ccf_paths(
+        thread_local_cache(),
+        term_trait_lsg, // , &important_sublangs
+    );
+    let tucs = tuc_impls(data_structure, ccfp, term_trait_lsg);
+    let tacs = tac_impls(data_structure, ccfp, term_trait_lsg);
     let byline = byline!();
     syn::parse_quote! {
         #byline

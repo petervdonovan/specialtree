@@ -1,8 +1,8 @@
-use ccf::CanonicallyConstructibleFrom;
 use aspect::VisitationAspect;
+use ccf::CanonicallyConstructibleFrom;
 // use visit::Visit;
-use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Set, SetHeapBak};
 use aspect::{Adtishness, NotAdtLike};
+use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Set, SetHeapBak};
 use words::InverseImplements;
 
 use crate::{Unparser, Visit};

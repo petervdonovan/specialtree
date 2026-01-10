@@ -16,11 +16,21 @@ use memo::memo_cache::thread_local_cache;
 #[memo('a)]
 pub fn ccf_paths<'a, L: LangSpec>(
     ls: &'a L,
-    important_sublangs: &'a impl Sublangs<SortIdOf<L>>,
+    // important_sublangs: &'a impl Sublangs<SortIdOf<L>>,
 ) -> CcfPaths<SortIdOf<L>> {
     let direct_ccf_rels = get_direct_ccf_rels(thread_local_cache(), ls);
-    let mut ucp_acc = std::collections::HashSet::new();
-    let mut cebup_acc = std::collections::HashSet::new();
+    CcfPaths {
+        units: unit_ccf_paths_quadratically_large_closure(
+            thread_local_cache(),
+            direct_ccf_rels,
+            ls.all_sort_ids().collect::<Vec<_>>().as_slice(),
+        )
+        .to_vec(),
+        // non_units: direct_ccf_rels.clone(),
+        non_units: vec![],
+    }
+    // let mut ucp_acc = std::collections::HashSet::new();
+    // let mut cebup_acc = std::collections::HashSet::new();
     // for non_transparent_sorts in important_sublangs.images() {
     //     let ucp = unit_ccf_paths_quadratically_large_closure(
     //         thread_local_cache(),
@@ -74,14 +84,14 @@ pub fn ccf_paths<'a, L: LangSpec>(
     //         .unwrap_or_else(|| panic!("Cannot find UCP for {:?}", &desired_pair)),
     //     );
     // }
-    let mut units_sorted = ucp_acc.into_iter().collect::<Vec<_>>();
-    units_sorted.sort();
-    let mut non_units_sorted = cebup_acc.into_iter().collect::<Vec<_>>();
-    non_units_sorted.sort();
-    CcfPaths {
-        units: units_sorted,
-        non_units: non_units_sorted,
-    }
+    // let mut units_sorted = ucp_acc.into_iter().collect::<Vec<_>>();
+    // units_sorted.sort();
+    // let mut non_units_sorted = cebup_acc.into_iter().collect::<Vec<_>>();
+    // non_units_sorted.sort();
+    // CcfPaths {
+    //     units: units_sorted,
+    //     non_units: non_units_sorted,
+    // }
 }
 
 /// Get direct CCF relations from a language specification

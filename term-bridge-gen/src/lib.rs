@@ -1,9 +1,17 @@
+use std::any::{Any as _, TypeId};
+
+use aspect::VisitationAspect;
 use langspec::{
     langspec::{LangSpec, SortId, SortIdOf},
-    sublang::Sublang,
+    sublang::{Sublang, SublangTyMap},
 };
-use langspec_rs_syn::{AlgebraicsBasePath, HeapType, sort2rs_ty, ty_gen_datas};
+use langspec_rs_syn::{
+    AlgebraicsBasePath, HeapType, sort2implementor_from_word_rs_ty, sort2rs_ty, sort2word_rs_ty,
+    ty_gen_datas,
+};
 use memo::memo_cache::thread_local_cache;
+use rustgen_utils::cons_list;
+use transitive_ccf::{TransitiveUnitCcfRelation, ccf_paths};
 // use words::words_impls;
 
 pub struct BasePaths {
@@ -53,12 +61,14 @@ pub fn generate<'a, L: LangSpec, LSub: LangSpec>(
         sublang,
         ext_l,
     );
+    let hdtfwl = generate_hdtfwl_impls(ext_l, sublang, bps);
     syn::parse_quote! {
         mod bridge {
             #heap
             // #owned_impls
             // #words_impls
             #inverse_implements_impls
+            #hdtfwl
         }
     }
 }
@@ -71,6 +81,99 @@ pub(crate) fn generate_heap(
     syn::parse_quote! {
         #byline
         impl #og_term_trait::Heap for #ext_data_structure::Heap {}
+    }
+}
+
+pub(crate) fn generate_hdtfwl_impls<'a, L: LangSpec, LSub: LangSpec>(
+    ext_l: &L,
+    sublang: &Sublang<'a, LSub, SortIdOf<L>>,
+    bps: &BasePaths,
+) -> syn::ItemMod {
+    let BasePaths {
+        ext_data_structure,
+        og_term_trait: _,
+        og_words_base_path,
+    } = bps;
+    let byline = rustgen_utils::byline!();
+    let hdtfwls = ty_gen_datas(thread_local_cache(), sublang.lsub, None)
+        .iter()
+        .flat_map(|tgd| {
+            tgd.ccf_sortses
+                .iter()
+                .filter_map(|case| -> Option<syn::ItemImpl> {
+                    let lwords =
+                        cons_list(case.iter().map(|sid| {
+                            sort2word_rs_ty(sublang.lsub, sid.clone(), og_words_base_path)
+                        }));
+                    let visitation_aspect_map = &*sublang
+                        .aspect_implementors
+                        .iter()
+                        .find(|aspect_i| {
+                            (*aspect_i.aspect_zst).type_id() == TypeId::of::<VisitationAspect>()
+                        })
+                        .unwrap()
+                        .map;
+                    let ucps = &ccf_paths(thread_local_cache(), ext_l).units;
+                    let implementor_tgd = ty_gen_datas(thread_local_cache(), ext_l, None)
+                        .iter()
+                        .find(|outer_tgd| {
+                            visitation_aspect_map(&SortId::Algebraic(tgd.id.clone()))
+                                == SortId::Algebraic(outer_tgd.id.clone())
+                        });
+                    match implementor_tgd {
+                        Some(implementor_tgd) => {
+                            let implementor = implementor_tgd.ccf_sortses.iter().find_map(|sorts| maybe_deconstructs_to::<L, LSub>(case, sorts, ucps, ext_l, visitation_aspect_map, &HeapType(syn::parse_quote! {
+                                #ext_data_structure::Heap
+                            }), og_words_base_path)).unwrap();
+                            Some(syn::parse_quote! {
+                                impl HasDeconstructionTargetForWordList<#og_words_base_path::L, #lwords> for #ext_data_structure::Heap {
+                                    type Implementor = #implementor;
+                                }
+                            })
+                        },
+                        None => None,
+                    }
+                })
+        });
+    syn::parse_quote! {
+        #byline
+        mod hdtfwl {
+            #(#hdtfwls)*
+        }
+    }
+}
+
+fn maybe_deconstructs_to<L: LangSpec, LSub: LangSpec>(
+    case: &[SortIdOf<LSub>],
+    sorts: &[SortIdOf<L>],
+    ucps: &[TransitiveUnitCcfRelation<SortIdOf<L>>],
+    outerlang: &L,
+    visitation_aspect_map: &SublangTyMap<'_, LSub, SortIdOf<L>>,
+    ht: &HeapType,
+    words_path: &syn::Path,
+) -> Option<syn::Type> {
+    let mapped_case: Vec<_> = case.iter().map(visitation_aspect_map).collect();
+    let conversion = sorts
+        .iter()
+        .zip(mapped_case.iter())
+        .filter_map(|(sid, mapped_sid)| {
+            ucps.iter()
+                .find(|ucp| mapped_sid == sid || (&ucp.from == mapped_sid && &ucp.to == sid))
+                .map(|_| {
+                    sort2implementor_from_word_rs_ty(
+                        outerlang,
+                        sid.clone(),
+                        ht,
+                        words_path,
+                        &VisitationAspect,
+                    )
+                })
+        })
+        .collect::<Vec<_>>();
+    if conversion.len() == case.len() {
+        Some(cons_list(conversion.into_iter()))
+    } else {
+        None
     }
 }
 

@@ -32,11 +32,13 @@ pub(crate) fn heap_trait<L: LangSpec>(
     //     camel_ident
     // );
     let byline = byline!();
-    let superheap_bounds = generate_superheap_bounds(ls, words_path);
+    // let superheap_bounds = generate_superheap_bounds(ls, words_path);
     let inverse_implements_bounds = generate_inverse_implements_bounds(base_path, words_path, ls);
     parse_quote! {
         #byline
-        pub trait Heap: Sized #(+ #inverse_implements_bounds)* #(+ #superheap_bounds)* {
+        pub trait Heap: Sized #(+ #inverse_implements_bounds)*
+        // #(+ #superheap_bounds)*
+        {
             // #(
             //     type #camel_ident: #base_path::owned::#camel_ident<Self>;
             // )*

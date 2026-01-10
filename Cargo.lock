@@ -1483,6 +1483,7 @@ dependencies = [
 name = "term-bridge-gen"
 version = "0.1.0"
 dependencies = [
+ "aspect",
  "codegen-component",
  "langspec",
  "langspec-rs-syn",
@@ -1493,6 +1494,7 @@ dependencies = [
  "term-specialized-gen",
  "term-specialized-impl-gen",
  "term-trait-gen",
+ "transitive-ccf",
  "tree-identifier",
  "words",
 ]

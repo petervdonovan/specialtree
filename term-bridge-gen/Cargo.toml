@@ -17,3 +17,5 @@ term-trait-gen = { version = "0.1.0", path = "../term-trait-gen" }
 words = { version = "0.1.0", path = "../words" }
 tree-identifier = { path = "../tree-identifier" }
 memo.path = "../memo/memo"
+aspect.path = "../aspect"
+transitive-ccf.path = "../transitive-ccf"

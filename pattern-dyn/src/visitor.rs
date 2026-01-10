@@ -1,9 +1,9 @@
+use aspect::VisitationAspect;
 use derivative::Derivative;
 use names_langspec_sort::NamesLangspecSort;
 use thiserror::Error;
 use visit::visiteventsink::VisitEventSink;
 use words::Implements;
-use aspect::VisitationAspect;
 
 use crate::{CompositePattern, DynPattern};
 #[derive(Derivative)]

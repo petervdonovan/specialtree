@@ -9,7 +9,7 @@ use crate::{
 use aspect::{Aspect, VisitationAspect};
 use tree_identifier::Identifier;
 
-type SublangTyMap<'a, LSub, SortIdSelf> = dyn Fn(&SortIdOf<LSub>) -> SortIdSelf + 'a;
+pub type SublangTyMap<'a, LSub, SortIdSelf> = dyn Fn(&SortIdOf<LSub>) -> SortIdSelf + 'a;
 
 pub struct Sublang<'a, LSub: LangSpec, SortIdSelf> {
     pub lsub: &'a LSub,
