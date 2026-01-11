@@ -1,6 +1,7 @@
 //! CCF analysis algorithms
 
 use crate::types::*;
+use aspect::VisitationAspect;
 use langspec::langspec::{
     AlgebraicSortId, LangSpec, SortId, SortIdOf, call_on_all_tmf_monomorphizations,
 };
@@ -16,14 +17,21 @@ use memo::memo_cache::thread_local_cache;
 #[memo('a)]
 pub fn ccf_paths<'a, L: LangSpec>(
     ls: &'a L,
-    // important_sublangs: &'a impl Sublangs<SortIdOf<L>>,
+    important_sublangs: &'a impl Sublangs<SortIdOf<L>>,
 ) -> CcfPaths<SortIdOf<L>> {
     let direct_ccf_rels = get_direct_ccf_rels(thread_local_cache(), ls);
     CcfPaths {
         units: unit_ccf_paths_quadratically_large_closure(
             thread_local_cache(),
             direct_ccf_rels,
-            ls.all_sort_ids().collect::<Vec<_>>().as_slice(),
+            // ls.all_sort_ids().collect::<Vec<_>>().as_slice(),
+            important_sublangs
+                .images(&VisitationAspect {})
+                .flat_map(|it| it.into_iter())
+                .collect::<std::collections::HashSet<_>>()
+                .into_iter()
+                .collect::<Vec<_>>()
+                .as_slice(),
         )
         .to_vec(),
         // non_units: direct_ccf_rels.clone(),

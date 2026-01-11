@@ -134,6 +134,7 @@ pub fn cst<'a, 'b: 'a, L: LangSpec>(
             a: vec![],
         }),
     ));
+    // fallible_ast
     let parse_metadata = arena.alloc(std_parse_metadata::parse_metadata());
     arena.alloc(everywhere_maybemore(
         Identifier::list(vec![Identifier::from_camel_str("Cst").unwrap(), l.name().clone()].into()),
@@ -226,8 +227,8 @@ pub mod targets {
                     codegen_deps.subtree(),
                     cst,
                     arena.alloc((
-                        reflexive_sublang(cst),
-                        (sublang, other_sublangs.push_through(cst)),
+                        &*arena.alloc(reflexive_sublang(cst)),
+                        (&*arena.alloc(sublang), other_sublangs.push_through(cst)),
                     )),
                 ));
                 // let _ = codegen_deps.add(term_pattern_match_strategy_provider_impl_gen::targets::uses_strategy_for_traversal_impls(arena, codegen_deps.subtree(), cst, &[cst.name().clone(), l.name().clone()]));

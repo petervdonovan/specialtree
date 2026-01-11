@@ -9,6 +9,7 @@ langspec = { path = "../langspec" }
 term = { path = "../term" }
 rustgen-utils = { path = "../rustgen-utils" }
 memo = { path = "../memo/memo" }
+aspect.path = "../aspect"
 
 [dev-dependencies]
 langspec-examples = { path = "../langspec-examples" }

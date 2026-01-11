@@ -1,4 +1,7 @@
-use std::any::{Any as _, TypeId};
+use std::{
+    any::{Any as _, TypeId},
+    iter::repeat,
+};
 
 use aspect::VisitationAspect;
 use langspec::{
@@ -30,7 +33,6 @@ pub fn generate<'a, L: LangSpec, LSub: LangSpec>(
         og_term_trait: _,
         og_words_base_path: _,
     } = bps;
-    // dbg!(sublang.lsub.name());
     // let (camel_names, sids): (Vec<_>, Vec<SortIdOf<LSub>>) =
     //     ty_gen_datas(thread_local_cache(), sublang.lsub, None)
     //         .iter()
@@ -98,42 +100,46 @@ pub(crate) fn generate_hdtfwl_impls<'a, L: LangSpec, LSub: LangSpec>(
     let hdtfwls = ty_gen_datas(thread_local_cache(), sublang.lsub, None)
         .iter()
         .flat_map(|tgd| {
-            tgd.ccf_sortses
+            repeat(tgd).zip(tgd.ccf_sortses
+                .iter())
+        }).filter_map(|(tgd, case)| -> Option<syn::ItemImpl> {
+            let lwords =
+                cons_list(case.iter().map(|sid| {
+                    sort2word_rs_ty(sublang.lsub, sid.clone(), og_words_base_path)
+                }));
+            let visitation_aspect_map = &*sublang
+                .aspect_implementors
                 .iter()
-                .filter_map(|case| -> Option<syn::ItemImpl> {
-                    let lwords =
-                        cons_list(case.iter().map(|sid| {
-                            sort2word_rs_ty(sublang.lsub, sid.clone(), og_words_base_path)
-                        }));
-                    let visitation_aspect_map = &*sublang
-                        .aspect_implementors
-                        .iter()
-                        .find(|aspect_i| {
-                            (*aspect_i.aspect_zst).type_id() == TypeId::of::<VisitationAspect>()
-                        })
-                        .unwrap()
-                        .map;
-                    let ucps = &ccf_paths(thread_local_cache(), ext_l).units;
-                    let implementor_tgd = ty_gen_datas(thread_local_cache(), ext_l, None)
-                        .iter()
-                        .find(|outer_tgd| {
-                            visitation_aspect_map(&SortId::Algebraic(tgd.id.clone()))
-                                == SortId::Algebraic(outer_tgd.id.clone())
-                        });
-                    match implementor_tgd {
-                        Some(implementor_tgd) => {
-                            let implementor = implementor_tgd.ccf_sortses.iter().find_map(|sorts| maybe_deconstructs_to::<L, LSub>(case, sorts, ucps, ext_l, visitation_aspect_map, &HeapType(syn::parse_quote! {
-                                #ext_data_structure::Heap
-                            }), og_words_base_path)).unwrap();
-                            Some(syn::parse_quote! {
-                                impl HasDeconstructionTargetForWordList<#og_words_base_path::L, #lwords> for #ext_data_structure::Heap {
-                                    type Implementor = #implementor;
-                                }
-                            })
-                        },
-                        None => None,
-                    }
+                .find(|aspect_i| {
+                    (*aspect_i.aspect_zst).type_id() == TypeId::of::<VisitationAspect>()
                 })
+                .unwrap()
+                .map;
+            let sublangs = (sublang, ());
+            let ucps = &ccf_paths(thread_local_cache(), ext_l, &sublangs).units;
+            let tgd_sid = SortId::Algebraic(tgd.id.clone());
+            let implementor_tgd = ty_gen_datas(thread_local_cache(), ext_l, None)
+                .iter()
+                .find(|outer_tgd| {
+                    visitation_aspect_map(&tgd_sid)
+                        == SortId::Algebraic(outer_tgd.id.clone())
+                });
+            match implementor_tgd {
+                Some(implementor_tgd) => {
+                    let ht = HeapType(syn::parse_quote! {
+                        #ext_data_structure::Heap
+                    });
+                    let abp = AlgebraicsBasePath(quote::quote!(#ext_data_structure::));
+                    let implementors = implementor_tgd.ccf_sortses.iter().find_map(|sorts| maybe_deconstructs_to::<L, LSub>(case, sorts, ucps, ext_l, visitation_aspect_map, &ht, &abp)).unwrap();
+                    let context_concrete_ty = sort2rs_ty(ext_l, visitation_aspect_map(&tgd_sid), &ht, &abp);
+                    Some(syn::parse_quote! {
+                        impl words::HasDeconstructionTargetForWordList<#og_words_base_path::L, #lwords, #context_concrete_ty> for #ext_data_structure::Heap {
+                            type Implementors = #implementors;
+                        }
+                    })
+                },
+                None => None,
+            }
         });
     syn::parse_quote! {
         #byline
@@ -150,7 +156,8 @@ fn maybe_deconstructs_to<L: LangSpec, LSub: LangSpec>(
     outerlang: &L,
     visitation_aspect_map: &SublangTyMap<'_, LSub, SortIdOf<L>>,
     ht: &HeapType,
-    words_path: &syn::Path,
+    abp: &AlgebraicsBasePath,
+    // words_path: &syn::Path,
 ) -> Option<syn::Type> {
     let mapped_case: Vec<_> = case.iter().map(visitation_aspect_map).collect();
     let conversion = sorts
@@ -160,13 +167,14 @@ fn maybe_deconstructs_to<L: LangSpec, LSub: LangSpec>(
             ucps.iter()
                 .find(|ucp| mapped_sid == sid || (&ucp.from == mapped_sid && &ucp.to == sid))
                 .map(|_| {
-                    sort2implementor_from_word_rs_ty(
-                        outerlang,
-                        sid.clone(),
-                        ht,
-                        words_path,
-                        &VisitationAspect,
-                    )
+                    sort2rs_ty(outerlang, sid.clone(), ht, abp)
+                    // sort2implementor_from_word_rs_ty(
+                    //     outerlang,
+                    //     sid.clone(),
+                    //     ht,
+                    //     words_path,
+                    //     &VisitationAspect,
+                    // )
                 })
         })
         .collect::<Vec<_>>();

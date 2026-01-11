@@ -94,8 +94,8 @@ pub fn run_code_generation(output_dir: &Path) -> usize {
             "fib-ds",
             &fib_autobox,
             arena.alloc((
-                reflexive_sublang(&fib_autobox),
-                (fib_autobox.sublang(&fib).unwrap(), ()),
+                &*arena.alloc(reflexive_sublang(&fib_autobox)),
+                (&*arena.alloc(fib_autobox.sublang(&fib).unwrap()), ()),
             )),
             &fib_deps,
         ),
@@ -118,10 +118,10 @@ pub fn run_code_generation(output_dir: &Path) -> usize {
             "fib-pat-ds",
             &fib_pat_autobox,
             arena.alloc((
-                reflexive_sublang(&fib_pat_autobox),
+                &*arena.alloc(reflexive_sublang(&fib_pat_autobox)),
                 (
-                    fib_pat_autobox.sublang(&fib_pat).unwrap(),
-                    (fib_pat_autobox.sublang(&fib).unwrap(), ()),
+                    &*arena.alloc(fib_pat_autobox.sublang(&fib_pat).unwrap()),
+                    (&*arena.alloc(fib_pat_autobox.sublang(&fib).unwrap()), ()),
                 ),
             )),
             &pat_deps,
@@ -134,7 +134,7 @@ pub fn run_code_generation(output_dir: &Path) -> usize {
                 &arena,
                 root_cgd.subtree(),
                 &fib_pat,
-                (fib_pat.sublang(&fib).unwrap(), ()),
+                (&*arena.alloc(fib_pat.sublang(&fib).unwrap()), ()),
             )],
             global_workspace_deps: pat_deps.to_vec(),
         },

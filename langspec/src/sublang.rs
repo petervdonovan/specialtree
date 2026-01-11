@@ -37,12 +37,13 @@ pub fn reflexive_sublang<L: LangSpec>(l: &L) -> Sublang<'_, L, SortIdOf<L>> {
     }
 }
 impl<'a, LSub: LangSpec, SortIdSelf> Sublang<'a, LSub, SortIdSelf> {
-    fn push_through<L: LangSpec>(&self, l: &'a L) -> Sublang<'a, impl LangSpec, SortIdOf<L>> {
-        l.sublang::<LSub>(self.lsub).unwrap()
+    fn push_through<L: LangSpec>(&self, l: &'a L) -> &'a Sublang<'a, impl LangSpec, SortIdOf<L>> {
+        // FIXME(peter): memory leak
+        Box::leak(Box::new(l.sublang::<LSub>(self.lsub).unwrap()))
     }
 }
 pub trait Sublangs<SortIdSelf> {
-    // fn images(&self) -> impl Iterator<Item = Vec<SortIdSelf>>;
+    fn images(&self, a: &dyn Aspect) -> impl Iterator<Item = Vec<SortIdSelf>>;
     // fn aspect_implementors(
     //     &self,
     // ) -> impl Iterator<Item = Vec<AspectImplementationInfo<SortIdSelf>>>;
@@ -59,7 +60,7 @@ pub trait SublangsList<'langs, SortIdSelf>: Sublangs<SortIdSelf> {
     type Car: LangSpec;
     type Cdr: SublangsList<'langs, SortIdSelf> + Sublangs<SortIdSelf>;
     const LENGTH: usize;
-    fn car<'a>(&'a self) -> &'a Sublang<'langs, Self::Car, SortIdSelf>;
+    fn car(&self) -> &'langs Sublang<'langs, Self::Car, SortIdSelf>;
     fn cdr(&self) -> &Self::Cdr;
     fn push_through<L: LangSpec>(
         &self,
@@ -70,7 +71,7 @@ impl<'langs, SortIdSelf: Clone> SublangsList<'langs, SortIdSelf> for () {
     type Car = LangSpecFlat<()>;
     type Cdr = Self;
     const LENGTH: usize = 0;
-    fn car<'a>(&'a self) -> &'a Sublang<'langs, Self::Car, SortIdSelf> {
+    fn car(&self) -> &'langs Sublang<'langs, Self::Car, SortIdSelf> {
         panic!("out of elements")
     }
 
@@ -104,7 +105,7 @@ impl<'langs, SortIdSelf: Clone> SublangsList<'langs, SortIdSelf> for () {
 //     }
 // }
 impl<'langs, SortIdSelf: Clone, Car, Cdr> SublangsList<'langs, SortIdSelf>
-    for (Sublang<'langs, Car, SortIdSelf>, Cdr)
+    for (&'langs Sublang<'langs, Car, SortIdSelf>, Cdr)
 where
     Car: LangSpec,
     Cdr: SublangsList<'langs, SortIdSelf> + Sublangs<SortIdSelf>,
@@ -115,8 +116,8 @@ where
 
     const LENGTH: usize = Cdr::LENGTH + 1;
 
-    fn car<'a>(&'a self) -> &'a Sublang<'langs, Self::Car, SortIdSelf> {
-        &self.0
+    fn car(&self) -> &'langs Sublang<'langs, Self::Car, SortIdSelf> {
+        self.0
     }
 
     fn cdr(&self) -> &Self::Cdr {
@@ -131,7 +132,7 @@ where
     }
 }
 pub trait SublangsElement<SortIdSelf> {
-    // fn image(&self) -> Vec<SortIdSelf>;
+    fn image(&self, a: &dyn Aspect) -> Vec<SortIdSelf>;
     // fn aspect_implementors(&self) -> Vec<AspectImplementationInfo<SortIdSelf>>;
     fn name(&self) -> Identifier;
     // fn push_through<'this, 'other: 'this, L: LangSpec>(
@@ -140,11 +141,22 @@ pub trait SublangsElement<SortIdSelf> {
     // ) -> impl SublangsElement<SortIdOf<L>> + 'this;
 }
 impl<'a, LSub: LangSpec, SortIdSelf: Clone> SublangsElement<SortIdSelf>
-    for Sublang<'a, LSub, SortIdSelf>
+    for &'a Sublang<'a, LSub, SortIdSelf>
 {
-    // fn image(&self) -> Vec<SortIdSelf> {
-    //     self.lsub.all_sort_ids().map(|it| (self.map)(&it)).collect()
-    // }
+    fn image(&self, a: &dyn Aspect) -> Vec<SortIdSelf> {
+        match self
+            .aspect_implementors
+            .iter()
+            .find(|aspect| aspect.aspect_zst.type_id() == a.type_id())
+        {
+            Some(aspect) => self
+                .lsub
+                .all_sort_ids()
+                .map(|it| (aspect.map)(&it))
+                .collect(),
+            None => vec![],
+        }
+    }
 
     // fn aspect_implementors(&self) -> Vec<AspectImplementationInfo<SortIdSelf>> {
     //     self.aspect_implementors
@@ -164,9 +176,9 @@ impl<'a, LSub: LangSpec, SortIdSelf: Clone> SublangsElement<SortIdSelf>
     // }
 }
 impl<SortIdSelf> Sublangs<SortIdSelf> for () {
-    // fn images(&self) -> impl Iterator<Item = Vec<SortIdSelf>> {
-    //     std::iter::empty()
-    // }
+    fn images(&self, _: &dyn Aspect) -> impl Iterator<Item = Vec<SortIdSelf>> {
+        std::iter::empty()
+    }
     // fn aspect_implementors(
     //     &self,
     // ) -> impl Iterator<Item = Vec<AspectImplementationInfo<SortIdSelf>>> {
@@ -182,9 +194,9 @@ where
     Car: SublangsElement<SortIdSelf>,
     Cdr: Sublangs<SortIdSelf>,
 {
-    // fn images(&self) -> impl Iterator<Item = Vec<SortIdSelf>> {
-    //     std::iter::once(self.0.image()).chain(self.1.images())
-    // }
+    fn images(&self, a: &dyn Aspect) -> impl Iterator<Item = Vec<SortIdSelf>> {
+        std::iter::once(self.0.image(a)).chain(self.1.images(a))
+    }
 
     // fn aspect_implementors(
     //     &self,

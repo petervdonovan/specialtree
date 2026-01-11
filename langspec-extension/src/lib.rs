@@ -119,7 +119,26 @@ where
                         > {
                             aspect_zst: aspect_implementors.aspect_zst,
                             map: Box::new(move |sid: &SortIdOf<LSub::AsLifetime<'this>>| {
-                                L0M::l0_map(self, (aspect_implementors.map)(sid))
+                                match (aspect_implementors.map)(sid) {
+                                    SortId::Algebraic(algebraic_sort_id) => {
+                                        langspec::langspec::SortId::Algebraic(
+                                            algebraic_sort_id
+                                                .fmap_p(Either::Left)
+                                                .fmap_s(Either::Left),
+                                        )
+                                    }
+                                    SortId::TyMetaFunc(MappedType { f, a }) => {
+                                        SortId::TyMetaFunc(MappedType {
+                                            f: Either::Left(Either::Left(f.clone())),
+                                            a: a.into_iter()
+                                                .map(|sid| L0M::l0_map(self, sid.clone()))
+                                                .collect(),
+                                        })
+                                    }
+                                }
+                                // .fmap_p(|pid| Either::<L0::ProductId, L1::ProductId>::Left(pid))
+                                // .fmap_s(todo!())
+                                // .fmap_f(|tmf| tmf.)
                             }),
                         })
                         .collect(),

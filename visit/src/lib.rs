@@ -49,11 +49,11 @@ mod impls {
 
     impl<V, LWord, L, T, Heap, RemainingCases> AnyVisit<LWord, L, T, Heap, RemainingCases> for V
     where
-        Heap: HasDeconstructionTargetForWordList<L, RemainingCases::Car>,
+        Heap: HasDeconstructionTargetForWordList<L, RemainingCases::Car, T>,
         T: Copy
             + CanonicallyConstructibleFrom<
                 Heap,
-                <Heap as HasDeconstructionTargetForWordList<L, RemainingCases::Car>>::Implementors,
+                <Heap as HasDeconstructionTargetForWordList<L, RemainingCases::Car, T>>::Implementors,
             >,
         RemainingCases: NonemptyStrategy,
         V: AnyVisit<LWord, L, T, Heap, RemainingCases::Cdr>,
@@ -62,7 +62,7 @@ mod impls {
                 L,
                 T,
                 Heap,
-                <Heap as HasDeconstructionTargetForWordList<L, RemainingCases::Car>>::Implementors,
+                <Heap as HasDeconstructionTargetForWordList<L, RemainingCases::Car, T>>::Implementors,
             >,
         V: VisitEventSink<T, Heap>,
     {

@@ -15,7 +15,7 @@ pub trait Implements<Heap, L, AspectT: Aspect> {
 pub trait InverseImplements<L, LWord, AspectT: Aspect> {
     type Implementor;
 }
-pub trait HasDeconstructionTargetForWordList<L, LWords: ConsList> {
+pub trait HasDeconstructionTargetForWordList<L, LWords: ConsList, ContextConcreteTy> {
     type Implementors: ConsList;
 }
 // impl<Heap, L, AspectT: Aspect> InverseImplements<L, (), AspectT> for Heap {

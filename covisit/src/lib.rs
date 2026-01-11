@@ -72,17 +72,17 @@ mod impls {
     where
         AC: AcceptingCases<RemainingCases>,
         RemainingCases: NonemptyStrategy,
-        Heap: HasDeconstructionTargetForWordList<L, RemainingCases::Car>,
+        Heap: HasDeconstructionTargetForWordList<L, RemainingCases::Car, T>,
         <AC as FromSelectCase>::Done: AllCovisit<
                 LWord,
                 L,
                 T,
                 Heap,
-                <Heap as HasDeconstructionTargetForWordList<L, RemainingCases::Car>>::Implementors,
+                <Heap as HasDeconstructionTargetForWordList<L, RemainingCases::Car, T>>::Implementors,
             >,
         T: CanonicallyConstructibleFrom<
                 Heap,
-                <Heap as HasDeconstructionTargetForWordList<L, RemainingCases::Car>>::Implementors,
+                <Heap as HasDeconstructionTargetForWordList<L, RemainingCases::Car, T>>::Implementors,
             >,
         AC::AcceptingRemainingCases:
             AnyCovisit<LWord, L, T, Heap, RemainingCases::Cdr, <AC as FromSelectCase>::Done>,
