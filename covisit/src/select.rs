@@ -1,9 +1,11 @@
+use aspect::Aspect;
 use pmsp::Strategy;
 
 pub trait SelectCase
 where
     Self: Sized,
 {
+    type A: Aspect;
     type AC<Cases: Strategy>: FromSelectCase<Done = Self>;
     fn start_cases<Cases: Strategy>(self) -> Self::AC<Cases>;
 }

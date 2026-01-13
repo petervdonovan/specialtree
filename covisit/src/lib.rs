@@ -15,11 +15,12 @@ pub trait Covisit<LWord, L, T, Heap, AdtLikeOrNot> {
 
 pub(crate) mod helper_traits {
     #[rustc_coinductive]
-    pub(crate) trait AllCovisit<LWord, L, T, Heap, ConcreteCase> {
+    pub(crate) trait AllCovisit<LWord, L, TVisitationImplementor, Heap, ConcreteCase> {
         fn all_covisit(&mut self, heap: &mut Heap, idx: u32) -> ConcreteCase;
     }
     #[rustc_coinductive]
-    pub(crate) trait AnyCovisit<LWord, L, T, Heap, RemainingCases, SelfDone> {
+    pub(crate) trait AnyCovisit<LWord, L, T, TVisitationImplementor, Heap, RemainingCases, SelfDone>
+    {
         fn any_covisit(self, heap: &mut Heap) -> (SelfDone, T);
     }
 }
@@ -37,38 +38,47 @@ mod impls {
     use crate::helper_traits::{AllCovisit, AnyCovisit};
     use crate::select::{AcceptingCases, FromSelectCase, SelectCase};
 
-    impl<Covisitor, LWord, L, T, Heap> Covisit<LWord, L, T, Heap, AdtLike> for Covisitor
+    impl<Covisitor, LWord, L, T, Heap, TVisitationImplementor> Covisit<LWord, L, T, Heap, AdtLike>
+        for Covisitor
     where
-        T: words::Implements<Heap, L, VisitationAspect, LWord = LWord>,
+        T: words::Implements<Heap, L, <Covisitor as SelectCase>::A, LWord = LWord>,
+        T: CanonicallyConstructibleFrom<Heap, (TVisitationImplementor, ())>,
+        Heap: words::InverseImplements<
+                L,
+                LWord,
+                <Covisitor as SelectCase>::A,
+                Implementor = TVisitationImplementor,
+            >,
+        TVisitationImplementor: words::Implements<Heap, L, VisitationAspect, LWord = LWord>,
         LWord: pmsp::NamesPatternMatchStrategy<L>,
         // Covisitor: Covisit<<StrategyOf<T, Heap, L> as Strategy>::Cdr, Heap, L>,
         Covisitor: Poisonable,
         Covisitor: SelectCase,
-        <Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L, VisitationAspect>>: AnyCovisit<
+        <Covisitor as SelectCase>::AC<
+            StrategyOf<TVisitationImplementor, Heap, L, VisitationAspect>,
+        >: AnyCovisit<
                 LWord,
                 L,
                 T,
+                TVisitationImplementor,
                 Heap,
-                StrategyOf<T, Heap, L, aspect::VisitationAspect>,
-                <<Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L, VisitationAspect>> as FromSelectCase>::Done,
+                StrategyOf<TVisitationImplementor, Heap, L, aspect::VisitationAspect>,
+                <<Covisitor as SelectCase>::AC<
+                    StrategyOf<TVisitationImplementor, Heap, L, VisitationAspect>,
+                > as FromSelectCase>::Done,
             >,
     {
         fn covisit(&mut self, heap: &mut Heap) -> T {
             take_mut::take(self, |cv| {
                 let ac = cv.start_cases();
-                <<Covisitor as SelectCase>::AC<StrategyOf<T, Heap, L, VisitationAspect>> as AnyCovisit<
-                    _,
-                    _,
-                    _,
-                    _,
-                    _,
-                    _,
-                >>::any_covisit(ac, heap)
+                <<Covisitor as SelectCase>::AC<
+                    StrategyOf<TVisitationImplementor, Heap, L, VisitationAspect>,
+                > as AnyCovisit<_, _, _, _, _, _, _>>::any_covisit(ac, heap)
             })
         }
     }
-    impl<AC, LWord, L, T, Heap, RemainingCases>
-        AnyCovisit<LWord, L, T, Heap, RemainingCases, <AC as FromSelectCase>::Done> for AC
+    impl<AC, LWord, L, T, TVisitationImplementor, Heap, RemainingCases>
+        AnyCovisit<LWord, L, T, TVisitationImplementor, Heap, RemainingCases, <AC as FromSelectCase>::Done> for AC
     where
         AC: AcceptingCases<RemainingCases>,
         RemainingCases: NonemptyStrategy,
@@ -80,12 +90,13 @@ mod impls {
                 Heap,
                 <Heap as HasDeconstructionTargetForWordList<L, RemainingCases::Car, T>>::Implementors,
             >,
-        T: CanonicallyConstructibleFrom<
+            T: CanonicallyConstructibleFrom<Heap, (TVisitationImplementor, ())>,
+        TVisitationImplementor: CanonicallyConstructibleFrom<
                 Heap,
                 <Heap as HasDeconstructionTargetForWordList<L, RemainingCases::Car, T>>::Implementors,
             >,
         AC::AcceptingRemainingCases:
-            AnyCovisit<LWord, L, T, Heap, RemainingCases::Cdr, <AC as FromSelectCase>::Done>,
+            AnyCovisit<LWord, L, T, TVisitationImplementor, Heap, RemainingCases::Cdr, <AC as FromSelectCase>::Done>,
         <AC as FromSelectCase>::Done: CovisitEventSink<LWord>,
     {
         fn any_covisit(self, heap: &mut Heap) -> (<AC as FromSelectCase>::Done, T) {
@@ -97,11 +108,12 @@ mod impls {
                             &mut x, heap, 0,
                         );
                     <<AC as FromSelectCase>::Done as CovisitEventSink<_>>::pop(&mut x);
-                    let ret = <T as CanonicallyConstructibleFrom<Heap, _>>::construct(heap, case);
+                    let visitation_implementor = <TVisitationImplementor as CanonicallyConstructibleFrom<_, _>>::construct(heap, case);
+                    let ret = <T as CanonicallyConstructibleFrom<Heap, _>>::construct(heap, (visitation_implementor, ()));
                     (x, ret)
                 })
                 .unwrap_or_else(|remaining| {
-                    <AC::AcceptingRemainingCases as AnyCovisit<_, _, _, _, _, _>>::any_covisit(
+                    <AC::AcceptingRemainingCases as AnyCovisit<_, _, _, _, _, _, _>>::any_covisit(
                         remaining, heap,
                     )
                 })
@@ -144,7 +156,9 @@ mod impls {
         impl<Covisitor, LWord, L, T, Heap> AllCovisit<LWord, L, T, Heap, ()> for Covisitor {
             fn all_covisit(&mut self, _: &mut Heap, _idx: u32) {}
         }
-        impl<AC, LWord, L, T, Heap> AnyCovisit<LWord, L, T, Heap, (), <AC as FromSelectCase>::Done> for AC
+        impl<AC, LWord, L, T, TVisitationImplementor, Heap>
+            AnyCovisit<LWord, L, T, TVisitationImplementor, Heap, (), <AC as FromSelectCase>::Done>
+            for AC
         where
             AC: AdmitNoMatchingCase<LWord, L, T, Heap>,
         {

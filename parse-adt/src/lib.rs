@@ -8,7 +8,6 @@ use cstfy::Cstfy;
 use parse::{KeywordSequence, UnexpectedTokenError};
 use pmsp::{AtLeastTwoStrategy, Strategy};
 use take_mut::Poisonable;
-use words::Implements;
 
 pub mod cstfy;
 mod tmfscore;
@@ -18,6 +17,14 @@ impl Aspect for LookaheadAspect {
     fn zst_path(&self) -> syn::Path {
         syn::parse_quote! {
             parse_adt::LookaheadAspect
+        }
+    }
+}
+pub struct CstAspect;
+impl Aspect for CstAspect {
+    fn zst_path(&self) -> syn::Path {
+        syn::parse_quote! {
+            parse_adt::CstAspect
         }
     }
 }
@@ -116,6 +123,7 @@ where
 }
 
 impl<'a, L> SelectCase for Parser<'a, L> {
+    type A = CstAspect;
     type AC<CasesConsList: Strategy> = ParserSelecting<'a, L, CasesConsList>;
 
     fn start_cases<CasesConsList: Strategy>(self) -> Self::AC<CasesConsList> {
