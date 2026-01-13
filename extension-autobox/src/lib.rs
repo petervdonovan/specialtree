@@ -17,10 +17,13 @@ where
     L0: LangSpec,
 {
     let breaks = find_cycle_breaks(l);
-    let name = Identifier::list(vec![
-        Identifier::from_camel_str("Autoboxed").unwrap(),
-        l.name().clone(),
-    ].into());
+    let name = Identifier::list(
+        vec![
+            Identifier::from_camel_str("Autoboxed").unwrap(),
+            l.name().clone(),
+        ]
+        .into(),
+    );
     LsSortMapped {
         name,
         l,

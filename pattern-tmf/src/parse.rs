@@ -1,12 +1,12 @@
+use aspect::VisitationAspect;
+use aspect::{AdtLike, Adtishness, NotAdtLike};
 use ccf::CanonicallyConstructibleFrom;
 use covisit::Covisit;
 use parse_adt::{
     Lookahead, LookaheadAspect, ParseCursor, Parser,
     cstfy::{Cstfy, cstfy_ok},
 };
-use aspect::VisitationAspect;
 use term::SuperHeap;
-use aspect::{AdtLike, Adtishness, NotAdtLike};
 use words::InverseImplements;
 
 use crate::{
@@ -26,8 +26,13 @@ where
             Implementor = OrVariable<Heap, MatchedTy>,
         >,
     MatchedTyLWord: Adtishness<VisitationAspect>,
-    Parser<'a, L>:
-        Covisit<MatchedTyLWord, L, MatchedTy, Heap, <MatchedTyLWord as Adtishness<VisitationAspect>>::X>,
+    Parser<'a, L>: Covisit<
+            MatchedTyLWord,
+            L,
+            MatchedTy,
+            Heap,
+            <MatchedTyLWord as Adtishness<VisitationAspect>>::X,
+        >,
     OvMapped: CanonicallyConstructibleFrom<Heap, (OrVariable<Heap, MatchedTy>, ())>,
 {
     fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, OvMapped> {
@@ -66,8 +71,13 @@ where
             Implementor = OrVariableZeroOrMore<Heap, MatchedTy>,
         >,
     MatchedTyLWord: Adtishness<VisitationAspect>,
-    Parser<'a, L>:
-        Covisit<MatchedTyLWord, L, MatchedTy, Heap, <MatchedTyLWord as Adtishness<VisitationAspect>>::X>,
+    Parser<'a, L>: Covisit<
+            MatchedTyLWord,
+            L,
+            MatchedTy,
+            Heap,
+            <MatchedTyLWord as Adtishness<VisitationAspect>>::X,
+        >,
     OvZomMapped: CanonicallyConstructibleFrom<Heap, (OrVariableZeroOrMore<Heap, MatchedTy>, ())>,
 {
     fn covisit(&mut self, heap: &mut Heap) -> Cstfy<Heap, OvZomMapped> {

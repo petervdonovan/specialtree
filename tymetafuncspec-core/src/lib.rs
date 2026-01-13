@@ -1,16 +1,16 @@
 use derivative::Derivative;
 use functor_derive::Functor;
-use langspec::{
-    tymetafunc::{ArgId, IdentifiedBy, RustTyMap, Transparency, TyMetaFuncData, TyMetaFuncSpec},
+use langspec::tymetafunc::{
+    ArgId, IdentifiedBy, RustTyMap, Transparency, TyMetaFuncData, TyMetaFuncSpec,
 };
 use tree_identifier::Identifier;
 
-use ccf::DirectlyCanonicallyConstructibleFrom;
 use aspect::VisitationAspect;
+use aspect::{AdtLike, Adtishness, NotAdtLike};
+use ccf::DirectlyCanonicallyConstructibleFrom;
 use serde::{Deserialize, Serialize};
 use term::{Heaped, SuperHeap, TyMetaFunc};
 use to_literal::ToLiteral;
-use aspect::{AdtLike, Adtishness, NotAdtLike};
 
 pub struct Core;
 #[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize, Hash, PartialOrd, Ord)]

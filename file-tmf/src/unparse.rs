@@ -1,9 +1,9 @@
-use ccf::CanonicallyConstructibleFrom;
 use aspect::VisitationAspect;
+use aspect::{Adtishness, NotAdtLike};
+use ccf::CanonicallyConstructibleFrom;
 use term::SuperHeap;
 use unparse_adt::Unparser;
 use visit::Visit;
-use aspect::{Adtishness, NotAdtLike};
 use words::InverseImplements;
 
 use crate::{File, FileHeapBak};
@@ -12,9 +12,11 @@ impl<'a, Heap, L, Item, ItemLWord, FileMapped: Copy>
     Visit<File<(), ItemLWord>, L, FileMapped, Heap, NotAdtLike> for Unparser<'a, L>
 where
     Heap: SuperHeap<FileHeapBak<Heap, Item>>,
-    Heap: InverseImplements<L, File<(), ItemLWord>, VisitationAspect, Implementor = File<Heap, Item>>,
+    Heap:
+        InverseImplements<L, File<(), ItemLWord>, VisitationAspect, Implementor = File<Heap, Item>>,
     ItemLWord: Adtishness<VisitationAspect>,
-    Unparser<'a, L>: Visit<ItemLWord, L, Item, Heap, <ItemLWord as Adtishness<VisitationAspect>>::X>,
+    Unparser<'a, L>:
+        Visit<ItemLWord, L, Item, Heap, <ItemLWord as Adtishness<VisitationAspect>>::X>,
     FileMapped: CanonicallyConstructibleFrom<Heap, (File<Heap, Item>, ())>,
 {
     fn visit(&mut self, heap: &Heap, t: &FileMapped) {

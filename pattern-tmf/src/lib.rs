@@ -1,13 +1,13 @@
 #![feature(let_chains)]
 
+use aspect::VisitationAspect;
+use aspect::{Adtishness, NotAdtLike};
 use ccf::DirectlyCanonicallyConstructibleFrom;
 use derivative::Derivative;
 use langspec::tymetafunc::{ArgId, RustTyMap, TyMetaFuncData, TyMetaFuncSpec};
-use aspect::VisitationAspect;
 use serde::{Deserialize, Serialize};
 use term::{SuperHeap, TyMetaFunc};
 use tree_identifier::Identifier;
-use aspect::{Adtishness, NotAdtLike};
 
 pub mod parse;
 pub mod pattern_dyn;

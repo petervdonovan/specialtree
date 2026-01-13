@@ -4,11 +4,11 @@
 //! Canonically Constructible From (CCF) relations, which are core to the
 //! meta-language framework's type system.
 
-pub mod types;
 pub mod analysis;
+pub mod types;
 
 #[cfg(test)]
 mod tests;
 
-pub use types::*;
 pub use analysis::*;
+pub use types::*;

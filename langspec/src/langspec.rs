@@ -103,7 +103,10 @@ pub trait LangSpec: Sized + AsLifetime {
     fn sums(&self) -> impl Iterator<Item = Self::SumId>;
     fn product_name(&self, id: Self::ProductId) -> &Identifier;
     fn sum_name(&self, id: Self::SumId) -> &Identifier;
-    fn algebraic_sort_name(&self, id: AlgebraicSortId<Self::ProductId, Self::SumId>) -> &Identifier {
+    fn algebraic_sort_name(
+        &self,
+        id: AlgebraicSortId<Self::ProductId, Self::SumId>,
+    ) -> &Identifier {
         match id {
             AlgebraicSortId::Product(pid) => self.product_name(pid),
             AlgebraicSortId::Sum(sid) => self.sum_name(sid),

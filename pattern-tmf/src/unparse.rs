@@ -1,9 +1,9 @@
-use ccf::CanonicallyConstructibleFrom;
 use aspect::VisitationAspect;
+use aspect::{Adtishness, NotAdtLike};
+use ccf::CanonicallyConstructibleFrom;
 use term::SuperHeap;
 use unparse_adt::Unparser;
 use visit::Visit;
-use aspect::{Adtishness, NotAdtLike};
 use words::InverseImplements;
 
 use crate::{
@@ -22,8 +22,13 @@ where
             Implementor = OrVariable<Heap, MatchedTy>,
         >,
     MatchedTyLWord: Adtishness<VisitationAspect>,
-    Unparser<'a, L>:
-        Visit<MatchedTyLWord, L, MatchedTy, Heap, <MatchedTyLWord as Adtishness<VisitationAspect>>::X>,
+    Unparser<'a, L>: Visit<
+            MatchedTyLWord,
+            L,
+            MatchedTy,
+            Heap,
+            <MatchedTyLWord as Adtishness<VisitationAspect>>::X,
+        >,
     OvMapped: CanonicallyConstructibleFrom<Heap, (OrVariable<Heap, MatchedTy>, ())>,
 {
     fn visit(&mut self, heap: &Heap, ov: &OvMapped) {
@@ -53,8 +58,13 @@ where
             Implementor = OrVariableZeroOrMore<Heap, MatchedTy>,
         >,
     MatchedTyLWord: Adtishness<VisitationAspect>,
-    Unparser<'a, L>:
-        Visit<MatchedTyLWord, L, MatchedTy, Heap, <MatchedTyLWord as Adtishness<VisitationAspect>>::X>,
+    Unparser<'a, L>: Visit<
+            MatchedTyLWord,
+            L,
+            MatchedTy,
+            Heap,
+            <MatchedTyLWord as Adtishness<VisitationAspect>>::X,
+        >,
     OvZomMapped: CanonicallyConstructibleFrom<Heap, (OrVariableZeroOrMore<Heap, MatchedTy>, ())>,
 {
     fn visit(&mut self, heap: &Heap, ovzom: &OvZomMapped) {

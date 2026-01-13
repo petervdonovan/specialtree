@@ -1,8 +1,8 @@
+use aspect::VisitationAspect;
+use aspect::{Adtishness, NotAdtLike};
 use ccf::CanonicallyConstructibleFrom;
 use pattern_dyn::visitor::PatternBuilder;
-use aspect::VisitationAspect;
 use visit::Visit;
-use aspect::{Adtishness, NotAdtLike};
 use words::InverseImplements;
 
 use crate::{
@@ -72,8 +72,13 @@ where
     MappedOrVariableZeroOrMore:
         CanonicallyConstructibleFrom<Heap, (OrVariableZeroOrMore<Heap, MatchedTy>, ())>,
     MatchedTyLWord: Adtishness<VisitationAspect>,
-    PatternBuilder<L, LSub, SortId>:
-        Visit<MatchedTyLWord, L, MatchedTy, Heap, <MatchedTyLWord as Adtishness<VisitationAspect>>::X>,
+    PatternBuilder<L, LSub, SortId>: Visit<
+            MatchedTyLWord,
+            L,
+            MatchedTy,
+            Heap,
+            <MatchedTyLWord as Adtishness<VisitationAspect>>::X,
+        >,
     // MatchedTyLWord: words::Implements<Heap, LSub>,
     MatchedTyLWord: names_langspec_sort::NamesLangspecSort<LSub>,
 {

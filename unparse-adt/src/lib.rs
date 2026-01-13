@@ -1,16 +1,16 @@
-use parse_adt::NamesParseLL;
 use aspect::VisitationAspect;
+use parse_adt::NamesParseLL;
 // use parse_adt::NamesParseLL;
 // use term::{
 //     case_split::HasBorrowedHeapRef,
 //     visit::{Visitable, Visitor},
 // };
+use aspect::Adtishness;
 use unparse::Unparse;
 use visit::{
     Visit,
     visiteventsink::{PopOrProceed, VisitEventSink},
 };
-use aspect::Adtishness;
 
 pub mod tmfscore;
 

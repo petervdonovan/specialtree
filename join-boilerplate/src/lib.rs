@@ -35,7 +35,10 @@ macro_rules! lsjoin {
                 )
         }
 
-        fn product_name(&self, id: Self::ProductId) -> &join_boilerplate::tree_identifier::Identifier {
+        fn product_name(
+            &self,
+            id: Self::ProductId,
+        ) -> &join_boilerplate::tree_identifier::Identifier {
             match id {
                 join_boilerplate::either_id::Either::Left(id) => self.l0.product_name(id),
                 join_boilerplate::either_id::Either::Right(id) => self.l1.product_name(id),
