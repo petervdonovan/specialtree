@@ -10,3 +10,4 @@ langspec = { path = "../langspec" }
 langspec-extension = { path = "../langspec-extension" }
 tree-identifier = { path = "../tree-identifier" }
 tymetafuncspec-core = { path = "../tymetafuncspec-core" }
+aspect.path = "../aspect"

@@ -30,7 +30,7 @@ where
         csm: Csm { breaks },
     }
 }
-impl<L0: LangSpec> CsmAsLifetime<L0> for Csm<L0> {
+impl<L0: LangSpec> CsmAsLifetime<L0, Core> for Csm<L0> {
     type AsLifetime<'this> = Csm<L0::AsLifetime<'this>>;
 }
 impl<L0> ContextualSortMap<L0> for Csm<L0>

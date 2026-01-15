@@ -1,5 +1,6 @@
-use std::any::TypeId;
+use std::{any::TypeId, rc::Rc};
 
+use aspect::Aspect;
 use either_id::Either;
 use langspec::{
     langspec::{AsLifetime, LangSpec, MappedType, SortId, SortIdOf},
@@ -14,6 +15,7 @@ pub struct LsExtension<'a, 'b, L0, L1, L0M> {
     pub l0: &'a L0,
     pub l1: &'b L1,
     pub l0m: L0M,
+    pub added_aspects: Vec<&'static dyn Aspect>,
 }
 pub trait L0Map<'a, 'b, L0: LangSpec, L1: LangSpec>: Sized {
     type SelfAsLifetime<'c>: L0Map<'c, 'c, L0::AsLifetime<'c>, L1::AsLifetime<'c>> + 'c;
@@ -43,7 +45,7 @@ pub type SortIdOfExtension<L0: LangSpec, L1: LangSpec> = SortId<
     <TmfsJoin<TmfsJoin<L0::Tmfs, L1::Tmfs>, tymetafuncspec_core::Core> as TyMetaFuncSpec>::TyMetaFuncId,
 >;
 
-impl<'a, 'b, L0: LangSpec, L1: LangSpec, L0M> AsLifetime for LsExtension<'a, 'b, L0, L1, L0M>
+impl<'a, 'b, L0: LangSpec, L1: LangSpec, L0M> AsLifetime<Self> for LsExtension<'a, 'b, L0, L1, L0M>
 where
     L0M: L0Map<'a, 'b, L0, L1>,
 {
@@ -107,6 +109,22 @@ where
                 >(reflexive_sublang(self)))
             }
         } else {
+            let l0_implementors: Box<
+                dyn Iterator<Item = AspectImplementors<LSub::AsLifetime<'this>, SortIdOf<Self>>>,
+            > = if TypeId::of::<LSub::AsLifetime<'static>>()
+                == TypeId::of::<L0::AsLifetime<'static>>()
+            {
+                Box::new(self.added_aspects.iter().map(|a| unsafe {
+                    std::mem::transmute(
+                        AspectImplementors::<L0::AsLifetime<'this>, SortIdOf<Self>> {
+                            aspect_zst: *a,
+                            map: Box::new(move |sid| L0M::l0_map(self, sid.clone())),
+                        },
+                    )
+                }))
+            } else {
+                Box::new(std::iter::empty())
+            };
             self.l0.sublang::<LSub>(lsub).map(
                 |sublang: Sublang<'this, LSub::AsLifetime<'this>, SortIdOf<L0>>| Sublang {
                     lsub: sublang.lsub,
@@ -141,6 +159,7 @@ where
                                 // .fmap_f(|tmf| tmf.)
                             }),
                         })
+                        .chain(l0_implementors)
                         .collect(),
                 },
             )

@@ -376,6 +376,7 @@ dependencies = [
 name = "extension-everywhere-alternative"
 version = "0.1.0"
 dependencies = [
+ "aspect",
  "either-id",
  "langspec",
  "langspec-extension",
@@ -387,6 +388,7 @@ dependencies = [
 name = "extension-everywhere-maybemore"
 version = "0.1.0"
 dependencies = [
+ "aspect",
  "either-id",
  "langspec",
  "langspec-extension",
@@ -788,6 +790,7 @@ dependencies = [
 name = "langspec-extension"
 version = "0.1.0"
 dependencies = [
+ "aspect",
  "either-id",
  "join-boilerplate",
  "langspec",
@@ -990,6 +993,7 @@ dependencies = [
 name = "parse-gen"
 version = "0.1.0"
 dependencies = [
+ "aspect",
  "bumpalo",
  "codegen-component",
  "extension-autobox",

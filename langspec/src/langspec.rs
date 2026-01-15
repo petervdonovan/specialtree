@@ -89,11 +89,12 @@ impl<P, S, F> SortId<P, S, F> {
     }
 }
 
-pub trait AsLifetime {
-    type AsLifetime<'this>: LangSpec + 'this;
+pub trait AsLifetime<SelfT: LangSpec> {
+    type AsLifetime<'this>: LangSpec<ProductId = SelfT::ProductId, SumId = SelfT::SumId, Tmfs = SelfT::Tmfs>
+        + 'this;
 }
 
-pub trait LangSpec: Sized + AsLifetime {
+pub trait LangSpec: Sized + AsLifetime<Self> {
     type ProductId: std::fmt::Debug + Clone + Eq + std::hash::Hash + 'static + Ord;
     type SumId: std::fmt::Debug + Clone + Eq + std::hash::Hash + 'static + Ord;
     type Tmfs: TyMetaFuncSpec;

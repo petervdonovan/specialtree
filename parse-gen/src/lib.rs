@@ -1,3 +1,4 @@
+use aspect::Aspect;
 use extension_autobox::autobox;
 use extension_everywhere_alternative::everywhere_alternative;
 use extension_everywhere_maybemore::everywhere_maybemore;
@@ -7,6 +8,7 @@ use langspec::{
 };
 use langspec_rs_syn::{TyGenData, ty_gen_datas};
 use memo::memo_cache::thread_local_cache;
+use parse_adt::CstAspect;
 use rustgen_utils::byline;
 use syn::parse_quote;
 use tree_identifier::Identifier;
@@ -133,6 +135,7 @@ pub fn cst<'a, 'b: 'a, L: LangSpec>(
             f: std_parse_error::ParseErrorTmfId(),
             a: vec![],
         }),
+        vec![],
     ));
     // fallible_ast
     let parse_metadata = arena.alloc(std_parse_metadata::parse_metadata());
@@ -144,6 +147,7 @@ pub fn cst<'a, 'b: 'a, L: LangSpec>(
             f: std_parse_metadata::ParseMetadataTmfId(),
             a: vec![],
         }),
+        vec![(CstAspect {}).static_ref()],
     ))
 }
 

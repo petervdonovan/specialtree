@@ -1,3 +1,4 @@
+use aspect::Aspect;
 use either_id::Either;
 use langspec::{
     langspec::{LangSpec, MappedType, SortIdOf},
@@ -81,11 +82,13 @@ pub fn everywhere_maybemore<L0: LangSpec, L1: LangSpec>(
     l0: &L0,
     l1: &L1,
     l1_root: SortIdOf<L1>,
+    added_aspects: Vec<&'static (dyn Aspect + 'static)>,
 ) -> impl LangSpec {
     LsExtension {
         name,
         l0,
         l1,
         l0m: L0M { l1_root },
+        added_aspects,
     }
 }

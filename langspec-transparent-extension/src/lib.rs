@@ -15,10 +15,10 @@ pub struct LsSortMapped<'a, L, Csm> {
     pub name: Identifier,
     pub csm: Csm,
 }
-pub trait CsmAsLifetime<L: LangSpec> {
-    type AsLifetime<'this>: ContextualSortMap<L::AsLifetime<'this>> + 'this;
+pub trait CsmAsLifetime<L: LangSpec, Tmfs> {
+    type AsLifetime<'this>: ContextualSortMap<L::AsLifetime<'this>, Tmfs = Tmfs> + 'this;
 }
-pub trait ContextualSortMap<L: LangSpec>: CsmAsLifetime<L> {
+pub trait ContextualSortMap<L: LangSpec>: CsmAsLifetime<L, Self::Tmfs> {
     type Tmfs: TyMetaFuncSpec;
     fn map(
         &self,
@@ -34,7 +34,7 @@ pub trait ContextualSortMap<L: LangSpec>: CsmAsLifetime<L> {
 #[allow(type_alias_bounds)]
 pub type SortIdOfExtension<L: LangSpec, Tmfs> =
     SortId<L::ProductId, L::SumId, <TmfsJoin<L::Tmfs, Tmfs> as TyMetaFuncSpec>::TyMetaFuncId>;
-impl<'a, L, Csm, Tmfs> AsLifetime for LsSortMapped<'a, L, Csm>
+impl<'a, L, Csm, Tmfs> AsLifetime<Self> for LsSortMapped<'a, L, Csm>
 where
     L: LangSpec,
     Tmfs: TyMetaFuncSpec,

@@ -31,7 +31,9 @@ pub struct Sum<Tmfs: TyMetaFuncSpec> {
 
 pub type SortId<Tmfs> = crate::langspec::SortIdOf<LangSpecHuman<Tmfs>>;
 
-impl<Tmfs: TyMetaFuncSpec + 'static> AsLifetime for crate::humanreadable::LangSpecHuman<Tmfs> {
+impl<Tmfs: TyMetaFuncSpec + 'static> AsLifetime<Self>
+    for crate::humanreadable::LangSpecHuman<Tmfs>
+{
     type AsLifetime<'a> = Self;
 }
 

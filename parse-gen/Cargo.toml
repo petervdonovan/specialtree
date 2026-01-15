@@ -5,6 +5,7 @@ edition = { workspace = true }
 description = "Code generation related to parsing"
 
 [dependencies]
+aspect.path = "../aspect"
 bumpalo = { workspace = true }
 syn = { workspace = true }
 extension-autobox = { path = "../extension-autobox" }
@@ -12,6 +13,7 @@ extension-everywhere-alternative = { path = "../extension-everywhere-alternative
 extension-everywhere-maybemore = { path = "../extension-everywhere-maybemore" }
 langspec = { path = "../langspec" }
 langspec-rs-syn = { path = "../langspec-rs-syn" }
+parse-adt.path = "../parse-adt"
 rustgen-utils = { path = "../rustgen-utils" }
 std-parse-error = { path = "../langspec-std/std-parse-error" }
 std-parse-metadata = { path = "../langspec-std/std-parse-metadata" }

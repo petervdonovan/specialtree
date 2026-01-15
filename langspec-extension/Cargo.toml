@@ -11,3 +11,4 @@ langspec = { path = "../langspec" }
 tmfs-join = { path = "../tmfs-join" }
 tree-identifier = { path = "../tree-identifier" }
 tymetafuncspec-core = { path = "../tymetafuncspec-core" }
+aspect.path = "../aspect"

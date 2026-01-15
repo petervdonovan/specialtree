@@ -53,7 +53,7 @@ fn embed<'a, L: LangSpec + 'a>(sid: SortIdOf<L>) -> SortIdOf<FileExtension<'a, L
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Debug)]
 pub struct FileItemSortId;
 
-impl<'a, L: LangSpec> AsLifetime for FileExtension<'a, L> {
+impl<'a, L: LangSpec> AsLifetime<Self> for FileExtension<'a, L> {
     type AsLifetime<'this> = FileExtension<'this, L::AsLifetime<'this>>;
 }
 

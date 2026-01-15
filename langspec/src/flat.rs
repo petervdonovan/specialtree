@@ -61,7 +61,7 @@ impl<Tmfs: TyMetaFuncSpec> std::fmt::Display for LangSpecFlat<Tmfs> {
     }
 }
 
-impl<Tmfs: TyMetaFuncSpec + 'static> AsLifetime for LangSpecFlat<Tmfs> {
+impl<Tmfs: TyMetaFuncSpec + 'static> AsLifetime<Self> for LangSpecFlat<Tmfs> {
     type AsLifetime<'a> = Self;
 }
 

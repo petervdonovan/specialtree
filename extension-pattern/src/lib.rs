@@ -62,7 +62,7 @@ fn map_sid<'a, L: LangSpec + 'a>(sid: SortIdOf<L>) -> SortIdOf<PatternExtension<
     }
 }
 
-impl<'a, L: LangSpec> AsLifetime for PatternExtension<'a, L> {
+impl<'a, L: LangSpec> AsLifetime<Self> for PatternExtension<'a, L> {
     type AsLifetime<'this> = PatternExtension<'this, L::AsLifetime<'this>>;
 }
 

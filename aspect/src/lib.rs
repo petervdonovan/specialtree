@@ -10,6 +10,13 @@ impl AdtLikeOrNot for NotAdtLike {}
 
 pub trait Aspect: Any {
     fn zst_path(&self) -> syn::Path;
+    fn static_ref(&self) -> &'static mut Self
+    where
+        Self: Sized,
+    {
+        assert!(std::mem::size_of_val(self) == 0);
+        unsafe { &mut *std::ptr::NonNull::dangling().as_mut() }
+    }
 }
 
 pub trait Adtishness<A: Aspect> {
