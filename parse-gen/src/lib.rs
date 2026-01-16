@@ -8,7 +8,7 @@ use langspec::{
 };
 use langspec_rs_syn::{TyGenData, ty_gen_datas};
 use memo::memo_cache::thread_local_cache;
-use parse_adt::CstAspect;
+use parse_adt::{CstFallibilityAspect, CstMetadataAspect};
 use rustgen_utils::byline;
 use syn::parse_quote;
 use tree_identifier::Identifier;
@@ -135,7 +135,7 @@ pub fn cst<'a, 'b: 'a, L: LangSpec>(
             f: std_parse_error::ParseErrorTmfId(),
             a: vec![],
         }),
-        vec![],
+        vec![(CstFallibilityAspect).static_ref()],
     ));
     // fallible_ast
     let parse_metadata = arena.alloc(std_parse_metadata::parse_metadata());
@@ -147,7 +147,7 @@ pub fn cst<'a, 'b: 'a, L: LangSpec>(
             f: std_parse_metadata::ParseMetadataTmfId(),
             a: vec![],
         }),
-        vec![(CstAspect {}).static_ref()],
+        vec![(CstMetadataAspect {}).static_ref()],
     ))
 }
 

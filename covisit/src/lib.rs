@@ -46,7 +46,7 @@ mod impls {
         Heap: words::InverseImplements<
                 L,
                 LWord,
-                <Covisitor as SelectCase>::A,
+                VisitationAspect,
                 Implementor = TVisitationImplementor,
             >,
         TVisitationImplementor: words::Implements<Heap, L, VisitationAspect, LWord = LWord>,
@@ -78,25 +78,48 @@ mod impls {
         }
     }
     impl<AC, LWord, L, T, TVisitationImplementor, Heap, RemainingCases>
-        AnyCovisit<LWord, L, T, TVisitationImplementor, Heap, RemainingCases, <AC as FromSelectCase>::Done> for AC
+        AnyCovisit<
+            LWord,
+            L,
+            T,
+            TVisitationImplementor,
+            Heap,
+            RemainingCases,
+            <AC as FromSelectCase>::Done,
+        > for AC
     where
         AC: AcceptingCases<RemainingCases>,
         RemainingCases: NonemptyStrategy,
-        Heap: HasDeconstructionTargetForWordList<L, RemainingCases::Car, T>,
+        Heap: HasDeconstructionTargetForWordList<L, RemainingCases::Car, TVisitationImplementor>,
         <AC as FromSelectCase>::Done: AllCovisit<
                 LWord,
                 L,
-                T,
+                TVisitationImplementor,
                 Heap,
-                <Heap as HasDeconstructionTargetForWordList<L, RemainingCases::Car, T>>::Implementors,
+                <Heap as HasDeconstructionTargetForWordList<
+                    L,
+                    RemainingCases::Car,
+                    TVisitationImplementor,
+                >>::Implementors,
             >,
-            T: CanonicallyConstructibleFrom<Heap, (TVisitationImplementor, ())>,
+        T: CanonicallyConstructibleFrom<Heap, (TVisitationImplementor, ())>,
         TVisitationImplementor: CanonicallyConstructibleFrom<
                 Heap,
-                <Heap as HasDeconstructionTargetForWordList<L, RemainingCases::Car, T>>::Implementors,
+                <Heap as HasDeconstructionTargetForWordList<
+                    L,
+                    RemainingCases::Car,
+                    TVisitationImplementor,
+                >>::Implementors,
             >,
-        AC::AcceptingRemainingCases:
-            AnyCovisit<LWord, L, T, TVisitationImplementor, Heap, RemainingCases::Cdr, <AC as FromSelectCase>::Done>,
+        AC::AcceptingRemainingCases: AnyCovisit<
+                LWord,
+                L,
+                T,
+                TVisitationImplementor,
+                Heap,
+                RemainingCases::Cdr,
+                <AC as FromSelectCase>::Done,
+            >,
         <AC as FromSelectCase>::Done: CovisitEventSink<LWord>,
     {
         fn any_covisit(self, heap: &mut Heap) -> (<AC as FromSelectCase>::Done, T) {
@@ -108,8 +131,14 @@ mod impls {
                             &mut x, heap, 0,
                         );
                     <<AC as FromSelectCase>::Done as CovisitEventSink<_>>::pop(&mut x);
-                    let visitation_implementor = <TVisitationImplementor as CanonicallyConstructibleFrom<_, _>>::construct(heap, case);
-                    let ret = <T as CanonicallyConstructibleFrom<Heap, _>>::construct(heap, (visitation_implementor, ()));
+                    let visitation_implementor =
+                        <TVisitationImplementor as CanonicallyConstructibleFrom<_, _>>::construct(
+                            heap, case,
+                        );
+                    let ret = <T as CanonicallyConstructibleFrom<Heap, _>>::construct(
+                        heap,
+                        (visitation_implementor, ()),
+                    );
                     (x, ret)
                 })
                 .unwrap_or_else(|remaining| {
@@ -119,7 +148,7 @@ mod impls {
                 })
         }
     }
-    impl<Covisitor, LWord, L, T, Heap, ConcreteCase> AllCovisit<LWord, L, T, Heap, ConcreteCase>
+    impl<Covisitor, LWord, L, TVisitationImplementor, Heap, ConcreteCase> AllCovisit<LWord, L, TVisitationImplementor, Heap, ConcreteCase>
         for Covisitor
     where
         ConcreteCase: NonemptyConsList,
@@ -134,7 +163,7 @@ mod impls {
                     VisitationAspect,
                 >>::X,
             >,
-        Covisitor: AllCovisit<LWord, L, T, Heap, ConcreteCase::Cdr>,
+        Covisitor: AllCovisit<LWord, L, TVisitationImplementor, Heap, ConcreteCase::Cdr>,
         Covisitor: CovisitEventSink<LWord>,
     {
         fn all_covisit(&mut self, heap: &mut Heap, idx: u32) -> ConcreteCase {

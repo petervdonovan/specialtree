@@ -1,4 +1,4 @@
-use std::any::TypeId;
+use std::{any::TypeId, rc::Rc};
 
 use either_id::Either;
 use langspec::{
@@ -119,7 +119,7 @@ where
                         .into_iter()
                         .map(|it| AspectImplementors {
                             aspect_zst: it.aspect_zst,
-                            map: Box::new(move |sid| Csm::embed_sort_id((it.map)(&sid))),
+                            map: Rc::new(move |sid| Csm::embed_sort_id((it.map)(sid))),
                         })
                         .collect(),
                 },

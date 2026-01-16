@@ -15,6 +15,8 @@ pub mod words_inverse_impls {
     use std_parse_metadata::ParseMetadata;
     use std_parse_error::ParseError;
     use pattern_tmf::OrVariableZeroOrMore;
+    use parse_adt::CstMetadataAspect;
+    use parse_adt::CstFallibilityAspect;
     use fib::l_words_mod_r_fib::sorts::Sum;
     use fib::l_words_mod_r_fib::sorts::Right_operand;
     use fib::l_words_mod_r_fib::sorts::Plus;
@@ -27,23 +29,142 @@ pub mod words_inverse_impls {
     impl words::InverseImplements<L, F, VisitationAspect> for ltsrlclalflpfrrrr::Heap {
         type Implementor = ltsrlclalflpfrrrr::F;
     }
+    impl words::InverseImplements<L, F, CstFallibilityAspect>
+    for ltsrlclalflpfrrrr::Heap {
+        type Implementor = Either<
+            ltsrlclalflpfrrrr::Heap,
+            Pair<
+                ltsrlclalflpfrrrr::Heap,
+                ltsrlclalflpfrrrr::F,
+                Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+            >,
+            ParseError<ltsrlclalflpfrrrr::Heap>,
+        >;
+    }
+    impl words::InverseImplements<L, F, CstMetadataAspect> for ltsrlclalflpfrrrr::Heap {
+        type Implementor = Pair<
+            ltsrlclalflpfrrrr::Heap,
+            ltsrlclalflpfrrrr::F,
+            Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+        >;
+    }
     impl words::InverseImplements<L, Left_operand, VisitationAspect>
     for ltsrlclalflpfrrrr::Heap {
         type Implementor = ltsrlclalflpfrrrr::Left_operand;
+    }
+    impl words::InverseImplements<L, Left_operand, CstFallibilityAspect>
+    for ltsrlclalflpfrrrr::Heap {
+        type Implementor = Either<
+            ltsrlclalflpfrrrr::Heap,
+            Pair<
+                ltsrlclalflpfrrrr::Heap,
+                ltsrlclalflpfrrrr::Left_operand,
+                Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+            >,
+            ParseError<ltsrlclalflpfrrrr::Heap>,
+        >;
+    }
+    impl words::InverseImplements<L, Left_operand, CstMetadataAspect>
+    for ltsrlclalflpfrrrr::Heap {
+        type Implementor = Pair<
+            ltsrlclalflpfrrrr::Heap,
+            ltsrlclalflpfrrrr::Left_operand,
+            Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+        >;
     }
     impl words::InverseImplements<L, Plus, VisitationAspect>
     for ltsrlclalflpfrrrr::Heap {
         type Implementor = ltsrlclalflpfrrrr::Plus;
     }
+    impl words::InverseImplements<L, Plus, CstFallibilityAspect>
+    for ltsrlclalflpfrrrr::Heap {
+        type Implementor = Either<
+            ltsrlclalflpfrrrr::Heap,
+            Pair<
+                ltsrlclalflpfrrrr::Heap,
+                ltsrlclalflpfrrrr::Plus,
+                Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+            >,
+            ParseError<ltsrlclalflpfrrrr::Heap>,
+        >;
+    }
+    impl words::InverseImplements<L, Plus, CstMetadataAspect>
+    for ltsrlclalflpfrrrr::Heap {
+        type Implementor = Pair<
+            ltsrlclalflpfrrrr::Heap,
+            ltsrlclalflpfrrrr::Plus,
+            Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+        >;
+    }
     impl words::InverseImplements<L, Right_operand, VisitationAspect>
     for ltsrlclalflpfrrrr::Heap {
         type Implementor = ltsrlclalflpfrrrr::Right_operand;
     }
+    impl words::InverseImplements<L, Right_operand, CstFallibilityAspect>
+    for ltsrlclalflpfrrrr::Heap {
+        type Implementor = Either<
+            ltsrlclalflpfrrrr::Heap,
+            Pair<
+                ltsrlclalflpfrrrr::Heap,
+                ltsrlclalflpfrrrr::Right_operand,
+                Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+            >,
+            ParseError<ltsrlclalflpfrrrr::Heap>,
+        >;
+    }
+    impl words::InverseImplements<L, Right_operand, CstMetadataAspect>
+    for ltsrlclalflpfrrrr::Heap {
+        type Implementor = Pair<
+            ltsrlclalflpfrrrr::Heap,
+            ltsrlclalflpfrrrr::Right_operand,
+            Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+        >;
+    }
     impl words::InverseImplements<L, Sum, VisitationAspect> for ltsrlclalflpfrrrr::Heap {
         type Implementor = ltsrlclalflpfrrrr::Sum;
     }
+    impl words::InverseImplements<L, Sum, CstFallibilityAspect>
+    for ltsrlclalflpfrrrr::Heap {
+        type Implementor = Either<
+            ltsrlclalflpfrrrr::Heap,
+            Pair<
+                ltsrlclalflpfrrrr::Heap,
+                ltsrlclalflpfrrrr::Sum,
+                Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+            >,
+            ParseError<ltsrlclalflpfrrrr::Heap>,
+        >;
+    }
+    impl words::InverseImplements<L, Sum, CstMetadataAspect>
+    for ltsrlclalflpfrrrr::Heap {
+        type Implementor = Pair<
+            ltsrlclalflpfrrrr::Heap,
+            ltsrlclalflpfrrrr::Sum,
+            Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+        >;
+    }
     impl words::InverseImplements<L, Nat, VisitationAspect> for ltsrlclalflpfrrrr::Heap {
         type Implementor = ltsrlclalflpfrrrr::Nat;
+    }
+    impl words::InverseImplements<L, Nat, CstFallibilityAspect>
+    for ltsrlclalflpfrrrr::Heap {
+        type Implementor = Either<
+            ltsrlclalflpfrrrr::Heap,
+            Pair<
+                ltsrlclalflpfrrrr::Heap,
+                ltsrlclalflpfrrrr::Nat,
+                Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+            >,
+            ParseError<ltsrlclalflpfrrrr::Heap>,
+        >;
+    }
+    impl words::InverseImplements<L, Nat, CstMetadataAspect>
+    for ltsrlclalflpfrrrr::Heap {
+        type Implementor = Pair<
+            ltsrlclalflpfrrrr::Heap,
+            ltsrlclalflpfrrrr::Nat,
+            Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+        >;
     }
     impl words::InverseImplements<L, Set<(), Nat>, VisitationAspect>
     for ltsrlclalflpfrrrr::Heap {
@@ -77,9 +198,105 @@ pub mod words_inverse_impls {
             >,
         >;
     }
+    impl words::InverseImplements<L, Set<(), Nat>, CstFallibilityAspect>
+    for ltsrlclalflpfrrrr::Heap {
+        type Implementor = Either<
+            ltsrlclalflpfrrrr::Heap,
+            Pair<
+                ltsrlclalflpfrrrr::Heap,
+                Set<
+                    ltsrlclalflpfrrrr::Heap,
+                    Either<
+                        ltsrlclalflpfrrrr::Heap,
+                        Pair<
+                            ltsrlclalflpfrrrr::Heap,
+                            OrVariableZeroOrMore<
+                                ltsrlclalflpfrrrr::Heap,
+                                Either<
+                                    ltsrlclalflpfrrrr::Heap,
+                                    Pair<
+                                        ltsrlclalflpfrrrr::Heap,
+                                        ltsrlclalflpfrrrr::Nat,
+                                        Maybe<
+                                            ltsrlclalflpfrrrr::Heap,
+                                            ParseMetadata<ltsrlclalflpfrrrr::Heap>,
+                                        >,
+                                    >,
+                                    ParseError<ltsrlclalflpfrrrr::Heap>,
+                                >,
+                            >,
+                            Maybe<
+                                ltsrlclalflpfrrrr::Heap,
+                                ParseMetadata<ltsrlclalflpfrrrr::Heap>,
+                            >,
+                        >,
+                        ParseError<ltsrlclalflpfrrrr::Heap>,
+                    >,
+                >,
+                Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+            >,
+            ParseError<ltsrlclalflpfrrrr::Heap>,
+        >;
+    }
+    impl words::InverseImplements<L, Set<(), Nat>, CstMetadataAspect>
+    for ltsrlclalflpfrrrr::Heap {
+        type Implementor = Pair<
+            ltsrlclalflpfrrrr::Heap,
+            Set<
+                ltsrlclalflpfrrrr::Heap,
+                Either<
+                    ltsrlclalflpfrrrr::Heap,
+                    Pair<
+                        ltsrlclalflpfrrrr::Heap,
+                        OrVariableZeroOrMore<
+                            ltsrlclalflpfrrrr::Heap,
+                            Either<
+                                ltsrlclalflpfrrrr::Heap,
+                                Pair<
+                                    ltsrlclalflpfrrrr::Heap,
+                                    ltsrlclalflpfrrrr::Nat,
+                                    Maybe<
+                                        ltsrlclalflpfrrrr::Heap,
+                                        ParseMetadata<ltsrlclalflpfrrrr::Heap>,
+                                    >,
+                                >,
+                                ParseError<ltsrlclalflpfrrrr::Heap>,
+                            >,
+                        >,
+                        Maybe<
+                            ltsrlclalflpfrrrr::Heap,
+                            ParseMetadata<ltsrlclalflpfrrrr::Heap>,
+                        >,
+                    >,
+                    ParseError<ltsrlclalflpfrrrr::Heap>,
+                >,
+            >,
+            Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+        >;
+    }
     impl words::InverseImplements<L, BoundedNat<()>, VisitationAspect>
     for ltsrlclalflpfrrrr::Heap {
         type Implementor = BoundedNat<ltsrlclalflpfrrrr::Heap>;
+    }
+    impl words::InverseImplements<L, BoundedNat<()>, CstFallibilityAspect>
+    for ltsrlclalflpfrrrr::Heap {
+        type Implementor = Either<
+            ltsrlclalflpfrrrr::Heap,
+            Pair<
+                ltsrlclalflpfrrrr::Heap,
+                BoundedNat<ltsrlclalflpfrrrr::Heap>,
+                Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+            >,
+            ParseError<ltsrlclalflpfrrrr::Heap>,
+        >;
+    }
+    impl words::InverseImplements<L, BoundedNat<()>, CstMetadataAspect>
+    for ltsrlclalflpfrrrr::Heap {
+        type Implementor = Pair<
+            ltsrlclalflpfrrrr::Heap,
+            BoundedNat<ltsrlclalflpfrrrr::Heap>,
+            Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+        >;
     }
 }
 /// @generated by [term_bridge_gen::generate_hdtfwl_impls]

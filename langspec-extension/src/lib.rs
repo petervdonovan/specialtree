@@ -1,6 +1,9 @@
-use std::{any::TypeId, rc::Rc};
+use std::{
+    any::{Any, TypeId},
+    rc::Rc,
+};
 
-use aspect::Aspect;
+use aspect::{Aspect, VisitationAspect};
 use either_id::Either;
 use langspec::{
     langspec::{AsLifetime, LangSpec, MappedType, SortId, SortIdOf},
@@ -109,58 +112,79 @@ where
                 >(reflexive_sublang(self)))
             }
         } else {
-            let l0_implementors: Box<
-                dyn Iterator<Item = AspectImplementors<LSub::AsLifetime<'this>, SortIdOf<Self>>>,
-            > = if TypeId::of::<LSub::AsLifetime<'static>>()
-                == TypeId::of::<L0::AsLifetime<'static>>()
-            {
-                Box::new(self.added_aspects.iter().map(|a| unsafe {
-                    std::mem::transmute(
-                        AspectImplementors::<L0::AsLifetime<'this>, SortIdOf<Self>> {
-                            aspect_zst: *a,
-                            map: Box::new(move |sid| L0M::l0_map(self, sid.clone())),
-                        },
-                    )
-                }))
-            } else {
-                Box::new(std::iter::empty())
-            };
+            // let l0_implementors: Box<
+            //     dyn Iterator<Item = AspectImplementors<LSub::AsLifetime<'this>, SortIdOf<Self>>>,
+            // > = if TypeId::of::<LSub::AsLifetime<'static>>()
+            //     == TypeId::of::<L0::AsLifetime<'static>>()
+            // {
+            //     Box::new(self.added_aspects.iter().map(|a| unsafe {
+            //         std::mem::transmute(
+            //             AspectImplementors::<L0::AsLifetime<'this>, SortIdOf<Self>> {
+            //                 aspect_zst: *a,
+            //                 map: Box::new(move |sid| L0M::l0_map(self, sid.clone())),
+            //             },
+            //         )
+            //     }))
+            // } else {
+            //     Box::new(std::iter::empty())
+            // };
+
             self.l0.sublang::<LSub>(lsub).map(
-                |sublang: Sublang<'this, LSub::AsLifetime<'this>, SortIdOf<L0>>| Sublang {
-                    lsub: sublang.lsub,
-                    aspect_implementors: sublang
-                        .aspect_implementors
-                        .into_iter()
-                        .map(|aspect_implementors| AspectImplementors::<
-                            LSub::AsLifetime<'this>,
-                            SortIdOf<Self>,
-                        > {
-                            aspect_zst: aspect_implementors.aspect_zst,
-                            map: Box::new(move |sid: &SortIdOf<LSub::AsLifetime<'this>>| {
-                                match (aspect_implementors.map)(sid) {
-                                    SortId::Algebraic(algebraic_sort_id) => {
-                                        langspec::langspec::SortId::Algebraic(
-                                            algebraic_sort_id
-                                                .fmap_p(Either::Left)
-                                                .fmap_s(Either::Left),
-                                        )
-                                    }
-                                    SortId::TyMetaFunc(MappedType { f, a }) => {
-                                        SortId::TyMetaFunc(MappedType {
-                                            f: Either::Left(Either::Left(f.clone())),
-                                            a: a.into_iter()
-                                                .map(|sid| L0M::l0_map(self, sid.clone()))
-                                                .collect(),
-                                        })
-                                    }
-                                }
-                                // .fmap_p(|pid| Either::<L0::ProductId, L1::ProductId>::Left(pid))
-                                // .fmap_s(todo!())
-                                // .fmap_f(|tmf| tmf.)
-                            }),
+                |sublang: Sublang<'this, LSub::AsLifetime<'this>, SortIdOf<L0>>| {
+                    let added_aspects = self
+                        .added_aspects
+                        .iter()
+                        .map(|a| {
+                            let map = sublang
+                                .aspect_implementors
+                                .iter()
+                                .find(|it| it.aspect_zst.type_id() == VisitationAspect {}.type_id())
+                                .unwrap()
+                                .map
+                                .clone();
+                            AspectImplementors::<LSub::AsLifetime<'this>, SortIdOf<Self>> {
+                                aspect_zst: *a,
+                                map: Rc::new(move |sid| L0M::l0_map(self, map(sid))),
+                            }
                         })
-                        .chain(l0_implementors)
-                        .collect(),
+                        .collect::<Vec<_>>();
+                    Sublang {
+                        lsub: sublang.lsub,
+                        aspect_implementors: sublang
+                            .aspect_implementors
+                            .into_iter()
+                            .map(|aspect_implementors| AspectImplementors::<
+                                LSub::AsLifetime<'this>,
+                                SortIdOf<Self>,
+                            > {
+                                aspect_zst: aspect_implementors.aspect_zst,
+                                map: Rc::new(move |sid: &SortIdOf<LSub::AsLifetime<'this>>| {
+                                    match (aspect_implementors.map)(sid) {
+                                        SortId::Algebraic(algebraic_sort_id) => {
+                                            langspec::langspec::SortId::Algebraic(
+                                                algebraic_sort_id
+                                                    .fmap_p(Either::Left)
+                                                    .fmap_s(Either::Left),
+                                            )
+                                        }
+                                        SortId::TyMetaFunc(MappedType { f, a }) => {
+                                            SortId::TyMetaFunc(MappedType {
+                                                f: Either::Left(Either::Left(f.clone())),
+                                                a: a.into_iter()
+                                                    .map(|sid| L0M::l0_map(self, sid.clone()))
+                                                    .collect(),
+                                            })
+                                        }
+                                    }
+                                    // .fmap_p(|pid| Either::<L0::ProductId, L1::ProductId>::Left(pid))
+                                    // .fmap_s(todo!())
+                                    // .fmap_f(|tmf| tmf.)
+                                }),
+                            })
+                            .chain(added_aspects)
+                            // .chain(l0_implementors)
+                            .collect(),
+                    }
                 },
             )
         }

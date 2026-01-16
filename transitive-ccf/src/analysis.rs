@@ -20,20 +20,35 @@ pub fn ccf_paths<'a, L: LangSpec>(
     important_sublangs: &'a impl Sublangs<SortIdOf<L>>,
 ) -> CcfPaths<SortIdOf<L>> {
     let direct_ccf_rels = get_direct_ccf_rels(thread_local_cache(), ls);
+    let mut units = important_sublangs
+        .images(&VisitationAspect {})
+        .flat_map(|it| {
+            unit_ccf_paths_quadratically_large_closure(
+                thread_local_cache(),
+                direct_ccf_rels,
+                it.into_boxed_slice(),
+            )
+        })
+        .cloned()
+        .collect::<std::collections::HashSet<_>>()
+        .into_iter()
+        .collect::<Vec<_>>();
+    units.sort();
     CcfPaths {
-        units: unit_ccf_paths_quadratically_large_closure(
-            thread_local_cache(),
-            direct_ccf_rels,
-            // ls.all_sort_ids().collect::<Vec<_>>().as_slice(),
-            important_sublangs
-                .images(&VisitationAspect {})
-                .flat_map(|it| it.into_iter())
-                .collect::<std::collections::HashSet<_>>()
-                .into_iter()
-                .collect::<Vec<_>>()
-                .as_slice(),
-        )
-        .to_vec(),
+        units,
+        // : unit_ccf_paths_quadratically_large_closure(
+        //     thread_local_cache(),
+        //     direct_ccf_rels,
+        //     // ls.all_sort_ids().collect::<Vec<_>>().as_slice(),
+        //     important_sublangs
+        //         .images(&VisitationAspect {})
+        //         .flat_map(|it| it.into_iter())
+        //         .collect::<std::collections::HashSet<_>>()
+        //         .into_iter()
+        //         .collect::<Vec<_>>()
+        //         .as_slice(),
+        // )
+        // .to_vec(),
         // non_units: direct_ccf_rels.clone(),
         non_units: vec![],
     }
@@ -147,11 +162,12 @@ where
 /// Compute unit CCF paths with quadratically large closure
 #[memo('a)]
 pub fn unit_ccf_paths_quadratically_large_closure<
-    'a,
-    SortId: std::fmt::Debug + Clone + Eq + std::hash::Hash,
+    'a: 'b,
+    'b,
+    SortId: std::fmt::Debug + Clone + Eq + std::hash::Hash + 'static,
 >(
     direct_ccf_rels: &'a [CcfRelation<SortId>],
-    non_transparent_sorts: &'a [SortId],
+    non_transparent_sorts: Box<[SortId]>,
 ) -> Vec<TransitiveUnitCcfRelation<SortId>> {
     let unit_ccf_rels: Vec<_> = direct_ccf_rels
         .iter()
@@ -164,7 +180,9 @@ pub fn unit_ccf_paths_quadratically_large_closure<
     let unit_ccf_tos: HashSet<_> = unit_ccf_rels.iter().map(|rel| rel.to.clone()).collect();
     unit_ccf_tos
         .iter()
-        .flat_map(|to| get_tucr_for_to::<SortId>(&unit_ccf_rels, to.clone(), non_transparent_sorts))
+        .flat_map(|to| {
+            get_tucr_for_to::<SortId>(&unit_ccf_rels, to.clone(), &non_transparent_sorts)
+        })
         .collect()
 }
 

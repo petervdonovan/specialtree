@@ -1,4 +1,4 @@
-use std::any::TypeId;
+use std::{any::TypeId, rc::Rc};
 
 use either_id::Either;
 use langspec::{
@@ -145,7 +145,7 @@ impl<'a, L: LangSpec> LangSpec for PatternExtension<'a, L> {
                         .map(
                             |tem| AspectImplementors::<LSub::AsLifetime<'this>, SortIdOf<Self>> {
                                 aspect_zst: tem.aspect_zst,
-                                map: Box::new(move |sid: &SortIdOf<LSub::AsLifetime<'this>>| {
+                                map: Rc::new(move |sid: &SortIdOf<LSub::AsLifetime<'this>>| {
                                     map_sid::<'a, L>((tem.map)(sid))
                                 }),
                             },

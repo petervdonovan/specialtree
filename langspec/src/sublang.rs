@@ -1,4 +1,4 @@
-use std::any::TypeId;
+use std::{any::TypeId, rc::Rc};
 
 // use functor_derive::Functor;
 
@@ -19,10 +19,10 @@ pub struct Sublang<'a, LSub: LangSpec, SortIdSelf> {
 
 pub struct AspectImplementors<'a, LSub: LangSpec, SortIdSelf> {
     pub aspect_zst: &'static dyn Aspect,
-    pub map: Box<SublangTyMap<'a, LSub, SortIdSelf>>, // sublang_sortid: SortIdLSub,
-                                                      // pub fromrec: SortIdSelf,
-                                                      // pub from_extern_behavioral: SortIdSelf,
-                                                      // pub to_structural: SortIdSelf,
+    pub map: Rc<SublangTyMap<'a, LSub, SortIdSelf>>, // sublang_sortid: SortIdLSub,
+                                                     // pub fromrec: SortIdSelf,
+                                                     // pub from_extern_behavioral: SortIdSelf,
+                                                     // pub to_structural: SortIdSelf,
 }
 
 pub fn reflexive_sublang<L: LangSpec>(l: &L) -> Sublang<'_, L, SortIdOf<L>> {
@@ -31,7 +31,7 @@ pub fn reflexive_sublang<L: LangSpec>(l: &L) -> Sublang<'_, L, SortIdOf<L>> {
         aspect_implementors: {
             vec![AspectImplementors {
                 aspect_zst: (VisitationAspect {}).static_ref(),
-                map: Box::new(|sid| sid.clone()),
+                map: Rc::new(|sid| sid.clone()),
             }]
         },
     }

@@ -11,6 +11,8 @@ use tymetafuncspec_core::BoundedNat;
 use std_parse_metadata::ParseMetadata;
 use std_parse_error::ParseError;
 use pattern_tmf::OrVariableZeroOrMore;
+use parse_adt::CstMetadataAspect;
+use parse_adt::CstFallibilityAspect;
 use fib::l_words_mod_r_fib::sorts::Sum;
 use fib::l_words_mod_r_fib::sorts::Right_operand;
 use fib::l_words_mod_r_fib::sorts::Plus;
@@ -24,24 +26,144 @@ impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for ltsrlclalflpfrrrr::F {
     type LWord = F;
 }
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, CstFallibilityAspect>
+for Either<
+    ltsrlclalflpfrrrr::Heap,
+    Pair<
+        ltsrlclalflpfrrrr::Heap,
+        ltsrlclalflpfrrrr::F,
+        Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+    >,
+    ParseError<ltsrlclalflpfrrrr::Heap>,
+> {
+    type LWord = F;
+}
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, CstMetadataAspect>
+for Pair<
+    ltsrlclalflpfrrrr::Heap,
+    ltsrlclalflpfrrrr::F,
+    Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+> {
+    type LWord = F;
+}
 impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for ltsrlclalflpfrrrr::Left_operand {
+    type LWord = Left_operand;
+}
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, CstFallibilityAspect>
+for Either<
+    ltsrlclalflpfrrrr::Heap,
+    Pair<
+        ltsrlclalflpfrrrr::Heap,
+        ltsrlclalflpfrrrr::Left_operand,
+        Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+    >,
+    ParseError<ltsrlclalflpfrrrr::Heap>,
+> {
+    type LWord = Left_operand;
+}
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, CstMetadataAspect>
+for Pair<
+    ltsrlclalflpfrrrr::Heap,
+    ltsrlclalflpfrrrr::Left_operand,
+    Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+> {
     type LWord = Left_operand;
 }
 impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for ltsrlclalflpfrrrr::Plus {
     type LWord = Plus;
 }
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, CstFallibilityAspect>
+for Either<
+    ltsrlclalflpfrrrr::Heap,
+    Pair<
+        ltsrlclalflpfrrrr::Heap,
+        ltsrlclalflpfrrrr::Plus,
+        Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+    >,
+    ParseError<ltsrlclalflpfrrrr::Heap>,
+> {
+    type LWord = Plus;
+}
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, CstMetadataAspect>
+for Pair<
+    ltsrlclalflpfrrrr::Heap,
+    ltsrlclalflpfrrrr::Plus,
+    Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+> {
+    type LWord = Plus;
+}
 impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for ltsrlclalflpfrrrr::Right_operand {
+    type LWord = Right_operand;
+}
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, CstFallibilityAspect>
+for Either<
+    ltsrlclalflpfrrrr::Heap,
+    Pair<
+        ltsrlclalflpfrrrr::Heap,
+        ltsrlclalflpfrrrr::Right_operand,
+        Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+    >,
+    ParseError<ltsrlclalflpfrrrr::Heap>,
+> {
+    type LWord = Right_operand;
+}
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, CstMetadataAspect>
+for Pair<
+    ltsrlclalflpfrrrr::Heap,
+    ltsrlclalflpfrrrr::Right_operand,
+    Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+> {
     type LWord = Right_operand;
 }
 impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for ltsrlclalflpfrrrr::Sum {
     type LWord = Sum;
 }
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, CstFallibilityAspect>
+for Either<
+    ltsrlclalflpfrrrr::Heap,
+    Pair<
+        ltsrlclalflpfrrrr::Heap,
+        ltsrlclalflpfrrrr::Sum,
+        Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+    >,
+    ParseError<ltsrlclalflpfrrrr::Heap>,
+> {
+    type LWord = Sum;
+}
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, CstMetadataAspect>
+for Pair<
+    ltsrlclalflpfrrrr::Heap,
+    ltsrlclalflpfrrrr::Sum,
+    Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+> {
+    type LWord = Sum;
+}
 impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for ltsrlclalflpfrrrr::Nat {
+    type LWord = Nat;
+}
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, CstFallibilityAspect>
+for Either<
+    ltsrlclalflpfrrrr::Heap,
+    Pair<
+        ltsrlclalflpfrrrr::Heap,
+        ltsrlclalflpfrrrr::Nat,
+        Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+    >,
+    ParseError<ltsrlclalflpfrrrr::Heap>,
+> {
+    type LWord = Nat;
+}
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, CstMetadataAspect>
+for Pair<
+    ltsrlclalflpfrrrr::Heap,
+    ltsrlclalflpfrrrr::Nat,
+    Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+> {
     type LWord = Nat;
 }
 impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
@@ -73,7 +195,100 @@ for Set<
 > {
     type LWord = Set<(), Nat>;
 }
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, CstFallibilityAspect>
+for Either<
+    ltsrlclalflpfrrrr::Heap,
+    Pair<
+        ltsrlclalflpfrrrr::Heap,
+        Set<
+            ltsrlclalflpfrrrr::Heap,
+            Either<
+                ltsrlclalflpfrrrr::Heap,
+                Pair<
+                    ltsrlclalflpfrrrr::Heap,
+                    OrVariableZeroOrMore<
+                        ltsrlclalflpfrrrr::Heap,
+                        Either<
+                            ltsrlclalflpfrrrr::Heap,
+                            Pair<
+                                ltsrlclalflpfrrrr::Heap,
+                                ltsrlclalflpfrrrr::Nat,
+                                Maybe<
+                                    ltsrlclalflpfrrrr::Heap,
+                                    ParseMetadata<ltsrlclalflpfrrrr::Heap>,
+                                >,
+                            >,
+                            ParseError<ltsrlclalflpfrrrr::Heap>,
+                        >,
+                    >,
+                    Maybe<
+                        ltsrlclalflpfrrrr::Heap,
+                        ParseMetadata<ltsrlclalflpfrrrr::Heap>,
+                    >,
+                >,
+                ParseError<ltsrlclalflpfrrrr::Heap>,
+            >,
+        >,
+        Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+    >,
+    ParseError<ltsrlclalflpfrrrr::Heap>,
+> {
+    type LWord = Set<(), Nat>;
+}
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, CstMetadataAspect>
+for Pair<
+    ltsrlclalflpfrrrr::Heap,
+    Set<
+        ltsrlclalflpfrrrr::Heap,
+        Either<
+            ltsrlclalflpfrrrr::Heap,
+            Pair<
+                ltsrlclalflpfrrrr::Heap,
+                OrVariableZeroOrMore<
+                    ltsrlclalflpfrrrr::Heap,
+                    Either<
+                        ltsrlclalflpfrrrr::Heap,
+                        Pair<
+                            ltsrlclalflpfrrrr::Heap,
+                            ltsrlclalflpfrrrr::Nat,
+                            Maybe<
+                                ltsrlclalflpfrrrr::Heap,
+                                ParseMetadata<ltsrlclalflpfrrrr::Heap>,
+                            >,
+                        >,
+                        ParseError<ltsrlclalflpfrrrr::Heap>,
+                    >,
+                >,
+                Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+            >,
+            ParseError<ltsrlclalflpfrrrr::Heap>,
+        >,
+    >,
+    Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+> {
+    type LWord = Set<(), Nat>;
+}
 impl words::Implements<ltsrlclalflpfrrrr::Heap, L, VisitationAspect>
 for BoundedNat<ltsrlclalflpfrrrr::Heap> {
+    type LWord = BoundedNat<()>;
+}
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, CstFallibilityAspect>
+for Either<
+    ltsrlclalflpfrrrr::Heap,
+    Pair<
+        ltsrlclalflpfrrrr::Heap,
+        BoundedNat<ltsrlclalflpfrrrr::Heap>,
+        Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+    >,
+    ParseError<ltsrlclalflpfrrrr::Heap>,
+> {
+    type LWord = BoundedNat<()>;
+}
+impl words::Implements<ltsrlclalflpfrrrr::Heap, L, CstMetadataAspect>
+for Pair<
+    ltsrlclalflpfrrrr::Heap,
+    BoundedNat<ltsrlclalflpfrrrr::Heap>,
+    Maybe<ltsrlclalflpfrrrr::Heap, ParseMetadata<ltsrlclalflpfrrrr::Heap>>,
+> {
     type LWord = BoundedNat<()>;
 }

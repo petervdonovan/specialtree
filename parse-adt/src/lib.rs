@@ -20,11 +20,19 @@ impl Aspect for LookaheadAspect {
         }
     }
 }
-pub struct CstAspect;
-impl Aspect for CstAspect {
+pub struct CstMetadataAspect;
+impl Aspect for CstMetadataAspect {
     fn zst_path(&self) -> syn::Path {
         syn::parse_quote! {
-            parse_adt::CstAspect
+            parse_adt::CstMetadataAspect
+        }
+    }
+}
+pub struct CstFallibilityAspect;
+impl Aspect for CstFallibilityAspect {
+    fn zst_path(&self) -> syn::Path {
+        syn::parse_quote! {
+            parse_adt::CstFallibilityAspect
         }
     }
 }
@@ -123,7 +131,7 @@ where
 }
 
 impl<'a, L> SelectCase for Parser<'a, L> {
-    type A = CstAspect;
+    type A = CstFallibilityAspect;
     type AC<CasesConsList: Strategy> = ParserSelecting<'a, L, CasesConsList>;
 
     fn start_cases<CasesConsList: Strategy>(self) -> Self::AC<CasesConsList> {
