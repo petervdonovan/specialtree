@@ -1,9 +1,10 @@
+use aspect::VisitationAspect;
 use ccf::CanonicallyConstructibleFrom;
 use pmsp::StrategyOf;
 
 use crate::{
     helper_traits::AnyVisit,
-    visiteventsink::{PopOrProceed, VisitEventSink},
+    visiteventsink::{AspectVisitor, PopOrProceed, VisitEventSink},
 };
 
 pub trait SkipVisit<LWord, L, T, Heap, AdtLikeOrNot> {
@@ -11,6 +12,10 @@ pub trait SkipVisit<LWord, L, T, Heap, AdtLikeOrNot> {
 }
 
 pub struct SkipVisitor<V>(pub V);
+
+impl<V> AspectVisitor for SkipVisitor<V> {
+    type A = VisitationAspect;
+}
 
 impl<V, T, Heap> VisitEventSink<T, Heap> for SkipVisitor<V> {
     fn push(&mut self, heap: &Heap, t: &T, total: u32) -> PopOrProceed {

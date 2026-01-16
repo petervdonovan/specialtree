@@ -8,8 +8,8 @@ fib-parse = { path = "../generated/fib-parse" }
 
 [dependencies]
 fib = { version = "0.0.0", path = "../generated/fib" }
-fib-pat = { version = "0.0.0", path = "../generated/fib-pat" }
-fib-pat-parse = { version = "0.0.0", path = "../generated/fib-pat-parse" }
+# fib-pat = { version = "0.0.0", path = "../generated/fib-pat" }
+# fib-pat-parse = { version = "0.0.0", path = "../generated/fib-pat-parse" }
 file-tmf = { version = "0.1.0", path = "../file-tmf" }
 langspec = { version = "0.1.0", path = "../langspec" }
 langspec-examples = { version = "0.1.0", path = "../langspec-examples" }

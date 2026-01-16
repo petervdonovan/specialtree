@@ -21,7 +21,7 @@ fn test_gdcr() {
     let ucr = unit_ccf_paths_quadratically_large_closure(
         thread_local_cache(),
         dcr,
-        &non_transparent_sorts,
+        non_transparent_sorts.clone().into_boxed_slice(),
     );
     for rel in ucr {
         println!("{rel:?}\n");

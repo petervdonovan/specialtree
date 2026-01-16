@@ -12,11 +12,11 @@ pub trait Visit<LWord, L, T, Heap, AdtLikeOrNot> {
 
 pub(crate) mod helper_traits {
     #[rustc_coinductive]
-    pub(crate) trait AllVisit<LWord, L, T, Heap, ConcreteCase> {
+    pub(crate) trait AllVisit<LWord, L, TVisitationImplementor, Heap, ConcreteCase, AbstractCase> {
         fn all_visit(&mut self, heap: &Heap, case: &ConcreteCase, idx: u32);
     }
     #[rustc_coinductive]
-    pub(crate) trait AnyVisit<LWord, L, T, Heap, RemainingCases> {
+    pub(crate) trait AnyVisit<LWord, L, T, TVisitationImplementor, Heap, RemainingCases> {
         fn any_visit(&mut self, heap: &Heap, t: &T);
     }
 }
@@ -24,77 +24,125 @@ pub(crate) mod helper_traits {
 mod impls {
     use aspect::VisitationAspect;
     use aspect::{AdtLike, Adtishness};
-    use ccf::CanonicallyConstructibleFrom;
+    use ccf::{CanonicallyConstructibleFrom, DirectlyCanonicallyConstructibleFrom};
     use conslist::{ConsList, NonemptyConsList};
     use pmsp::{NonemptyStrategy, StrategyOf};
-    use words::{HasDeconstructionTargetForWordList, Implements};
+    use words::{HasDeconstructionTargetForWordList, Implements, InverseImplements};
 
+    use crate::visiteventsink::AspectVisitor;
     use crate::{
         Visit,
         helper_traits::{AllVisit, AnyVisit},
         visiteventsink::VisitEventSink,
     };
 
-    impl<V, LWord, L, T, Heap> Visit<LWord, L, T, Heap, AdtLike> for V
+    impl<V, LWord, L, T, Heap, TVisitationImplementor> Visit<LWord, L, T, Heap, AdtLike> for V
     where
-        T: words::Implements<Heap, L, aspect::VisitationAspect>,
-        <T as words::Implements<Heap, L, aspect::VisitationAspect>>::LWord:
-            pmsp::NamesPatternMatchStrategy<L>,
-        V: AnyVisit<LWord, L, T, Heap, StrategyOf<T, Heap, L, aspect::VisitationAspect>>,
-    {
-        fn visit(&mut self, heap: &Heap, t: &T) {
-            <V as AnyVisit<_, _, _, _, _>>::any_visit(self, heap, t)
-        }
-    }
-
-    impl<V, LWord, L, T, Heap, RemainingCases> AnyVisit<LWord, L, T, Heap, RemainingCases> for V
-    where
-        Heap: HasDeconstructionTargetForWordList<L, RemainingCases::Car, T>,
-        T: Copy
-            + CanonicallyConstructibleFrom<
-                Heap,
-                <Heap as HasDeconstructionTargetForWordList<L, RemainingCases::Car, T>>::Implementors,
+        // T: words::Implements<Heap, L, aspect::VisitationAspect>,
+        // <T as words::Implements<Heap, L, aspect::VisitationAspect>>::LWord:
+        //     pmsp::NamesPatternMatchStrategy<L>,
+        Heap: words::InverseImplements<
+                L,
+                LWord,
+                VisitationAspect,
+                Implementor = TVisitationImplementor,
             >,
-        RemainingCases: NonemptyStrategy,
-        V: AnyVisit<LWord, L, T, Heap, RemainingCases::Cdr>,
-        V: AllVisit<
+        TVisitationImplementor: words::Implements<Heap, L, aspect::VisitationAspect, LWord = LWord>,
+        LWord: pmsp::NamesPatternMatchStrategy<L>,
+        V: AnyVisit<
                 LWord,
                 L,
                 T,
+                TVisitationImplementor,
                 Heap,
-                <Heap as HasDeconstructionTargetForWordList<L, RemainingCases::Car, T>>::Implementors,
+                StrategyOf<TVisitationImplementor, Heap, L, aspect::VisitationAspect>,
             >,
-        V: VisitEventSink<T, Heap>,
     {
-        fn any_visit(&mut self, heap: &Heap, t: &T) {
-            if <T as CanonicallyConstructibleFrom<Heap, _>>::deconstruct_succeeds(t, heap) {
-                self.push(heap, t, <RemainingCases::Car as ConsList>::LENGTH);
-                let car = <T as CanonicallyConstructibleFrom<Heap, _>>::deconstruct(*t, heap);
-                self.all_visit(heap, &car, 0);
-                self.pop(<RemainingCases::Car as ConsList>::LENGTH);
-            } else {
-                <V as AnyVisit<_, _, _, _, RemainingCases::Cdr>>::any_visit(self, heap, t);
-            }
+        fn visit(&mut self, heap: &Heap, t: &T) {
+            <V as AnyVisit<_, _, _, _, _, _>>::any_visit(self, heap, t)
         }
     }
 
-    impl<V, ConcreteCase: Copy, LWord, L, T, Heap> AllVisit<LWord, L, T, Heap, ConcreteCase> for V
+    impl<
+        V,
+        LWord,
+        L,
+        T,
+        TVisitationImplementor,
+        TAspectImplementor,
+        Heap,
+        RemainingCases,
+        CarDeconstructionTargetImplementor,
+    > AnyVisit<LWord, L, T, TVisitationImplementor, Heap, RemainingCases> for V
+    where
+        Heap: HasDeconstructionTargetForWordList<
+                L,
+                RemainingCases::Car,
+                TVisitationImplementor,
+                Implementors = CarDeconstructionTargetImplementor,
+            >,
+        T: Copy + CanonicallyConstructibleFrom<Heap, (TAspectImplementor, ())>,
+        TAspectImplementor: Copy + CanonicallyConstructibleFrom<Heap, (TVisitationImplementor, ())>,
+        TVisitationImplementor:
+            Copy + DirectlyCanonicallyConstructibleFrom<Heap, CarDeconstructionTargetImplementor>,
+        RemainingCases: NonemptyStrategy,
+        V: AnyVisit<LWord, L, T, TVisitationImplementor, Heap, RemainingCases::Cdr>,
+        V: AllVisit<
+                LWord,
+                L,
+                TVisitationImplementor,
+                Heap,
+                CarDeconstructionTargetImplementor,
+                RemainingCases::Car,
+            >,
+        Heap:
+            InverseImplements<L, LWord, <V as AspectVisitor>::A, Implementor = TAspectImplementor>,
+        V: VisitEventSink<
+                <Heap as InverseImplements<L, LWord, <V as AspectVisitor>::A>>::Implementor,
+                Heap,
+            >,
+    {
+        fn any_visit(&mut self, heap: &Heap, t: &T) {
+            if t.deconstruct_succeeds(heap) {
+                let tai = t.deconstruct(heap).0;
+                if tai.deconstruct_succeeds(heap) {
+                    let tvi = tai.deconstruct(heap).0;
+                    if tvi.deconstruct_succeeds(heap) {
+                        let car = tvi.deconstruct(heap);
+                        self.push(heap, &tai, <RemainingCases::Car as ConsList>::LENGTH);
+                        self.all_visit(heap, &car, 0);
+                        self.pop(<RemainingCases::Car as ConsList>::LENGTH);
+                        return;
+                    }
+                }
+            }
+            <V as AnyVisit<_, _, _, _, _, RemainingCases::Cdr>>::any_visit(self, heap, t);
+        }
+    }
+
+    impl<V, ConcreteCase: Copy, AbstractCase, LWord, L, T, Heap, TAspectImplementor>
+        AllVisit<LWord, L, T, Heap, ConcreteCase, AbstractCase> for V
     where
         ConcreteCase: NonemptyConsList,
-        V: AllVisit<LWord, L, T, Heap, ConcreteCase::Cdr>,
+        AbstractCase: NonemptyConsList,
+        V: AllVisit<LWord, L, T, Heap, ConcreteCase::Cdr, AbstractCase::Cdr>,
         // Heap: InverseImplements<L, Case::Car>,
-        ConcreteCase::Car: Implements<Heap, L, VisitationAspect>,
-        <ConcreteCase::Car as Implements<Heap, L, VisitationAspect>>::LWord: Adtishness<VisitationAspect>,
+        // ConcreteCase::Car: Implements<Heap, L, VisitationAspect>,
+        // <ConcreteCase::Car as Implements<Heap, L, VisitationAspect>>::LWord: Adtishness<VisitationAspect>,
+        AbstractCase::Car: Adtishness<VisitationAspect>,
         V: Visit<
-                <ConcreteCase::Car as Implements<Heap, L, VisitationAspect>>::LWord,
+                AbstractCase::Car,
                 L,
                 ConcreteCase::Car,
                 Heap,
-                <<ConcreteCase::Car as Implements<Heap, L, VisitationAspect>>::LWord as Adtishness<
-                    VisitationAspect,
-                >>::X,
+                <AbstractCase::Car as Adtishness<VisitationAspect>>::X,
             >,
-        V: VisitEventSink<T, Heap>,
+        Heap:
+            InverseImplements<L, LWord, <V as AspectVisitor>::A, Implementor = TAspectImplementor>,
+        V: VisitEventSink<
+                <Heap as InverseImplements<L, LWord, <V as AspectVisitor>::A>>::Implementor,
+                Heap,
+            >,
     {
         fn all_visit(&mut self, heap: &Heap, case: &ConcreteCase, idx: u32) {
             let (car, cdr) = case.deconstruct();
@@ -106,19 +154,31 @@ mod impls {
 
     mod base_cases {
 
+        use words::InverseImplements;
+
         use crate::{
             helper_traits::{AllVisit, AnyVisit},
-            visiteventsink::VisitEventSink,
+            visiteventsink::{AspectVisitor, VisitEventSink},
         };
 
-        impl<Visitor, LWord, L, T, Heap> AllVisit<LWord, L, T, Heap, ()> for Visitor {
+        impl<Visitor, LWord, L, T, Heap> AllVisit<LWord, L, T, Heap, (), ()> for Visitor {
             fn all_visit(&mut self, _heap: &Heap, _case: &(), _idx: u32) {
                 // do nothing
             }
         }
-        impl<V, LWord, L, T, Heap> AnyVisit<LWord, L, T, Heap, ()> for V
+        impl<V, LWord, L, T, TVisitationImplementor, TAspectImplementor, Heap>
+            AnyVisit<LWord, L, T, TVisitationImplementor, Heap, ()> for V
         where
-            V: VisitEventSink<T, Heap>,
+            Heap: InverseImplements<
+                    L,
+                    LWord,
+                    <V as AspectVisitor>::A,
+                    Implementor = TAspectImplementor,
+                >,
+            V: VisitEventSink<
+                    <Heap as InverseImplements<L, LWord, <V as AspectVisitor>::A>>::Implementor,
+                    Heap,
+                >,
         {
             fn any_visit(&mut self, _heap: &Heap, _t: &T) {
                 self.deconstruction_failure()

@@ -709,8 +709,6 @@ version = "0.1.0"
 dependencies = [
  "fib",
  "fib-parse",
- "fib-pat",
- "fib-pat-parse",
  "file-tmf",
  "langspec",
  "langspec-examples",

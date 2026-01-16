@@ -194,13 +194,14 @@ where
         self.pc.position = self
             .pc
             .match_keywords(&<LWord as NamesParseLL>::START)
-            .unwrap_or_else(|| {
-                panic!(
-                    "Expected start keyword \"{}\" but got \"{}\" at position {}",
-                    &<LWord as NamesParseLL>::START.0[0].get(),
-                    &self.pc.source[self.pc.position.offset()..],
-                    self.pc.position.offset()
-                );
+            .unwrap_or({
+                // panic!(
+                //     "Expected start keyword \"{}\" but got \"{}\" at position {}",
+                //     &<LWord as NamesParseLL>::START.0[0].get(),
+                //     &self.pc.source[self.pc.position.offset()..],
+                //     self.pc.position.offset()
+                // );
+                self.pc.position
             });
     }
 

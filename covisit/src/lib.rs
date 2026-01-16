@@ -28,7 +28,6 @@ pub(crate) mod helper_traits {
 mod impls {
     use aspect::VisitationAspect;
     use aspect::{AdtLike, Adtishness};
-    use ccf::transitivity::TransitivelyUnitCcf;
     use ccf::{CanonicallyConstructibleFrom, DirectlyCanonicallyConstructibleFrom};
     use conslist::{ConsList, NonemptyConsList};
     use pmsp::{NonemptyStrategy, StrategyOf};
@@ -43,7 +42,7 @@ mod impls {
     impl<Covisitor, LWord, L, T, Heap, TVisitationImplementor> Covisit<LWord, L, T, Heap, AdtLike>
         for Covisitor
     where
-        T: words::Implements<Heap, L, <Covisitor as SelectCase>::A, LWord = LWord>,
+        // T: Implements<Heap, L, <Covisitor as SelectCase>::A, LWord = LWord>,
         T: CanonicallyConstructibleFrom<Heap, (TVisitationImplementor, ())>,
         Heap: words::InverseImplements<
                 L,
@@ -51,7 +50,7 @@ mod impls {
                 VisitationAspect,
                 Implementor = TVisitationImplementor,
             >,
-        TVisitationImplementor: words::Implements<Heap, L, VisitationAspect, LWord = LWord>,
+        TVisitationImplementor: Implements<Heap, L, VisitationAspect, LWord = LWord>,
         LWord: pmsp::NamesPatternMatchStrategy<L>,
         // Covisitor: Covisit<<StrategyOf<T, Heap, L> as Strategy>::Cdr, Heap, L>,
         Covisitor: Poisonable,

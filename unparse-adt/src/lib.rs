@@ -9,7 +9,7 @@ use aspect::Adtishness;
 use unparse::Unparse;
 use visit::{
     Visit,
-    visiteventsink::{PopOrProceed, VisitEventSink},
+    visiteventsink::{AspectVisitor, PopOrProceed, VisitEventSink},
 };
 
 pub mod tmfscore;
@@ -37,6 +37,10 @@ impl<'arena, L> Unparser<'arena, L> {
             phantom: std::marker::PhantomData,
         }
     }
+}
+
+impl<'arena, L> AspectVisitor for Unparser<'arena, L> {
+    type A = VisitationAspect;
 }
 
 impl<'arena, L, CurrentNode, Heap> VisitEventSink<CurrentNode, Heap> for Unparser<'arena, L>

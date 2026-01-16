@@ -2,7 +2,7 @@ use aspect::VisitationAspect;
 use derivative::Derivative;
 use names_langspec_sort::NamesLangspecSort;
 use thiserror::Error;
-use visit::visiteventsink::VisitEventSink;
+use visit::visiteventsink::{AspectVisitor, VisitEventSink};
 use words::Implements;
 
 use crate::{CompositePattern, DynPattern};
@@ -90,6 +90,11 @@ impl<L, LSub, SortId: Clone> PatternBuilder<L, LSub, SortId> {
         }
     }
 }
+
+impl<L, LSub, SortId> AspectVisitor for PatternBuilder<L, LSub, SortId> {
+    type A = VisitationAspect;
+}
+
 impl<L, LSub, CurrentNode, Heap, SortId> VisitEventSink<CurrentNode, Heap>
     for PatternBuilder<L, LSub, SortId>
 where

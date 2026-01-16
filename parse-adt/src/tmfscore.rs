@@ -90,7 +90,6 @@ where
             }
         }
         loop {
-            println!("dbg: loop");
             let item = Self::covisit(self, heap);
             items.push(
                 <MappedElem as CanonicallyConstructibleFrom<_, _>>::construct(heap, (item, ())),
