@@ -8,6 +8,7 @@ use covisit::Covisit;
 use tymetafuncspec_core::{BoundedNat, IdxBox, IdxBoxHeapBak, Set, SetHeapBak};
 use words::InverseImplements;
 
+use crate::CstFallibilityAspect;
 use crate::LookaheadAspect;
 use crate::{
     Lookahead, ParseCursor, Parser,
@@ -42,12 +43,20 @@ where
 impl<'a, Heap, L, ElemLWord, MappedSet, MappedElem>
     Covisit<Set<(), ElemLWord>, L, Cstfy<Heap, MappedSet>, Heap, NotAdtLike> for Parser<'a, L>
 where
-    Heap: InverseImplements<L, ElemLWord, LookaheadAspect>,
+    // Heap: InverseImplements<L, ElemLWord, LookaheadAspect>,
     Heap: InverseImplements<L, ElemLWord, VisitationAspect>,
+    Heap: InverseImplements<L, ElemLWord, CstFallibilityAspect>,
+    MappedElem: CanonicallyConstructibleFrom<
+            Heap,
+            (
+                <Heap as InverseImplements<L, ElemLWord, CstFallibilityAspect>>::Implementor,
+                (),
+            ),
+        >,
     Heap: InverseImplements<
             L,
             Set<(), ElemLWord>,
-            LookaheadAspect,
+            VisitationAspect,
             Implementor = Set<Heap, MappedElem>,
         >,
     Heap: term::SuperHeap<SetHeapBak<Heap, MappedElem>>,
@@ -55,7 +64,7 @@ where
     Parser<'a, L>: Covisit<
             ElemLWord,
             L,
-            <Heap as InverseImplements<L, ElemLWord, VisitationAspect>>::Implementor,
+            <Heap as InverseImplements<L, ElemLWord, CstFallibilityAspect>>::Implementor,
             Heap,
             <ElemLWord as Adtishness<VisitationAspect>>::X,
         >,

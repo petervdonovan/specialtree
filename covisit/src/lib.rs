@@ -28,8 +28,8 @@ pub(crate) mod helper_traits {
 mod impls {
     use aspect::VisitationAspect;
     use aspect::{AdtLike, Adtishness};
-    use ccf::CanonicallyConstructibleFrom;
     use ccf::transitivity::TransitivelyUnitCcf;
+    use ccf::{CanonicallyConstructibleFrom, DirectlyCanonicallyConstructibleFrom};
     use conslist::{ConsList, NonemptyConsList};
     use pmsp::{NonemptyStrategy, StrategyOf};
     use take_mut::Poisonable;
@@ -79,7 +79,16 @@ mod impls {
             })
         }
     }
-    impl<AC, LWord, L, T, TVisitationImplementor, Heap, RemainingCases>
+    impl<
+        AC,
+        LWord,
+        L,
+        T,
+        TVisitationImplementor,
+        Heap,
+        RemainingCases,
+        CarDeconstructionTargetImplementor,
+    >
         AnyCovisit<
             LWord,
             L,
@@ -92,27 +101,19 @@ mod impls {
     where
         AC: AcceptingCases<RemainingCases>,
         RemainingCases: NonemptyStrategy,
-        Heap: HasDeconstructionTargetForWordList<L, RemainingCases::Car, TVisitationImplementor>,
+        Heap: HasDeconstructionTargetForWordList<
+                L,
+                RemainingCases::Car,
+                TVisitationImplementor,
+                Implementors = CarDeconstructionTargetImplementor,
+            >,
         <AC as FromSelectCase>::Done: AllCovisit<
                 LWord,
                 L,
                 TVisitationImplementor,
                 Heap,
-                <Heap as HasDeconstructionTargetForWordList<
-                    L,
-                    RemainingCases::Car,
-                    TVisitationImplementor,
-                >>::Implementors,
+                CarDeconstructionTargetImplementor,
                 RemainingCases::Car,
-            >,
-        T: CanonicallyConstructibleFrom<Heap, (TVisitationImplementor, ())>,
-        TVisitationImplementor: CanonicallyConstructibleFrom<
-                Heap,
-                <Heap as HasDeconstructionTargetForWordList<
-                    L,
-                    RemainingCases::Car,
-                    TVisitationImplementor,
-                >>::Implementors,
             >,
         AC::AcceptingRemainingCases: AnyCovisit<
                 LWord,
@@ -123,6 +124,9 @@ mod impls {
                 RemainingCases::Cdr,
                 <AC as FromSelectCase>::Done,
             >,
+        T: CanonicallyConstructibleFrom<Heap, (TVisitationImplementor, ())>,
+        TVisitationImplementor:
+            DirectlyCanonicallyConstructibleFrom<Heap, CarDeconstructionTargetImplementor>,
         <AC as FromSelectCase>::Done: CovisitEventSink<LWord>,
     {
         fn any_covisit(self, heap: &mut Heap) -> (<AC as FromSelectCase>::Done, T) {
@@ -135,7 +139,7 @@ mod impls {
                         );
                     <<AC as FromSelectCase>::Done as CovisitEventSink<_>>::pop(&mut x);
                     let visitation_implementor =
-                        <TVisitationImplementor as CanonicallyConstructibleFrom<_, _>>::construct(
+                        <TVisitationImplementor as DirectlyCanonicallyConstructibleFrom<_, _>>::construct(
                             heap, case,
                         );
                     let ret = <T as CanonicallyConstructibleFrom<Heap, _>>::construct(
@@ -151,35 +155,45 @@ mod impls {
                 })
         }
     }
-    impl<Covisitor, LWord, L, TVisitationImplementor, Heap, ConcreteCase, AbstractCase, CaseCarVisitationImplementor> AllCovisit<LWord, L, TVisitationImplementor, Heap, ConcreteCase, AbstractCase>
-        for Covisitor
+    impl<
+        Covisitor,
+        LWord,
+        L,
+        TVisitationImplementor,
+        Heap,
+        ConcreteCase,
+        AbstractCase,
+        CaseCarAspectImplementor,
+    > AllCovisit<LWord, L, TVisitationImplementor, Heap, ConcreteCase, AbstractCase> for Covisitor
     where
         Heap: words::InverseImplements<
                 L,
                 AbstractCase::Car,
-                VisitationAspect,
-                Implementor = CaseCarVisitationImplementor,
+                <Covisitor as SelectCase>::A,
+                Implementor = CaseCarAspectImplementor,
             >,
+        Covisitor: SelectCase,
         AbstractCase: NonemptyConsList,
         ConcreteCase: NonemptyConsList,
-        ConcreteCase::Car: TransitivelyUnitCcf<Heap, CaseCarVisitationImplementor>,
-        CaseCarVisitationImplementor: Implements<Heap, L, VisitationAspect>,
-        <CaseCarVisitationImplementor as Implements<Heap, L, VisitationAspect>>::LWord: Adtishness<VisitationAspect>,
+        ConcreteCase::Car: CanonicallyConstructibleFrom<Heap, (CaseCarAspectImplementor, ())>,
+        AbstractCase::Car: Adtishness<VisitationAspect>,
         Covisitor: Covisit<
                 AbstractCase::Car,
                 L,
-                ConcreteCase::Car,
+                CaseCarAspectImplementor,
                 Heap,
-                <<CaseCarVisitationImplementor as Implements<Heap, L, VisitationAspect>>::LWord as Adtishness<
-                    VisitationAspect,
-                >>::X,
+                <AbstractCase::Car as Adtishness<VisitationAspect>>::X,
             >,
         Covisitor: AllCovisit<LWord, L, TVisitationImplementor, Heap, ConcreteCase::Cdr, AbstractCase::Cdr>,
         Covisitor: CovisitEventSink<LWord>,
     {
         fn all_covisit(&mut self, heap: &mut Heap, idx: u32) -> ConcreteCase {
+            let car_aspect_implementor = <Covisitor as Covisit<_, _, _, _, _>>::covisit(self, heap);
             ConsList::reconstruct(
-                <Covisitor as Covisit<_, _, _, _, _>>::covisit(self, heap),
+                <ConcreteCase::Car as CanonicallyConstructibleFrom<
+                    Heap,
+                    (CaseCarAspectImplementor, ()),
+                >>::construct(heap, (car_aspect_implementor, ())),
                 {
                     self.proceed(idx, idx + ConcreteCase::LENGTH);
                     <Covisitor as AllCovisit<_, _, _, _, _, _>>::all_covisit(self, heap, idx + 1)

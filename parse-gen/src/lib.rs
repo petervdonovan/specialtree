@@ -196,7 +196,7 @@ pub mod targets {
                         codegen_deps.subtree(),
                         l,
                     ));
-                let cst = super::cst(arena, arena.alloc(super::autobox(l)));
+                let cst = arena.alloc(super::autobox(super::cst(arena, l)));
                 let _ =
                     codegen_deps.add(term_pattern_match_strategy_provider_gen::targets::default(
                         arena,
