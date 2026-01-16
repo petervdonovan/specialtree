@@ -15,7 +15,8 @@ pub trait Covisit<LWord, L, T, Heap, AdtLikeOrNot> {
 
 pub(crate) mod helper_traits {
     #[rustc_coinductive]
-    pub(crate) trait AllCovisit<LWord, L, TVisitationImplementor, Heap, ConcreteCase> {
+    pub(crate) trait AllCovisit<LWord, L, TVisitationImplementor, Heap, ConcreteCase, AbstractCase>
+    {
         fn all_covisit(&mut self, heap: &mut Heap, idx: u32) -> ConcreteCase;
     }
     #[rustc_coinductive]
@@ -28,6 +29,7 @@ mod impls {
     use aspect::VisitationAspect;
     use aspect::{AdtLike, Adtishness};
     use ccf::CanonicallyConstructibleFrom;
+    use ccf::transitivity::TransitivelyUnitCcf;
     use conslist::{ConsList, NonemptyConsList};
     use pmsp::{NonemptyStrategy, StrategyOf};
     use take_mut::Poisonable;
@@ -101,6 +103,7 @@ mod impls {
                     RemainingCases::Car,
                     TVisitationImplementor,
                 >>::Implementors,
+                RemainingCases::Car,
             >,
         T: CanonicallyConstructibleFrom<Heap, (TVisitationImplementor, ())>,
         TVisitationImplementor: CanonicallyConstructibleFrom<
@@ -127,7 +130,7 @@ mod impls {
                 .map(|mut x| {
                     <<AC as FromSelectCase>::Done as CovisitEventSink<_>>::push(&mut x);
                     let case =
-                        <<AC as FromSelectCase>::Done as AllCovisit<_, _, _, _, _>>::all_covisit(
+                        <<AC as FromSelectCase>::Done as AllCovisit<_, _, _, _, _, _>>::all_covisit(
                             &mut x, heap, 0,
                         );
                     <<AC as FromSelectCase>::Done as CovisitEventSink<_>>::pop(&mut x);
@@ -148,22 +151,30 @@ mod impls {
                 })
         }
     }
-    impl<Covisitor, LWord, L, TVisitationImplementor, Heap, ConcreteCase> AllCovisit<LWord, L, TVisitationImplementor, Heap, ConcreteCase>
+    impl<Covisitor, LWord, L, TVisitationImplementor, Heap, ConcreteCase, AbstractCase, CaseCarVisitationImplementor> AllCovisit<LWord, L, TVisitationImplementor, Heap, ConcreteCase, AbstractCase>
         for Covisitor
     where
+        Heap: words::InverseImplements<
+                L,
+                AbstractCase::Car,
+                VisitationAspect,
+                Implementor = CaseCarVisitationImplementor,
+            >,
+        AbstractCase: NonemptyConsList,
         ConcreteCase: NonemptyConsList,
-        ConcreteCase::Car: Implements<Heap, L, VisitationAspect>,
-        <ConcreteCase::Car as Implements<Heap, L, VisitationAspect>>::LWord: Adtishness<VisitationAspect>,
+        ConcreteCase::Car: TransitivelyUnitCcf<Heap, CaseCarVisitationImplementor>,
+        CaseCarVisitationImplementor: Implements<Heap, L, VisitationAspect>,
+        <CaseCarVisitationImplementor as Implements<Heap, L, VisitationAspect>>::LWord: Adtishness<VisitationAspect>,
         Covisitor: Covisit<
-                <ConcreteCase::Car as Implements<Heap, L, VisitationAspect>>::LWord,
+                AbstractCase::Car,
                 L,
                 ConcreteCase::Car,
                 Heap,
-                <<ConcreteCase::Car as Implements<Heap, L, VisitationAspect>>::LWord as Adtishness<
+                <<CaseCarVisitationImplementor as Implements<Heap, L, VisitationAspect>>::LWord as Adtishness<
                     VisitationAspect,
                 >>::X,
             >,
-        Covisitor: AllCovisit<LWord, L, TVisitationImplementor, Heap, ConcreteCase::Cdr>,
+        Covisitor: AllCovisit<LWord, L, TVisitationImplementor, Heap, ConcreteCase::Cdr, AbstractCase::Cdr>,
         Covisitor: CovisitEventSink<LWord>,
     {
         fn all_covisit(&mut self, heap: &mut Heap, idx: u32) -> ConcreteCase {
@@ -171,7 +182,7 @@ mod impls {
                 <Covisitor as Covisit<_, _, _, _, _>>::covisit(self, heap),
                 {
                     self.proceed(idx, idx + ConcreteCase::LENGTH);
-                    <Covisitor as AllCovisit<_, _, _, _, _>>::all_covisit(self, heap, idx + 1)
+                    <Covisitor as AllCovisit<_, _, _, _, _, _>>::all_covisit(self, heap, idx + 1)
                 },
             )
         }
@@ -182,7 +193,7 @@ mod impls {
             select::{AdmitNoMatchingCase, FromSelectCase},
         };
 
-        impl<Covisitor, LWord, L, T, Heap> AllCovisit<LWord, L, T, Heap, ()> for Covisitor {
+        impl<Covisitor, LWord, L, T, Heap> AllCovisit<LWord, L, T, Heap, (), ()> for Covisitor {
             fn all_covisit(&mut self, _: &mut Heap, _idx: u32) {}
         }
         impl<AC, LWord, L, T, TVisitationImplementor, Heap>
