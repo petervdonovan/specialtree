@@ -9,10 +9,6 @@ fn test() {
             "  unparse: {}",
             unparse_adt::unparse::<sorts::Nat, L, _, _>(&heap, &v)
         );
-        // println!(
-        //     "pattern: {:?}",
-        //     pattern_dyn::to_pattern::<_, L, _, _>(&heap, &v).unwrap()
-        // );
     }
     {
         println!("test Nat");

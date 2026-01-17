@@ -22,7 +22,7 @@ where
     Heap: InverseImplements<
             L,
             OrVariable<(), MatchedTyLWord>,
-            LookaheadAspect,
+            VisitationAspect,
             Implementor = OrVariable<Heap, MatchedTy>,
         >,
     MatchedTyLWord: Adtishness<VisitationAspect>,
@@ -67,7 +67,7 @@ where
     Heap: InverseImplements<
             L,
             OrVariableZeroOrMore<(), MatchedTyLWord>,
-            LookaheadAspect,
+            VisitationAspect,
             Implementor = OrVariableZeroOrMore<Heap, MatchedTy>,
         >,
     MatchedTyLWord: Adtishness<VisitationAspect>,
@@ -120,7 +120,7 @@ where
     Heap: InverseImplements<
             L,
             NamedPattern<(), PatternLWord>,
-            LookaheadAspect,
+            VisitationAspect,
             Implementor = NamedPattern<Heap, Pattern>,
         >,
     PatternLWord: Adtishness<VisitationAspect>,

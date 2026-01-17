@@ -16,7 +16,7 @@ impl<'a, Heap, L, Item, ItemLWord, FileMapped>
 where
     Heap: SuperHeap<FileHeapBak<Heap, Item>>,
     Heap:
-        InverseImplements<L, File<(), ItemLWord>, LookaheadAspect, Implementor = File<Heap, Item>>,
+        InverseImplements<L, File<(), ItemLWord>, VisitationAspect, Implementor = File<Heap, Item>>,
     ItemLWord: Adtishness<VisitationAspect>,
     Parser<'a, L>:
         Covisit<ItemLWord, L, Item, Heap, <ItemLWord as Adtishness<VisitationAspect>>::X>,

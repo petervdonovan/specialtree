@@ -1,6 +1,6 @@
-use fib::words_mod_fib::{L as LSub, sorts};
-use fib_pat::words_mod_file_pattern_fib::{L, sorts as supsorts};
-use fib_pat_parse::term_specialized_cst_autoboxed_file_pattern_fib::Heap;
+use fib::l_words_mod_r_fib::{L as LSub, sorts};
+use fib_pat::l_words_mod_r_l_file_l_pattern_fib_r_r::{L, sorts as supsorts};
+use fib_pat_parse::l_term_specialized_r_l_autoboxed_l_cst_l_file_l_pattern_fib_r_r_r_r::Heap;
 use file_tmf::File;
 use langspec::{flat::LangSpecFlat, langspec::TerminalLangSpec as _};
 
@@ -9,10 +9,10 @@ fn test() {
     let ls = LangSpecFlat::canonical_from(&langspec_examples::fib());
     {
         println!("test Nat");
-        let (heap, v) = fib_pat_parse::parse_file_pattern_fib::nat("3");
+        let (heap, v) = fib_pat_parse::parse_l_file_l_pattern_fib_r_r::nat("3");
         println!(
             "unparse: {}",
-            unparse_adt::unparse::<sorts::Nat, L, _, _>(&heap, &v)
+            unparse_adt::unparse::<supsorts::Nat, L, _, _>(&heap, &v)
         );
         println!(
             "pattern: {:?}",
@@ -21,10 +21,10 @@ fn test() {
     }
     {
         println!("test Nat");
-        let (heap, v) = fib_pat_parse::parse_file_pattern_fib::nat("f 3");
+        let (heap, v) = fib_pat_parse::parse_l_file_l_pattern_fib_r_r::nat("f 3");
         println!(
             "unparse: {}",
-            unparse_adt::unparse::<sorts::Nat, L, _, _>(&heap, &v)
+            unparse_adt::unparse::<supsorts::Nat, L, _, _>(&heap, &v)
         );
         println!(
             "pattern: {:?}",
@@ -33,10 +33,10 @@ fn test() {
     }
     {
         println!("test Sum");
-        let (heap, v) = fib_pat_parse::parse_file_pattern_fib::sum("sum { $k }");
+        let (heap, v) = fib_pat_parse::parse_l_file_l_pattern_fib_r_r::sum("sum { $k }");
         println!(
             "unparse: {}",
-            unparse_adt::unparse::<sorts::Sum, L, _, _>(&heap, &v)
+            unparse_adt::unparse::<supsorts::Sum, L, _, _>(&heap, &v)
         );
         println!(
             "pattern: {:?}",
@@ -45,10 +45,10 @@ fn test() {
     }
     {
         println!("test F");
-        let (heap, v) = fib_pat_parse::parse_file_pattern_fib::f("f _");
+        let (heap, v) = fib_pat_parse::parse_l_file_l_pattern_fib_r_r::f("f _");
         println!(
             "unparse: {}",
-            unparse_adt::unparse::<sorts::F, L, _, _>(&heap, &v)
+            unparse_adt::unparse::<supsorts::F, L, _, _>(&heap, &v)
         );
         println!(
             "pattern: {:?}",
@@ -57,11 +57,12 @@ fn test() {
     }
     {
         println!("test Plus");
-        let (heap, v) =
-            fib_pat_parse::parse_file_pattern_fib::plus("plus left_operand 3 right_operand 4");
+        let (heap, v) = fib_pat_parse::parse_l_file_l_pattern_fib_r_r::plus(
+            "plus left_operand 3 right_operand 4",
+        );
         println!(
             "unparse: {}",
-            unparse_adt::unparse::<sorts::Plus, L, _, _>(&heap, &v)
+            unparse_adt::unparse::<supsorts::Plus, L, _, _>(&heap, &v)
         );
         println!(
             "pattern: {:?}",
@@ -70,12 +71,12 @@ fn test() {
     }
     {
         println!("test Nat");
-        let (heap, v) = fib_pat_parse::parse_file_pattern_fib::nat(
+        let (heap, v) = fib_pat_parse::parse_l_file_l_pattern_fib_r_r::nat(
             "sum { f 3, f plus left_operand f $t right_operand 4, ...z }",
         );
         println!(
             "unparse: {}",
-            unparse_adt::unparse::<sorts::Nat, L, _, _>(&heap, &v)
+            unparse_adt::unparse::<supsorts::Nat, L, _, _>(&heap, &v)
         );
         println!(
             "pattern: {:?}",
