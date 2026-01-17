@@ -3,15 +3,24 @@ use aspect::{Adtishness, NotAdtLike};
 use ccf::CanonicallyConstructibleFrom;
 use pattern_dyn::visitor::PatternBuilder;
 use visit::Visit;
-use words::InverseImplements;
+use words::{Implements, InverseImplements};
 
 use crate::{
     NamedPattern, NamedPatternHeapBak, OrVariable, OrVariableHeapBak, OrVariableZeroOrMore,
     OrVariableZeroOrMoreHeapBak,
 };
 
-impl<SortId, Heap, L, LSub, MatchedTy, MatchedTyLWord, MappedOrVariable: Copy>
-    Visit<OrVariable<(), MatchedTyLWord>, L, MappedOrVariable, Heap, NotAdtLike>
+impl<
+    SortId,
+    Heap,
+    L,
+    LSub,
+    MatchedTyLWord,
+    MatchedTy,
+    MappedOrVariable: Copy,
+    MatchedTyVisitationImplementor,
+    MatchedTyLWordInLSub,
+> Visit<OrVariable<(), MatchedTyLWord>, L, MappedOrVariable, Heap, NotAdtLike>
     for PatternBuilder<L, LSub, SortId>
 where
     SortId: Clone,
@@ -39,26 +48,42 @@ where
             Heap,
             <MatchedTyLWord as Adtishness<VisitationAspect>>::X,
         >,
-    // MatchedTyLWord: names_langspec_sort::NamesLangspecSort<LSub>,
+    Heap: InverseImplements<
+            L,
+            MatchedTyLWord,
+            VisitationAspect,
+            Implementor = MatchedTyVisitationImplementor,
+        >,
+    MatchedTyVisitationImplementor:
+        Implements<Heap, LSub, VisitationAspect, LWord = MatchedTyLWordInLSub>,
+    MatchedTyLWordInLSub: names_langspec_sort::NamesLangspecSort<LSub>,
 {
     fn visit(&mut self, heap: &Heap, t: &MappedOrVariable) {
-        // let (ov, ()) = (*t).deconstruct(heap);
-        // match ov {
-        //     OrVariable::Ctor(t) => self.visit(heap, &t.deconstruct(heap).0),
-        //     OrVariable::Variable { name } => {
-        //         let subheap = heap.subheap::<OrVariableHeapBak<_, _>>();
-        //         self.variable::<Heap, MatchedTyLWord>(
-        //             subheap.names.resolve(name).unwrap().to_string(),
-        //         )
-        //     }
-        //     OrVariable::Ignored(_) => self.ignored::<Heap, MatchedTyLWord>(),
-        // }
-        todo!()
+        let (ov, ()) = (*t).deconstruct(heap);
+        match ov {
+            OrVariable::Ctor(t) => self.visit(heap, &t.deconstruct(heap).0),
+            OrVariable::Variable { name } => {
+                let subheap = heap.subheap::<OrVariableHeapBak<_, _>>();
+                self.variable::<Heap, MatchedTyLWordInLSub>(
+                    subheap.names.resolve(name).unwrap().to_string(),
+                )
+            }
+            OrVariable::Ignored(_) => self.ignored::<Heap, MatchedTyLWordInLSub>(),
+        }
     }
 }
 
-impl<SortId, Heap, L, LSub, MatchedTy, MatchedTyLWord, MappedOrVariableZeroOrMore: Copy>
-    Visit<OrVariableZeroOrMore<(), MatchedTyLWord>, L, MappedOrVariableZeroOrMore, Heap, NotAdtLike>
+impl<
+    SortId,
+    Heap,
+    L,
+    LSub,
+    MatchedTy,
+    MatchedTyLWord,
+    MappedOrVariableZeroOrMore: Copy,
+    MatchedTyVisitationImplementor,
+    MatchedTyLWordInLSub,
+> Visit<OrVariableZeroOrMore<(), MatchedTyLWord>, L, MappedOrVariableZeroOrMore, Heap, NotAdtLike>
     for PatternBuilder<L, LSub, SortId>
 where
     SortId: Clone,
@@ -79,8 +104,15 @@ where
             Heap,
             <MatchedTyLWord as Adtishness<VisitationAspect>>::X,
         >,
-    // MatchedTyLWord: words::Implements<Heap, LSub>,
-    MatchedTyLWord: names_langspec_sort::NamesLangspecSort<LSub>,
+    Heap: InverseImplements<
+            L,
+            MatchedTyLWord,
+            VisitationAspect,
+            Implementor = MatchedTyVisitationImplementor,
+        >,
+    MatchedTyVisitationImplementor:
+        Implements<Heap, LSub, VisitationAspect, LWord = MatchedTyLWordInLSub>,
+    MatchedTyLWordInLSub: names_langspec_sort::NamesLangspecSort<LSub>,
 {
     fn visit(&mut self, heap: &Heap, t: &MappedOrVariableZeroOrMore) {
         let (ov, ()) = (*t).deconstruct(heap);
@@ -88,12 +120,12 @@ where
             OrVariableZeroOrMore::Ctor(t) => self.visit(heap, &t),
             OrVariableZeroOrMore::Variable { name } => {
                 let subheap = heap.subheap::<OrVariableZeroOrMoreHeapBak<_, _>>();
-                self.variable::<Heap, MatchedTyLWord>(
+                self.variable::<Heap, MatchedTyLWordInLSub>(
                     subheap.names.resolve(name).unwrap().to_string(),
                 )
             }
-            OrVariableZeroOrMore::Ignored(_) => self.ignored::<Heap, MatchedTyLWord>(),
-            OrVariableZeroOrMore::ZeroOrMore { name } => self.vzom::<Heap, MatchedTyLWord>({
+            OrVariableZeroOrMore::Ignored(_) => self.ignored::<Heap, MatchedTyLWordInLSub>(),
+            OrVariableZeroOrMore::ZeroOrMore { name } => self.vzom::<Heap, MatchedTyLWordInLSub>({
                 let subheap = heap.subheap::<OrVariableZeroOrMoreHeapBak<_, _>>();
                 subheap.names.resolve(name).unwrap().to_string()
             }),

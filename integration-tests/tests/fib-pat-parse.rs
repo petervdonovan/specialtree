@@ -11,48 +11,48 @@ fn test() {
         println!("test Nat");
         let (heap, v) = fib_pat_parse::parse_l_file_l_pattern_fib_r_r::nat("3");
         println!(
-            "unparse: {}",
+            "  unparse: {}",
             unparse_adt::unparse::<supsorts::Nat, L, _, _>(&heap, &v)
         );
         println!(
-            "pattern: {:?}",
-            pattern_dyn::to_pattern::<sorts::Nat, L, _, _, LSub, _>(&heap, &v, &ls).unwrap()
+            "  pattern: {:?}",
+            pattern_dyn::to_pattern::<supsorts::Nat, L, _, _, LSub, _>(&heap, &v, &ls).unwrap()
         );
     }
     {
         println!("test Nat");
         let (heap, v) = fib_pat_parse::parse_l_file_l_pattern_fib_r_r::nat("f 3");
         println!(
-            "unparse: {}",
+            "  unparse: {}",
             unparse_adt::unparse::<supsorts::Nat, L, _, _>(&heap, &v)
         );
         println!(
-            "pattern: {:?}",
-            pattern_dyn::to_pattern::<sorts::Nat, L, _, _, LSub, _>(&heap, &v, &ls).unwrap()
+            "  pattern: {:?}",
+            pattern_dyn::to_pattern::<supsorts::Nat, L, _, _, LSub, _>(&heap, &v, &ls).unwrap()
         );
     }
     {
         println!("test Sum");
         let (heap, v) = fib_pat_parse::parse_l_file_l_pattern_fib_r_r::sum("sum { $k }");
         println!(
-            "unparse: {}",
+            "  unparse: {}",
             unparse_adt::unparse::<supsorts::Sum, L, _, _>(&heap, &v)
         );
         println!(
-            "pattern: {:?}",
-            pattern_dyn::to_pattern::<sorts::Sum, L, _, _, LSub, _>(&heap, &v, &ls).unwrap()
+            "  pattern: {:?}",
+            pattern_dyn::to_pattern::<supsorts::Sum, L, _, _, LSub, _>(&heap, &v, &ls).unwrap()
         );
     }
     {
         println!("test F");
         let (heap, v) = fib_pat_parse::parse_l_file_l_pattern_fib_r_r::f("f _");
         println!(
-            "unparse: {}",
+            "  unparse: {}",
             unparse_adt::unparse::<supsorts::F, L, _, _>(&heap, &v)
         );
         println!(
-            "pattern: {:?}",
-            pattern_dyn::to_pattern::<sorts::F, L, _, _, LSub, _>(&heap, &v, &ls).unwrap()
+            "  pattern: {:?}",
+            pattern_dyn::to_pattern::<supsorts::F, L, _, _, LSub, _>(&heap, &v, &ls).unwrap()
         );
     }
     {
@@ -61,12 +61,12 @@ fn test() {
             "plus left_operand 3 right_operand 4",
         );
         println!(
-            "unparse: {}",
+            "  unparse: {}",
             unparse_adt::unparse::<supsorts::Plus, L, _, _>(&heap, &v)
         );
         println!(
-            "pattern: {:?}",
-            pattern_dyn::to_pattern::<sorts::Plus, L, _, _, LSub, _>(&heap, &v, &ls).unwrap()
+            "  pattern: {:?}",
+            pattern_dyn::to_pattern::<supsorts::Plus, L, _, _, LSub, _>(&heap, &v, &ls).unwrap()
         );
     }
     {
@@ -75,12 +75,12 @@ fn test() {
             "sum { f 3, f plus left_operand f $t right_operand 4, ...z }",
         );
         println!(
-            "unparse: {}",
+            "  unparse: {}",
             unparse_adt::unparse::<supsorts::Nat, L, _, _>(&heap, &v)
         );
         println!(
-            "pattern: {:?}",
-            pattern_dyn::to_pattern::<sorts::Nat, L, _, _, LSub, _>(&heap, &v, &ls).unwrap()
+            "  pattern: {:?}",
+            pattern_dyn::to_pattern::<supsorts::Nat, L, _, _, LSub, _>(&heap, &v, &ls).unwrap()
         );
     }
     // {
@@ -93,7 +93,7 @@ fn test() {
     //     "#,
     //     );
     //     println!(
-    //         "unparse: {}",
+    //         "  unparse: {}",
     //         file_tmf::unparse::file::<L, _, _, _, _>(&heap, &v)
     //     );
     //     for item in file_tmf::items(&heap, &v) {

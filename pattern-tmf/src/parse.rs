@@ -48,7 +48,6 @@ where
             self.pc.pop_word();
             OrVariable::Ignored(std::marker::PhantomData)
         } else {
-            println!("dbg: falling through in ov");
             OrVariable::Ctor(self.covisit(heap))
         };
         cstfy_ok(
@@ -101,7 +100,6 @@ where
             self.pc.pop_word();
             OrVariableZeroOrMore::Ignored(std::marker::PhantomData)
         } else {
-            println!("dbg: falling through in ovzom");
             OrVariableZeroOrMore::Ctor(self.covisit(heap))
         };
         cstfy_ok(

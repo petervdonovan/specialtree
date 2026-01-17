@@ -95,11 +95,13 @@ impl<L, LSub, SortId> AspectVisitor for PatternBuilder<L, LSub, SortId> {
     type A = VisitationAspect;
 }
 
-impl<L, LSub, CurrentNode, Heap, SortId> VisitEventSink<CurrentNode, Heap>
+impl<L, LSub, CurrentNode, Heap, SortId, ElemLWordInLSub> VisitEventSink<CurrentNode, Heap>
     for PatternBuilder<L, LSub, SortId>
 where
-    CurrentNode: Implements<Heap, LSub, VisitationAspect>,
-    <CurrentNode as Implements<Heap, LSub, VisitationAspect>>::LWord: NamesLangspecSort<LSub>,
+    CurrentNode: Implements<Heap, L, VisitationAspect>,
+    // <CurrentNode as Implements<Heap, L, VisitationAspect>>::LWord: NamesLangspecSort<LSub>,
+    CurrentNode: Implements<Heap, LSub, VisitationAspect, LWord = ElemLWordInLSub>,
+    ElemLWordInLSub: names_langspec_sort::NamesLangspecSort<LSub>,
     SortId: Clone,
 {
     fn push(
@@ -119,18 +121,13 @@ where
         assert!(self.stack.len() >= total as usize);
         let components = self.stack.split_off(self.stack.len() - (total as usize));
         self.stack.push(DynPattern::Composite(CompositePattern {
-            rs_ty:
-                self.int2sid
-                    .get(
-                        <<CurrentNode as Implements<Heap, LSub, VisitationAspect>>::LWord as NamesLangspecSort<
-                            LSub,
-                        >>::sort_idx() as usize,
-                    )
-                    .unwrap()
-                    .clone(),
+            rs_ty: self
+                .int2sid
+                .get(<ElemLWordInLSub as NamesLangspecSort<LSub>>::sort_idx() as usize)
+                .unwrap()
+                .clone(),
             components,
         }));
-        // todo!()
     }
 
     fn deconstruction_failure(&mut self) {
